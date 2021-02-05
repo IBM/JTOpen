@@ -106,7 +106,7 @@ extends StoppableThread
             if (invocationTargetException_ != null) {
                 InvocationTargetException ite = invocationTargetException_;
                 invocationTargetException_ = null; 
-                throw invocationTargetException_ ;
+                throw ite ;
             }
 
             // Look in the hashtable to see if the correct reply has been
