@@ -19,9 +19,9 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeSupport;
 import java.beans.VetoableChangeListener;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Enumeration;
 import java.util.Vector;
 
 
@@ -176,7 +176,6 @@ public class IFSFileOutputStream extends OutputStream
       throw new NullPointerException("system");
     if (name == null)
       throw new NullPointerException("name");
-    IFSFileInputStream.validateShareOption(shareOption);
 
     myConstructor(system, name, shareOption, append, -1);   // @C2c
   }
@@ -210,7 +209,6 @@ public class IFSFileOutputStream extends OutputStream
       throw new NullPointerException("system");
     if (name == null)
       throw new NullPointerException("name");
-    IFSFileInputStream.validateShareOption(shareOption);
     if (ccsid < 0)   // @C2a
       throw new ExtendedIllegalArgumentException("ccsid",
                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -233,7 +231,10 @@ public class IFSFileOutputStream extends OutputStream
   public IFSFileOutputStream(IFSFile file)
     throws AS400SecurityException, IOException
   {
-    this((file==null ? null : file.getSystem()), file, SHARE_ALL, false);
+    if (file == null)
+      throw new NullPointerException("file");
+
+    myConstructor(file.getSystem(), file.getAbsolutePath(),  SHARE_ALL, false, -1);
   }
 
 
@@ -265,8 +266,7 @@ public class IFSFileOutputStream extends OutputStream
       throw new NullPointerException("file");
     else if (system == null)
       throw new NullPointerException("system");
-    IFSFileInputStream.validateShareOption(shareOption);
-
+ 
     myConstructor(system, file.getAbsolutePath(), shareOption, append, -1);  // @C2c
   }
 
@@ -291,7 +291,6 @@ public class IFSFileOutputStream extends OutputStream
   {
     // Validate arguments.
     if (file == null) throw new NullPointerException("file");
-    IFSFileInputStream.validateShareOption(shareOption);
 
     myConstructor(file.getSystem(), file.getAbsolutePath(), shareOption, append, -1);
   }
@@ -326,7 +325,6 @@ public class IFSFileOutputStream extends OutputStream
       throw new NullPointerException("system");
     if (file == null)
       throw new NullPointerException("file");
-    IFSFileInputStream.validateShareOption(shareOption);
     if (ccsid < 0)   // @C2a
       throw new ExtendedIllegalArgumentException("ccsid",
                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -359,7 +357,6 @@ public class IFSFileOutputStream extends OutputStream
     // Validate arguments.
     if (file == null)
       throw new NullPointerException("file");
-    IFSFileInputStream.validateShareOption(shareOption);
     if (ccsid < 0)
       throw new ExtendedIllegalArgumentException("ccsid",
                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -376,6 +373,9 @@ public class IFSFileOutputStream extends OutputStream
                       int ccsid) // @A2A
     throws AS400SecurityException, IOException
   {
+    // Validate the share option
+    IFSFileInputStream.validateShareOption(shareOption);
+    
     // Assume the arguments have been been validated.
     append_ = append;
     ccsid_ = ccsid;
@@ -420,7 +420,11 @@ public class IFSFileOutputStream extends OutputStream
   public IFSFileOutputStream(IFSJavaFile file)
     throws AS400SecurityException, IOException
   {
-    this((file==null ? null : file.getSystem()), file, SHARE_ALL, false);
+    if (file == null)                         
+      throw new NullPointerException("file");
+
+    myConstructor( file.getSystem(), file.getAbsolutePath().replace (File.separatorChar, IFSFile.separatorChar), SHARE_ALL, false, -1);
+
   }
 
   // @A3A
@@ -451,7 +455,7 @@ public class IFSFileOutputStream extends OutputStream
       throw new NullPointerException("system");
     IFSFileInputStream.validateShareOption(shareOption);
 
-    myConstructor(system, file.getAbsolutePath().replace (file.separatorChar, IFSFile.separatorChar), shareOption, append, -1);
+    myConstructor(system, file.getAbsolutePath().replace (File.separatorChar, IFSFile.separatorChar), shareOption, append, -1);
   }
 
 
@@ -488,7 +492,7 @@ public class IFSFileOutputStream extends OutputStream
       throw new ExtendedIllegalArgumentException("ccsid",
                  ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
-    myConstructor(system, file.getAbsolutePath().replace (file.separatorChar, IFSFile.separatorChar), shareOption, append, ccsid);
+    myConstructor(system, file.getAbsolutePath().replace (File.separatorChar, IFSFile.separatorChar), shareOption, append, ccsid);
   }
 
 

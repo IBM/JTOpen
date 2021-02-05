@@ -20,6 +20,7 @@ import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeSupport;
 import java.beans.VetoableChangeListener;
 import java.io.InputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Vector;
@@ -171,7 +172,10 @@ public class IFSFileInputStream extends InputStream
   public IFSFileInputStream(IFSFile file)
     throws AS400SecurityException, IOException
   {
-    this((file==null ? null : file.getSystem()), file, SHARE_ALL);
+    if (file == null)                         
+      throw new NullPointerException("file");
+
+    initialize (file.getSystem(), file, SHARE_ALL);
   }
 
 
@@ -195,6 +199,12 @@ public class IFSFileInputStream extends InputStream
       throw new NullPointerException("file");
     else if (system == null)
       throw new NullPointerException("system");
+    
+    initialize(system,file,shareOption); 
+  }
+
+
+  private void initialize(AS400 system, IFSFile file, int shareOption) throws AS400SecurityException, IOException {
     validateShareOption(shareOption);
     initializeTransient();
 
@@ -204,8 +214,8 @@ public class IFSFileInputStream extends InputStream
     // Connect to the byte stream server, and
     // open the file.
     connectAndOpen();
+    
   }
-
 
   /**
    Creates a file input stream to read from the file specified by <i>file</i>.
@@ -219,7 +229,10 @@ public class IFSFileInputStream extends InputStream
                             int     shareOption)
     throws AS400SecurityException, IOException
   {
-    this((file==null ? null : file.getSystem()), file, shareOption);
+    if (file == null)                         // @A5c Swapped order of checks.
+      throw new NullPointerException("file");
+
+    initialize(file.getSystem(), file, shareOption);
   }
 
 
@@ -254,7 +267,9 @@ public class IFSFileInputStream extends InputStream
   public IFSFileInputStream(IFSJavaFile file)
     throws AS400SecurityException, IOException
   {
-    this((file==null ? null : file.getSystem()), file, SHARE_ALL);
+    if (file == null)                         // @A5c Swapped order of checks.
+      throw new NullPointerException("file");
+    initialize( file.getSystem(), file, SHARE_ALL);
   }
 
   // @A1A Added IFSJavaFile support
@@ -278,17 +293,23 @@ public class IFSFileInputStream extends InputStream
       throw new NullPointerException("file");
     else if (system == null)
       throw new NullPointerException("system");
+    initialize(system,file,shareOption); 
+    
+  }
+  //@A1A End of IFSJavaFile support.
+
+
+  private void initialize(AS400 system, IFSJavaFile file, int shareOption) throws AS400SecurityException, IOException {
     validateShareOption(shareOption);
     initializeTransient();
 
     // Instantiate a file descriptor.
-    fd_ = new IFSFileDescriptor(system, file.getAbsolutePath().replace (file.separatorChar, IFSFile.separatorChar), shareOption, this);
+    fd_ = new IFSFileDescriptor(system, file.getAbsolutePath().replace (File.separatorChar, IFSFile.separatorChar), shareOption, this);
 
     // Connect to the byte stream server, and open the file.
     connectAndOpen();
+    
   }
-  //@A1A End of IFSJavaFile support.
-
 
   /**
    Creates a file input stream to read from the file specified by <i>file</i>.
@@ -302,7 +323,10 @@ public class IFSFileInputStream extends InputStream
                             int     shareOption)
     throws AS400SecurityException, IOException
   {
-    this((file==null ? null : file.getSystem()), file, shareOption);
+    if (file == null)                         
+      throw new NullPointerException("file");
+
+    initialize( file.getSystem(), file, shareOption);
   }
 
 

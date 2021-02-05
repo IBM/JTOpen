@@ -32,6 +32,7 @@ import java.beans.PropertyVetoException;
 import java.beans.VetoableChangeSupport;
 import java.beans.VetoableChangeListener;
 import java.io.InterruptedIOException;
+import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException; //@A6A
@@ -309,7 +310,11 @@ public class IFSFile
       throw new NullPointerException("directory");
     else if (name == null)
       throw new NullPointerException("name");
+    initialize(system,directory,name); 
+   
+  }
 
+  private void initialize(AS400 system, String directory, String name) {
     initializeTransient();
 
     // Build the file's full path name.  Prepend a separator character
@@ -333,6 +338,7 @@ public class IFSFile
     system_ = system;
   }
 
+
   /**
    Constructs an IFSFile object.
    It creates an IFSFile instance that represents the integrated file system
@@ -347,6 +353,7 @@ public class IFSFile
                  IFSJavaFile directory,
                  String  name)
   {
+    
     // Validate arguments.
     if (system == null)
       throw new NullPointerException("system");
@@ -354,11 +361,14 @@ public class IFSFile
       throw new NullPointerException("directory");
     else if (name == null)
       throw new NullPointerException("name");
+    initialize(system, directory, name); 
+  }
 
+  private void initialize(AS400 system, IFSJavaFile directory, String name) {
     initializeTransient();
 
     // Build the file's full path name.
-    path_ = directory.getAbsolutePath().replace (directory.separatorChar, separatorChar);
+    path_ = directory.getAbsolutePath().replace (File.separatorChar, separatorChar);
     if (path_.charAt(path_.length() - 1) != separatorChar)
     {
       // Append a separator character.
@@ -368,6 +378,7 @@ public class IFSFile
 
     system_ = system;
   }
+
 
   //@A7A  Added new IFSFile method to support caching file attributes.
   /**
@@ -440,10 +451,10 @@ public class IFSFile
 **/
   public IFSFile(IFSFile directory, String name)
   {
+    if (directory == null)
+      throw new NullPointerException("directory");
     
-    this((directory == null ? null : directory.getSystem()),
-         (directory == null ? null : directory.getPath()),
-         name);
+   initialize(directory.getSystem(), directory.getPath(),name);
   }
 
 
