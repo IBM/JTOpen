@@ -83,7 +83,6 @@ class AS400XChgRandSeedReplyDS extends ClientAccessDataStream
      * @return serverAttributes
      */
     public byte getServerAttributes() {
-      // TODO Auto-generated method stub
       return get8bit(5); 
     }
 

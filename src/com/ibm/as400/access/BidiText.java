@@ -150,6 +150,17 @@ public class BidiText
     return true;
   }
 
+  public boolean equals(Object other)
+  {
+    if (other instanceof BidiText) {
+      return equals(((BidiText)other)); 
+    } else {
+      return false; 
+    }
+  }
+
+  
+  
 /**
  *  Replaces the character data <em>reference</em> in the BidiText object.
  *  Note that the data is not duplicated, only its

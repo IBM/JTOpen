@@ -59,7 +59,7 @@ public class AS400 implements Serializable
 {
     private static final String CLASSNAME = "com.ibm.as400.access.AS400";
     static boolean jdk14 = false;
-
+    
     static
     {
         if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);

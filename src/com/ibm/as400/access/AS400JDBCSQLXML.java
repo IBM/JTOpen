@@ -250,6 +250,11 @@ implements Serializable
             case SQLData.CLOB_LOCATOR:
             case SQLData.DBCLOB_LOCATOR:
             case SQLData.NCLOB_LOCATOR:
+              if (clobLocatorValue_ == null) { 
+                JDError.throwSQLException(this, JDError.EXC_INTERNAL, "clobLocatorValue_ is null");
+                return null; 
+              }
+
                 r = clobLocatorValue_.getCharacterStream();
                 break;
             case SQLData.BLOB:
@@ -290,6 +295,11 @@ implements Serializable
             case SQLData.DBCLOB_LOCATOR:
             case SQLData.CLOB_LOCATOR:
             case SQLData.NCLOB_LOCATOR:
+              if (clobLocatorValue_ == null) { 
+                JDError.throwSQLException(this, JDError.EXC_INTERNAL, "blobLocatorValue_ is null");
+                return null; 
+              }
+
                 s = clobLocatorValue_.getSubString((long) 1, (int) clobLocatorValue_.length());
                 break;
             case SQLData.BLOB:
@@ -308,6 +318,11 @@ implements Serializable
 
                 } else
                 {
+                  if (blobLocatorValue_ == null) { 
+                    JDError.throwSQLException(this, JDError.EXC_INTERNAL, "blobLocatorValue_ is null");
+                    return null; 
+                  }
+
                     InputStream is = blobLocatorValue_.getBinaryStream();
                     bytes = new byte[4];
                     try
@@ -791,6 +806,10 @@ implements Serializable
             case SQLData.DBCLOB_LOCATOR:
             case SQLData.CLOB_LOCATOR:
             case SQLData.NCLOB_LOCATOR:
+              if (clobLocatorValue_ == null) { 
+                JDError.throwSQLException(this, JDError.EXC_INTERNAL, "clobLocatorValue_ is null");
+                return 0; 
+              }
                 return clobLocatorValue_.setString(position, string, offset, lengthOfWrite);
             default:
                 JDError.throwSQLException(this, JDError.EXC_INTERNAL, "Invalid value: "+ lobType);
@@ -838,15 +857,25 @@ implements Serializable
             case SQLData.CLOB_LOCATOR:
             case SQLData.NCLOB_LOCATOR:
                 //This will also be the case for XML column data
-                if(isXML_) //@xml6 if xml column and thus also a locator, then get bytes from bloblocator code
+                if(isXML_) {//@xml6 if xml column and thus also a locator, then get bytes from bloblocator code
+                    if (blobLocatorValue_ == null) { 
+                      JDError.throwSQLException(this, JDError.EXC_INTERNAL, "blobLocatorValue_ is null");
+                      return null; 
+                    }
                     is = blobLocatorValue_.getBinaryStream();   //@xml6 (no trim of XML declaration because it is binary)
-                else
+                } else
+                  
                 {
 
                     try
                     {
                         // Check for an internal encoding in the string. If there is
                         // one, we must use it
+                      if (clobLocatorValue_ == null) { 
+                        JDError.throwSQLException(this, JDError.EXC_INTERNAL, "clobLocatorValue_ is null");
+                        return null; 
+                      }
+                      
                         String clobString = clobLocatorValue_.getSubString((long)1, (int)clobLocatorValue_.length());
                         String internalEncoding = getInternalEncoding(clobString);
                         if (internalEncoding != null)
@@ -878,6 +907,10 @@ implements Serializable
                 // It appears the that binary encoding will be used the most.. However,
                 // this is not useful from a DB perspective since it cannot be searched.
                 //
+                if (blobLocatorValue_ == null) { 
+                  JDError.throwSQLException(this, JDError.EXC_INTERNAL, "blobLocatorValue is null"); 
+                  return null;
+                }
                 is = blobLocatorValue_.getBinaryStream();
 
                 break;

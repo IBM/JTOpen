@@ -539,7 +539,6 @@ implements DBData
         return totalDataLengthsFromHost_[colIndex];
     }
     public int[] getArrayDataLengthsFromHost() {
-      // TODO Auto-generated method stub
       return arrayDataLengthsFromHost_;
     }
 
