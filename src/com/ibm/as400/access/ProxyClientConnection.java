@@ -329,7 +329,13 @@ class ProxyClientConnection extends PxClientConnectionAdapter
         {
             throw (Error)e2;
         }
-        return new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        
+        InternalErrorException ex = new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        ex.initCause(e2);
+        if (Trace.isTraceProxyOn()) {
+          Trace.log(Trace.PROXY, "rethrow @", ex);
+        }
+        return ex ;
     }
 
     // Rethrows exceptions returned as InvocationTargetExceptions.  This provides some common exception handling.

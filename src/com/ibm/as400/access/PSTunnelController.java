@@ -208,6 +208,8 @@ class PSTunnelController
 		try
 		{
 			// Get a request.
+      if (Trace.isTraceProxyOn())
+        Trace.log(Trace.PROXY,this,"calling factory_.getNextDS"); 
 			PxReqSV request = (PxReqSV) factory_.getNextDS (inputStream);
 			if (Trace.isTraceProxyOn ())
 				request.dump (Trace.getPrintWriter ());

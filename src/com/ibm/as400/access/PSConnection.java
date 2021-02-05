@@ -210,6 +210,9 @@ Processes requests until the connection is closed.
             while (canContinue ()) {            
 
                 // Get the next request.
+              if (Trace.isTraceProxyOn())
+                Trace.log(Trace.PROXY,this,"calling factory_.getNextDS"); 
+
                 PxReqSV request = (PxReqSV) factory_.getNextDS (input_);
                 if (Trace.isTraceProxyOn ()) {
                     trace_.print(getName() + " - ");
@@ -231,6 +234,9 @@ Processes requests until the connection is closed.
             }
         }
         catch (IOException e) {
+            if (Trace.isTraceProxyOn()) { 
+              Trace.log(Trace.PROXY, "Exited run loop because of exception", e);
+            }
             handleIOException (e);
         }        
     }

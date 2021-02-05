@@ -183,6 +183,8 @@ class PSController extends StoppableThread
                 }
 
                 // Get the next request.
+                if (Trace.isTraceProxyOn())
+                  Trace.log(Trace.PROXY,this,"calling factory_.getNextDS"); 
                 PxReqSV request = (PxReqSV)factory_.getNextDS(input_);
                 if (Trace.isTraceProxyOn()) request.dump(Trace.getPrintWriter());
 

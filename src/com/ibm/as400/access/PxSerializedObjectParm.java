@@ -94,6 +94,11 @@ Returns the Object value.
     }
 
 
+    public static String[][] permittedIoExceptions = {
+        {"com.ibm.as400.access.ConvTableReader", null },
+        {"java.io.Reader", "mark"},
+        {"java.io.Reader", "reset"},
+    };
 
 /**
 Loads this datastream by reading from an input stream.
@@ -113,8 +118,37 @@ Loads this datastream by reading from an input stream.
             value_ = objectInput.readObject ();
             
             if (value_ instanceof IOException) { 
-              throw (IOException) value_; 
+              if (value_ instanceof ExtendedIOException) {
+                // Do not throw ExtendedIOException since toolbox APIS return that. 
+              } else {
+                // 
+                // There are some cases where valid IO exceptions are returned.. 
+                // Let those exceptions through
+                
+                boolean found = false; 
+          StackTraceElement[] stackTrace = ((IOException) value_)
+              .getStackTrace();
+          for (int i = 0; i < stackTrace.length && (!found); i++) {
+            for (int j = 0; j < permittedIoExceptions.length
+                && (!found); j++) {
+              if (stackTrace[i].getClassName()
+                  .equals(permittedIoExceptions[j][0])) {
+                if ((permittedIoExceptions[j][1] == null) || 
+                    stackTrace[i].getMethodName()
+                    .equals(permittedIoExceptions[j][1])) {
+                  found = true;
+                }
+              }
             }
+          }
+          if (!found) {
+            if (Trace.isTraceErrorOn())
+              Trace.log(Trace.ERROR,
+                  "Throwing deserializing IOException " + value_);
+            throw (IOException) value_;
+          }
+        }
+      }
         }
         catch (ClassNotFoundException e) {
             if (Trace.isTraceErrorOn())

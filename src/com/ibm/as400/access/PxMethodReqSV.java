@@ -146,11 +146,16 @@ extends PxReqSV
             return new PxReturnRepSV (pxTable_, returnValue, arguments, returnArguments);
         }
         catch (InvocationTargetException e) {
+          if (Trace.isTraceErrorOn () || Trace.isTraceProxyOn()) {
+              Trace.log(Trace.ERROR, "Caught InvocationTargetException "+e); 
+          }
             return new PxExceptionRepSV (e.getTargetException ());
         }
         catch (Exception e) {
-            if (Trace.isTraceErrorOn ())
+            if (Trace.isTraceErrorOn () || Trace.isTraceProxyOn()) {
+                Trace.log(Trace.ERROR, this+": Caught Exceptionn "); 
                 Trace.log (Trace.ERROR, e.toString (), e);
+            }
 
             // If a method can not be called, there is a good chance that a mod x+1                                @A1A
             // client is connecting to a mod x proxy server.  This is bad, but we                                  @A1A

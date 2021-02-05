@@ -213,29 +213,30 @@ Loads this datastream by reading from an input stream.
 
 @exception IOException  If an error occurs.                
 **/
-    public void readFrom (InputStream input, PxDSFactory factory)
-        throws IOException
-    {
-        super.readFrom (input, factory);
-        DataInputStream dataInput = new DataInputStream (input);
-        clearParms ();
-        int numberOfParms = dataInput.readInt ();
-        for (int i = 0; i < numberOfParms; ++i) {
-            PxParm parameter = (PxParm) factory.getNextDS (input);
-            addParm (parameter);
-        }
+  public void readFrom(InputStream input, PxDSFactory factory)
+      throws IOException {
+    super.readFrom(input, factory);
+    DataInputStream dataInput = new DataInputStream(input);
+    clearParms();
+    int numberOfParms = dataInput.readInt();
+    for (int i = 0; i < numberOfParms; ++i) {
+      if (Trace.isTraceProxyOn())
+        Trace.log(Trace.PROXY, this, ".readFrom parm ("+i+"/"+numberOfParms+") calling factory_.getNextDS");
+
+      PxParm parameter = (PxParm) factory.getNextDS(input);
+      addParm(parameter);
     }
+  }
 
-
-
-
-/**
-Writes the contents of the datastream to an output stream.
-
-@param output   The output stream.
-
-@exception IOException  If an error occurs.                
-**/
+  /**
+   * Writes the contents of the datastream to an output stream.
+   * 
+   * @param output
+   *          The output stream.
+   * 
+   * @exception IOException
+   *              If an error occurs.
+   **/
     public void writeTo (OutputStream output)
         throws IOException
     {

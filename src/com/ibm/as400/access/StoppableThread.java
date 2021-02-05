@@ -24,7 +24,7 @@ this is necessary.
 abstract class StoppableThread
 extends Thread 
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+  public static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
 
@@ -32,7 +32,6 @@ extends Thread
 
 
     // Private data.
-    private static boolean DEBUG_   = false;
 
     private boolean     continue_   = true;
 
@@ -52,8 +51,8 @@ extends Thread
     {
         super(name);
 
-        if (DEBUG_)
-            System.out.println ("Thread:start:" + getName() + "(" + getClass() + ").");
+        if (Trace.isTraceInformationOn())
+          Trace.log(Trace.INFORMATION, "Thread:start:" + getName() + "(" + getClass() + ").");
     }
 
 
@@ -82,8 +81,8 @@ Stops the thread safely.
 **/
     public void stopSafely ()
     {
-        if (DEBUG_)
-            System.out.println ("Thread:stop:" + getName() + "(" + getClass() + ").");
+        if (Trace.isTraceInformationOn())
+            Trace.log(Trace.INFORMATION, "Thread:stop:" + getName() + "(" + getClass() + ").");
 
         continue_ = false;
     }

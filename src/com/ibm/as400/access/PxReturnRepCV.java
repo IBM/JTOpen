@@ -64,7 +64,9 @@ Processes the reply.
         catch (Exception e) {
             if (Trace.isTraceErrorOn ())
                 Trace.log (Trace.ERROR, e.getMessage (), e);
-            throw new InternalErrorException (InternalErrorException.PROTOCOL_ERROR);
+             InternalErrorException iee = new InternalErrorException (InternalErrorException.PROTOCOL_ERROR);
+            iee.initCause(e); 
+            throw iee;
         }
     }
       

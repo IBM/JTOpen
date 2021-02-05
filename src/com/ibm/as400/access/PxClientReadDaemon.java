@@ -98,14 +98,23 @@ extends StoppableThread
 
             // If any relevant exceptions were caught by the read daemon
             // thread, then throw them now.
-            if (ioException_ != null)
-                throw ioException_;
-            if (invocationTargetException_ != null)
-                throw invocationTargetException_;
+            if (ioException_ != null) {
+                IOException ioEx = ioException_; 
+                ioException_ = null; 
+                throw ioEx;
+            }
+            if (invocationTargetException_ != null) {
+                InvocationTargetException ite = invocationTargetException_;
+                invocationTargetException_ = null; 
+                throw invocationTargetException_ ;
+            }
 
             // Look in the hashtable to see if the correct reply has been
             // read.
             synchronized(this) {
+                if (Trace.isTraceProxyOn()) { 
+                  Trace.log(Trace.PROXY, this, "correlationId is "+correlationId);
+                }
                 if (replies_.containsKey(key)) {
                     PxRepCV reply = (PxRepCV)replies_.get(key);
                     replies_.remove(key);
@@ -152,7 +161,9 @@ extends StoppableThread
         PxRepCV reply;
         try {
             while (canContinue()) {
-                // @B1D try {                                                               // @A1A
+                    ioException_ = null;
+                    if (Trace.isTraceProxyOn())
+                      Trace.log(Trace.PROXY,this,"calling factory_.getNextDS"); 
                     reply = (PxRepCV)factory_.getNextDS(input_);
                     if (Trace.isTraceProxyOn())
                         reply.dump (Trace.getPrintWriter ());
@@ -175,15 +186,10 @@ extends StoppableThread
                     // Otherwise, process it and forget about it!
                     else
                         reply.process();
-                // @B1D }                                                                   // @A1A
-                // @B1D catch(SocketException e) {                                          // @A1A
-                // @B1D     // Ignore this.  Netscape is throwing this in certain           // @A1A
-                // @B1D     // situations.  Try again and it will go away!                  // @A1A
-                // @B1D     // If we get it a few times in a row, then rethrow it.          // @A1A
-                // @B1D     if (++exceptionCounter >= 3)                                    // @A1A
-                // @B1D         throw e;                                                    // @A1A
-                // @B1D }                                                                   // @A1A
             }
+            if (Trace.isTraceProxyOn ())
+              Trace.log(Trace.PROXY, this, "Exited while loop");            
+            
         }
         catch(InvocationTargetException e) {
             invocationTargetException_ = e;
@@ -195,8 +201,8 @@ extends StoppableThread
             // resulted in the socket being closed.
             if ((! wasStoppedSafely()) && (!(e instanceof EOFException))) {
                 ioException_ = e;
-                if (Trace.isTraceErrorOn ())
-                    Trace.log(Trace.ERROR, "Ending read daemon", e);
+                if (Trace.isTraceProxyOn ())
+                    Trace.log(Trace.PROXY, "Ending read daemon", e);
             }
 
             // No need to throw exception (there is nobody to catch it!)
@@ -205,7 +211,11 @@ extends StoppableThread
                 notifyAll();
             }
         }
-
+        if (Trace.isTraceProxyOn()) {
+          Trace.log(Trace.PROXY, this, "Leaving running loop "
+              + "invocationTargetException_="+invocationTargetException_+
+              " ioException_="+ioException_);
+        }
         running_ = false;
     }
 
@@ -215,6 +225,10 @@ extends StoppableThread
     public PxRepCV getReply(long CID, InputStream input_)
         throws InvocationTargetException, IOException
     {
+      
+      if (Trace.isTraceProxyOn())
+        Trace.log(Trace.PROXY, this, "getReply");
+
     //  try
     //  {
            Long key = new Long(CID);
@@ -229,6 +243,10 @@ extends StoppableThread
            while(true)
            {
               PxRepCV reply;
+              
+              if (Trace.isTraceProxyOn())
+                Trace.log(Trace.PROXY,this,"calling factory_.getNextDS"); 
+
               reply = (PxRepCV)factory_.getNextDS(input_);
 
               if (Trace.isTraceProxyOn())
@@ -240,8 +258,10 @@ extends StoppableThread
                     // waiting for it and they will ask for it when the
                     // time is right.
               long correlationId = reply.getCorrelationId();
-              if (correlationId != CID)
+              if (correlationId != CID) {
+                
                  replies_.put(new Long(correlationId), reply);
+              }
               else
               {
                  reply.process();

@@ -369,10 +369,13 @@ Closes the connection to the proxy server.
         try {
             reply = (PxRepCV) readDaemon_.getReply(correlationId);
             returnValue = reply.process ();
+            if (Trace.isTraceProxyOn())
+              Trace.log (Trace.PROXY, this, "received "+returnValue);
+            
         }
         catch (IOException e) {
-            if (Trace.isTraceErrorOn() ||  Trace.isTraceProxyOn())
-                Trace.log (Trace.ERROR, "Error when receiving reply from proxy server", e);
+            if (Trace.isTraceErrorOn() || Trace.isTraceProxyOn() )
+              Trace.log (Trace.ERROR, "Error when receiving reply from proxy server", e);
             if (e instanceof NotSerializableException) {
               throw new ProxyException (ProxyException.VERSION_MISMATCH,e);
             } else {
@@ -432,7 +435,13 @@ Sends a request to the proxy server and receives and processes a reply.
     {
         if (! tunnel_)                                                     // @D1a
         {
+           if (Trace.isTraceProxyOn()) {
+             Trace.log(Trace.PROXY, this, "Sending request with id "+request.getCorrelationId());
+           }
            send (request);
+           if (Trace.isTraceProxyOn()) {
+             Trace.log(Trace.PROXY, this, "Receiving with id "+request.getCorrelationId());
+           }
            return receive (request.getCorrelationId());
         }
         else                                                               // @D1a

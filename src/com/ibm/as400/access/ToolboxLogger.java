@@ -177,12 +177,21 @@ class ToolboxLogger
     // Note: Even though the Trace class has a setTraceThreadOn() method, there is no THREAD category.  Turning on "thread" tracing merely causes other trace categories to include thread-related data in their messages.
     switch (category)
     {
-      case Trace.INFORMATION: return Level.INFO;
-      case Trace.WARNING: return Level.WARNING;
-      case Trace.ERROR: return Level.SEVERE;
-      case Trace.DIAGNOSTIC: return Level.FINE;
-      case Trace.JDBC: case Trace.PCML: case Trace.PROXY: return Level.FINER;
-      case Trace.CONVERSION: case Trace.DATASTREAM: return Level.FINEST;
+      case Trace.INFORMATION: 
+        return Level.INFO;
+      case Trace.WARNING: 
+        return Level.WARNING;
+      case Trace.ERROR: 
+        return Level.SEVERE;
+      case Trace.DIAGNOSTIC: 
+        return Level.FINE;
+      case Trace.JDBC: 
+      case Trace.PCML: 
+      case Trace.PROXY: 
+        return Level.FINER;
+      case Trace.CONVERSION: 
+      case Trace.DATASTREAM: 
+          return Level.FINEST;
       default:
         throw new ExtendedIllegalArgumentException("category ("
                                                    + Integer.toString(category)

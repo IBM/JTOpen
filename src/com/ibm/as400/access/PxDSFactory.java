@@ -47,6 +47,10 @@ Returns the next datastream object from the input stream.
     public PxDSRV getNextDS (InputStream input)
         throws IOException
     {
+        if (Trace.isTraceProxyOn()) {
+          Trace.log(Trace.PROXY,  this, "getNextDS");
+        }
+        try { 
         // Read the type of the next datastream.
         DataInputStream dataInput = new DataInputStream (input);
         Short type = new Short (dataInput.readShort());
@@ -56,7 +60,7 @@ Returns the next datastream object from the input stream.
         if (factory_.containsKey (type)) {
             PxDSRV template = (PxDSRV) factory_.get (type);                           
             if (Trace.isTraceProxyOn())
-                Trace.log(Trace.PROXY, "Factory read ds type " + type + " (" + template + ").");
+                Trace.log(Trace.PROXY, "getNextDS. Factory read ds type " + type + " (" + template + ").");
 
             // We can not use the datastream template directly from the 
             // hashtable, since we may need more than one at a time.  Instead,
@@ -73,6 +77,8 @@ Returns the next datastream object from the input stream.
             // Loads the datastream by reading data from the input stream.  The
             // actually datastream subclass implements the details.
             datastream.readFrom (input, this);
+            if (Trace.isTraceProxyOn())
+              Trace.log(Trace.PROXY, "getNextDS. returning "+datastream); 
             return datastream;
         }
 
@@ -85,6 +91,12 @@ Returns the next datastream object from the input stream.
             if (Trace.isTraceOn ())
                 Trace.log (Trace.ERROR, "Ds type " + type + " not registered in factory.");
             throw new InternalErrorException (InternalErrorException.DATA_STREAM_UNKNOWN);
+        }
+        } catch (IOException e) { 
+          if (Trace.isTraceProxyOn()) { 
+            Trace.log(Trace.PROXY, this, "exception thrown from getNextDS "+e);
+          }
+          throw e; 
         }
     }
 

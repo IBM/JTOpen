@@ -19,7 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
 The PxExceptionRepCV class represents the client
-view of an excpetion reply.
+view of an exception reply.
 **/
 class PxExceptionRepCV
 extends PxRepCV
@@ -49,14 +49,22 @@ namely the exception contained in the reply.
     public Object process ()
         throws InvocationTargetException
     {
+        if (Trace.isTraceProxyOn()) { 
+          Trace.log(Trace.PROXY, this, "process");
+        }
         Throwable e = ((Throwable) (((PxParm) getParm (0)).getObjectValue ())).fillInStackTrace ();
 
-        if (Trace.isTraceErrorOn ()) {
+        if (Trace.isTraceErrorOn ()  || Trace.isTraceProxyOn()) {
             String stackTrace = ((PxStringParm) getParm (1)).getStringValue ();
             Trace.log (Trace.ERROR, "Exception thrown on proxy server: " + stackTrace, e);
         }
 
-        throw new InvocationTargetException (e);
+        InvocationTargetException ite = new InvocationTargetException (e);
+        if (Trace.isTraceProxyOn()) { 
+          Trace.log(Trace.PROXY, this, "process returning "+ite+" from "+e);
+        }
+        
+        throw ite; 
     }
 }
 
