@@ -962,6 +962,7 @@ public class AS400ImplRemote implements AS400Impl {
 
       if (ccsid_ == 0 || ccsid_ == 65535) {
         howObtained = 2;
+        // Note.  This will call the portmapper and signon server. 
         ccsidValues[howObtained] = getCcsidFromServer();
         ccsid_ = ccsidValues[howObtained];
       }

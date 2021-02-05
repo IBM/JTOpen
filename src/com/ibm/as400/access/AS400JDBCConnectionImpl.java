@@ -293,6 +293,7 @@ extends AS400JDBCConnection
 
    
    String portNumberString = "*N";
+   int portNumber = 0; 
 
   private String systemName_; 
 
@@ -3492,7 +3493,7 @@ throws SQLException
         {
           try
           {
-            int portNumber = 0; 
+            portNumber = 0; 
             // Check to see if the port property is set.  If so, 
             // Then we must set the port in the PortMapper and 
             // tell the as400 object not to use the signon server. 
@@ -4100,11 +4101,12 @@ throws SQLException
                 //
                 // @AB3A 
                 
-                if (as400_ != null) { 
+                if ((as400_ != null) && (portNumber == 0)) { 
+                  // getCcsid will contact the server, so we only want to do that if the port is not set. 
                   thisRequestCcsid = as400_.getCcsid(); 
                 }
-                ConvTable tempConverter = ConvTable.getTable(thisRequestCcsid, null); //@P0A
-
+                ConvTable libraryNameConverter = ConvTable.getTable(thisRequestCcsid, null); //@P0A
+                ConvTable ccsid37Converter =  ConvTable.getTable(37, null);
 
                 // @E2D // Do not set the client CCSID.  We do not want
                 // @E2D // the system to convert data, since we are going
@@ -4269,8 +4271,11 @@ throws SQLException
                 }                                                                       // @ECA
 
                 // Default SQL schema.
-                if (defaultSchema_ != null)
-                    request.setDefaultSQLLibraryName (defaultSchema_, tempConverter);
+                if (defaultSchema_ != null) {
+                    
+                    request.setDefaultSQLLibraryName (defaultSchema_, libraryNameConverter);
+                    
+                }
 
                 // There is no need to tell the system what our code
                 // page is, nor is there any reason to get a translation
@@ -4495,7 +4500,7 @@ throws SQLException
                         // @J2a
                         RDBName.append("                  ");                                                     // @J2a
                         RDBName.setLength(18);                                                                    // @J2a
-                        request.setRDBName(RDBName.toString().toUpperCase(), tempConverter);                      // @J2a
+                        request.setRDBName(RDBName.toString().toUpperCase(), ccsid37Converter);                   // @J2a
                         if (JDTrace.isTraceOn ())                                                                 // @J2a
                             JDTrace.logInformation (this, "RDB Name = -->" + RDBName + "<--");                    // @J2a
                     }                                                                                             // @J2a
@@ -4518,7 +4523,7 @@ throws SQLException
                                                 sortSequence.getTableFile (),
                                                 sortSequence.getTableLibrary (),
                                                 sortSequence.getLanguageId (),
-                                                tempConverter);
+                                                ccsid37Converter);
                 }
 
                 
@@ -4528,9 +4533,9 @@ throws SQLException
                 if (vrm_ >= JDUtilities.vrm610)
                 {
                     //these strings are not mri translated for future diagnostic tools, searching etc on host server
-                    request.setInterfaceType( "JDBC", tempConverter);
-                    request.setInterfaceName( "IBM Toolbox for Java", tempConverter);
-                    request.setInterfaceLevel( AS400JDBCDriver.DRIVER_LEVEL_, tempConverter);
+                    request.setInterfaceType( "JDBC", ccsid37Converter);
+                    request.setInterfaceName( "IBM Toolbox for Java", ccsid37Converter);
+                    request.setInterfaceLevel( AS400JDBCDriver.DRIVER_LEVEL_, ccsid37Converter);
 
                     //@DFA 550 decfloat rounding mode
                     short roundingMode = 0;                                                               //@DFA
@@ -5916,8 +5921,7 @@ endif */
 /* ifdef JDBC40
   public void setNetworkTimeout(Executor executor, int milliseconds)
       throws SQLException {
-    // TODO JDBC41 Auto-generated method stub
-
+ 
      // Make sure value is not negative
      if (milliseconds < 0) {
         JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID,"milliseconds<0");
