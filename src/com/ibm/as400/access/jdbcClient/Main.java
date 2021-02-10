@@ -16,7 +16,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -74,7 +73,6 @@ public class Main implements Runnable {
                                           "com.ibm.jtopenlite.database.jdbc.JDBCDriver",
                                           };
 
-  public static String promptString = ">";
   private static PrintStream defaultOutput = System.out;
   
   public static String usage = 
@@ -193,6 +191,7 @@ public class Main implements Runnable {
   String userid_; /* userid for the current connection */
   String password_; /* password for the current connection */
   boolean prompt_ = true; /* should prompting be used */
+  String  promptString_ = ">"; 
   boolean echoCommand_ = false; /* should command be echoed */
   boolean printStackTrace_ = false; /* should stack trace be printed */
   boolean exitRepeatOnException_ = false; /* should repeat be exited if exception occurs */ 
@@ -444,7 +443,7 @@ public class Main implements Runnable {
     try {
       BufferedReader input = new BufferedReader(new InputStreamReader(in));
       if (prompt_)
-        printStreamForGo.print(promptString);
+        printStreamForGo.print(promptString_);
       try {
         query = readLine(input);
         /* if we happen to get no input */
@@ -462,7 +461,7 @@ public class Main implements Runnable {
         }
         if (running) {
           if (prompt_)
-            printStreamForGo.print(promptString);
+            printStreamForGo.print(promptString_);
           try {
             query = readLine(input);
             if (query != null) {
@@ -1260,7 +1259,7 @@ public class Main implements Runnable {
       } else if (upcaseCommand.startsWith("!PROMPT")) { 
         if (command.length() > 7) {
           prompt_ = true; 
-          promptString =  command.substring(7).trim(); 
+          promptString_ =  command.substring(7).trim(); 
         } else {
           prompt_ = false; 
         }
@@ -4561,7 +4560,7 @@ public class Main implements Runnable {
           }
           int arrayCardinality = parameterVector.size();
 
-          String validTypes = "String:BigDecimal:Date:Time:Timestamp:Blob:Clob:int:short:long:float:double:byteArray";
+          String validTypes = "String:BigDecimal:Date:Time:Timestamp:Blob:Clob:int:short:boolean:long:float:double:byteArray";
           if (typename.equals("String")) {
             String[] parameter = new String[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4585,11 +4584,7 @@ public class Main implements Runnable {
               }
             }
 
-            if (toolboxDriver_) {
-              cstmt.setArray(parm, makeArray(parameter, "VARCHAR"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
+            cstmt.setArray(parm, makeArray(parameter, "VARCHAR"));
           } else if (typename.equals("Clob")) {
             Clob[] parameter = new Clob[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4601,11 +4596,7 @@ public class Main implements Runnable {
                 parameter[i] = new ClientClob(s);
               }
             }
-            if (toolboxDriver_) {
-              cstmt.setArray(parm, makeArray(parameter, "CLOB"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
+            cstmt.setArray(parm, makeArray(parameter, "CLOB"));
 
           } else if (typename.equals("BigDecimal")) {
             BigDecimal[] parameter = new BigDecimal[arrayCardinality];
@@ -4614,15 +4605,12 @@ public class Main implements Runnable {
               if ("null".equals(s)) {
                 parameter[i] = null;
               } else {
+                
                 parameter[i] = new BigDecimal(s);
               }
             }
 
-            if (toolboxDriver_) {
-              cstmt.setArray(parm, makeArray(parameter, "DECIMAL"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
+            cstmt.setArray(parm, makeArray(parameter, "DECIMAL"));
           } else if (typename.equals("Date")) {
             Date[] parameter = new Date[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4633,11 +4621,7 @@ public class Main implements Runnable {
                 parameter[i] = Date.valueOf(s);
               }
             }
-            if (toolboxDriver_) {
-              cstmt.setArray(parm, makeArray(parameter, "DATE"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
+            cstmt.setArray(parm, makeArray(parameter, "DATE"));
           } else if (typename.equals("Time")) {
             Time[] parameter = new Time[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4648,11 +4632,7 @@ public class Main implements Runnable {
                 parameter[i] = Time.valueOf(s);
               }
             }
-            if (toolboxDriver_) {
-              cstmt.setArray(parm, makeArray(parameter, "TIME"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
+            cstmt.setArray(parm, makeArray(parameter, "TIME"));
           } else if (typename.equals("Timestamp")) {
             Timestamp[] parameter = new Timestamp[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4663,11 +4643,7 @@ public class Main implements Runnable {
                 parameter[i] = Timestamp.valueOf(s);
               }
             }
-            if (toolboxDriver_) {
-              cstmt.setArray(parm, makeArray(parameter, "TIMESTAMP"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
+            cstmt.setArray(parm, makeArray(parameter, "TIMESTAMP"));
           } else if (typename.equals("Integer")) {
             Integer[] parameter = new Integer[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4678,11 +4654,7 @@ public class Main implements Runnable {
                 parameter[i] = new Integer(Integer.parseInt(s));
               }
             }
-            if (toolboxDriver_) {
-              cstmt.setArray(parm, makeArray(parameter, "INTEGER"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
+            cstmt.setArray(parm, makeArray(parameter, "INTEGER"));
           } else if (typename.equals("int")) {
             int[] parameter = new int[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4693,17 +4665,12 @@ public class Main implements Runnable {
                 parameter[i] = Integer.parseInt(s);
               }
             }
-            if (toolboxDriver_) {
               // Toolbox does not handle native types on convert
               Integer[] newParameter = new Integer[arrayCardinality];
               for (int i = 0; i < arrayCardinality; i++) {
                 newParameter[i] = new Integer(parameter[i]);
               }
               cstmt.setArray(parm, makeArray(newParameter, "INTEGER"));
-            } else {
-
-              cstmt.setObject(parm, parameter);
-            }
           } else if (typename.equals("Short")) {
             Short[] parameter = new Short[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4711,15 +4678,11 @@ public class Main implements Runnable {
               if ("null".equals(s)) {
                 parameter[i] = null;
               } else {
+               
                 parameter[i] = new Short((short) Integer.parseInt(s));
               }
             }
-            if (toolboxDriver_) {
               cstmt.setArray(parm, makeArray(parameter, "SMALLINT"));
-            } else {
-
-              cstmt.setObject(parm, parameter);
-            }
           } else if (typename.equals("short")) {
             short[] parameter = new short[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4730,7 +4693,6 @@ public class Main implements Runnable {
                 parameter[i] = (short) Integer.parseInt(s);
               }
             }
-            if (toolboxDriver_) {
               // Toolbox does not handle native types on convert
               Short[] newParameter = new Short[arrayCardinality];
               for (int i = 0; i < arrayCardinality; i++) {
@@ -4738,9 +4700,23 @@ public class Main implements Runnable {
               }
 
               cstmt.setArray(parm, makeArray(newParameter, "SMALLINT"));
-            } else {
-              cstmt.setObject(parm, parameter);
+          } else if (typename.equals("boolean")) {
+            boolean[] parameter = new boolean[arrayCardinality];
+            for (int i = 0; i < arrayCardinality; i++) {
+              String s = (String) parameterVector.get(i);
+              if ("null".equals(s)) {
+                parameter[i] = false;
+              } else {
+                parameter[i] =  Boolean.valueOf(s).booleanValue();
+              }
             }
+              // Toolbox does not handle native types on convert
+              Boolean[] newParameter = new Boolean[arrayCardinality];
+              for (int i = 0; i < arrayCardinality; i++) {
+                newParameter[i] = new Boolean(parameter[i]);
+              }
+
+              cstmt.setArray(parm, makeArray(newParameter, "BOOLEAN"));
           } else if (typename.equals("Long")) {
             Long[] parameter = new Long[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4751,11 +4727,7 @@ public class Main implements Runnable {
                 parameter[i] = new Long(Long.parseLong(s));
               }
             }
-            if (toolboxDriver_) {
               cstmt.setArray(parm, makeArray(parameter, "BIGINT"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
           } else if (typename.equals("long")) {
             long[] parameter = new long[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4766,7 +4738,6 @@ public class Main implements Runnable {
                 parameter[i] = Long.parseLong(s);
               }
             }
-            if (toolboxDriver_) {
               // Toolbox does not handle native types on convert
               Long[] newParameter = new Long[arrayCardinality];
               for (int i = 0; i < arrayCardinality; i++) {
@@ -4774,9 +4745,6 @@ public class Main implements Runnable {
               }
 
               cstmt.setArray(parm, makeArray(newParameter, "BIGINT"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
           } else if (typename.equals("Float")) {
             Float[] parameter = new Float[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4787,11 +4755,7 @@ public class Main implements Runnable {
                 parameter[i] = new Float((float) Double.parseDouble(s));
               }
             }
-            if (toolboxDriver_) {
               cstmt.setArray(parm, makeArray(parameter, "REAL"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
           } else if (typename.equals("float")) {
             float[] parameter = new float[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4802,7 +4766,6 @@ public class Main implements Runnable {
                 parameter[i] = (float) Double.parseDouble(s);
               }
             }
-            if (toolboxDriver_) {
               // Toolbox does not handle native types on convert
               Float[] newParameter = new Float[arrayCardinality];
               for (int i = 0; i < arrayCardinality; i++) {
@@ -4810,9 +4773,6 @@ public class Main implements Runnable {
               }
 
               cstmt.setArray(parm, makeArray(newParameter, "REAL"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
           } else if (typename.equals("Double")) {
             Double[] parameter = new Double[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4823,11 +4783,7 @@ public class Main implements Runnable {
                 parameter[i] = new Double(Double.parseDouble(s));
               }
             }
-            if (toolboxDriver_) {
               cstmt.setArray(parm, makeArray(parameter, "DOUBLE"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
 
           } else if (typename.equals("double")) {
             double[] parameter = new double[arrayCardinality];
@@ -4839,7 +4795,6 @@ public class Main implements Runnable {
                 parameter[i] = Double.parseDouble(s);
               }
             }
-            if (toolboxDriver_) {
               // Toolbox does not handle native types on convert
               Double[] newParameter = new Double[arrayCardinality];
               for (int i = 0; i < arrayCardinality; i++) {
@@ -4847,9 +4802,6 @@ public class Main implements Runnable {
               }
 
               cstmt.setArray(parm, makeArray(newParameter, "DOUBLE"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
           } else if (typename.equals("byteArray")) {
             byte[][] parameter = new byte[arrayCardinality][];
             for (int i = 0; i < arrayCardinality; i++) {
@@ -4867,11 +4819,7 @@ public class Main implements Runnable {
                 parameter[i] = stuff;
               }
             }
-            if (toolboxDriver_) {
               cstmt.setArray(parm, makeArray(parameter, "BINARY"));
-            } else {
-              cstmt.setObject(parm, parameter);
-            }
 
           } else if (typename.equals("Blob")) {
             Blob[] parameter = new Blob[arrayCardinality];
@@ -4890,12 +4838,7 @@ public class Main implements Runnable {
                 parameter[i] = new ClientBlob(stuff);
               }
             }
-            if (toolboxDriver_) {
               cstmt.setArray(parm, makeArray(parameter, "BLOB"));
-            } else {
-
-              cstmt.setObject(parm, parameter);
-            }
 
           } else if (typename.equalsIgnoreCase("null")) {
             cstmt.setObject(parm, null);
