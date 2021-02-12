@@ -1316,7 +1316,7 @@ public class GenerateConverterTable {
             // the starting character.
             // int start = i;
             buf.append(hbSig);
-            if (hbNum % 2 == 1) // odd number
+            if ((0xFFFFFFFFl & hbNum) % 2 == 1) // odd number
             {
               --hbNum; // no point in doing the last char
             }
@@ -1669,9 +1669,6 @@ public class GenerateConverterTable {
    int toIndex = 0x20; 
    boolean singleByte = true; 
    for (int i = 0x20; i < inBytes.length; i++) { 
-     if (toIndex >= outBytes.length) { 
-       throw new Exception("ERROR:  toIndexInvalid");
-     }
      byte b = inBytes[i]; 
      if (singleByte) {
        if (b == 0x0E) {
@@ -1679,6 +1676,9 @@ public class GenerateConverterTable {
        } else if (b == 0x0F) {
          throw new Exception("Illegal 0x0f found in singleByte mode"); 
        } else {
+         if (toIndex >= outBytes.length) { 
+           throw new Exception("ERROR:  toIndexInvalid");
+         }
          outBytes[toIndex]=b; 
          toIndex++; 
        }
@@ -1688,6 +1688,9 @@ public class GenerateConverterTable {
        } else if (b == 0x0e) {
          throw new Exception("Illegal 0x0e found in doubleByte mode"); 
        } else {
+         if (toIndex >= outBytes.length) { 
+           throw new Exception("ERROR:  toIndexInvalid");
+         }
          outBytes[toIndex]=0x3f;
          toIndex++; 
          i++;   // Skip extra DB charater
@@ -1862,7 +1865,7 @@ private static char[] jdbcToUnicode(Connection connection, int ccsid) throws SQL
    boolean mixed = false;
    // Start at 0x00 and handle 8192 double byte characters at at time
    // int BLOCKSIZE = 8192;
-   int BLOCKSIZE = 32;
+   int BLOCKSIZE = 1024;
 
    String sql = "select cast(INTERPRET(CAST(? AS CHAR("+(BLOCKSIZE * 4)+") FOR BIT DATA) AS GRAPHIC("+(BLOCKSIZE*2)+") CCSID "+ccsid+") as VARGRAPHIC(8200) CCSID 1200) from sysibm.sysdummy1";
    if (ccsid > 2000000) {
