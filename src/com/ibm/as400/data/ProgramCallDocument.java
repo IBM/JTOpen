@@ -169,7 +169,8 @@ public class ProgramCallDocument implements Serializable, Cloneable
     	throws PcmlException
    	{
         if (sys == null)     warnNull("sys");
-        if (docName == null) warnNull("docName");
+        // Throw NPE early.  Otherwise, will be thrown by loadPcmlDocument
+        if (docName == null) throw new NullPointerException("docName");
 
         m_as400 = sys;
 

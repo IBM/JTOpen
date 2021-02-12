@@ -147,84 +147,82 @@ Applies the changes made by the user.
 
 
 
-/**
-Returns the graphical user interface component.
-
-@return             The component.
-**/
-    public Component getComponent ()
-    {
-        // Initialize the general tab.
-        JPanel generalTab = new JPanel ();
-        GridBagLayout layout = new GridBagLayout ();
-        GridBagConstraints constraints;
-        generalTab.setLayout (layout);
-        generalTab.setBorder (new EmptyBorder (10, 10, 10, 10));
-        int row = 0;
-
-        // Initialize a change listener.
-        ChangeListener changeListener = new ChangeListener () {
-            public void stateChanged (ChangeEvent event) {
-                changeEventSupport_.fireStateChanged ();
-            }};
-
-        // Initialize an item listener.
-        ItemListener itemListener = new ItemListener () {
-            public void itemStateChanged (ItemEvent event) {
-                changeEventSupport_.fireStateChanged ();
-            }};
-
-        // Initialize a key listener.
-        KeyListener keyListener = new KeyAdapter () {
-            public void keyTyped (KeyEvent event) { changeEventSupport_.fireStateChanged (); }
-            };
-
-        // User list information.
-        VUtilities.constrain (new JLabel (object_.getText (), object_.getIcon (32, false),  SwingConstants.LEFT),
-            generalTab, layout, 0, row++, 2, 1);
-
-        VUtilities.constrain (new JSeparator (),
-            generalTab, layout, 0, row++, 2, 1);
-
-        // User info prompt.
-        VUtilities.constrain (new JLabel (userInfoPrompt_),
-            generalTab, layout, 0, row, 1, 1);
-
-        userInfo_ = new JComboBox ();
-        userInfo_.setEditable (false);
-        userInfo_.addItem (UserList.ALL);
-        userInfo_.addItem (UserList.USER);
-        userInfo_.addItem (UserList.GROUP);
-        userInfo_.addItem (UserList.MEMBER);
-        userInfo_.setSelectedItem (object_.getUserInfo ());
-        userInfo_.addItemListener (itemListener);
-
-        VUtilities.constrain (userInfo_,
-            generalTab, layout, 1, row++, 1, 1);
-
-        // Group info prompt.
-        VUtilities.constrain (new JLabel (groupInfoPrompt_),
-            generalTab, layout, 0, row, 1, 1);
-
-        groupInfo_ = new JComboBox ();
-        groupInfo_.setEditable (true);
-        groupInfo_.addItem (UserList.NONE);
-        groupInfo_.addItem (UserList.NOGROUP);
-        groupInfo_.setSelectedItem (object_.getGroupInfo ());
-        groupInfo_.addItemListener (itemListener);
-        groupInfo_.getEditor ().getEditorComponent ().addKeyListener (keyListener); // This does not really work!
-
-        VUtilities.constrain (groupInfo_,
-            generalTab, layout, 1, row++, 1, 1);
-
-        // Build the pane.
-        JTabbedPane pane = new JTabbedPane ();
-        pane.addTab (generalTabText_, null, generalTab);
-        pane.setSelectedIndex (0);
-        return pane;
-    }
+  /**
+   * Returns the graphical user interface component.
+   * 
+   * @return The component.
+   **/
+  public Component getComponent() {
+    // Initialize the general tab.
+    JPanel generalTab = new JPanel();
+    GridBagLayout layout = new GridBagLayout();
+    GridBagConstraints constraints;
+    generalTab.setLayout(layout);
+    generalTab.setBorder(new EmptyBorder(10, 10, 10, 10));
+    int row = 0;
 
 
+    // Initialize an item listener.
+    ItemListener itemListener = new ItemListener() {
+      public void itemStateChanged(ItemEvent event) {
+        changeEventSupport_.fireStateChanged();
+      }
+    };
+
+    // Initialize a key listener.
+    KeyListener keyListener = new KeyAdapter() {
+      public void keyTyped(KeyEvent event) {
+        changeEventSupport_.fireStateChanged();
+      }
+    };
+
+    // User list information.
+    VUtilities.constrain(new JLabel(object_.getText(),
+        object_.getIcon(32, false), SwingConstants.LEFT), generalTab, layout, 0,
+        row++, 2, 1);
+
+    VUtilities.constrain(new JSeparator(), generalTab, layout, 0, row++, 2, 1);
+
+    // User info prompt.
+    VUtilities.constrain(new JLabel(userInfoPrompt_), generalTab, layout, 0,
+        row, 1, 1);
+
+    userInfo_ = new JComboBox();
+    userInfo_.setEditable(false);
+    userInfo_.addItem(UserList.ALL);
+    userInfo_.addItem(UserList.USER);
+    userInfo_.addItem(UserList.GROUP);
+    userInfo_.addItem(UserList.MEMBER);
+    userInfo_.setSelectedItem(object_.getUserInfo());
+    userInfo_.addItemListener(itemListener);
+    
+
+    VUtilities.constrain(userInfo_, generalTab, layout, 1, row++, 1, 1);
+
+    // Group info prompt.
+    VUtilities.constrain(new JLabel(groupInfoPrompt_), generalTab, layout, 0,
+        row, 1, 1);
+
+    groupInfo_ = new JComboBox();
+    groupInfo_.setEditable(true);
+    groupInfo_.addItem(UserList.NONE);
+    groupInfo_.addItem(UserList.NOGROUP);
+    groupInfo_.setSelectedItem(object_.getGroupInfo());
+    groupInfo_.addItemListener(itemListener);
+    groupInfo_.getEditor().getEditorComponent().addKeyListener(keyListener); // This
+                                                                             // does
+                                                                             // not
+                                                                             // really
+                                                                             // work!
+
+    VUtilities.constrain(groupInfo_, generalTab, layout, 1, row++, 1, 1);
+
+    // Build the pane.
+    JTabbedPane pane = new JTabbedPane();
+    pane.addTab(generalTabText_, null, generalTab);
+    pane.setSelectedIndex(0);
+    return pane;
+  }
 
 /**
 Removes a change listener.

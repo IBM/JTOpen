@@ -13,7 +13,6 @@
 
 package com.ibm.as400.resource;
 
-import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import java.io.Serializable;
 import java.util.Enumeration;
@@ -37,7 +36,7 @@ this array without knowing the number of elements ahead of time.
 public class ResourceMetaDataTable
 implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
+    static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
 
 
@@ -222,11 +221,15 @@ Creates and adds a ResourceMetaData object to the list.
                     Object[] possibleValues, Object defaultValue, boolean valueLimited,
                     boolean multipleAllowed, String[] possibleValuePresentationKeys)
     {
-        // Load the presentation.  The key suffix is the id.
+      if (presentationLoader_ == null)
+        throw new NullPointerException("presentationLoader_");
+
+      // Load the presentation.  The key suffix is the id.
         Presentation presentation = null;
         if (presentationLoader_ != null)
             presentation = presentationLoader_.getPresentation(presentationKey_, id.toString());
 
+  
         // Load the presentations for the possible values, if any.
         // Form the key suffix by removing *, adding _.
         Presentation[] possibleValuePresentations = null;
@@ -267,6 +270,7 @@ Creates and adds a ResourceMetaData object to the list.
                 possibleValuePresentations[i] = presentationLoader_.getPresentation(presentationKey_, buffer.toString());
             }
         }
+
 
         metaData_ = null;
         ResourceMetaData rmd = new ResourceMetaData(id, type, readOnly, possibleValues, defaultValue, valueLimited, multipleAllowed, presentation, possibleValuePresentations);
@@ -314,7 +318,6 @@ externalized data structure.
 
         synchronized(this) {
             Vector asVector = new Vector(metaDataByID_.size());
-            int i = 0;
             Enumeration list = metaDataByID_.elements();
             while(list.hasMoreElements()) {
                 ResourceMetaData rmd = (ResourceMetaData)list.nextElement();

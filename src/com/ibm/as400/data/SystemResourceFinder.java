@@ -469,7 +469,7 @@ class SystemResourceFinder
     }
     finally
     {
-      if (lnr != null) try { lnr.close(); } catch (Exception e) {}
+      if (lnr != null) try { lnr.close(); } catch (Exception e) { /* Ignore exception on close */ }
       if (stream != null) stream.close();
     }
 

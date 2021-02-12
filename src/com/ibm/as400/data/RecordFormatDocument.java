@@ -816,7 +816,8 @@ public class RecordFormatDocument implements Serializable, Cloneable
         }
         finally
         {
-          if (in != null) try { in.close(); } catch (Exception e) {}
+          if (in != null) try { in.close(); } catch (Exception e) { /* Ignore any exception on close. */   }
+          
           if (is != null) try { is.close(); } catch (Exception e) {}
         }
 

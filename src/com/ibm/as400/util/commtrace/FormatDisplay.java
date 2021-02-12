@@ -601,7 +601,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 			fmt.openLclFile(path + file);
 			outfile = path + file;
 		} else if(oper==OPENRMT) {
-			if(path!="" && file !="") {
+			if((path.length() > 0) && (file.length() > 0)) {
 				fmt = new Format(sys);
 				fmt.openIFSFile(path+"/" + file + FormatRemote.EXT);
 			} else {
