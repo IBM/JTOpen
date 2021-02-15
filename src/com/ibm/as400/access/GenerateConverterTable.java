@@ -128,6 +128,7 @@ public class GenerateConverterTable {
     char[] tableToEbcdic = new char[0];
     char[][] surrogateTable = null;
     char[][] tripletTable = null;
+    char[][] quadTable = null; 
 
     // int numTables1 = 1;
     // int numTables2 = 1;
@@ -333,6 +334,7 @@ public class GenerateConverterTable {
             int c1 = 0;
             int c2 = 0;
             int c3 = 0;
+            int c4 = 0; 
             int characterCount = 0; 
             
             c0 = 0xFFFF & (int) tableToUnicodeSpaces[from];
@@ -355,8 +357,13 @@ public class GenerateConverterTable {
                 if (c3 == 0x3000) {
                   characterCount = 3;
                 } else {
+                  c4 = 0xFFFF & (int) tableToUnicodeSpaces[from + 4];
+                  if (c4 == 0x3000) {
+                    characterCount = 4; 
+                  } else { 
                   throw new Exception("Character count is too large for from=0x"
                       + Integer.toHexString(from));
+                  }
                 }
               }
             }
@@ -387,6 +394,19 @@ public class GenerateConverterTable {
               triple[1] = (char) (0xFFFF & (int) c1);
               triple[2] = (char) (0xFFFF & (int) c2);
               from += 4;
+            } else if (characterCount == 4) { /* character count must be 4 */ 
+              newTable[next] = (char) 0xD802;
+              // add to triple table
+              if (quadTable == null) {
+                quadTable = new char[65536][];
+              }
+              char[] quad = new char[4];
+              quadTable[next] = quad;
+              quad[0] = (char) (0xFFFF & (int) c0);
+              quad[1] = (char) (0xFFFF & (int) c1);
+              quad[2] = (char) (0xFFFF & (int) c2);
+              quad[3] = (char) (0xFFFF & (int) c2);
+              from += 5;
             } else {
               throw new Exception("Character count is invalid "+characterCount); 
             }
@@ -480,12 +500,12 @@ public class GenerateConverterTable {
       tableToEbcdic[0x20ac / 2] = toEbcdic; 
     }
     // Verify the mapping
-    verifyRoundTrip(tableToUnicode, tableToEbcdic, ebcdicIsDBCS, ccsid, surrogateTable, tripletTable);
+    verifyRoundTrip(tableToUnicode, tableToEbcdic, ebcdicIsDBCS, ccsid, surrogateTable, tripletTable, quadTable);
 
     System.out.println("****************************************");
     System.out.println("Verify round 2 ");
     System.out.println("****************************************");
-    verifyRoundTrip(tableToUnicode, tableToEbcdic, ebcdicIsDBCS, ccsid, surrogateTable, tripletTable);
+    verifyRoundTrip(tableToUnicode, tableToEbcdic, ebcdicIsDBCS, ccsid, surrogateTable, tripletTable, quadTable);
 
     // Compress the ccsid table
     if (ebcdicIsDBCS) {
@@ -595,7 +615,7 @@ public class GenerateConverterTable {
         if (surrogateLength < MAX_SURROGATE_LENGTH) { 
           f.write("  private static final char[][] toUnicodeSurrogateMappings = { \n");
           System.out.print("Writing surrogate table for conversion from " + ccsid
-              + " to 13488... to " + fName + "\n");
+              + " to 1200... to " + fName + "\n");
           for (int i = 0; i < compressedSurrogateTable.length; i++) {
             char[] triplet = compressedSurrogateTable[i];
             if (triplet != null) {
@@ -720,6 +740,90 @@ public class GenerateConverterTable {
       } /* if triplet table */
 
       
+      // Write out the quadTable if it exists
+      int quadLength = 0; 
+      if (quadTable != null) {
+
+        f.write("\n");
+
+        for (int i = 0; i < quadTable.length; i++) {
+          char[] pair = quadTable[i];
+          if (pair != null) {
+            quadLength++; 
+          }
+        } /* for i */
+        
+        int quadCount = 0; 
+        char[][] compressedquadTable = new char[quadLength][]; 
+        for (int i = 0; i < quadTable.length; i++) {
+          char[] quad = quadTable[i];
+          if (quad != null) {
+            char[] entry = new char[5]; 
+            entry[0] = (char) i; 
+            entry[1] = quad[0];
+            entry[2] = quad[1];
+            entry[3] = quad[2];
+            entry[4] = quad[3];
+            compressedquadTable[quadCount] = entry; 
+            quadCount++; 
+          }
+        } /* for i */
+        
+        
+        f.write("  // Number of quadMappings is "+quadLength+"\n"); 
+        if (quadLength < MAX_SURROGATE_LENGTH) { 
+          f.write("  private static final char[][] toUnicodeQuadMappings = { \n");
+          System.out.print("Writing quad table for conversion from " + ccsid
+              + " to 1200... to " + fName + "\n");
+          for (int i = 0; i < compressedquadTable.length; i++) {
+            char[] entry = compressedquadTable[i];
+            if (entry != null) {
+              f.write("{'" + formattedChar((char) entry[0]) + "','"
+                  + formattedChar(entry[1]) + "','" + formattedChar(entry[2])
+                  + "','" + formattedChar(entry[3])
+                  + "','" + formattedChar(entry[4])
+                  + "'},\n");
+            }
+          } /* for i */
+          f.write("};\n");
+          f.write("\n");
+          f.write("\n");
+        } else {
+          // We must break into pieces
+          f.write("  private static char[][] toUnicodeQuadMappings = new char["+quadLength+"][];\n");  
+          int startIndex = 0; 
+          while (startIndex < quadLength) {
+            f.write("  private static void initToUnicodeQuadMappings"+startIndex+"() { \n"); 
+            f.write("  char[][] toUnicodeQuadMappingsPiece = {\n");
+            for (int i = 0; i < MAX_SURROGATE_LENGTH && (i+startIndex < quadLength); i++) {
+              char[] entry = compressedquadTable[startIndex+i];
+              if (entry != null) {
+                f.write("    {'" + formattedChar((char) (entry[0])) + "','"
+                    + formattedChar(entry[1]) + "','" + formattedChar(entry[2])
+                    + "','" + formattedChar(entry[3])
+                    + "','" + formattedChar(entry[4])
+                    + "'},\n");
+              }
+            } /* for i */
+            f.write("  };\n");
+
+            f.write("    for (int j = 0; j < toUnicodeQuadMappingsPiece.length ; j++) {\n"); 
+            f.write("      toUnicodeQuadMappings["+startIndex+"+j]= new char[3];\n");  
+            f.write("      toUnicodeQuadMappings["+startIndex+"+j][0] = toUnicodeQuadMappingsPiece[j][0];\n");
+            f.write("      toUnicodeQuadMappings["+startIndex+"+j][1] = toUnicodeQuadMappingsPiece[j][1];\n");
+            f.write("      toUnicodeQuadMappings["+startIndex+"+j][2] = toUnicodeQuadMappingsPiece[j][2];\n");
+            f.write("      toUnicodeQuadMappings["+startIndex+"+j][3] = toUnicodeQuadMappingsPiece[j][3];\n");
+            f.write("    }\n"); 
+            f.write("  }\n"); 
+            f.write("\n");
+            surrogateInitStringBuffer.append("   initToUnicodeQuadMappings"+startIndex+"();\n"); 
+            
+            startIndex += MAX_SURROGATE_LENGTH; 
+          }
+        }
+      } /* if quad table */
+
+      
       
             
       
@@ -824,8 +928,10 @@ public class GenerateConverterTable {
       f.write("toUnicodeArray_, ");
       if (surrogateTable != null) {
         f.write("fromUnicodeArray_,");
-        if (tripletTable != null) {
-          f.write("toUnicodeSurrogateMappings,toUnicodeSurrogateMappings);\n");
+        if (quadTable != null) { 
+          f.write("toUnicodeSurrogateMappings,toUnicodeTripletMappings,toUnicodeQuadMappings);\n");
+        } else if (tripletTable != null) {
+          f.write("toUnicodeSurrogateMappings,toUnicodeTripletMappings);\n");
         } else {
           f.write("toUnicodeSurrogateMappings,null);\n");
         }
@@ -839,8 +945,10 @@ public class GenerateConverterTable {
       f.write("toUnicodeArray_, ");
       if (surrogateTable != null) {
         f.write("fromUnicodeArray_,");
-        if (tripletTable != null) {
-          f.write("toUnicodeSurrogateMappings,toUnicodeSurrogateMappings);\n");
+        if (quadTable != null) { 
+          f.write("toUnicodeSurrogateMappings,toUnicodeTripletMappings,toUnicodeQuadMappings);\n");
+        } else if (tripletTable != null) {
+          f.write("toUnicodeSurrogateMappings,toUnicodeTripletMappings);\n");
         } else {
           f.write("toUnicodeSurrogateMappings,null);\n");
         }
@@ -920,7 +1028,7 @@ public class GenerateConverterTable {
 
  
   private static boolean verifyRoundTrip(char[] tableToUnicode,
-      char[] tableToEbcdic, boolean ebcdicIsDBCS, int ccsid, char[][] surrogateTable, char[][]tripletTable) {
+      char[] tableToEbcdic, boolean ebcdicIsDBCS, int ccsid, char[][] surrogateTable, char[][]tripletTable, char[][]quadTable) {
 
     String ebcdicPrefix = "X";
     if (ebcdicIsDBCS) {
@@ -953,6 +1061,8 @@ public class GenerateConverterTable {
         unicodeChars = surrogateTable[i]; 
       } else if ((char1Buffer[0] == 0xd801) && (tripletTable != null)) {
         unicodeChars = tripletTable[i]; 
+      } else if ((char1Buffer[0] == 0xd802) && (quadTable != null)) {
+        unicodeChars = quadTable[i]; 
       } else {
         unicodeChars = char1Buffer; 
       }
@@ -965,6 +1075,8 @@ public class GenerateConverterTable {
             ebcdicChar = findEbcdicSurrogate(surrogateTable, unicodeChars); 
           } else if (unicodeChars.length == 3)  {
             ebcdicChar = findEbcdicTriplet(tripletTable, unicodeChars); 
+         } else if (unicodeChars.length == 4) { 
+           ebcdicChar = findEbcdicQuad(quadTable, unicodeChars); 
          }
         } else {
           int piece = 0xFFFF & tableToEbcdic[unicodeChars[0] / 2];
@@ -1180,6 +1292,21 @@ public class GenerateConverterTable {
 
     return passed;
 
+  }
+
+  private static int findEbcdicQuad(char[][] quadTable,
+      char[] unicodeChars) {
+    for (int i= 0; i < quadTable.length; i++) { 
+      if (quadTable[i] != null)  {
+        if ((quadTable[i][0] == unicodeChars[0]) &&
+            (quadTable[i][1] == unicodeChars[1])&&
+            (quadTable[i][2] == unicodeChars[2]) &&
+            (quadTable[i][3] == unicodeChars[3])) {
+          return i; 
+        }
+      }
+    }
+    return 0; 
   }
 
   private static int findEbcdicTriplet(char[][] tripletTable,

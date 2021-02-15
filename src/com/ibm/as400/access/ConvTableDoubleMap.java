@@ -31,6 +31,7 @@ public class ConvTableDoubleMap extends ConvTable
     
     char[][] toUnicodeSurrogate_ = null; 
     char[][] toUnicodeTriple_ = null; 
+    char[][] toUnicodeQuad_ = null; 
     // To convert from unicode, @KDA 
     // The first index is based off of D800
     // The second index is based off of DC00
@@ -46,6 +47,11 @@ public class ConvTableDoubleMap extends ConvTable
     int firstTripleMin_;
     int secondTripleMin_; 
     int thirdTripleMin_; 
+    char[][][][] fromUnicodeQuad_ = null;
+    int firstQuadMin_;
+    int secondQuadMin_; 
+    int thirdQuadMin_; 
+    int fourthQuadMin_; 
     
     
     // combining characters used for unicode to ebcdic conversion 
@@ -53,10 +59,16 @@ public class ConvTableDoubleMap extends ConvTable
     char[][] combiningCombinations_; 
     
 
+    ConvTableDoubleMap(int ccsid, char[] toUnicode, char[] fromUnicode,
+        char[][] toUnicodeSurrogateMapping, char[][] toUnicodeTripleMapping) {
+      this(ccsid,toUnicode,fromUnicode,toUnicodeSurrogateMapping, toUnicodeTripleMapping,null); 
+    }
     
     // Constructor.
   ConvTableDoubleMap(int ccsid, char[] toUnicode, char[] fromUnicode,
-      char[][] toUnicodeSurrogateMapping, char[][] toUnicodeTripleMapping) {
+      char[][] toUnicodeSurrogateMapping, 
+      char[][] toUnicodeTripleMapping,
+      char[][] toUnicodeQuadMapping) {
     this(ccsid, toUnicode, fromUnicode);
     toUnicodeSurrogate_ = new char[65535][];
     fromUnicodeSurrogate_ = new char[FROM_UNICODE_SURROGATE_DIMENSION_LENGTH][];
@@ -164,8 +176,77 @@ public class ConvTableDoubleMap extends ConvTable
           secondLevel[secondIndex] = thirdLevel; 
         }
         thirdLevel[thirdIndex] = (char) ebcdic; 
+      } /* int j*/ 
+    } /* toUnicodeTriple != null */ 
+
+    if (toUnicodeQuadMapping != null) {
+      // Determine the dimensions for each of the array mappings
+      firstQuadMin_ = 0xFFFF;
+      secondQuadMin_ = 0xFFFF;
+      thirdQuadMin_ = 0xFFFF;
+      fourthQuadMin_ = 0xFFFF;
+      
+      int firstQuadMax = 0; 
+      int secondQuadMax = 0; 
+      int thirdQuadMax = 0; 
+      int fourthQuadMax = 0; 
+      
+      for (int j = 0; j < toUnicodeQuadMapping.length; j++) {
+        char[] row = toUnicodeQuadMapping[j]; 
+        int firstQuad = 0xffff & row[1]; 
+        int secondQuad = 0xffff & row[2]; 
+        int thirdQuad = 0xffff & row[3]; 
+        int fourthQuad = 0xffff & row[4]; 
+        if (firstQuad < firstQuadMin_) firstQuadMin_ = firstQuad;
+        if (firstQuad > firstQuadMax ) firstQuadMax = firstQuad;
+        if (secondQuad < secondQuadMin_) secondQuadMin_ = secondQuad;
+        if (secondQuad > secondQuadMax ) secondQuadMax = secondQuad;
+        if (thirdQuad < thirdQuadMin_) thirdQuadMin_ = thirdQuad;
+        if (thirdQuad > thirdQuadMax ) thirdQuadMax = thirdQuad;
+        if (fourthQuad < fourthQuadMin_) fourthQuadMin_ = fourthQuad;
+        if (fourthQuad > fourthQuadMax ) fourthQuadMax = fourthQuad;
       }
-    }
+      
+      fromUnicodeQuad_ = new char[firstQuadMax-firstQuadMin_+1][][][];
+      toUnicodeQuad_ = new char[65535][];
+     
+      // Populate the to and from tables 
+      for (int j = 0; j < toUnicodeQuadMapping.length; j++) {
+        char[] row = toUnicodeQuadMapping[j]; 
+        int ebcdic      = 0xffff & row[0];
+        int firstIndex  = (0xffff & row[1]) - firstQuadMin_; 
+        int secondIndex = (0xffff & row[2]) - secondQuadMin_; 
+        int thirdIndex  = (0xffff & row[3]) - thirdQuadMin_; 
+        int fourthIndex  = (0xffff & row[4]) - fourthQuadMin_; 
+        
+        toUnicodeQuad_[ebcdic] = new char[4];
+        toUnicodeQuad_[ebcdic][0] = row[1]; 
+        toUnicodeQuad_[ebcdic][1] = row[2]; 
+        toUnicodeQuad_[ebcdic][2] = row[3]; 
+        toUnicodeQuad_[ebcdic][3] = row[4]; 
+        
+        char[][][] secondLevel = fromUnicodeQuad_[firstIndex]; 
+        if (secondLevel == null) {
+          secondLevel = new char[secondQuadMax-secondQuadMin_+1][][];
+          fromUnicodeQuad_[firstIndex] = secondLevel; 
+        }
+        char[][] thirdLevel = secondLevel[secondIndex];
+        if (thirdLevel == null) {
+          thirdLevel = new char[thirdQuadMax-thirdQuadMin_+1][];
+          secondLevel[secondIndex] = thirdLevel; 
+        }
+        char[] fourthLevel = thirdLevel[thirdIndex];
+        if (fourthLevel == null) {
+          fourthLevel = new char[fourthQuadMax-fourthQuadMin_+1];
+          thirdLevel[thirdIndex] = fourthLevel; 
+        }
+        fourthLevel[fourthIndex] = (char) ebcdic; 
+      } /* int j*/ 
+    } /* toUnicodeQuad != null */ 
+    
+
+    
+    
   }
 
     // Constructor.
@@ -346,7 +427,36 @@ public class ConvTableDoubleMap extends ConvTable
             }
          }
         } else {
+          
           // Not handling triplets, replace with sub
+          dest[to] = dbSubUnic_; 
+          to++;
+          length++; 
+        }
+      } else if (dest[to] == 0xD802) {  /* check for quad */ 
+        if (toUnicodeQuad_ != null) {
+          char[] quad = toUnicodeQuad_[fromIndex]; 
+          if (quad != null) {
+            dest[to] = quad[0];
+            to++;
+            length++;
+            dest[to] = quad[1];
+            to++;
+            length++;
+            dest[to] = quad[2];
+            to++;
+            length++;
+            dest[to] = quad[3];
+            to++;
+            length++;
+          } else { 
+            // triple not defined, replace with sub
+               dest[to] = dbSubUnic_; 
+               to++; 
+               length++;
+         }
+        } else {
+          // Not handling quad, replace with sub
           dest[to] = dbSubUnic_; 
           to++;
           length++; 
@@ -389,31 +499,64 @@ public class ConvTableDoubleMap extends ConvTable
         return dest;
     }
 
-    public char fromUnicode(char[] src, int i, int[] increment) {
-      int incrementValue = 1; 
-      char returnChar = 0; 
-      char currentChar = src[i]; 
-      if (currentChar < LEADING_SURROGATE_BASE || currentChar >= TRAILING_SURROGATE_BASE ) {
-        int next = i + 1; 
-        
-        boolean found = false; 
-        if ( (combiningCharacters_ != null) && (next < src.length) ) {
-           char nextChar = src[next]; 
-           for (int j = 0; !found && j < combiningCharacters_.length; j++ ) {
-              if (nextChar == combiningCharacters_[j]) {
-                for (int k = 0; !found && k < combiningCombinations_.length; k++) { 
-                    if ((currentChar == combiningCombinations_[k][0]) &&
-                        (nextChar    == combiningCombinations_[k][1])) {
-                        found = true; 
-                        returnChar  = combiningCombinations_[k][2]; 
-                        i++;    /* We handle a leading surrogate, which must be following by a trailing */
-                        incrementValue++; 
-                        
-                    }
-                }
-              }
-           }
-        }  
+  public char fromUnicode(char[] src, int i, int[] increment) {
+    int incrementValue = 1;
+    char returnChar = 0;
+    char currentChar = src[i];
+    boolean found = false;
+    /* Search the quad mappings first. For CCSID 1399 */
+    /* D841 DF0E DB40 DB40 -> 0xF486 */
+    /* D841 DF0E -> 0xCA47 */
+    if (fromUnicodeQuad_ != null && (i + 3 < src.length)) {
+      int index1 = (0xFFFF & src[i]) - firstQuadMin_;
+      if (index1 >= 0 && index1 < fromUnicodeQuad_.length) {
+        char[][][] secondLevel = fromUnicodeQuad_[index1];
+        if (secondLevel != null) {
+          int index2 = (0xFFFF & src[i + 1]) - secondQuadMin_;
+          if (index2 >= 0 && index2 < secondLevel.length) {
+            char[][] thirdLevel = secondLevel[index2];
+            int index3 = (0xFFFF & src[i + 2]) - thirdQuadMin_;
+            if (index3 >= 0 && index3 < thirdLevel.length) {
+              char[] fourthLevel = thirdLevel[index3]; 
+              int index4 = (0xFFFF & src[i + 3]) - fourthQuadMin_;
+              if (index4 >= 0 && index4 < fourthLevel.length) {
+
+                returnChar = fourthLevel[index4];
+                if (returnChar != 0) {
+                  found = true;
+                  incrementValue += 3;
+                } /* return Char 1 != 0 */
+              } /* index4 in range */ 
+            } /* index3 in range */
+          } /* index2 inRange */
+        } /* secondLevel is not null */ 
+      } /* index1 inRange */ 
+    }
+    if (!found) {
+    if (currentChar < LEADING_SURROGATE_BASE
+        || currentChar >= TRAILING_SURROGATE_BASE) {
+      int next = i + 1;
+
+      if ((combiningCharacters_ != null) && (next < src.length)) {
+        char nextChar = src[next];
+        for (int j = 0; !found && j < combiningCharacters_.length; j++) {
+          if (nextChar == combiningCharacters_[j]) {
+            for (int k = 0; !found && k < combiningCombinations_.length; k++) {
+              if ((currentChar == combiningCombinations_[k][0])
+                  && (nextChar == combiningCombinations_[k][1])) {
+                found = true;
+                returnChar = combiningCombinations_[k][2];
+                i++; /*
+                      * We handle a leading surrogate, which must be following
+                      * by a trailing
+                      */
+                incrementValue++;
+
+              } /* current combination */ 
+            } /* for k */ 
+          } /* nextChar == combiningCharacters */
+        } /* for j */ 
+      } /* combining characters */ 
       if (!found && fromUnicodeTriple_ != null) {
         if (i + 2 < src.length) {
           int index1 = (0xFFFF & src[i]) - firstTripleMin_;
@@ -421,57 +564,61 @@ public class ConvTableDoubleMap extends ConvTable
             char[][] secondLevel = fromUnicodeTriple_[index1];
             if (secondLevel != null) {
               int index2 = (0xFFFF & src[i + 1]) - secondTripleMin_;
-              if (index2 >= 0 && index2 < secondLevel.length) {  
+              if (index2 >= 0 && index2 < secondLevel.length) {
                 char[] thirdLevel = secondLevel[index2];
-                int index3 = (0xFFFF & src[i+2]) - thirdTripleMin_; 
+                int index3 = (0xFFFF & src[i + 2]) - thirdTripleMin_;
                 if (index3 >= 0 && index3 < thirdLevel.length) {
-                  returnChar = thirdLevel[index3]; 
-                  if (returnChar != 0)  {
-                    found = true; 
-                    incrementValue += 2; 
-                  }
-                }
-              }
-            }
-          }
-        }
+                  returnChar = thirdLevel[index3];
+                  if (returnChar != 0) {
+                    found = true;
+                    incrementValue += 2;
+                  } /* return Char 1 != 0 */
+                } /* index3 in range */
+              } /* index2 inRange */
+            } /* secondLevel is not null */ 
+          } /* index1 inRange */ 
+        } /* i + 2 < src.length */ 
+      } /* fromUnicodeTriple_ != null) */ 
+      if (!found) {
+        returnChar = fromUnicode_[src[i]];
       }
-        if (!found) { 
-          returnChar = fromUnicode_[src[i]];
-        }
-     } else { 
-        int leadingIndex = src[i] - LEADING_SURROGATE_BASE;
-        i++;    /* We handle a leading surrogate, which must be following by a trailing */
-        incrementValue++; 
-        /* We don't need to check the leadingIndex since we know it is already in range*/
-        if (fromUnicodeSurrogate_ != null) {
+    } else {
+      int leadingIndex = src[i] - LEADING_SURROGATE_BASE;
+      i++; /*
+            * We handle a leading surrogate, which must be following by a
+            * trailing
+            */
+      incrementValue++;
+      /*
+       * We don't need to check the leadingIndex since we know it is already in
+       * range
+       */
+      if (fromUnicodeSurrogate_ != null) {
         char[] fromUnicodeSurrogate2 = fromUnicodeSurrogate_[leadingIndex];
-        if (fromUnicodeSurrogate2 != null) { 
+        if (fromUnicodeSurrogate2 != null) {
           int trailingIndex = src[i] - TRAILING_SURROGATE_BASE;
-          /* Check for valid index and for existing mapping */ 
-          if (trailingIndex >= 0  && 
-              trailingIndex < FROM_UNICODE_SURROGATE_DIMENSION_LENGTH
-              && fromUnicodeSurrogate2[trailingIndex] != 0 ) {
-            returnChar = fromUnicodeSurrogate2[trailingIndex] ; 
+          /* Check for valid index and for existing mapping */
+          if (trailingIndex >= 0
+              && trailingIndex < FROM_UNICODE_SURROGATE_DIMENSION_LENGTH
+              && fromUnicodeSurrogate2[trailingIndex] != 0) {
+            returnChar = fromUnicodeSurrogate2[trailingIndex];
           } else {
-            /* We could not handle.  Add substitution character */
+            /* We could not handle. Add substitution character */
             returnChar = dbSubChar_;
           }
         } else {
-          /* We could not handle.  Add substitution character */ 
+          /* We could not handle. Add substitution character */
           returnChar = dbSubChar_;
         }
-        } else {
-          /* no surrogate values for this CCSID  */ 
-          returnChar = dbSubChar_;
-        }
-     }
-
-      
-      increment[0] = incrementValue;
-      return returnChar; 
+      } else {
+        /* no surrogate values for this CCSID */
+        returnChar = dbSubChar_;
+      }
     }
-
+    }
+    increment[0] = incrementValue;
+    return returnChar;
+  }
     
     public char[] getFromUnicode() {
       return fromUnicode_;
