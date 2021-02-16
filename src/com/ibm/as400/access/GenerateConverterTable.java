@@ -325,7 +325,7 @@ public class GenerateConverterTable {
               from++;
             }
             next++;
-          } /* while */ 
+          } /* while */
         } else {
           /* New logic with spaces */
           tableLength = tableToUnicodeSpaces.length;
@@ -340,11 +340,13 @@ public class GenerateConverterTable {
             c0 = 0xFFFF & (int) tableToUnicodeSpaces[from];
             
             // If we didn't process a variation selector, ignore it.
-            while (c0 >= 0xFE00 && c0 <= 0xFE0F) {
-              from++;
-              c0 = 0xFFFF & (int) tableToUnicodeSpaces[from];
+            // In CCSID 1371 FE60 => FE00 and FE61 => FE01, etc
+            if (ccsid != 2001371) {
+              while (c0 >= 0xFE00 && c0 <= 0xFE0F) {
+                from++;
+                c0 = 0xFFFF & (int) tableToUnicodeSpaces[from];
+              }
             }
-
             c1 = 0xFFFF & (int) tableToUnicodeSpaces[from + 1];
             if (c1 == 0x3000) {
               characterCount = 1;
@@ -412,8 +414,12 @@ public class GenerateConverterTable {
             }
             
             next++;
-          } /* while */ 
-          
+          } /* while */
+          /* Fill out the rest of the table */ 
+          while (next < 65536) { 
+            newTable[next]= (char) 0xFFFD; 
+            next++; 
+          }
           
         }
         tableToUnicode = newTable;
@@ -1628,7 +1634,11 @@ public class GenerateConverterTable {
             c = '\\';
           buf.append(c);
           oldold = arr[i++]; // yes this is right... think about it.
-          old = arr[i];
+          if (i < arr.length) {  
+            old = arr[i];
+          } else {
+            old  = 0; 
+          }
         }
       } else { // must be in ramp
         if (arr[i] == old + 1 && arr[i] == oldold + 2) {

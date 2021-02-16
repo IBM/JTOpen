@@ -532,7 +532,32 @@ public class ConvTableDoubleMap extends ConvTable
         } /* secondLevel is not null */ 
       } /* index1 inRange */ 
     }
+    /* Search the triple mappings next */ 
+    if (!found && fromUnicodeTriple_ != null) {
+      if (i + 2 < src.length) {
+        int index1 = (0xFFFF & src[i]) - firstTripleMin_;
+        if (index1 >= 0 && index1 < fromUnicodeTriple_.length) {
+          char[][] secondLevel = fromUnicodeTriple_[index1];
+          if (secondLevel != null) {
+            int index2 = (0xFFFF & src[i + 1]) - secondTripleMin_;
+            if (index2 >= 0 && index2 < secondLevel.length) {
+              char[] thirdLevel = secondLevel[index2];
+              int index3 = (0xFFFF & src[i + 2]) - thirdTripleMin_;
+              if (index3 >= 0 && index3 < thirdLevel.length) {
+                returnChar = thirdLevel[index3];
+                if (returnChar != 0) {
+                  found = true;
+                  incrementValue += 2;
+                } /* return Char 1 != 0 */
+              } /* index3 in range */
+            } /* index2 inRange */
+          } /* secondLevel is not null */ 
+        } /* index1 inRange */ 
+      } /* i + 2 < src.length */ 
+    } /* fromUnicodeTriple_ != null) */ 
+
     if (!found) {
+      
     if (currentChar < LEADING_SURROGATE_BASE
         || currentChar >= TRAILING_SURROGATE_BASE) {
       int next = i + 1;
@@ -557,28 +582,6 @@ public class ConvTableDoubleMap extends ConvTable
           } /* nextChar == combiningCharacters */
         } /* for j */ 
       } /* combining characters */ 
-      if (!found && fromUnicodeTriple_ != null) {
-        if (i + 2 < src.length) {
-          int index1 = (0xFFFF & src[i]) - firstTripleMin_;
-          if (index1 >= 0 && index1 < fromUnicodeTriple_.length) {
-            char[][] secondLevel = fromUnicodeTriple_[index1];
-            if (secondLevel != null) {
-              int index2 = (0xFFFF & src[i + 1]) - secondTripleMin_;
-              if (index2 >= 0 && index2 < secondLevel.length) {
-                char[] thirdLevel = secondLevel[index2];
-                int index3 = (0xFFFF & src[i + 2]) - thirdTripleMin_;
-                if (index3 >= 0 && index3 < thirdLevel.length) {
-                  returnChar = thirdLevel[index3];
-                  if (returnChar != 0) {
-                    found = true;
-                    incrementValue += 2;
-                  } /* return Char 1 != 0 */
-                } /* index3 in range */
-              } /* index2 inRange */
-            } /* secondLevel is not null */ 
-          } /* index1 inRange */ 
-        } /* i + 2 < src.length */ 
-      } /* fromUnicodeTriple_ != null) */ 
       if (!found) {
         returnChar = fromUnicode_[src[i]];
       }
