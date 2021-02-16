@@ -9,9 +9,9 @@
 // Copyright (C) 1997-2016 International Business Machines Corporation and
 // others.  All rights reserved.
 //
-// Generated Mon Feb 15 13:54:25 CST 2021 from sq730
+// Generated Mon Feb 15 20:25:56 CST 2021 from sq730
 // Generation Options: -useJdbc
-// Using Open Source Software, JTOpen 10.5 codebase 5770-SS1 V7R4M0.00 built=20210210 @AD7
+// Using Open Source Software, JTOpen 10.5 codebase 5770-SS1 V7R4M0.00 built=20210210 @AD8
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
@@ -3260,23 +3260,23 @@ class ConvTable2001379 extends ConvTableDoubleMap
 
   // Number of quadMappings is 17
   private static final char[][] toUnicodeQuadMappings = { 
-{'\uF486','\uD841','\uDF0E','\uDB40','\uDB40'},
-{'\uF488','\uD843','\uDC98','\uDB40','\uDB40'},
-{'\uF489','\uD843','\uDC98','\uDB40','\uDB40'},
-{'\uF48F','\uD845','\uDFB5','\uDB40','\uDB40'},
-{'\uF492','\uD846','\uDE74','\uDB40','\uDB40'},
-{'\uF493','\uD846','\uDE74','\uDB40','\uDB40'},
-{'\uF494','\uD847','\uDD5E','\uDB40','\uDB40'},
-{'\uF499','\uD84D','\uDFC2','\uDB40','\uDB40'},
-{'\uF49B','\uD850','\uDF27','\uDB40','\uDB40'},
-{'\uF4A0','\uD855','\uDD84','\uDB40','\uDB40'},
-{'\uF4A3','\uD858','\uDFF9','\uDB40','\uDB40'},
-{'\uF4A4','\uD859','\uDC10','\uDB40','\uDB40'},
-{'\uF4A6','\uD859','\uDC39','\uDB40','\uDB40'},
-{'\uF4A7','\uD859','\uDC89','\uDB40','\uDB40'},
-{'\uF4A9','\uD85C','\uDCF0','\uDB40','\uDB40'},
-{'\uF4AA','\uD85D','\uDF41','\uDB40','\uDB40'},
-{'\uF4F6','\uD873','\uDF7A','\uDB40','\uDB40'},
+{'\uF486','\uD841','\uDF0E','\uDB40','\uDD01'},
+{'\uF488','\uD843','\uDC98','\uDB40','\uDD00'},
+{'\uF489','\uD843','\uDC98','\uDB40','\uDD01'},
+{'\uF48F','\uD845','\uDFB5','\uDB40','\uDD01'},
+{'\uF492','\uD846','\uDE74','\uDB40','\uDD00'},
+{'\uF493','\uD846','\uDE74','\uDB40','\uDD01'},
+{'\uF494','\uD847','\uDD5E','\uDB40','\uDD01'},
+{'\uF499','\uD84D','\uDFC2','\uDB40','\uDD01'},
+{'\uF49B','\uD850','\uDF27','\uDB40','\uDD01'},
+{'\uF4A0','\uD855','\uDD84','\uDB40','\uDD01'},
+{'\uF4A3','\uD858','\uDFF9','\uDB40','\uDD01'},
+{'\uF4A4','\uD859','\uDC10','\uDB40','\uDD01'},
+{'\uF4A6','\uD859','\uDC39','\uDB40','\uDD01'},
+{'\uF4A7','\uD859','\uDC89','\uDB40','\uDD03'},
+{'\uF4A9','\uD85C','\uDCF0','\uDB40','\uDD01'},
+{'\uF4AA','\uD85D','\uDF41','\uDB40','\uDD01'},
+{'\uF4F6','\uD873','\uDF7A','\uDB40','\uDD01'},
 };
 
 

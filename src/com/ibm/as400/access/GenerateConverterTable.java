@@ -405,7 +405,7 @@ public class GenerateConverterTable {
               quad[0] = (char) (0xFFFF & (int) c0);
               quad[1] = (char) (0xFFFF & (int) c1);
               quad[2] = (char) (0xFFFF & (int) c2);
-              quad[3] = (char) (0xFFFF & (int) c2);
+              quad[3] = (char) (0xFFFF & (int) c3);
               from += 5;
             } else {
               throw new Exception("Character count is invalid "+characterCount); 
