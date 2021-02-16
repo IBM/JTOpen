@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Vector;
 
 //--------------------------------------------------------------------
 //
@@ -217,7 +218,7 @@ extends ClientAccessDataStream
   private boolean                 rleCompressed_          = false;            // @E3A
   private String                secondLevelMessageText_ = null;
   private DBReplyServerAttributes serverAttributes_       = null;
-  private DBReplySQLCA        sqlca_                  = null;
+  private Vector      sqlca_                  = null;     // Vector of DBReplySQLCA
   private DBReplyXids             xids_                   = null;             // @E0A
   private String                  alternateServer_ = null;  // @X1A
 
@@ -530,12 +531,30 @@ Returns the server attributes.
 /**
 Returns the SQLCA.
 
-@return The SQLCA, or null if not included or empty.
+@return SQLCA, or null if not included or empty.
 **/
   public DBReplySQLCA getSQLCA()
   {
-    return sqlca_;
+    if (sqlca_ == null) { 
+      return null; 
+    } else {
+      if (sqlca_.size() == 0) { 
+        return null; 
+      } else { 
+        return (DBReplySQLCA) sqlca_.elementAt(0);
+      }
+    }
   }
+
+  /**
+  Returns the SQLCA.
+
+  @return the Vector of DBReplySQLCA, or null if not included or empty.
+  **/
+    public Vector getSQLCAs()
+    {
+      return sqlca_;
+    }
 
 
 
@@ -717,7 +736,10 @@ Parses the datastream.
 
           // SQLCA.
         case 0x3807:
-          sqlca_    = new DBReplySQLCA (data_, offset + 6, parmLength);
+          if (sqlca_ == null) { 
+            sqlca_ = new Vector(); 
+          }
+          sqlca_.add(new DBReplySQLCA (data_, offset + 6, parmLength));
 
           break;
 

@@ -4327,24 +4327,26 @@ throws SQLException
                     mustSpecifyForUpdate_ = false;                           // @J31a
 
                     if (vrm_ > JDUtilities.vrm740) {
-                      request.setClientSupportInformation(0xF4000000);
+                      request.setClientSupportInformation(0xF6000000);
                       if(JDTrace.isTraceOn()){
                           JDTrace.logInformation(this, "ROWID supported = true");
                           JDTrace.logInformation(this, "True auto-commit supported = true");
                           JDTrace.logInformation(this, "128 byte column names supported = true");
                           JDTrace.logInformation(this, "128 length schema names supported = true");
                           JDTrace.logInformation(this, "client support 0x04000000 set");
+                          JDTrace.logInformation(this, "client support 0x02000000 multiple SQLCAs");
                       }
                       
                     } else     if(vrm_ >= JDUtilities.vrm710){                         //@710 //@128sch
                         //@710 - Client support information - indicate our support for ROWID data type, true autocommit
                         // and 128 byte column names and 128 length schemas
-                        request.setClientSupportInformation(0xF0000000);
+                        request.setClientSupportInformation(0xF2000000);
                         if(JDTrace.isTraceOn()){
                             JDTrace.logInformation(this, "ROWID supported = true");
                             JDTrace.logInformation(this, "True auto-commit supported = true");
                             JDTrace.logInformation(this, "128 byte column names supported = true");
                             JDTrace.logInformation(this, "128 length schema names supported = true");
+                            JDTrace.logInformation(this, "client support 0x02000000 multiple SQLCAs");
                         }
 
                     }

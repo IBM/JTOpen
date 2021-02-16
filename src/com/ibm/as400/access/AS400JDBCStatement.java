@@ -979,12 +979,18 @@ implements Statement
                     cursor_.processCursorAttributes(commonExecuteReply);                  //@cur
 
                     transactionManager_.processCommitOnReturn(commonExecuteReply);    // @E2A
-                    DBReplySQLCA sqlca = commonExecuteReply.getSQLCA();
+                    Vector SQLCAs = commonExecuteReply.getSQLCAs();
+                    DBReplySQLCA firstSqlca = null; 
+                    if (SQLCAs != null) { 
+                      firstSqlca = (DBReplySQLCA) SQLCAs.elementAt(0); 
+                    }
                     DBData resultData = null;
                     if(fetchFirstBlock) resultData = commonExecuteReply.getResultData();
 
                     // Note the number of rows inserted/updated
-                    rowsInserted_ = sqlca.getErrd(3);    // @G5A
+                    if (firstSqlca != null) { 
+                    rowsInserted_ = firstSqlca.getErrd(3);    // @G5A
+                    } 
 
                     // Check for system errors.  Take note on prefetch
                     // if the last block was fetched.
@@ -997,13 +1003,18 @@ implements Statement
                     // warning is processed. 
                     // @S2A
                       
-                    if (errorClass == 0) {
-                      String sqlState = sqlca.getSQLState (converter); 
-                      if ("01004".equals(sqlState)) { 
-                         errorClass = 2; 
-                      }
-                    }
-                    
+            if (errorClass == 0) {
+              Enumeration enumeration = SQLCAs.elements();
+              while (enumeration.hasMoreElements()) {
+                DBReplySQLCA thisSqlca = (DBReplySQLCA) enumeration
+                    .nextElement();
+                String sqlState = thisSqlca.getSQLState(converter);
+                if ("01004".equals(sqlState)) {
+                  errorClass = 2;
+                }
+              }
+            }
+
                     // NOTE:  We currently do not have a good way to handle the case
                     //        when the exit program rejects the request.  
                     // 
@@ -1026,33 +1037,29 @@ implements Statement
 
                     // Take note on prefetch if the last block was fetched.
                     boolean lastBlock = false;
-                    boolean bypassExceptionWarning = false;  //@pda (issue 32120) in special errorClass/returnCode cases below, we use sqlca to see if there is a real error
+
                     if((((errorClass == 1) && (returnCode == 100))
                        || ((errorClass == 2) && (returnCode == 701)))
                        && functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH)      // make sure we attempted to prefetch data, otherwise post a warning
                     {
                         lastBlock = true;
-                        returnCode = sqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
-                        String sqlState = sqlca.getSQLState (converter);              //@issue 34500
-                        if(sqlState.startsWith("00") || sqlState.startsWith("02"))                    //@pda (issue 32120)  //@issue 34500 //@35199
-                          bypassExceptionWarning = true;  //@pda (issue 32120)
+                        returnCode = firstSqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
+                        String sqlState = firstSqlca.getSQLState (converter);              //@issue 34500
                     }
                     else if((errorClass == 2) && (returnCode == 700)
                             && (functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH)) //@pda perf2 - fetch/close
                     {
                         lastBlock = true;
                         cursor_.setState(true); //closed cursor already on system
-                        returnCode = sqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
-                        String sqlState = sqlca.getSQLState (converter);              //@issue 34500
-                        if(sqlState.startsWith("00") || sqlState.startsWith("02"))                 //@pda (issue 32120)  //@issue 34500 //@35199
-                          bypassExceptionWarning = true;  //@pda (issue 32120)
+                        returnCode = firstSqlca.getSQLCode();    //@pda (issue 32120) get rc from SQLCA
+                        String sqlState = firstSqlca.getSQLState (converter);              //@issue 34500
                     }
 
 
                     //else //@PDD  check for errors even on cases above (issue 32120)
-                    if(errorClass != 0 && bypassExceptionWarning == false)  //@pdc (issue 32120)
+                    if(errorClass != 0  )  //@pdc (issue 32120)
                     {
-                        positionOfSyntaxError_ = sqlca.getErrd(5);    //@F10A
+                        positionOfSyntaxError_ = firstSqlca.getErrd(5);    //@F10A
 
                         if(returnCode < 0)
                         {
@@ -1060,8 +1067,8 @@ implements Statement
                           // Check if error came from a combined opened fetch...
                           // If so, delay error until fetch occurs.  @F3A
                           //
-                          int errd6 = sqlca.getErrd(6);
-                          String errp = sqlca.getErrp(converter);   /*@N7A*/ 
+                          int errd6 = firstSqlca.getErrd(6);
+                          String errp = firstSqlca.getErrp(converter);   /*@N7A*/ 
                           if ( errd6 == 1 || 
                               ( "QSQFETCH".equals(errp) && 
                                   (functionId == DBSQLRequestDS.FUNCTIONID_OPEN_DESCRIBE_FETCH))) {
@@ -1079,8 +1086,19 @@ implements Statement
                         }
                         else
                         {
-                            String sqlState = sqlca.getSQLState (converter);  //@igwrn
-                            postWarning(JDError.getSQLWarning(connection_, id_, errorClass, returnCode));
+                          
+                           Enumeration enumeration = SQLCAs.elements(); 
+                           while (enumeration.hasMoreElements()) {
+                             DBReplySQLCA thisSqlca = (DBReplySQLCA) enumeration.nextElement(); 
+                           
+                             String sqlState = thisSqlca.getSQLState (converter);  //@igwrn
+                             if(sqlState.startsWith("00") || sqlState.startsWith("02")) {                //@pda (issue 32120)  //@issue 34500 //@35199
+                                // Do not post this warning.
+                             } else { 
+                                postWarning(JDError.getSQLWarning(connection_, id_, errorClass, returnCode));
+                             }
+                           }
+                            
                         }
                     }
 
@@ -1089,7 +1107,7 @@ implements Statement
                        (connection_.getVRM() >= JDUtilities.vrm520) &&
                        ((connection_.getVRM() < JDUtilities.vrm610) || !sqlStatement.isSelectFromInsert()))    //@F5A @F6C @GKC
                         //@F6D&& generatedKeys_ == null)                                 //@F5A
-                        makeGeneratedKeyResultSet(returnCode, sqlca);    //@G4A
+                        makeGeneratedKeyResultSet(returnCode, firstSqlca);    //@G4A
                     else if(generatedKeys_ != null)    //@PDA genkeys - handle previous genkeys
                     {
                         generatedKeys_.close();
@@ -1137,7 +1155,7 @@ implements Statement
                             sqlStatement.isSelectFromInsert())    //@GKA
                         {
                             // this will be the generated keys result set                                                                                                   //@GKA
-                            updateCount_ = sqlca.getErrd(3);                                                                //@GKA
+                            updateCount_ = firstSqlca.getErrd(3);                                                                //@GKA
                             rowCountEstimate_ = -1;                                                                         //@GKA
                             generatedKeys_ = new AS400JDBCResultSet (this, sqlStatement, rowCache, connection_.getCatalog(),//@GKA
                                                                      cursor_.getName(), maxRows_,                           //@GKA
@@ -1148,7 +1166,7 @@ implements Statement
                         else                                                                                                //@GKA
                         {                                                                                                   //@GKA
                             updateCount_ = -1;    // @ECM
-                            rowCountEstimate_ = sqlca.getErrd (3);    //@F1C                                          // @ECA
+                            rowCountEstimate_ = firstSqlca.getErrd (3);    //@F1C                                          // @ECA
                             resultSet_ = new AS400JDBCResultSet (this,
                                                              sqlStatement, rowCache, connection_.getCatalog(),
                                                              cursor_.getName(), maxRows_, resultSetType_,
@@ -1163,14 +1181,14 @@ implements Statement
                     }
                     else
                     {
-                        updateCount_ = sqlca.getErrd (3);    //@F1C
+                        updateCount_ = firstSqlca.getErrd (3);    //@F1C
                         rowCountEstimate_ = -1;    // @ECC
                     }
 
                     // Compute the number of results.
                     //@541D boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL);
                     if(isCall)
-                        numberOfResults_ = sqlca.getErrd (2);    //@F1C
+                        numberOfResults_ = firstSqlca.getErrd (2);    //@F1C
                     else
                         numberOfResults_ = 0;
 
@@ -1579,24 +1597,29 @@ implements Statement
                     int errorClass = execImmediateReply.getErrorClass();
                     int returnCode = execImmediateReply.getReturnCode();
 
-                    DBReplySQLCA sqlca = execImmediateReply.getSQLCA ();    //@F10M
+                    Vector sqlcas = execImmediateReply.getSQLCAs (); 
+                    DBReplySQLCA firstSqlca = (DBReplySQLCA) sqlcas.firstElement(); 
+                    Enumeration elements = sqlcas.elements();
+            while (elements.hasMoreElements()) {
+              DBReplySQLCA sqlca = (DBReplySQLCA) elements.nextElement(); // @F10M
 
-                    if(errorClass != 0)
-                    {
-                        positionOfSyntaxError_ = sqlca.getErrd(5);    //@F10A
-                        if(returnCode < 0)
-                            JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
-                        else
-                            postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
-                    }
-
+              if (errorClass != 0) {
+                positionOfSyntaxError_ = sqlca.getErrd(5); // @F10A
+                if (returnCode < 0)
+                  JDError.throwSQLException(this, connection_, id_, errorClass,
+                      returnCode);
+                else
+                  postWarning(JDError.getSQLWarning(connection_, id_,
+                      errorClass, returnCode));
+              }
+            }
                     transactionManager_.processCommitOnReturn(execImmediateReply);    // @E2A
 
                     cursor_.processCursorAttributes(execImmediateReply);                   //@cur
 
                     // Compute the update count.
                     //@F10M DBReplySQLCA sqlca = reply.getSQLCA ();
-                    updateCount_ = sqlca.getErrd (3);    //@F1C
+                    updateCount_ = firstSqlca.getErrd (3);    //@F1C
                     rowCountEstimate_ = -1;    // @ECA
 
                     //@F5A Don't have to check if a v5r2 system, because extendedMetaData
@@ -1611,7 +1634,7 @@ implements Statement
                     // Note:  This should not happen if running to a release after V5R4 as the insert will always be wrapped with a SELECT //@GKA
                     if(autoGeneratedKeys_ == RETURN_GENERATED_KEYS &&    //@F5A
                        (connection_.getVRM() >= JDUtilities.vrm520))    //@F5A
-                        makeGeneratedKeyResultSet(returnCode, sqlca);    //@F5A
+                        makeGeneratedKeyResultSet(returnCode, firstSqlca);    //@F5A
                     else if(generatedKeys_ != null)    //@PDA genkeys - handle previous genkeys
                     {
                         generatedKeys_.close();
@@ -1621,7 +1644,7 @@ implements Statement
                     // Compute the number of results.
                     //boolean isCall = (sqlStatement.getNativeType () == JDSQLStatement.TYPE_CALL); //@cur moved above
                     if(    /*(numberOfResults_ == 0) && */(isCall))
-                        numberOfResults_ = sqlca.getErrd (2);    //@F1C
+                        numberOfResults_ = firstSqlca.getErrd (2);    //@F1C
                     else
                         numberOfResults_ = 0;
 
