@@ -19,11 +19,7 @@ public class ConvTable5026 extends ConvTableMixedMap
 {
     public ConvTable5026() throws UnsupportedEncodingException
     {
-        super(5026, 291, 16684);  // 16684 is a superset of 300.
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Using alternate map.");
-        dbTable_ = ConvTable4396.makeAlternateMap(dbTable_, 5026); /*@V5A*/ 
-       
-        
+        super(5026, 291, 2000930 );  // Use 2000930 same as generated 2005026. Was 16684 is a superset of 300.
         
     }
 }

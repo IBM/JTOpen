@@ -190,13 +190,6 @@ public class GenerateConverterTable {
 
           tableToUnicode = down.download(ccsid, 61952,
               NLSTableDownload.SINGLE_BYTE_FROM_CCSID);
-        } else if (ccsid == 61175) {
-          System.out.println("Special case for ccsid 61175.");
-          System.out.println("Retrieving 1026->13488 table and adjusting...");
-          tableToUnicode = down.download(1026, 13488,
-              NLSTableDownload.SINGLE_BYTE_FROM_CCSID);
-          tableToUnicode[0xFC] = tableToUnicode[0x7F];
-          tableToUnicode[0x7F] = '"';
         } else if (ccsid == 1376) {
           // This is double byte so fall into bottom path
           tableToUnicode = null;

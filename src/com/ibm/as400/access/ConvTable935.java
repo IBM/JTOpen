@@ -21,6 +21,6 @@ public class ConvTable935 extends ConvTableMixedMap
 
     public ConvTable935() throws UnsupportedEncodingException
     {
-        super(935, 836, 837);
+        super(935, 836, 2001388);   /* The generated table for 2000935 matches 2001388 */ 
     }
 }

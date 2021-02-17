@@ -24,13 +24,12 @@ public class ConvTable1399 extends ConvTableMixedMap
     public ConvTable1399() throws UnsupportedEncodingException
     {
         this(1399);
-        dbTable_ = ConvTable1399.makeAlternateMap(dbTable_);  /*@KDA*/
     }
 
     ConvTable1399(int ccsid) throws UnsupportedEncodingException
     {
-        super(ccsid, 5123, 16684);
-        dbTable_ = ConvTable1399.makeAlternateMap(dbTable_);  /*@KDA*/
+        super(ccsid, 5123, 2001399);   /* Was 5123, 16684  */
+       
     }
     
     
