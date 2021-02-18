@@ -289,9 +289,9 @@ public abstract class ConvTable
         {
             if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Reusing previously loaded conversion table for ccsid: " + ccsid);
             if (ccsid > 2000000) { 
-              ccsidPool2_[ccsid] = newTable;
+              ccsidPool2_[ccsid-2000000] = newTable;
             } else if (ccsid > 1000000) { 
-              ccsidPool1_[ccsid] = newTable;
+              ccsidPool1_[ccsid-1000000] = newTable;
             } else if (ccsid <= LARGEST_CCSID) {
               ccsidPool_[ccsid] = newTable;
             }

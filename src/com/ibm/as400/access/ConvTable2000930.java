@@ -9,7 +9,7 @@
 // Copyright (C) 1997-2016 International Business Machines Corporation and
 // others.  All rights reserved.
 //
-// Generated Wed Feb 17 09:47:55 CST 2021 from sq730
+// Generated Wed Feb 17 09:47:55 CST 2021 from sq730 
 // Generation Options: -useJdbc
 // Using Open Source Software, JTOpen 10.5 codebase 5770-SS1 V7R4M0.00 built=20210210 @AD9
 ///////////////////////////////////////////////////////////////////////////////

@@ -15,12 +15,11 @@ package com.ibm.as400.access;
 
 import java.io.UnsupportedEncodingException;
 
-public class ConvTable939 extends ConvTable1399
+public class ConvTable939 extends ConvTableMixedMap
 {
     public ConvTable939() throws UnsupportedEncodingException
     {
-        super(939);
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Using alternate map.");
-        dbTable_ = ConvTable4396.makeAlternateMap(dbTable_, 939); 
+        super(939, 5123, 2000930);  // generated 2000939 same as 2000930
+        // Used to have superclass of 1399 (5123,2001399 ) and use makeAlternateMaps
     }
 }
