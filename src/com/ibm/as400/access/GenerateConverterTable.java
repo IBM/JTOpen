@@ -30,7 +30,7 @@ public class GenerateConverterTable {
   private static final int MAX_SURROGATE_LENGTH = 2000;
   private static final int MAX_TO_EBCDIC_LENGTH = 20000;
   static AS400 sys = null;
-  static Connection connection_ = null ;
+  static Connection connection_ = null;
   static boolean compress_ = true; // Compress the conversion table
                                    // Note: turn this off for debugging purposes
 
@@ -45,13 +45,13 @@ public class GenerateConverterTable {
 
   static boolean showOffsets_ = false; // Indicates of the offsets should be
                                        // printed in the tables
-  
-  static boolean useJdbc_ = false;   // Use JDBC to retrieve the table information 
+
+  static boolean useJdbc_ = false; // Use JDBC to retrieve the table information
 
   public static void main(String[] args) {
     if (args.length < 4) {
-      System.out
-          .println("Usage: java com.ibm.as400.access.GenerateConverterTable system uid pwd [-nocompress] [-ascii] [-bidi] [-showOffsets] [-codePointPerLine] [-useJdbc] ccsid [ccsid2] [ccsid3] [ccsid4] ...");
+      System.out.println(
+          "Usage: java com.ibm.as400.access.GenerateConverterTable system uid pwd [-nocompress] [-ascii] [-bidi] [-showOffsets] [-codePointPerLine] [-useJdbc] ccsid [ccsid2] [ccsid3] [ccsid4] ...");
       System.exit(0);
     }
 
@@ -89,17 +89,17 @@ public class GenerateConverterTable {
 
     if (args[start].equals("-useJdbc")) {
       useJdbc_ = true;
-      
+
       try {
-        Class.forName("com.ibm.as400.access.AS400JDBCDriver"); 
-        connection_ = DriverManager.getConnection("jdbc:as400:"+args[0], args[1], args[2]);
-        
+        Class.forName("com.ibm.as400.access.AS400JDBCDriver");
+        connection_ = DriverManager.getConnection("jdbc:as400:" + args[0],
+            args[1], args[2]);
+
       } catch (Exception e) {
         e.printStackTrace();
         System.exit(0);
       }
 
-      
       ++start;
     }
 
@@ -128,51 +128,52 @@ public class GenerateConverterTable {
     char[] tableToEbcdic = new char[0];
     char[][] surrogateTable = null;
     char[][] tripletTable = null;
-    char[][] quadTable = null; 
+    char[][] quadTable = null;
 
     // int numTables1 = 1;
     // int numTables2 = 1;
 
     boolean ebcdicIsDBCS = false;
-    int doubleByteFormat = NLSTableDownload.DOUBLE_BYTE_FROM_CCSID; 
-    int originalCcsid = ccsid; 
-    
+    int doubleByteFormat = NLSTableDownload.DOUBLE_BYTE_FROM_CCSID;
+    int originalCcsid = ccsid;
+
     try {
       if (useJdbc_) {
         if (ConvTable.isMixedCCSID(originalCcsid)) {
-          // 
+          //
           // If we have a mixed CCSID then we will download in two pieces
-          // We use the convention that a CCSID that starts with 10xxxxx is SINGLE BYTE part of mixed
-          //                        and a CCSID that starts with 20xxxxx is DOUBLE BYTE part of mixed
-          go(1000000+ccsid); 
-          go(2000000+ccsid); 
-          
-          return; 
+          // We use the convention that a CCSID that starts with 10xxxxx is
+          // SINGLE BYTE part of mixed
+          // and a CCSID that starts with 20xxxxx is DOUBLE BYTE part of mixed
+          go(1000000 + ccsid);
+          go(2000000 + ccsid);
+
+          return;
         } else {
-          Class.forName("com.ibm.as400.access.AS400JDBCDriver"); 
-          try { 
-          if (ccsid > 2000000 ) {
-             ebcdicIsDBCS = true; 
-          } else if (ccsid > 1000000) {
-            ebcdicIsDBCS = false; 
-          } else { 
-            ebcdicIsDBCS = jdbcIsDBCS(connection_, ccsid) ; 
+          Class.forName("com.ibm.as400.access.AS400JDBCDriver");
+          try {
+            if (ccsid > 2000000) {
+              ebcdicIsDBCS = true;
+            } else if (ccsid > 1000000) {
+              ebcdicIsDBCS = false;
+            } else {
+              ebcdicIsDBCS = jdbcIsDBCS(connection_, ccsid);
+            }
+
+            if (ebcdicIsDBCS) {
+              tableToUnicodeSpaces = jdbcToUnicodeSpacesDBCS(connection_,
+                  ccsid);
+              tableToEbcdic = jdbcToEbcdicDBCS(connection_, ccsid);
+            } else {
+              tableToUnicode = jdbcToUnicode(connection_, ccsid);
+              tableToEbcdic = jdbcToEbcdic(connection_, ccsid);
+            }
+          } catch (Exception e) {
+            System.out.println("Error downloading table using JDBC ");
+            e.printStackTrace(System.out);
+            System.exit(1);
           }
 
-          if (ebcdicIsDBCS) {
-            tableToUnicodeSpaces =  jdbcToUnicodeSpacesDBCS(connection_, ccsid);
-            tableToEbcdic =   jdbcToEbcdicDBCS(connection_, ccsid); 
-          } else {
-            tableToUnicode =   jdbcToUnicode(connection_, ccsid); 
-            tableToEbcdic =    jdbcToEbcdic(connection_, ccsid);  
-          }
-          } catch (Exception e) { 
-            System.out.println("Error downloading table using JDBC "); 
-            e.printStackTrace(System.out) ;
-            System.exit(1); 
-          }
-          
-          
         }
       } else {
         AS400ImplRemote impl = (AS400ImplRemote) sys.getImpl();
@@ -212,10 +213,10 @@ public class GenerateConverterTable {
             System.out.println("Aborting since CCSD 1175 failed to download");
             throw new Exception("Aborting since CCSD 1175 failed to download");
           }
-          System.out.println(ccsid
-              + " must be double-byte because download failed (" + reason
-              + "). Performing secondary retrieve of " + ccsid
-              + "->1200 table...");
+          System.out
+              .println(ccsid + " must be double-byte because download failed ("
+                  + reason + "). Performing secondary retrieve of " + ccsid
+                  + "->1200 table...");
           ebcdicIsDBCS = true;
           down.disconnect();
           down.connect();
@@ -223,7 +224,7 @@ public class GenerateConverterTable {
         }
         down.disconnect();
         down.connect();
-        
+
         if (ccsid == 1089) {
           System.out.println("Special case for ccsid 1089.");
           System.out.println("Retrieving 61952->" + ccsid + " table...");
@@ -237,16 +238,18 @@ public class GenerateConverterTable {
         }
 
       }
-      System.out.println("  Size: " + tableToUnicode.length +" or "+ tableToUnicodeSpaces.length);
-      if (tableToUnicode.length > 65536 || tableToUnicodeSpaces.length > 131072) {
+      System.out.println("  Size: " + tableToUnicode.length + " or "
+          + tableToUnicodeSpaces.length);
+      if (tableToUnicode.length > 65536
+          || tableToUnicodeSpaces.length > 131072) {
         System.out.println("Size is > 65536 or 131072.  Fixing table");
         int next = 0;
         int from = 0;
         char[] newTable = new char[65536];
-        int lastFrom = 0; 
-        int lastTo = 0; 
-        boolean hasSpaces = false; 
-        
+        int lastFrom = 0;
+        int lastTo = 0;
+        boolean hasSpaces = false;
+
         int tableLength = tableToUnicode.length;
         if (tableLength > 0) { /* Old logic without spaces */
           while (from < tableLength && next < 65536) {
@@ -327,11 +330,11 @@ public class GenerateConverterTable {
             int c1 = 0;
             int c2 = 0;
             int c3 = 0;
-            int c4 = 0; 
-            int characterCount = 0; 
-            
+            int c4 = 0;
+            int characterCount = 0;
+
             c0 = 0xFFFF & (int) tableToUnicodeSpaces[from];
-            
+
             // If we didn't process a variation selector, ignore it.
             // In CCSID 1371 FE60 => FE00 and FE61 => FE01, etc
             if (ccsid != 2001371) {
@@ -354,10 +357,11 @@ public class GenerateConverterTable {
                 } else {
                   c4 = 0xFFFF & (int) tableToUnicodeSpaces[from + 4];
                   if (c4 == 0x3000) {
-                    characterCount = 4; 
-                  } else { 
-                  throw new Exception("Character count is too large for from=0x"
-                      + Integer.toHexString(from));
+                    characterCount = 4;
+                  } else {
+                    throw new Exception(
+                        "Character count is too large for from=0x"
+                            + Integer.toHexString(from));
                   }
                 }
               }
@@ -365,8 +369,8 @@ public class GenerateConverterTable {
 
             if (characterCount == 1) {
               newTable[next] = (char) c0;
-              from+=2;
-            } else if (characterCount == 2) { 
+              from += 2;
+            } else if (characterCount == 2) {
               newTable[next] = (char) 0xD800;
               // add to surrogate table
               if (surrogateTable == null) {
@@ -377,7 +381,7 @@ public class GenerateConverterTable {
               pair[0] = (char) (0xFFFF & (int) c0);
               pair[1] = (char) (0xFFFF & (int) c1);
               from += 3;
-            } else if (characterCount == 3){  /* Character count must be 3 */ 
+            } else if (characterCount == 3) { /* Character count must be 3 */
               newTable[next] = (char) 0xD801;
               // add to triple table
               if (tripletTable == null) {
@@ -389,7 +393,7 @@ public class GenerateConverterTable {
               triple[1] = (char) (0xFFFF & (int) c1);
               triple[2] = (char) (0xFFFF & (int) c2);
               from += 4;
-            } else if (characterCount == 4) { /* character count must be 4 */ 
+            } else if (characterCount == 4) { /* character count must be 4 */
               newTable[next] = (char) 0xD802;
               // add to triple table
               if (quadTable == null) {
@@ -403,28 +407,29 @@ public class GenerateConverterTable {
               quad[3] = (char) (0xFFFF & (int) c3);
               from += 5;
             } else {
-              throw new Exception("Character count is invalid "+characterCount); 
+              throw new Exception(
+                  "Character count is invalid " + characterCount);
             }
-            
+
             next++;
           } /* while */
-          /* Fill out the rest of the table */ 
-          while (next < 65536) { 
-            newTable[next]= (char) 0xFFFD; 
-            next++; 
+          /* Fill out the rest of the table */
+          while (next < 65536) {
+            newTable[next] = (char) 0xFFFD;
+            next++;
           }
-          
+
         }
         tableToUnicode = newTable;
 
       } else if (tableToUnicode.length == 0) {
         // Create a tableToUnicode from tableToUnicodeSpaces
-        int len = tableToUnicodeSpaces.length / 2; 
-        tableToUnicode= new char[len]; 
+        int len = tableToUnicodeSpaces.length / 2;
+        tableToUnicode = new char[len];
         for (int i = 0; i < len; i++) {
-          tableToUnicode[i] = tableToUnicodeSpaces[i*2]; 
+          tableToUnicode[i] = tableToUnicodeSpaces[i * 2];
         }
-        
+
       }
       System.out.println("  Size: " + tableToEbcdic.length);
 
@@ -433,58 +438,59 @@ public class GenerateConverterTable {
       // Go through table and process SI/I)
       if (doubleByteFormat == NLSTableDownload.MIXED_BYTE_FROM_CCSID) {
         char[] newTableToEbcdic = new char[65536];
-        byte[] oldTableToEbcdic = new byte[tableToEbcdic.length * 2]; 
+        byte[] oldTableToEbcdic = new byte[tableToEbcdic.length * 2];
         for (int i = 0; i < tableToEbcdic.length; i++) {
-          oldTableToEbcdic[2*i] = (byte) ( 0xFF & (tableToEbcdic[i] >> 8)); 
-          oldTableToEbcdic[2*i+1] = (byte)( tableToEbcdic[i] & 0xFF); 
+          oldTableToEbcdic[2 * i] = (byte) (0xFF & (tableToEbcdic[i] >> 8));
+          oldTableToEbcdic[2 * i + 1] = (byte) (tableToEbcdic[i] & 0xFF);
         }
-        boolean singleByte = true; 
-        int newTableOffset = 0; 
+        boolean singleByte = true;
+        int newTableOffset = 0;
         for (int i = 0; i < oldTableToEbcdic.length; i++) {
-           int b = 0xFF & oldTableToEbcdic[i]; 
-           while ((i > 0x0F) && (i < oldTableToEbcdic.length) && ((b == 0x0E) || (b == 0x0F)) ) {
-             if (b == 0x0E) {
-                singleByte = false;
-                i++; 
-             } else {
-               singleByte = true;
-               i++; 
-             }
-             if (i < oldTableToEbcdic.length) { 
-                b = 0xFF & oldTableToEbcdic[i];
-             }
-           } 
+          int b = 0xFF & oldTableToEbcdic[i];
+          while ((i > 0x0F) && (i < oldTableToEbcdic.length)
+              && ((b == 0x0E) || (b == 0x0F))) {
+            if (b == 0x0E) {
+              singleByte = false;
+              i++;
+            } else {
+              singleByte = true;
+              i++;
+            }
+            if (i < oldTableToEbcdic.length) {
+              b = 0xFF & oldTableToEbcdic[i];
+            }
+          }
           if (i < oldTableToEbcdic.length) {
             if (singleByte) {
-              if (newTableOffset < newTableToEbcdic.length) { 
+              if (newTableOffset < newTableToEbcdic.length) {
                 newTableToEbcdic[newTableOffset] = (char) b;
                 newTableOffset++;
               }
             } else {
               i++;
-              if (i < oldTableToEbcdic.length) { 
-                 int c =  0xFF & oldTableToEbcdic[i];
-                 if (newTableOffset < newTableToEbcdic.length) {
-                   if (newTableOffset == 0x431) {
-                     newTableToEbcdic[newTableOffset] = (char) ((b << 8) + c);
-                     newTableOffset++;
-                     
-                   } else { 
-                     newTableToEbcdic[newTableOffset] = (char) ((b << 8) + c);
-                     newTableOffset++;
-                   }
-                 }
+              if (i < oldTableToEbcdic.length) {
+                int c = 0xFF & oldTableToEbcdic[i];
+                if (newTableOffset < newTableToEbcdic.length) {
+                  if (newTableOffset == 0x431) {
+                    newTableToEbcdic[newTableOffset] = (char) ((b << 8) + c);
+                    newTableOffset++;
+
+                  } else {
+                    newTableToEbcdic[newTableOffset] = (char) ((b << 8) + c);
+                    newTableOffset++;
+                  }
+                }
               }
 
             }
           }
-        } /* for i */ 
+        } /* for i */
         while (newTableOffset < newTableToEbcdic.length) {
-            newTableToEbcdic[newTableOffset]=(char) 0xFEFE; 
-            newTableOffset++; 
+          newTableToEbcdic[newTableOffset] = (char) 0xFEFE;
+          newTableOffset++;
         }
-        tableToEbcdic=newTableToEbcdic;
-      } /* If Mixed byte */ 
+        tableToEbcdic = newTableToEbcdic;
+      } /* If Mixed byte */
       sys.disconnectAllServices();
     } catch (Exception e) {
       e.printStackTrace(System.out);
@@ -492,31 +498,33 @@ public class GenerateConverterTable {
 
     // Do any necessary fixup
     if (ccsid == 290) {
-      
-      tableToUnicode[0xE1] = '\u20ac'; 
-      char toEbcdic = tableToEbcdic[0x20ac / 2]; 
-      toEbcdic = (char)((0xE1 << 8) | (toEbcdic & 0xFF)); 
-      tableToEbcdic[0x20ac / 2] = toEbcdic; 
+
+      tableToUnicode[0xE1] = '\u20ac';
+      char toEbcdic = tableToEbcdic[0x20ac / 2];
+      toEbcdic = (char) ((0xE1 << 8) | (toEbcdic & 0xFF));
+      tableToEbcdic[0x20ac / 2] = toEbcdic;
     }
     // Verify the mapping
-    verifyRoundTrip(tableToUnicode, tableToEbcdic, ebcdicIsDBCS, ccsid, surrogateTable, tripletTable, quadTable);
+    verifyRoundTrip(tableToUnicode, tableToEbcdic, ebcdicIsDBCS, ccsid,
+        surrogateTable, tripletTable, quadTable);
 
     System.out.println("****************************************");
     System.out.println("Verify round 2 ");
     System.out.println("****************************************");
-    verifyRoundTrip(tableToUnicode, tableToEbcdic, ebcdicIsDBCS, ccsid, surrogateTable, tripletTable, quadTable);
+    verifyRoundTrip(tableToUnicode, tableToEbcdic, ebcdicIsDBCS, ccsid,
+        surrogateTable, tripletTable, quadTable);
 
     // Compress the ccsid table
     if (ebcdicIsDBCS) {
       if (compress_) {
-        System.out.println("Compressing " + ccsid
-            + "->13488 conversion table...");
+        System.out
+            .println("Compressing " + ccsid + "->13488 conversion table...");
         char[] arr = compress(tableToUnicode);
-        System.out.println("Old compression length: " + arr.length
-            + " characters.");
+        System.out
+            .println("Old compression length: " + arr.length + " characters.");
         char[] temparr = compressBetter(tableToUnicode);
-        System.out.println("New compression length: " + temparr.length
-            + " characters.");
+        System.out.println(
+            "New compression length: " + temparr.length + " characters.");
         if (temparr.length > arr.length) {
           System.out
               .println("WARNING: New algorithm WORSE than old algorithm!");
@@ -550,40 +558,46 @@ public class GenerateConverterTable {
       }
     }
 
-    int fileCcsid = ccsid; 
-    if ( doubleByteFormat  == NLSTableDownload.MIXED_BYTE_FROM_CCSID) {
-        fileCcsid = ccsid + 1100000; 
-        System.out.println("Create file using "+fileCcsid+" since MIXED CCSID "); 
+    int fileCcsid = ccsid;
+    if (doubleByteFormat == NLSTableDownload.MIXED_BYTE_FROM_CCSID) {
+      fileCcsid = ccsid + 1100000;
+      System.out
+          .println("Create file using " + fileCcsid + " since MIXED CCSID ");
     }
     // Write out the ccsid table
-    StringBuffer surrogateInitStringBuffer = new StringBuffer(); 
+    StringBuffer surrogateInitStringBuffer = new StringBuffer();
 
     try {
       String fName = "ConvTable" + fileCcsid + ".java";
       FileWriter f = new FileWriter(fName);
       writeHeader(f, fileCcsid, sys.getSystemName());
       if (ascii_) {
-        f.write("class ConvTable" + fileCcsid + " extends ConvTableAsciiMap\n{\n");
+        f.write(
+            "class ConvTable" + fileCcsid + " extends ConvTableAsciiMap\n{\n");
       } else if (bidi_) {
-        f.write("class ConvTable" + fileCcsid + " extends ConvTableBidiMap\n{\n");
+        f.write(
+            "class ConvTable" + fileCcsid + " extends ConvTableBidiMap\n{\n");
       } else if (ebcdicIsDBCS) {
-        f.write("class ConvTable" + fileCcsid + " extends ConvTableDoubleMap\n{\n");
+        f.write(
+            "class ConvTable" + fileCcsid + " extends ConvTableDoubleMap\n{\n");
       } else {
-        f.write("class ConvTable" + fileCcsid + " extends ConvTableSingleMap\n{\n");
+        f.write(
+            "class ConvTable" + fileCcsid + " extends ConvTableSingleMap\n{\n");
       }
 
       f.write("  private static char[] toUnicodeArray_;  \n");
-      f.write("  private static final String copyright = \"Copyright (C) 1997-2016 International Business Machines Corporation and others.\";\n");
-      f.write("  // toUnicode_ length is "+tableToUnicode.length+"\n"); 
+      f.write(
+          "  private static final String copyright = \"Copyright (C) 1997-2016 International Business Machines Corporation and others.\";\n");
+      f.write("  // toUnicode_ length is " + tableToUnicode.length + "\n");
       f.write("  private static final String toUnicode_ = \n");
       System.out.print("Writing table for conversion from " + ccsid
           + " to 13488... to " + fName + "\n");
-      writeTable(f, tableToUnicode, 0, tableToUnicode.length );
+      writeTable(f, tableToUnicode, 0, tableToUnicode.length);
       f.write("\n");
       f.write("\n");
 
       // Write out the surrogateTable if it exists
-      int surrogateLength = 0; 
+      int surrogateLength = 0;
       if (surrogateTable != null) {
 
         f.write("\n");
@@ -591,36 +605,37 @@ public class GenerateConverterTable {
         for (int i = 0; i < surrogateTable.length; i++) {
           char[] pair = surrogateTable[i];
           if (pair != null) {
-            surrogateLength++; 
+            surrogateLength++;
           }
         } /* for i */
-        
-        int surrogateCount = 0; 
-        char[][] compressedSurrogateTable = new char[surrogateLength][]; 
+
+        int surrogateCount = 0;
+        char[][] compressedSurrogateTable = new char[surrogateLength][];
         for (int i = 0; i < surrogateTable.length; i++) {
           char[] pair = surrogateTable[i];
           if (pair != null) {
-            char[] triplet = new char[3]; 
-            triplet[0] = (char) i; 
+            char[] triplet = new char[3];
+            triplet[0] = (char) i;
             triplet[1] = pair[0];
             triplet[2] = pair[1];
-            compressedSurrogateTable[surrogateCount] = triplet; 
-            surrogateCount++; 
+            compressedSurrogateTable[surrogateCount] = triplet;
+            surrogateCount++;
           }
         } /* for i */
-        
-        
-        f.write("  // Number of surrogateMappings is "+surrogateLength+"\n"); 
-        if (surrogateLength < MAX_SURROGATE_LENGTH) { 
-          f.write("  private static final char[][] toUnicodeSurrogateMappings = { \n");
-          System.out.print("Writing surrogate table for conversion from " + ccsid
-              + " to 1200... to " + fName + "\n");
+
+        f.write(
+            "  // Number of surrogateMappings is " + surrogateLength + "\n");
+        if (surrogateLength < MAX_SURROGATE_LENGTH) {
+          f.write(
+              "  private static final char[][] toUnicodeSurrogateMappings = { \n");
+          System.out.print("Writing surrogate table for conversion from "
+              + ccsid + " to 1200... to " + fName + "\n");
           for (int i = 0; i < compressedSurrogateTable.length; i++) {
             char[] triplet = compressedSurrogateTable[i];
             if (triplet != null) {
               f.write("{'" + formattedChar((char) triplet[0]) + "','"
-                  + formattedChar(triplet[1]) + "','" + formattedChar(triplet[2])
-                  + "'},\n");
+                  + formattedChar(triplet[1]) + "','"
+                  + formattedChar(triplet[2]) + "'},\n");
             }
           } /* for i */
           f.write("};\n");
@@ -628,39 +643,48 @@ public class GenerateConverterTable {
           f.write("\n");
         } else {
           // We must break into pieces
-          f.write("  private static char[][] toUnicodeSurrogateMappings = new char["+surrogateLength+"][];\n");  
-          int startIndex = 0; 
+          f.write(
+              "  private static char[][] toUnicodeSurrogateMappings = new char["
+                  + surrogateLength + "][];\n");
+          int startIndex = 0;
           while (startIndex < surrogateLength) {
-            f.write("  private static void initToUnicodeSurrogateMappings"+startIndex+"() { \n"); 
+            f.write("  private static void initToUnicodeSurrogateMappings"
+                + startIndex + "() { \n");
             f.write("  char[][] toUnicodeSurrogateMappingsPiece = {\n");
-            for (int i = 0; i < MAX_SURROGATE_LENGTH && (i+startIndex < surrogateLength); i++) {
-              char[] triplet = compressedSurrogateTable[startIndex+i];
+            for (int i = 0; i < MAX_SURROGATE_LENGTH
+                && (i + startIndex < surrogateLength); i++) {
+              char[] triplet = compressedSurrogateTable[startIndex + i];
               if (triplet != null) {
                 f.write("    {'" + formattedChar((char) (triplet[0])) + "','"
-                    + formattedChar(triplet[1]) + "','" + formattedChar(triplet[2])
-                    + "'},\n");
+                    + formattedChar(triplet[1]) + "','"
+                    + formattedChar(triplet[2]) + "'},\n");
               }
             } /* for i */
             f.write("  };\n");
 
-            f.write("    for (int j = 0; j < toUnicodeSurrogateMappingsPiece.length ; j++) {\n"); 
-            f.write("      toUnicodeSurrogateMappings["+startIndex+"+j]= new char[3];\n");  
-            f.write("      toUnicodeSurrogateMappings["+startIndex+"+j][0] = toUnicodeSurrogateMappingsPiece[j][0];\n");
-            f.write("      toUnicodeSurrogateMappings["+startIndex+"+j][1] = toUnicodeSurrogateMappingsPiece[j][1];\n");
-            f.write("      toUnicodeSurrogateMappings["+startIndex+"+j][2] = toUnicodeSurrogateMappingsPiece[j][2];\n");
-            f.write("    }\n"); 
-            f.write("  }\n"); 
+            f.write(
+                "    for (int j = 0; j < toUnicodeSurrogateMappingsPiece.length ; j++) {\n");
+            f.write("      toUnicodeSurrogateMappings[" + startIndex
+                + "+j]= new char[3];\n");
+            f.write("      toUnicodeSurrogateMappings[" + startIndex
+                + "+j][0] = toUnicodeSurrogateMappingsPiece[j][0];\n");
+            f.write("      toUnicodeSurrogateMappings[" + startIndex
+                + "+j][1] = toUnicodeSurrogateMappingsPiece[j][1];\n");
+            f.write("      toUnicodeSurrogateMappings[" + startIndex
+                + "+j][2] = toUnicodeSurrogateMappingsPiece[j][2];\n");
+            f.write("    }\n");
+            f.write("  }\n");
             f.write("\n");
-            surrogateInitStringBuffer.append("   initToUnicodeSurrogateMappings"+startIndex+"();\n"); 
-            
-            startIndex += MAX_SURROGATE_LENGTH; 
+            surrogateInitStringBuffer.append(
+                "   initToUnicodeSurrogateMappings" + startIndex + "();\n");
+
+            startIndex += MAX_SURROGATE_LENGTH;
           }
         }
       } /* if surrogate table */
 
-      
       // Write out the tripleTable if it exists
-      int tripletLength = 0; 
+      int tripletLength = 0;
       if (tripletTable != null) {
 
         f.write("\n");
@@ -668,29 +692,29 @@ public class GenerateConverterTable {
         for (int i = 0; i < tripletTable.length; i++) {
           char[] pair = tripletTable[i];
           if (pair != null) {
-            tripletLength++; 
+            tripletLength++;
           }
         } /* for i */
-        
-        int tripletCount = 0; 
-        char[][] compressedTripletTable = new char[tripletLength][]; 
+
+        int tripletCount = 0;
+        char[][] compressedTripletTable = new char[tripletLength][];
         for (int i = 0; i < tripletTable.length; i++) {
           char[] triplet = tripletTable[i];
           if (triplet != null) {
-            char[] entry = new char[4]; 
-            entry[0] = (char) i; 
+            char[] entry = new char[4];
+            entry[0] = (char) i;
             entry[1] = triplet[0];
             entry[2] = triplet[1];
             entry[3] = triplet[2];
-            compressedTripletTable[tripletCount] = entry; 
-            tripletCount++; 
+            compressedTripletTable[tripletCount] = entry;
+            tripletCount++;
           }
         } /* for i */
-        
-        
-        f.write("  // Number of tripletMappings is "+tripletLength+"\n"); 
-        if (tripletLength < MAX_SURROGATE_LENGTH) { 
-          f.write("  private static final char[][] toUnicodeTripletMappings = { \n");
+
+        f.write("  // Number of tripletMappings is " + tripletLength + "\n");
+        if (tripletLength < MAX_SURROGATE_LENGTH) {
+          f.write(
+              "  private static final char[][] toUnicodeTripletMappings = { \n");
           System.out.print("Writing triplet table for conversion from " + ccsid
               + " to 13488... to " + fName + "\n");
           for (int i = 0; i < compressedTripletTable.length; i++) {
@@ -698,8 +722,7 @@ public class GenerateConverterTable {
             if (entry != null) {
               f.write("{'" + formattedChar((char) entry[0]) + "','"
                   + formattedChar(entry[1]) + "','" + formattedChar(entry[2])
-                  + "','" + formattedChar(entry[3])
-                  + "'},\n");
+                  + "','" + formattedChar(entry[3]) + "'},\n");
             }
           } /* for i */
           f.write("};\n");
@@ -707,40 +730,48 @@ public class GenerateConverterTable {
           f.write("\n");
         } else {
           // We must break into pieces
-          f.write("  private static char[][] toUnicodeTripletMappings = new char["+tripletLength+"][];\n");  
-          int startIndex = 0; 
+          f.write(
+              "  private static char[][] toUnicodeTripletMappings = new char["
+                  + tripletLength + "][];\n");
+          int startIndex = 0;
           while (startIndex < tripletLength) {
-            f.write("  private static void initToUnicodeTripletMappings"+startIndex+"() { \n"); 
+            f.write("  private static void initToUnicodeTripletMappings"
+                + startIndex + "() { \n");
             f.write("  char[][] toUnicodeTripletMappingsPiece = {\n");
-            for (int i = 0; i < MAX_SURROGATE_LENGTH && (i+startIndex < tripletLength); i++) {
-              char[] entry = compressedTripletTable[startIndex+i];
+            for (int i = 0; i < MAX_SURROGATE_LENGTH
+                && (i + startIndex < tripletLength); i++) {
+              char[] entry = compressedTripletTable[startIndex + i];
               if (entry != null) {
                 f.write("    {'" + formattedChar((char) (entry[0])) + "','"
                     + formattedChar(entry[1]) + "','" + formattedChar(entry[2])
-                    + "','" + formattedChar(entry[3])
-                    + "'},\n");
+                    + "','" + formattedChar(entry[3]) + "'},\n");
               }
             } /* for i */
             f.write("  };\n");
 
-            f.write("    for (int j = 0; j < toUnicodeTripletMappingsPiece.length ; j++) {\n"); 
-            f.write("      toUnicodeTripletMappings["+startIndex+"+j]= new char[3];\n");  
-            f.write("      toUnicodeTripletMappings["+startIndex+"+j][0] = toUnicodeTripletMappingsPiece[j][0];\n");
-            f.write("      toUnicodeTripletMappings["+startIndex+"+j][1] = toUnicodeTripletMappingsPiece[j][1];\n");
-            f.write("      toUnicodeTripletMappings["+startIndex+"+j][2] = toUnicodeTripletMappingsPiece[j][2];\n");
-            f.write("    }\n"); 
-            f.write("  }\n"); 
+            f.write(
+                "    for (int j = 0; j < toUnicodeTripletMappingsPiece.length ; j++) {\n");
+            f.write("      toUnicodeTripletMappings[" + startIndex
+                + "+j]= new char[3];\n");
+            f.write("      toUnicodeTripletMappings[" + startIndex
+                + "+j][0] = toUnicodeTripletMappingsPiece[j][0];\n");
+            f.write("      toUnicodeTripletMappings[" + startIndex
+                + "+j][1] = toUnicodeTripletMappingsPiece[j][1];\n");
+            f.write("      toUnicodeTripletMappings[" + startIndex
+                + "+j][2] = toUnicodeTripletMappingsPiece[j][2];\n");
+            f.write("    }\n");
+            f.write("  }\n");
             f.write("\n");
-            surrogateInitStringBuffer.append("   initToUnicodeTripletMappings"+startIndex+"();\n"); 
-            
-            startIndex += MAX_SURROGATE_LENGTH; 
+            surrogateInitStringBuffer.append(
+                "   initToUnicodeTripletMappings" + startIndex + "();\n");
+
+            startIndex += MAX_SURROGATE_LENGTH;
           }
         }
       } /* if triplet table */
 
-      
       // Write out the quadTable if it exists
-      int quadLength = 0; 
+      int quadLength = 0;
       if (quadTable != null) {
 
         f.write("\n");
@@ -748,30 +779,30 @@ public class GenerateConverterTable {
         for (int i = 0; i < quadTable.length; i++) {
           char[] pair = quadTable[i];
           if (pair != null) {
-            quadLength++; 
+            quadLength++;
           }
         } /* for i */
-        
-        int quadCount = 0; 
-        char[][] compressedquadTable = new char[quadLength][]; 
+
+        int quadCount = 0;
+        char[][] compressedquadTable = new char[quadLength][];
         for (int i = 0; i < quadTable.length; i++) {
           char[] quad = quadTable[i];
           if (quad != null) {
-            char[] entry = new char[5]; 
-            entry[0] = (char) i; 
+            char[] entry = new char[5];
+            entry[0] = (char) i;
             entry[1] = quad[0];
             entry[2] = quad[1];
             entry[3] = quad[2];
             entry[4] = quad[3];
-            compressedquadTable[quadCount] = entry; 
-            quadCount++; 
+            compressedquadTable[quadCount] = entry;
+            quadCount++;
           }
         } /* for i */
-        
-        
-        f.write("  // Number of quadMappings is "+quadLength+"\n"); 
-        if (quadLength < MAX_SURROGATE_LENGTH) { 
-          f.write("  private static final char[][] toUnicodeQuadMappings = { \n");
+
+        f.write("  // Number of quadMappings is " + quadLength + "\n");
+        if (quadLength < MAX_SURROGATE_LENGTH) {
+          f.write(
+              "  private static final char[][] toUnicodeQuadMappings = { \n");
           System.out.print("Writing quad table for conversion from " + ccsid
               + " to 1200... to " + fName + "\n");
           for (int i = 0; i < compressedquadTable.length; i++) {
@@ -779,9 +810,8 @@ public class GenerateConverterTable {
             if (entry != null) {
               f.write("{'" + formattedChar((char) entry[0]) + "','"
                   + formattedChar(entry[1]) + "','" + formattedChar(entry[2])
-                  + "','" + formattedChar(entry[3])
-                  + "','" + formattedChar(entry[4])
-                  + "'},\n");
+                  + "','" + formattedChar(entry[3]) + "','"
+                  + formattedChar(entry[4]) + "'},\n");
             }
           } /* for i */
           f.write("};\n");
@@ -789,43 +819,48 @@ public class GenerateConverterTable {
           f.write("\n");
         } else {
           // We must break into pieces
-          f.write("  private static char[][] toUnicodeQuadMappings = new char["+quadLength+"][];\n");  
-          int startIndex = 0; 
+          f.write("  private static char[][] toUnicodeQuadMappings = new char["
+              + quadLength + "][];\n");
+          int startIndex = 0;
           while (startIndex < quadLength) {
-            f.write("  private static void initToUnicodeQuadMappings"+startIndex+"() { \n"); 
+            f.write("  private static void initToUnicodeQuadMappings"
+                + startIndex + "() { \n");
             f.write("  char[][] toUnicodeQuadMappingsPiece = {\n");
-            for (int i = 0; i < MAX_SURROGATE_LENGTH && (i+startIndex < quadLength); i++) {
-              char[] entry = compressedquadTable[startIndex+i];
+            for (int i = 0; i < MAX_SURROGATE_LENGTH
+                && (i + startIndex < quadLength); i++) {
+              char[] entry = compressedquadTable[startIndex + i];
               if (entry != null) {
                 f.write("    {'" + formattedChar((char) (entry[0])) + "','"
                     + formattedChar(entry[1]) + "','" + formattedChar(entry[2])
-                    + "','" + formattedChar(entry[3])
-                    + "','" + formattedChar(entry[4])
-                    + "'},\n");
+                    + "','" + formattedChar(entry[3]) + "','"
+                    + formattedChar(entry[4]) + "'},\n");
               }
             } /* for i */
             f.write("  };\n");
 
-            f.write("    for (int j = 0; j < toUnicodeQuadMappingsPiece.length ; j++) {\n"); 
-            f.write("      toUnicodeQuadMappings["+startIndex+"+j]= new char[3];\n");  
-            f.write("      toUnicodeQuadMappings["+startIndex+"+j][0] = toUnicodeQuadMappingsPiece[j][0];\n");
-            f.write("      toUnicodeQuadMappings["+startIndex+"+j][1] = toUnicodeQuadMappingsPiece[j][1];\n");
-            f.write("      toUnicodeQuadMappings["+startIndex+"+j][2] = toUnicodeQuadMappingsPiece[j][2];\n");
-            f.write("      toUnicodeQuadMappings["+startIndex+"+j][3] = toUnicodeQuadMappingsPiece[j][3];\n");
-            f.write("    }\n"); 
-            f.write("  }\n"); 
+            f.write(
+                "    for (int j = 0; j < toUnicodeQuadMappingsPiece.length ; j++) {\n");
+            f.write("      toUnicodeQuadMappings[" + startIndex
+                + "+j]= new char[3];\n");
+            f.write("      toUnicodeQuadMappings[" + startIndex
+                + "+j][0] = toUnicodeQuadMappingsPiece[j][0];\n");
+            f.write("      toUnicodeQuadMappings[" + startIndex
+                + "+j][1] = toUnicodeQuadMappingsPiece[j][1];\n");
+            f.write("      toUnicodeQuadMappings[" + startIndex
+                + "+j][2] = toUnicodeQuadMappingsPiece[j][2];\n");
+            f.write("      toUnicodeQuadMappings[" + startIndex
+                + "+j][3] = toUnicodeQuadMappingsPiece[j][3];\n");
+            f.write("    }\n");
+            f.write("  }\n");
             f.write("\n");
-            surrogateInitStringBuffer.append("   initToUnicodeQuadMappings"+startIndex+"();\n"); 
-            
-            startIndex += MAX_SURROGATE_LENGTH; 
+            surrogateInitStringBuffer
+                .append("   initToUnicodeQuadMappings" + startIndex + "();\n");
+
+            startIndex += MAX_SURROGATE_LENGTH;
           }
         }
       } /* if quad table */
 
-      
-      
-            
-      
       f.close();
     } catch (Exception e) {
       e.printStackTrace();
@@ -836,11 +871,11 @@ public class GenerateConverterTable {
       System.out
           .println("Compressing 13488->" + ccsid + " conversion table...");
       char[] arr = compress(tableToEbcdic);
-      System.out.println("Old compression length: " + arr.length
-          + " characters.");
+      System.out
+          .println("Old compression length: " + arr.length + " characters.");
       char[] temparr = compressBetter(tableToEbcdic);
-      System.out.println("New compression length: " + temparr.length
-          + " characters.");
+      System.out.println(
+          "New compression length: " + temparr.length + " characters.");
       if (temparr.length > arr.length) {
         System.out.println("WARNING: New algorithm WORSE than old algorithm!");
       }
@@ -881,37 +916,40 @@ public class GenerateConverterTable {
       System.out.print("Writing table for conversion from 13488 to " + ccsid
           + "... to " + fName + "\n");
       f.write("  private static char[] fromUnicodeArray_; \n");
-      f.write("  // fromUnicode length = "+tableToEbcdic.length+"\n");
-      if (tableToEbcdic.length < MAX_TO_EBCDIC_LENGTH ) {
+      f.write("  // fromUnicode length = " + tableToEbcdic.length + "\n");
+      if (tableToEbcdic.length < MAX_TO_EBCDIC_LENGTH) {
         f.write("  private static final String fromUnicode_ = \n");
         writeTable(f, tableToEbcdic, 0, tableToEbcdic.length);
         f.write("\n");
       } else {
-        int oneFourth = tableToEbcdic.length/4;
+        int oneFourth = tableToEbcdic.length / 4;
         f.write("  private static final String fromUnicode0_ = \n");
-        writeTable(f, tableToEbcdic, 0, oneFourth );
+        writeTable(f, tableToEbcdic, 0, oneFourth);
         f.write("\n");
         f.write("  private static final String fromUnicode1_ = \n");
-        writeTable(f, tableToEbcdic,oneFourth, oneFourth);
+        writeTable(f, tableToEbcdic, oneFourth, oneFourth);
         f.write("\n");
         f.write("  private static final String fromUnicode2_ = \n");
-        writeTable(f, tableToEbcdic,2 * oneFourth, oneFourth);
+        writeTable(f, tableToEbcdic, 2 * oneFourth, oneFourth);
         f.write("\n");
 
         f.write("  private static final String fromUnicode3_ = \n");
-        writeTable(f, tableToEbcdic,3 * oneFourth, tableToEbcdic.length - 3 * oneFourth);
+        writeTable(f, tableToEbcdic, 3 * oneFourth,
+            tableToEbcdic.length - 3 * oneFourth);
         f.write("\n");
 
-        
       }
 
       f.write("  static {\n");
       f.write("    toUnicodeArray_ = toUnicode_.toCharArray();\n");
-      if (tableToEbcdic.length < MAX_TO_EBCDIC_LENGTH ) {
+      if (tableToEbcdic.length < MAX_TO_EBCDIC_LENGTH) {
         f.write("    fromUnicodeArray_ = fromUnicode_.toCharArray();\n");
       } else {
-        /* Note:  recent compilers try to optimized and add fromUnicode0_+fromUnicode1_ to the constant pool */
-        /* Using sb.append disables this optimization */ 
+        /*
+         * Note: recent compilers try to optimized and add
+         * fromUnicode0_+fromUnicode1_ to the constant pool
+         */
+        /* Using sb.append disables this optimization */
         f.write("    StringBuffer sb = new StringBuffer(); \n");
         f.write("    sb.append(fromUnicode0_); \n");
         f.write("    sb.append(fromUnicode1_); \n");
@@ -927,8 +965,9 @@ public class GenerateConverterTable {
       f.write("toUnicodeArray_, ");
       if (surrogateTable != null) {
         f.write("fromUnicodeArray_,");
-        if (quadTable != null) { 
-          f.write("toUnicodeSurrogateMappings,toUnicodeTripletMappings,toUnicodeQuadMappings);\n");
+        if (quadTable != null) {
+          f.write(
+              "toUnicodeSurrogateMappings,toUnicodeTripletMappings,toUnicodeQuadMappings);\n");
         } else if (tripletTable != null) {
           f.write("toUnicodeSurrogateMappings,toUnicodeTripletMappings);\n");
         } else {
@@ -944,8 +983,9 @@ public class GenerateConverterTable {
       f.write("toUnicodeArray_, ");
       if (surrogateTable != null) {
         f.write("fromUnicodeArray_,");
-        if (quadTable != null) { 
-          f.write("toUnicodeSurrogateMappings,toUnicodeTripletMappings,toUnicodeQuadMappings);\n");
+        if (quadTable != null) {
+          f.write(
+              "toUnicodeSurrogateMappings,toUnicodeTripletMappings,toUnicodeQuadMappings);\n");
         } else if (tripletTable != null) {
           f.write("toUnicodeSurrogateMappings,toUnicodeTripletMappings);\n");
         } else {
@@ -964,18 +1004,18 @@ public class GenerateConverterTable {
     System.out.print("Done.\n");
   }
 
-  private static void writeTable(FileWriter f, char[] table, int start, int length )
-      throws IOException {
-    for (int i = start; i < start+length; i = i + 16) {
+  private static void writeTable(FileWriter f, char[] table, int start,
+      int length) throws IOException {
+    for (int i = start; i < start + length; i = i + 16) {
       if (showOffsets_) {
         f.write("/* " + Integer.toHexString(i) + " */ \"");
       } else {
         f.write("    \"");
       }
-      for (int j = 0; j < 16 && (i + j) < start+length; ++j) {
+      for (int j = 0; j < 16 && (i + j) < start + length; ++j) {
         int num = (int) table[i + j]; // these each contain 2 single
-                                              // byte chars, but we write it
-                                              // like this to save space
+                                      // byte chars, but we write it
+                                      // like this to save space
         if (num == 0x0008)
           f.write("\\b");
         else if (num == 0x0009)
@@ -1023,11 +1063,9 @@ public class GenerateConverterTable {
     }
   }
 
- 
-
- 
   private static boolean verifyRoundTrip(char[] tableToUnicode,
-      char[] tableToEbcdic, boolean ebcdicIsDBCS, int ccsid, char[][] surrogateTable, char[][]tripletTable, char[][]quadTable) {
+      char[] tableToEbcdic, boolean ebcdicIsDBCS, int ccsid,
+      char[][] surrogateTable, char[][] tripletTable, char[][] quadTable) {
 
     String ebcdicPrefix = "X";
     if (ebcdicIsDBCS) {
@@ -1045,38 +1083,38 @@ public class GenerateConverterTable {
       }
     }
 
-    System.out.println("Checking round trip from EBCDIC for CCSID "+ccsid);
+    System.out.println("Checking round trip from EBCDIC for CCSID " + ccsid);
     boolean passed = true;
     StringBuffer sb1 = new StringBuffer();
     StringBuffer sb2 = new StringBuffer();
     StringBuffer sb3 = new StringBuffer();
-    char [] char1Buffer = new char[1]; 
-    char [] char1Buffer2 = new char[1];
-    char unicodeChars[]; 
-    
+    char[] char1Buffer = new char[1];
+    char[] char1Buffer2 = new char[1];
+    char unicodeChars[];
+
     for (int i = 0; i < tableToUnicode.length; i++) {
       char1Buffer[0] = tableToUnicode[i];
       if ((char1Buffer[0] == 0xd800) && (surrogateTable != null)) {
-        unicodeChars = surrogateTable[i]; 
+        unicodeChars = surrogateTable[i];
       } else if ((char1Buffer[0] == 0xd801) && (tripletTable != null)) {
-        unicodeChars = tripletTable[i]; 
+        unicodeChars = tripletTable[i];
       } else if ((char1Buffer[0] == 0xd802) && (quadTable != null)) {
-        unicodeChars = quadTable[i]; 
+        unicodeChars = quadTable[i];
       } else {
-        unicodeChars = char1Buffer; 
+        unicodeChars = char1Buffer;
       }
-      if (unicodeChars[0] != 0xfffd ) {
+      if (unicodeChars[0] != 0xfffd) {
         int ebcdicChar = 0;
         if (ebcdicIsDBCS) {
-          if (unicodeChars.length == 1) { 
+          if (unicodeChars.length == 1) {
             ebcdicChar = 0xFFFF & tableToEbcdic[unicodeChars[0]];
-          } else if (unicodeChars.length == 2)  {
-            ebcdicChar = findEbcdicSurrogate(surrogateTable, unicodeChars); 
-          } else if (unicodeChars.length == 3)  {
-            ebcdicChar = findEbcdicTriplet(tripletTable, unicodeChars); 
-         } else if (unicodeChars.length == 4) { 
-           ebcdicChar = findEbcdicQuad(quadTable, unicodeChars); 
-         }
+          } else if (unicodeChars.length == 2) {
+            ebcdicChar = findEbcdicSurrogate(surrogateTable, unicodeChars);
+          } else if (unicodeChars.length == 3) {
+            ebcdicChar = findEbcdicTriplet(tripletTable, unicodeChars);
+          } else if (unicodeChars.length == 4) {
+            ebcdicChar = findEbcdicQuad(quadTable, unicodeChars);
+          }
         } else {
           int piece = 0xFFFF & tableToEbcdic[unicodeChars[0] / 2];
           if (unicodeChars[0] % 2 == 0) {
@@ -1086,7 +1124,8 @@ public class GenerateConverterTable {
           }
         }
         if (i != ebcdicChar) {
-          if ((unicodeChars[0] != 0x1a) && (unicodeChars[0] != 0xd800) && (unicodeChars[0] != 0xd801)
+          if ((unicodeChars[0] != 0x1a) && (unicodeChars[0] != 0xd800)
+              && (unicodeChars[0] != 0xd801)
               && ((ebcdicChar == 0xFEFE) || (ebcdicChar == 0x3F))) {
             sb1.append("Fixing up EBCDIC RoundTrip Failure " + ebcdicPrefix
                 + "'" + Integer.toHexString(i) + "'" + " -> UX'"
@@ -1106,67 +1145,65 @@ public class GenerateConverterTable {
             }
             passed = false;
           } else {
-            char [] unicodeChars2; 
+            char[] unicodeChars2;
             try {
               char1Buffer2[0] = tableToUnicode[ebcdicChar];
               if (char1Buffer2[0] == 0xd800) {
-                unicodeChars2 = surrogateTable[ebcdicChar]; 
+                unicodeChars2 = surrogateTable[ebcdicChar];
               } else if (char1Buffer2[0] == 0xd801) {
-                unicodeChars2 = tripletTable[ebcdicChar]; 
+                unicodeChars2 = tripletTable[ebcdicChar];
               } else {
-                unicodeChars2 = char1Buffer2; 
+                unicodeChars2 = char1Buffer2;
               }
 
             } catch (ArrayIndexOutOfBoundsException e) {
               System.out.println("ERROR.. ArrayIndexOutOfBounds");
-              System.out.println("ebcdicChar=0x"
-                  + Integer.toHexString((int) ebcdicChar));
+              System.out.println(
+                  "ebcdicChar=0x" + Integer.toHexString((int) ebcdicChar));
               System.out.println("i=" + i);
               System.out.println("unicodeChar=0x"
                   + Integer.toHexString((int) unicodeChars[0]));
               throw e;
             }
-              boolean matches = true; 
-              if (unicodeChars2.length != unicodeChars.length) {
-                matches = false; 
-              } else {
-                for (int j=0; j < unicodeChars.length; j++) { 
-                  if (unicodeChars[j] != unicodeChars2[j]) {
-                    matches = false; 
-                  }
+            boolean matches = true;
+            if (unicodeChars2.length != unicodeChars.length) {
+              matches = false;
+            } else {
+              for (int j = 0; j < unicodeChars.length; j++) {
+                if (unicodeChars[j] != unicodeChars2[j]) {
+                  matches = false;
                 }
               }
-              if (matches) {
-                sb2.append("Secondary EBCDIC mapping " + ebcdicPrefix + "'"
-                    + Integer.toHexString(i) + "'" + " -> UX'");
-                for (int j = 0; j < unicodeChars.length; j++) {
-                  sb2.append(Integer.toHexString(unicodeChars[j])+"."); 
-                }
-                sb2.append( "'" + " -> "
-                    + ebcdicPrefix + "'" + Integer.toHexString(ebcdicChar) + "'"
-                    + " -> UX'" ); 
-                for (int j = 0; j < unicodeChars2.length; j++) {
-                  sb2.append(Integer.toHexString(unicodeChars2[j])+"."); 
-                }
-                sb2.append( "'\n");
-
-              } else {
-                sb3.append("EBCDIC RoundTrip Failure 2 " + ebcdicPrefix + "'"
-                    + Integer.toHexString(i) + "'" + " -> UX'");
-                for (int j = 0; j < unicodeChars.length; j++) {
-                  sb3.append(Integer.toHexString(unicodeChars[j])+"."); 
-                }
-                sb3.append( "'" + " -> "
-                    + ebcdicPrefix + "'" + Integer.toHexString(ebcdicChar) + "'"
-                    + " -> UX'" ); 
-                for (int j = 0; j < unicodeChars2.length; j++) {
-                  sb3.append(Integer.toHexString(unicodeChars2[j])+"."); 
-                }
-                sb3.append( "'\n");
-                passed = false;
-
+            }
+            if (matches) {
+              sb2.append("Secondary EBCDIC mapping " + ebcdicPrefix + "'"
+                  + Integer.toHexString(i) + "'" + " -> UX'");
+              for (int j = 0; j < unicodeChars.length; j++) {
+                sb2.append(Integer.toHexString(unicodeChars[j]) + ".");
               }
-            
+              sb2.append("'" + " -> " + ebcdicPrefix + "'"
+                  + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
+              for (int j = 0; j < unicodeChars2.length; j++) {
+                sb2.append(Integer.toHexString(unicodeChars2[j]) + ".");
+              }
+              sb2.append("'\n");
+
+            } else {
+              sb3.append("EBCDIC RoundTrip Failure 2 " + ebcdicPrefix + "'"
+                  + Integer.toHexString(i) + "'" + " -> UX'");
+              for (int j = 0; j < unicodeChars.length; j++) {
+                sb3.append(Integer.toHexString(unicodeChars[j]) + ".");
+              }
+              sb3.append("'" + " -> " + ebcdicPrefix + "'"
+                  + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
+              for (int j = 0; j < unicodeChars2.length; j++) {
+                sb3.append(Integer.toHexString(unicodeChars2[j]) + ".");
+              }
+              sb3.append("'\n");
+              passed = false;
+
+            }
+
           }
         }
       }
@@ -1194,57 +1231,54 @@ public class GenerateConverterTable {
       }
 
       if ((ebcdicChar != 0xfefe) && (ebcdicChar != 0x3f)) {
-        
+
         char1Buffer[0] = tableToUnicode[ebcdicChar];
         if (char1Buffer[0] == 0xd800) {
-          unicodeChars = surrogateTable[ebcdicChar]; 
+          unicodeChars = surrogateTable[ebcdicChar];
         } else if (char1Buffer[0] == 0xd801) {
-          unicodeChars = tripletTable[ebcdicChar]; 
+          unicodeChars = tripletTable[ebcdicChar];
         } else {
-          unicodeChars = char1Buffer; 
+          unicodeChars = char1Buffer;
         }
-        
+
         if (i != unicodeChars[0]) {
           if (unicodeChars[0] == 0xFFFD) {
             sb1.append("Unicode RoundTrip Failure UX'" + Integer.toHexString(i)
                 + "'" + " -> " + ebcdicPrefix + "'"
                 + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
             for (int j = 0; j < unicodeChars.length; j++) {
-              sb1.append(Integer.toHexString(unicodeChars[j])+"."); 
+              sb1.append(Integer.toHexString(unicodeChars[j]) + ".");
             }
-            sb1.append( "'\n");
-            
-           
-            if (tableToUnicode[ebcdicChar] == 0xfffd) {
-              
-                tableToUnicode[ebcdicChar] = (char) i; 
-                char1Buffer[0] = tableToUnicode[ebcdicChar];
-                unicodeChars = char1Buffer; 
-                
-                sb1.append("Fixed up ................ UX'" + Integer.toHexString(i)
-                + "'" + " -> " + ebcdicPrefix + "'"
-                + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
-                for (int j = 0; j < unicodeChars.length; j++) {
-                  sb1.append(Integer.toHexString(unicodeChars[j])+"."); 
-                }
-                sb1.append( "'\n");
+            sb1.append("'\n");
 
-                
+            if (tableToUnicode[ebcdicChar] == 0xfffd) {
+
+              tableToUnicode[ebcdicChar] = (char) i;
+              char1Buffer[0] = tableToUnicode[ebcdicChar];
+              unicodeChars = char1Buffer;
+
+              sb1.append("Fixed up ................ UX'"
+                  + Integer.toHexString(i) + "'" + " -> " + ebcdicPrefix + "'"
+                  + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
+              for (int j = 0; j < unicodeChars.length; j++) {
+                sb1.append(Integer.toHexString(unicodeChars[j]) + ".");
+              }
+              sb1.append("'\n");
+
             }
             passed = false;
           } else {
             int ebcdicChar2 = 0;
             if (ebcdicIsDBCS) {
-              
-              if (unicodeChars.length == 1) { 
-                ebcdicChar2 = 0xFFFF & tableToEbcdic[unicodeChars[0]];
-              } else if (unicodeChars.length == 2)  {
-                ebcdicChar2 = findEbcdicSurrogate(surrogateTable, unicodeChars); 
-              } else if (unicodeChars.length == 3)  {
-                ebcdicChar2 = findEbcdicTriplet(tripletTable, unicodeChars); 
-             }
 
-              
+              if (unicodeChars.length == 1) {
+                ebcdicChar2 = 0xFFFF & tableToEbcdic[unicodeChars[0]];
+              } else if (unicodeChars.length == 2) {
+                ebcdicChar2 = findEbcdicSurrogate(surrogateTable, unicodeChars);
+              } else if (unicodeChars.length == 3) {
+                ebcdicChar2 = findEbcdicTriplet(tripletTable, unicodeChars);
+              }
+
             } else {
               int piece = 0xFFFF & tableToEbcdic[unicodeChars[0] / 2];
               if (unicodeChars[0] % 2 == 0) {
@@ -1257,26 +1291,23 @@ public class GenerateConverterTable {
             if (ebcdicChar2 == ebcdicChar) {
               sb2.append("Secondary Unicode mapping UX'"
                   + Integer.toHexString(i) + "'" + " -> " + ebcdicPrefix + "'"
-                  + Integer.toHexString(ebcdicChar) + "'" + " -> UX'"); 
+                  + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
               for (int j = 0; j < unicodeChars.length; j++) {
-                sb2.append(Integer.toHexString(unicodeChars[j])+"."); 
+                sb2.append(Integer.toHexString(unicodeChars[j]) + ".");
               }
-              sb2.append("'" + " -> "
-                  + ebcdicPrefix + "'" + Integer.toHexString(ebcdicChar2)
-                  + "'\n");
+              sb2.append("'" + " -> " + ebcdicPrefix + "'"
+                  + Integer.toHexString(ebcdicChar2) + "'\n");
 
             } else {
               sb3.append("Unicode RoundTrip Failure 2 UX'"
                   + Integer.toHexString(i) + "'" + " -> " + ebcdicPrefix + "'"
-                  + Integer.toHexString(ebcdicChar) + "'" + " -> UX'"); 
+                  + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
               for (int j = 0; j < unicodeChars.length; j++) {
-                sb3.append(Integer.toHexString(unicodeChars[j])+"."); 
+                sb3.append(Integer.toHexString(unicodeChars[j]) + ".");
               }
-           
-                  
-                  sb3.append("'" + " -> "
-                  + ebcdicPrefix + "'" + Integer.toHexString(ebcdicChar2)
-                  + "'\n");
+
+              sb3.append("'" + " -> " + ebcdicPrefix + "'"
+                  + Integer.toHexString(ebcdicChar2) + "'\n");
               passed = false;
 
             }
@@ -1293,45 +1324,45 @@ public class GenerateConverterTable {
 
   }
 
-  private static int findEbcdicQuad(char[][] quadTable,
-      char[] unicodeChars) {
-    for (int i= 0; i < quadTable.length; i++) { 
-      if (quadTable[i] != null)  {
-        if ((quadTable[i][0] == unicodeChars[0]) &&
-            (quadTable[i][1] == unicodeChars[1])&&
-            (quadTable[i][2] == unicodeChars[2]) &&
-            (quadTable[i][3] == unicodeChars[3])) {
-          return i; 
+  private static int findEbcdicQuad(char[][] quadTable, char[] unicodeChars) {
+    for (int i = 0; i < quadTable.length; i++) {
+      if (quadTable[i] != null) {
+        if ((quadTable[i][0] == unicodeChars[0])
+            && (quadTable[i][1] == unicodeChars[1])
+            && (quadTable[i][2] == unicodeChars[2])
+            && (quadTable[i][3] == unicodeChars[3])) {
+          return i;
         }
       }
     }
-    return 0; 
+    return 0;
   }
 
   private static int findEbcdicTriplet(char[][] tripletTable,
       char[] unicodeChars) {
-    for (int i= 0; i < tripletTable.length; i++) { 
-      if (tripletTable[i] != null)  {
-        if ((tripletTable[i][0] == unicodeChars[0]) &&
-            (tripletTable[i][1] == unicodeChars[1])&&
-            (tripletTable[i][2] == unicodeChars[2])) {
-          return i; 
+    for (int i = 0; i < tripletTable.length; i++) {
+      if (tripletTable[i] != null) {
+        if ((tripletTable[i][0] == unicodeChars[0])
+            && (tripletTable[i][1] == unicodeChars[1])
+            && (tripletTable[i][2] == unicodeChars[2])) {
+          return i;
         }
       }
     }
-    return 0; 
+    return 0;
   }
 
-  private static int findEbcdicSurrogate(char[][] surrogateTable,  char[] unicodeChars) {
-    for (int i= 0; i < surrogateTable.length; i++) { 
-      if (surrogateTable[i] != null)  {
-        if ((surrogateTable[i][0] == unicodeChars[0]) &&
-            (surrogateTable[i][1] == unicodeChars[1])) {
-          return i; 
+  private static int findEbcdicSurrogate(char[][] surrogateTable,
+      char[] unicodeChars) {
+    for (int i = 0; i < surrogateTable.length; i++) {
+      if (surrogateTable[i] != null) {
+        if ((surrogateTable[i][0] == unicodeChars[0])
+            && (surrogateTable[i][1] == unicodeChars[1])) {
+          return i;
         }
       }
     }
-    return 0; 
+    return 0;
   }
 
   private static final char repSig = '\uFFFF'; // compression indication
@@ -1423,7 +1454,8 @@ public class GenerateConverterTable {
           int hbNum = hbCheck(arr, i);
           --hbNum; // don't include the first char, since we always append it.
           if (hbNum >= 6) {
-            // System.out.print("HBNUM is "+Integer.toHexString((int)hbNum)+"; ");
+            // System.out.print("HBNUM is "+Integer.toHexString((int)hbNum)+";
+            // ");
             hbRepeats++;
             // pattern is this: ss ss nn nn hh tt xx xx xx xx ...
             // where ss ss is hbSig
@@ -1446,7 +1478,8 @@ public class GenerateConverterTable {
             {
               --hbNum; // no point in doing the last char
             }
-            // System.out.println("Appending "+Integer.toHexString((int)((char)(hbNum/2))));
+            // System.out.println("Appending
+            // "+Integer.toHexString((int)((char)(hbNum/2))));
             buf.append((char) (hbNum / 2)); // hbNum is always even, so this
                                             // comes out.
             // System.out.print("hb comp: "+Integer.toHexString(hbNum)+": ");
@@ -1457,8 +1490,8 @@ public class GenerateConverterTable {
             // System.out.println();
             buf.append(arr[i++]);
             for (int j = 0; j < (hbNum / 2); ++j) {
-              char x = (char) (((0x00FF & arr[i + (j * 2)]) * 256) + (0x00FF & arr[i
-                  + (j * 2) + 1]));
+              char x = (char) (((0x00FF & arr[i + (j * 2)]) * 256)
+                  + (0x00FF & arr[i + (j * 2) + 1]));
               buf.append(x);
             }
             i = i + hbNum - 1;
@@ -1528,7 +1561,9 @@ public class GenerateConverterTable {
           // System.out.print("hb decomp: "+Integer.toHexString(hbNum)+": ");
           char firstChar = arr[++i];
           char highByteMask = (char) (0xFF00 & firstChar);
-          // System.out.print("found: "+Integer.toHexString((int)arr[i-2])+" ("+Integer.toHexString((int)arr[i-1])+") "+Integer.toHexString((int)firstChar)+" ");
+          // System.out.print("found: "+Integer.toHexString((int)arr[i-2])+"
+          // ("+Integer.toHexString((int)arr[i-1])+")
+          // "+Integer.toHexString((int)firstChar)+" ");
           buf.append(firstChar);
           ++i;
           for (int j = 0; j < hbNum; ++j) {
@@ -1537,7 +1572,8 @@ public class GenerateConverterTable {
             char c2 = (char) (highByteMask + (0x00FF & both));
             buf.append(c1);
             buf.append(c2);
-            // System.out.print(Integer.toHexString((int)c1)+" "+Integer.toHexString((int)c2)+" ");
+            // System.out.print(Integer.toHexString((int)c1)+"
+            // "+Integer.toHexString((int)c2)+" ");
           }
           // System.out.println(Integer.toHexString((int)arr[i+hbNum]));
           i = i + hbNum - 1;
@@ -1627,10 +1663,10 @@ public class GenerateConverterTable {
             c = '\\';
           buf.append(c);
           oldold = arr[i++]; // yes this is right... think about it.
-          if (i < arr.length) {  
+          if (i < arr.length) {
             old = arr[i];
           } else {
-            old  = 0; 
+            old = 0;
           }
         }
       } else { // must be in ramp
@@ -1685,420 +1721,538 @@ public class GenerateConverterTable {
     Field field = copyrightClass.getField("version");
     String jtopenVersion = (String) field.get(null);
 
-    f.write("///////////////////////////////////////////////////////////////////////////////\n");
+    f.write(
+        "///////////////////////////////////////////////////////////////////////////////\n");
     f.write("//\n");
     f.write("// JTOpen (IBM Toolbox for Java - OSS version)\n");
     f.write("//\n");
     f.write("// Filename:  ConvTable" + ccsid + ".java\n");
     f.write("//\n");
-    f.write("// The source code contained herein is licensed under the IBM Public License\n");
-    f.write("// Version 1.0, which has been approved by the Open Source Initiative.\n");
-    f.write("// Copyright (C) 1997-2016 International Business Machines Corporation and\n");
+    f.write(
+        "// The source code contained herein is licensed under the IBM Public License\n");
+    f.write(
+        "// Version 1.0, which has been approved by the Open Source Initiative.\n");
+    f.write(
+        "// Copyright (C) 1997-2016 International Business Machines Corporation and\n");
     f.write("// others.  All rights reserved.\n");
     f.write("//\n");
     f.write("// Generated " + currentDate + " from " + system + "\n");
-  
-    StringBuffer sb = new StringBuffer(); 
-    if (compress_ == false) sb.append(" -nocompress");
-    if (ascii_ == true) sb.append(" -ascii");
-    if (bidi_ == true) sb.append(" -bidi");
-    if (showOffsets_ == true) sb.append(" -showOffsets");
-    if (codePointPerLine_ == true) sb.append(" -codePointPerLine");
-    if (useJdbc_ == true)  sb.append(" -useJdbc"); 
-    if (sb.length() > 0 ) {
-    f.write("// Generation Options:"+sb.toString()+"\n");  
+
+    StringBuffer sb = new StringBuffer();
+    if (compress_ == false)
+      sb.append(" -nocompress");
+    if (ascii_ == true)
+      sb.append(" -ascii");
+    if (bidi_ == true)
+      sb.append(" -bidi");
+    if (showOffsets_ == true)
+      sb.append(" -showOffsets");
+    if (codePointPerLine_ == true)
+      sb.append(" -codePointPerLine");
+    if (useJdbc_ == true)
+      sb.append(" -useJdbc");
+    if (sb.length() > 0) {
+      f.write("// Generation Options:" + sb.toString() + "\n");
     }
     f.write("// Using " + jtopenVersion + "\n");
-    f.write("///////////////////////////////////////////////////////////////////////////////\n\n");
+    f.write(
+        "///////////////////////////////////////////////////////////////////////////////\n\n");
     f.write("package com.ibm.as400.access;\n\n");
   }
 
-  
-  
-  
-  
   //
   // Methods for using JDBC to handle the translation tables
-  // 
-  
- static boolean jdbcIsDBCS(Connection connection, int ccsid) throws SQLException {
+  //
+
+  static boolean jdbcIsDBCS(Connection connection, int ccsid)
+      throws SQLException {
     boolean isDBCS;
-    
-    Statement stmt = connection.createStatement(); 
-    try { 
-      stmt.executeUpdate("CREATE TABLE QTEMP.GENERATE"+ccsid+"(C1 VARCHAR(80) CCSID "+ccsid+")"); 
-      isDBCS = false; 
-    } catch (SQLException sqlex) { 
-      int sqlcode = sqlex.getErrorCode(); 
-      if (sqlcode == -189) {   // CCSID not valid 
-        stmt.executeUpdate("CREATE TABLE QTEMP.GENERATE"+ccsid+"(C1 VARGRAPHIC(80) CCSID "+ccsid+")"); 
-        isDBCS = true; 
+
+    Statement stmt = connection.createStatement();
+    try {
+      stmt.executeUpdate("CREATE TABLE QTEMP.GENERATE" + ccsid
+          + "(C1 VARCHAR(80) CCSID " + ccsid + ")");
+      isDBCS = false;
+    } catch (SQLException sqlex) {
+      int sqlcode = sqlex.getErrorCode();
+      if (sqlcode == -189) { // CCSID not valid
+        stmt.executeUpdate("CREATE TABLE QTEMP.GENERATE" + ccsid
+            + "(C1 VARGRAPHIC(80) CCSID " + ccsid + ")");
+        isDBCS = true;
       } else {
-        throw sqlex; 
+        throw sqlex;
       }
     }
-    
-    
-    stmt.close(); 
-    return isDBCS; 
-    
- }
- 
- 
- private static char[] jdbcToEbcdic(Connection connection, int ccsid) throws Exception  {
-   if (ccsid > 1000000) {
-     ccsid = ccsid - 1000000; 
-   }
-   PreparedStatement ps = connection.prepareStatement("select cast(CAST(CAST(? AS DBCLOB(1M) CCSID 1200) AS CLOB(1M) CCSID "+ccsid+") as BLOB(1M)) from sysibm.sysdummy1");
-   
-   char[] allChar65536 = new char[65536]; 
-   for (int i = 0; i < 0xD800; i++) {
-     allChar65536[i] = (char) i; 
-   }
-   // Fill in the surrogate range with substitution characters
-   for (int i = 0xD800; i < 0xF900; i++) {
-     allChar65536[i] = '\u001a'; 
-   }
-   for (int i = 0xF900; i < 0x10000; i++) {
-     allChar65536[i] = (char) i; 
-   }
-   
-   Clob clob = ((AS400JDBCConnection)connection).createClob(); 
-   clob.setString(1, new String(allChar65536)); 
-   ps.setClob(1, clob); 
-   ResultSet rs = ps.executeQuery(); 
-   rs.next(); 
-   byte[] byteAnswer = rs.getBytes(1); 
-   if (byteAnswer.length != 65536) {
-     // We must have shift.out shift in combination that we don't use for single byte conversions
-     // Remove them. 
-     byteAnswer = removeDoubleByteEbcdic(byteAnswer); 
-   }
-   rs.close(); 
-   ps.close(); 
-   
-   char[] answer = new char[byteAnswer.length / 2]; 
-   
-   for (int i = 0; i < byteAnswer.length; i+= 2) {
-     answer[i/2] = (char) ((byteAnswer[i] << 8) | (0xFF & byteAnswer[i+1])); 
-   }
-   
-   return answer; 
-   
-   
-   
- }
 
- private static byte[] removeDoubleByteEbcdic(byte[] inBytes) throws Exception {
-   byte[] outBytes = new byte[65536]; 
-   
-   // Just copy the control characters
-   for (int i = 0; i < 0x20; i++)  {
-       outBytes[i] = inBytes[i]; 
-   }
-   int toIndex = 0x20; 
-   boolean singleByte = true; 
-   for (int i = 0x20; i < inBytes.length; i++) { 
-     byte b = inBytes[i]; 
-     if (singleByte) {
-       if (b == 0x0E) {
-         singleByte = false; 
-       } else if (b == 0x0F) {
-         throw new Exception("Illegal 0x0f found in singleByte mode"); 
-       } else {
-         if (toIndex >= outBytes.length) { 
-           throw new Exception("ERROR:  toIndexInvalid");
-         }
-         outBytes[toIndex]=b; 
-         toIndex++; 
-       }
-     } else {
-       if (b == 0x0F) {
-         singleByte = true; 
-       } else if (b == 0x0e) {
-         throw new Exception("Illegal 0x0e found in doubleByte mode"); 
-       } else {
-         if (toIndex >= outBytes.length) { 
-           throw new Exception("ERROR:  toIndexInvalid");
-         }
-         outBytes[toIndex]=0x3f;
-         toIndex++; 
-         i++;   // Skip extra DB charater
-       }
-     }
-     
-   }
-   if (toIndex != 65536) {
-     throw new Exception("To index is "+toIndex+" should be 65536"); 
-   }
-   
-   return outBytes; 
-   
-}
+    stmt.close();
+    return isDBCS;
 
- 
- private static char[] removeSingleByteEbcdic(byte[] inBytes, boolean mixedCcsid) throws Exception {
-   char[] outChars = new char[65536]; 
+  }
 
-   boolean singleByte = false; 
-   if (mixedCcsid) singleByte = true; 
-   int toIndex = 0x0; 
-   for (int i = 0x0; i < inBytes.length; i++) { 
-     byte b = inBytes[i]; 
-     if (singleByte) {
-       if (b == 0x0E) {
-         singleByte = false; 
-       } else if (b == 0x0F) {
-         throw new Exception("Illegal 0x0f found in singleByte mode"); 
-       } else {
-         outChars[toIndex]='\uFEFE'; 
-         toIndex++; 
-       }
-     } else {
-       if (b == 0x0F && mixedCcsid ) {
-         singleByte = true; 
-       } else if (b == 0x0e  && mixedCcsid ) {
-         throw new Exception("Illegal 0x0e found in doubleByte mode"); 
-       } else {
-         outChars[toIndex]= (char)((b << 8) | (0xFF & inBytes[i+1])); 
-         toIndex++; 
-         i++; 
-       }
-     }
-     
-   }
-   if (toIndex != 65536) {
-     throw new Exception("To index is "+toIndex+" should be 65536"); 
-   }
-   
-   return outChars; 
-   
-}
- 
- 
- 
-private static char[] jdbcToUnicode(Connection connection, int ccsid) throws SQLException  {
-   
-   if (ccsid > 1000000) {
-     ccsid = ccsid - 1000000; 
-   }
-   PreparedStatement ps = connection.prepareStatement("select cast(CAST(CAST(? AS VARCHAR(256) FOR BIT DATA) AS VARCHAR(256) CCSID "+ccsid+") as VARGRAPHIC(256) CCSID 1200) from sysibm.sysdummy1");
-   byte[] all256 = new byte[256]; 
-   for (int i = 0; i < 256; i++) {
-     // For 0x0E and 0x0F, they do not translate correctly for mixed CCSID
-     // We will fix them up below. 
-     if (i == 0x0E) {
-       all256[i] = (byte) 0x3F; 
-     } else if (i == 0x0F) { 
-       all256[i] = (byte) 0x3F; 
-     } else {
-     all256[i] = (byte) i; 
-     }  
-   }
-   ps.setBytes(1,all256); 
-   ResultSet rs = ps.executeQuery(); 
-   rs.next();
-   String answer = rs.getString(1); 
-   rs.close();
-   ps.close(); 
-   char[] charAnswer = answer.toCharArray(); 
-   // Fix 0x0e/ 0x0F
-   charAnswer[0x0e]='\u000e';
-   charAnswer[0x0f]='\u000f';
-   return charAnswer; 
-   
- }
+  private static char[] jdbcToEbcdic(Connection connection, int ccsid)
+      throws Exception {
+    if (ccsid > 1000000) {
+      ccsid = ccsid - 1000000;
+    }
+    PreparedStatement ps = connection.prepareStatement(
+        "select cast(CAST(CAST(? AS DBCLOB(1M) CCSID 1200) AS CLOB(1M) CCSID "
+            + ccsid + ") as BLOB(1M)) from sysibm.sysdummy1");
 
- private static char[] jdbcToEbcdicDBCS(Connection connection, int ccsid) throws Exception  {
-  
-   boolean mixedCcsid = false; 
-   if (ccsid > 2000000) {
-     ccsid = ccsid - 2000000; 
-     mixedCcsid = true; 
-   }
-   PreparedStatement ps;
-   try { 
-     ps = connection.prepareStatement("select cast(CAST(CAST(? AS DBCLOB(1M) CCSID 1200) AS DBCLOB(1M) CCSID "+ccsid+") as BLOB(1M)) from sysibm.sysdummy1");
-   
-   } catch (SQLException sqlex) { 
-     String message = sqlex.toString(); 
-     // If DBCLOB is not valid, try clob
-     if (message.indexOf("SQL0189") >= 0) {
-       ps = connection.prepareStatement("select cast(CAST(CAST(? AS DBCLOB(1M) CCSID 1200) AS CLOB(1M) CCSID "+ccsid+") as BLOB(1M)) from sysibm.sysdummy1");
-       
-     } else {
-       throw sqlex; 
-     }
-   }
-   
-   char[] allChar65536 = new char[65536]; 
-   for (int i = 0; i < 0xD800; i++) {
-     if (i <= 0x80) { 
-       allChar65536[i] = (char) '\u001a';
-     } else { 
-       allChar65536[i] = (char) i;
-     }
-   }
-   // Fill in the surrogate range with double width substitution characters
-   for (int i = 0xD800; i < 0xE000; i++) {
-     allChar65536[i] = '\ufffd'; 
-   }
-   for (int i = 0xE000; i < 0x10000; i++) {
-     // Don't translate Variation selectors 
-     if (i >= 0xFE00 && i <= 0xFF0F) {
-       allChar65536[i] = '\ufffd'; 
-     } else { 
-        allChar65536[i] = (char) i;
-     }
-   }
-   
-   Clob clob = ((AS400JDBCConnection)connection).createClob(); 
-   clob.setString(1, new String(allChar65536)); 
-   ps.setClob(1, clob); 
-   ResultSet rs = ps.executeQuery(); 
-   rs.next(); 
-   byte[] byteAnswer = rs.getBytes(1); 
-  
-   rs.close(); 
-   ps.close(); 
-   
-   char[] answer;  
-   
-   
-   if (byteAnswer.length != 2 * 65536) {
-     // We must have shift.out shift.in combinations. 
-     // We need to remove the single bytes.
-     
-     answer = removeSingleByteEbcdic(byteAnswer, mixedCcsid); 
-   } else { 
-     answer = new char[byteAnswer.length / 2];
-   for (int i = 0; i < byteAnswer.length; i+= 2) {
-     answer[i/2] = (char) ((byteAnswer[i] << 8) | (0xFF & byteAnswer[i+1])); 
-   }
-   }
-   return answer; 
-   
-   
-   
-   
- }
+    char[] allChar65536 = new char[65536];
+    for (int i = 0; i < 0xD800; i++) {
+      allChar65536[i] = (char) i;
+    }
+    // Fill in the surrogate range with substitution characters
+    for (int i = 0xD800; i < 0xF900; i++) {
+      allChar65536[i] = '\u001a';
+    }
+    for (int i = 0xF900; i < 0x10000; i++) {
+      allChar65536[i] = (char) i;
+    }
 
- private static char[] jdbcToUnicodeSpacesDBCS(Connection connection, int ccsid) throws SQLException  {
+    Clob clob = ((AS400JDBCConnection) connection).createClob();
+    clob.setString(1, new String(allChar65536));
+    ps.setClob(1, clob);
+    ResultSet rs = ps.executeQuery();
+    rs.next();
+    byte[] byteAnswer = rs.getBytes(1);
+    if (byteAnswer.length != 65536) {
+      // We must have shift.out shift in combination that we don't use for
+      // single byte conversions
+      // Remove them.
+      byteAnswer = removeDoubleByteEbcdic(byteAnswer);
+    }
+    rs.close();
+    ps.close();
 
-   // The database doesn't allow CLOB CCSID 65535 or BLOB to be converted to CLOB / DBCLOB.  We'll need to process this in pieces. 
-   // The database doesn't allow VARCHAR CCSID 65535 to be convert to GRAPHIC.   Need to figure out how to handle that also. 
-   
-   // Create a huge SQL statement with the necessary literals.  
-   // For this to work, the job must be changed to the specified CCSID if mixed
-   // or the associated CCSID if no double byte
-   
-   boolean mixed = false;
-   // Start at 0x00 and handle 8192 double byte characters at at time
-   // int BLOCKSIZE = 8192;
-   int BLOCKSIZE = 1024;
+    char[] answer = new char[byteAnswer.length / 2];
 
-   String sql = "select cast(INTERPRET(CAST(? AS CHAR("+(BLOCKSIZE * 4)+") FOR BIT DATA) AS GRAPHIC("+(BLOCKSIZE*2)+") CCSID "+ccsid+") as VARGRAPHIC(8200) CCSID 1200) from sysibm.sysdummy1";
-   if (ccsid > 2000000) {
-     ccsid = ccsid - 2000000; 
-     mixed = true; 
-     sql  = "select cast(CAST(CAST(? AS VARCHAR(16390) FOR BIT DATA) AS VARCHAR(16390) CCSID "+ccsid+") as VARGRAPHIC(8200) CCSID 1200) from sysibm.sysdummy1";
-   }
-   PreparedStatement ps = connection.prepareStatement(sql);
-   
-   int OUTERLOOP = 65536 / BLOCKSIZE; 
-   byte[] piece8192; 
-   if (mixed) {
-     piece8192 = new byte[BLOCKSIZE * 4 + 2];
-   } else {
-     piece8192 = new byte[BLOCKSIZE * 4];
-   }
-   int offset = 0; 
-   if (mixed) {
-     piece8192[0]=0x0E;
-     piece8192[BLOCKSIZE * 4 + 1]=0x0F; 
-     offset = 1; 
-   }
-   
-   StringBuffer sb = new StringBuffer(); 
-   int cp; 
-   for (int i = 0; i < OUTERLOOP; i++) {
-     for (int j = 0; j < BLOCKSIZE; j++) {
-    cp = i * BLOCKSIZE  + j ; 
-      // Filter out all the 0E/0F for mixed CCSIDS
-      // Filter out the lower 0x100 for mixed CCSIDS 
-    
-    
-      if (mixed) {
-        if (cp <0x100  || (cp / 256) == 0x0E || (cp / 256) == 0x0F ||  (cp % 256) == 0x0E || (cp % 256) == 0x0F) {
-          cp = 0xFEFE;
+    for (int i = 0; i < byteAnswer.length; i += 2) {
+      answer[i
+          / 2] = (char) ((byteAnswer[i] << 8) | (0xFF & byteAnswer[i + 1]));
+    }
+
+    return answer;
+
+  }
+
+  private static byte[] removeDoubleByteEbcdic(byte[] inBytes)
+      throws Exception {
+    byte[] outBytes = new byte[65536];
+
+    // Just copy the control characters
+    for (int i = 0; i < 0x20; i++) {
+      outBytes[i] = inBytes[i];
+    }
+    int toIndex = 0x20;
+    boolean singleByte = true;
+    for (int i = 0x20; i < inBytes.length; i++) {
+      byte b = inBytes[i];
+      if (singleByte) {
+        if (b == 0x0E) {
+          singleByte = false;
+        } else if (b == 0x0F) {
+          throw new Exception("Illegal 0x0f found in singleByte mode");
+        } else {
+          if (toIndex >= outBytes.length) {
+            throw new Exception("ERROR:  toIndexInvalid");
+          }
+          outBytes[toIndex] = b;
+          toIndex++;
+        }
+      } else {
+        if (b == 0x0F) {
+          singleByte = true;
+        } else if (b == 0x0e) {
+          throw new Exception("Illegal 0x0e found in doubleByte mode");
+        } else {
+          if (toIndex >= outBytes.length) {
+            throw new Exception("ERROR:  toIndexInvalid");
+          }
+          outBytes[toIndex] = 0x3f;
+          toIndex++;
+          i++; // Skip extra DB charater
         }
       }
-      piece8192[offset+4*j] = (byte) (cp / 256);
-      piece8192[offset+4*j+1] = (byte) cp ;
-      // Separate the translated characters with double byte spaces.
-      piece8192[offset+4*j+2] = (byte) 0x40 ;
-      piece8192[offset+4*j+3] = (byte) 0x40 ;
-    } /* for j */ 
-     if (offset == 1) { 
-       piece8192[BLOCKSIZE * 4 + 1]=0x0F;
-     }
-    
-     ps.setBytes(1,piece8192); 
-     ResultSet rs = ps.executeQuery(); 
-     rs.next();
-     String answer = rs.getString(1);
-     if (answer == null) { 
-       System.out.println("ERROR: got null processing block "+i+" of size "+BLOCKSIZE);
-       System.out.println("INPUT BYTES: = "+dumpBytes(" ", piece8192)); 
-     } else if (answer.length() != BLOCKSIZE ) {
-       // This is OK since there may be surrogate pairs which will be handled later
-       // 
-       // System.out.println("ERROR: got size = "+answer.length()+" processing block "+i+" of size "+BLOCKSIZE);
-       // System.out.println("INPUT BYTES: = "+dumpBytes(" ",piece8192)); 
-       // System.out.println("OUTPUT STRING: =  "+dumpUnicodeString("  ", answer)); 
 
-     }
-     sb.append(answer); 
-     rs.close();
+    }
+    if (toIndex != 65536) {
+      throw new Exception("To index is " + toIndex + " should be 65536");
+    }
 
-     
-     
-   } /* for i*/ 
-   ps.close(); 
-   
-   return sb.toString().toCharArray(); 
- } /* jdbcToUnicodeDBCS */
+    return outBytes;
 
-private static String dumpUnicodeString(String pad , String data) {
-  StringBuffer sb = new StringBuffer(); 
-  char[] charArray = data.toCharArray(); 
-  for (int i = 0; i < charArray.length; i++) { 
-    sb.append(pad); 
-    int value = 0xffff & charArray[i]; 
-    if (value < 0x10) sb.append("0"); 
-    if (value < 0x100) sb.append("0"); 
-    if (value < 0x1000) sb.append("0"); 
-    sb.append(Integer.toHexString(value)); 
   }
-  
-  
-  return sb.toString(); 
-  
-}
 
-private static String dumpBytes(String pad, byte[] block) {
-   StringBuffer sb = new StringBuffer(); 
-   for (int i = 0; i < block.length; i++) { 
-     sb.append(pad); 
-     int value = 0xff & block[i]; 
-     if (value < 0x10) sb.append("0"); 
-     sb.append(Integer.toHexString(value)); 
-   }
-   
+  private static char[] removeSingleByteEbcdic(byte[] inBytes,
+      boolean mixedCcsid) throws Exception {
+    char[] outChars = new char[65536];
 
-   return sb.toString(); 
-}
+    boolean singleByte = false;
+    if (mixedCcsid)
+      singleByte = true;
+    int toIndex = 0x0;
+    for (int i = 0x0; i < inBytes.length; i++) {
+      byte b = inBytes[i];
+      if (singleByte) {
+        if (b == 0x0E) {
+          singleByte = false;
+        } else if (b == 0x0F) {
+          throw new Exception("Illegal 0x0f found in singleByte mode");
+        } else {
+          outChars[toIndex] = '\uFEFE';
+          toIndex++;
+        }
+      } else {
+        if (b == 0x0F && mixedCcsid) {
+          singleByte = true;
+        } else if (b == 0x0e && mixedCcsid) {
+          throw new Exception("Illegal 0x0e found in doubleByte mode");
+        } else {
+          outChars[toIndex] = (char) ((b << 8) | (0xFF & inBytes[i + 1]));
+          toIndex++;
+          i++;
+        }
+      }
+
+    }
+    if (toIndex != 65536) {
+      throw new Exception("To index is " + toIndex + " should be 65536");
+    }
+
+    return outChars;
+
+  }
 
   
+  private static char[] removeSingleByteEbcdicAndSpaces(byte[] inBytes,
+      boolean mixedCcsid) throws Exception {
+    char[] outChars = new char[65536];
+
+    boolean singleByte = false;
+    if (mixedCcsid)
+      singleByte = true;
+    int toIndex = 0x0;
+    for (int i = 0x0; i < inBytes.length; i++) {
+      byte b = inBytes[i];
+      if (singleByte) {
+        if (b == 0x0E) {
+          singleByte = false;
+        } else if (b == 0x0F) {
+          throw new Exception("Illegal 0x0f found in singleByte mode");
+        } else {
+          outChars[toIndex] = '\uFEFE';
+          toIndex++;
+          // Skip over next space if there
+          if (inBytes[i+1] == 0x40) {
+            i++; 
+          }
+        }
+      } else {
+        if (b == 0x0F && mixedCcsid) {
+          singleByte = true;
+          // Skip over the next space if there
+          if (inBytes[i+1] == 0x40) {
+            i++; 
+          }
+        } else if (b == 0x0e && mixedCcsid) {
+          throw new Exception("Illegal 0x0e found in doubleByte mode");
+        } else {
+          outChars[toIndex] = (char) ((b << 8) | (0xFF & inBytes[i + 1]));
+          toIndex++;
+          i++;
+        }
+      }
+
+    }
+    if (toIndex != 65536) {
+      throw new Exception("To index is " + toIndex + " should be 65536");
+    }
+
+    return outChars;
+
+  }
+
   
+  private static char[] jdbcToUnicode(Connection connection, int ccsid)
+      throws SQLException {
+
+    if (ccsid > 1000000) {
+      ccsid = ccsid - 1000000;
+    }
+    PreparedStatement ps = connection.prepareStatement(
+        "select cast(CAST(CAST(? AS VARCHAR(256) FOR BIT DATA) AS VARCHAR(256) CCSID "
+            + ccsid + ") as VARGRAPHIC(256) CCSID 1200) from sysibm.sysdummy1");
+    byte[] all256 = new byte[256];
+    for (int i = 0; i < 256; i++) {
+      // For 0x0E and 0x0F, they do not translate correctly for mixed CCSID
+      // We will fix them up below.
+      if (i == 0x0E) {
+        all256[i] = (byte) 0x3F;
+      } else if (i == 0x0F) {
+        all256[i] = (byte) 0x3F;
+      } else {
+        all256[i] = (byte) i;
+      }
+    }
+    ps.setBytes(1, all256);
+    ResultSet rs = ps.executeQuery();
+    rs.next();
+    String answer = rs.getString(1);
+    rs.close();
+    ps.close();
+    char[] charAnswer = answer.toCharArray();
+    // Fix 0x0e/ 0x0F
+    charAnswer[0x0e] = '\u000e';
+    charAnswer[0x0f] = '\u000f';
+    return charAnswer;
+
+  }
+
+  private static char[] jdbcToEbcdicDBCS(Connection connection, int ccsid)
+      throws Exception {
+
+    boolean mixedCcsid = false;
+    if (ccsid > 2000000) {
+      ccsid = ccsid - 2000000;
+      mixedCcsid = true;
+    }
+    PreparedStatement ps;
+    try {
+      ps = connection.prepareStatement(
+          "select cast(CAST(CAST(? AS DBCLOB(1M) CCSID 1200) AS DBCLOB(1M) CCSID "
+              + ccsid + ") as BLOB(1M)) from sysibm.sysdummy1");
+
+    } catch (SQLException sqlex) {
+      String message = sqlex.toString();
+      // If DBCLOB is not valid, try clob
+      if (message.indexOf("SQL0189") >= 0) {
+        ps = connection.prepareStatement(
+            "select cast(CAST(CAST(? AS DBCLOB(1M) CCSID 1200) AS CLOB(1M) CCSID "
+                + ccsid + ") as BLOB(1M)) from sysibm.sysdummy1");
+
+      } else {
+        throw sqlex;
+      }
+    }
+
+    char[] answer;
+
+    // Workaround for CCSID 1399 bug
+    if (ccsid != 1399) {
+
+      char[] allChar65536 = new char[65536];
+      for (int i = 0; i < 0xD800; i++) {
+        if (i <= 0x80) {
+          allChar65536[i] = (char) '\u001a';
+        } else {
+          allChar65536[i] = (char) i;
+        }
+      }
+      // Fill in the surrogate range with double width substitution characters
+      for (int i = 0xD800; i < 0xE000; i++) {
+        allChar65536[i] = '\ufffd';
+      }
+      for (int i = 0xE000; i < 0x10000; i++) {
+        // Don't translate Variation selectors
+        if (i >= 0xFE00 && i <= 0xFF0F) {
+          allChar65536[i] = '\ufffd';
+        } else {
+          allChar65536[i] = (char) i;
+        }
+      }
+
+      Clob clob = ((AS400JDBCConnection) connection).createClob();
+      clob.setString(1, new String(allChar65536));
+      ps.setClob(1, clob);
+      ResultSet rs = ps.executeQuery();
+      rs.next();
+      byte[] byteAnswer = rs.getBytes(1);
+
+      rs.close();
+      ps.close();
+
+      if (byteAnswer.length != 2 * 65536) {
+        // We must have shift.out shift.in combinations.
+        // We need to remove the single bytes.
+
+        answer = removeSingleByteEbcdic(byteAnswer, mixedCcsid);
+      } else {
+        answer = new char[byteAnswer.length / 2];
+        for (int i = 0; i < byteAnswer.length; i += 2) {
+          answer[i
+              / 2] = (char) ((byteAnswer[i] << 8) | (0xFF & byteAnswer[i + 1]));
+        }
+
+      }
+    } else {
+      // CCSID 1399 path - Put spaces between to fix problem
+      char[] allChar65536 = new char[65536 * 2];
+      for (int i = 0; i < 0xD800; i++) {
+        if (i <= 0x80) {
+          allChar65536[2*i] = (char) '\u001a';
+        } else {
+          allChar65536[2*i] = (char) i;
+        }
+        allChar65536[2*i+1]=' '; 
+      }
+      // Fill in the surrogate range with double width substitution characters
+      for (int i = 0xD800; i < 0xE000; i++) {
+        allChar65536[2*i] = '\ufffd';
+        allChar65536[2*i+1]=' '; 
+      }
+      for (int i = 0xE000; i < 0x10000; i++) {
+        // Don't translate Variation selectors
+        if (i >= 0xFE00 && i <= 0xFF0F) {
+          allChar65536[2*i] = '\ufffd';
+        } else {
+          allChar65536[2*i] = (char) i;
+        }
+        allChar65536[2*i+1]=' '; 
+      }
+
+      Clob clob = ((AS400JDBCConnection) connection).createClob();
+      clob.setString(1, new String(allChar65536));
+      ps.setClob(1, clob);
+      ResultSet rs = ps.executeQuery();
+      rs.next();
+      byte[] byteAnswer = rs.getBytes(1);
+
+      rs.close();
+      ps.close();
+
+
+      answer = removeSingleByteEbcdicAndSpaces(byteAnswer, mixedCcsid);
+
+    }
+    return answer;
+
+  }
+
+  private static char[] jdbcToUnicodeSpacesDBCS(Connection connection,
+      int ccsid) throws SQLException {
+
+    // The database doesn't allow CLOB CCSID 65535 or BLOB to be converted to
+    // CLOB / DBCLOB. We'll need to process this in pieces.
+    // The database doesn't allow VARCHAR CCSID 65535 to be convert to GRAPHIC.
+    // Need to figure out how to handle that also.
+
+    // Create a huge SQL statement with the necessary literals.
+    // For this to work, the job must be changed to the specified CCSID if mixed
+    // or the associated CCSID if no double byte
+
+    boolean mixed = false;
+    // Start at 0x00 and handle 8192 double byte characters at at time
+    // int BLOCKSIZE = 8192;
+    int BLOCKSIZE = 1024;
+
+    String sql = "select cast(INTERPRET(CAST(? AS CHAR(" + (BLOCKSIZE * 4)
+        + ") FOR BIT DATA) AS GRAPHIC(" + (BLOCKSIZE * 2) + ") CCSID " + ccsid
+        + ") as VARGRAPHIC(8200) CCSID 1200) from sysibm.sysdummy1";
+    if (ccsid > 2000000) {
+      ccsid = ccsid - 2000000;
+      mixed = true;
+      sql = "select cast(CAST(CAST(? AS VARCHAR(16390) FOR BIT DATA) AS VARCHAR(16390) CCSID "
+          + ccsid + ") as VARGRAPHIC(8200) CCSID 1200) from sysibm.sysdummy1";
+    }
+    PreparedStatement ps = connection.prepareStatement(sql);
+
+    int OUTERLOOP = 65536 / BLOCKSIZE;
+    byte[] piece8192;
+    if (mixed) {
+      piece8192 = new byte[BLOCKSIZE * 4 + 2];
+    } else {
+      piece8192 = new byte[BLOCKSIZE * 4];
+    }
+    int offset = 0;
+    if (mixed) {
+      piece8192[0] = 0x0E;
+      piece8192[BLOCKSIZE * 4 + 1] = 0x0F;
+      offset = 1;
+    }
+
+    StringBuffer sb = new StringBuffer();
+    int cp;
+    for (int i = 0; i < OUTERLOOP; i++) {
+      for (int j = 0; j < BLOCKSIZE; j++) {
+        cp = i * BLOCKSIZE + j;
+        // Filter out all the 0E/0F for mixed CCSIDS
+        // Filter out the lower 0x100 for mixed CCSIDS
+
+        if (mixed) {
+          if (cp < 0x100 || (cp / 256) == 0x0E || (cp / 256) == 0x0F
+              || (cp % 256) == 0x0E || (cp % 256) == 0x0F) {
+            cp = 0xFEFE;
+          }
+        }
+        piece8192[offset + 4 * j] = (byte) (cp / 256);
+        piece8192[offset + 4 * j + 1] = (byte) cp;
+        // Separate the translated characters with double byte spaces.
+        piece8192[offset + 4 * j + 2] = (byte) 0x40;
+        piece8192[offset + 4 * j + 3] = (byte) 0x40;
+      } /* for j */
+      if (offset == 1) {
+        piece8192[BLOCKSIZE * 4 + 1] = 0x0F;
+      }
+
+      ps.setBytes(1, piece8192);
+      ResultSet rs = ps.executeQuery();
+      rs.next();
+      String answer = rs.getString(1);
+      if (answer == null) {
+        System.out.println(
+            "ERROR: got null processing block " + i + " of size " + BLOCKSIZE);
+        System.out.println("INPUT BYTES: = " + dumpBytes(" ", piece8192));
+      } else if (answer.length() != BLOCKSIZE) {
+        // This is OK since there may be surrogate pairs which will be handled
+        // later
+        //
+        // System.out.println("ERROR: got size = "+answer.length()+" processing
+        // block "+i+" of size "+BLOCKSIZE);
+        // System.out.println("INPUT BYTES: = "+dumpBytes(" ",piece8192));
+        // System.out.println("OUTPUT STRING: = "+dumpUnicodeString(" ",
+        // answer));
+
+      }
+      sb.append(answer);
+      rs.close();
+
+    } /* for i */
+    ps.close();
+
+    return sb.toString().toCharArray();
+  } /* jdbcToUnicodeDBCS */
+
+  private static String dumpUnicodeString(String pad, String data) {
+    StringBuffer sb = new StringBuffer();
+    char[] charArray = data.toCharArray();
+    for (int i = 0; i < charArray.length; i++) {
+      sb.append(pad);
+      int value = 0xffff & charArray[i];
+      if (value < 0x10)
+        sb.append("0");
+      if (value < 0x100)
+        sb.append("0");
+      if (value < 0x1000)
+        sb.append("0");
+      sb.append(Integer.toHexString(value));
+    }
+
+    return sb.toString();
+
+  }
+
+  private static String dumpBytes(String pad, byte[] block) {
+    StringBuffer sb = new StringBuffer();
+    for (int i = 0; i < block.length; i++) {
+      sb.append(pad);
+      int value = 0xff & block[i];
+      if (value < 0x10)
+        sb.append("0");
+      sb.append(Integer.toHexString(value));
+    }
+
+    return sb.toString();
+  }
+
 }
