@@ -294,6 +294,7 @@ package com.ibm.as400.access;
 //@AD7   20210212  Conversion:  CCSID 5473 and 13676 support.
 //@AD8   20210215  Conversion:  CCSID 1379 Updates
 //@AD9   20210216  JDBC:  Handle multiple warnings
+//@AE1   20210302  PTF Requisite
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -302,15 +303,15 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2020 International Business Machines Corporation and others.";
     // Name of current release to be picked up by Java doc build. 
-    public static String JTOpenName = "JTOpen 10.5"; 
+    public static String JTOpenName = "JTOpen 10.6"; 
     //                                                                                         built=20210210 automatically set by the build (see build.xml)
     public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20210210 @AD9";  
 
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 12; // ex: "12" indicates V7R4, "10" indicates V7R2, while "9" indicates V7R1
-    static final int    MINOR_VERSION = 5; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
+    static final int    MINOR_VERSION = 6; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
                                            //Note: JTOpen 10.1 is synching with ptf 12.1
-    static final String DRIVER_LEVEL  = "07040005"; //(ex: 07030008 -> V7R3M0 PTF#8) (needed for hidden clientInfo) (each # is 2 digits in length)
+    static final String DRIVER_LEVEL  = "07040006"; //(ex: 07030008 -> V7R3M0 PTF#8) (needed for hidden clientInfo) (each # is 2 digits in length)
 
 }
