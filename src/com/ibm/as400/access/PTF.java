@@ -82,6 +82,8 @@ public class PTF
   private boolean isCoRequisite_; // type
   private boolean isConditional_;
   private boolean isRequired_;
+  private boolean isTechRefreshRequisite_; //@AE1A
+  private boolean isDistRequisite_; //@AE1A
 
   // PTFR0500
   private PTF[] dependents_;
@@ -269,7 +271,19 @@ public class PTF
   **/
   public static final String STATUS_SUPERSEDED = "6";
   
+  //@AE1A
+  /**
+   * Constant indicating that there is a technology refresh requisite relationship between two PTFs.
+   * @see #getRelationship
+  **/
+  public static final String RELATIONSHIP_TRREQ = "*TRREQ";
   
+  /**
+   * Constant indicating that there is a distribution requisite relationship between two PTFs.
+   * @see #getRelationship
+  **/
+  public static final String RELATIONSHIP_DSTREQ = "*DSTREQ";
+  //@AE1A
   
   /**
    * Constructs a PTF object. The product ID defaults to PRODUCT_ID_ONLY
@@ -365,7 +379,26 @@ public class PTF
     isRequired_ = reqRequired;
     loadedRequisites_ = true;
   }
-
+  
+  //@AE1A Start
+  /** 
+   * Package scope constructor used for requisite PTFs.
+  **/
+  PTF(AS400 system, String productID, String ptfID, String ptfReleaseLevel, String ptfProductOption, String ptfProductLoad,
+      String minLevel, String maxLevel, int type, boolean cond, boolean reqRequired)
+  {
+    this(system, productID, ptfID, ptfReleaseLevel, ptfProductOption, ptfProductLoad);
+    minimumLevel_ = minLevel;
+    maximumLevel_ = maxLevel;
+    isPreRequisite_ = type == 1? true:false;
+    isCoRequisite_ = type == 2? true:false;
+    isTechRefreshRequisite_ = type == 3? true:false;
+    isDistRequisite_ = type ==9? true:false;
+    isConditional_ = cond;
+    isRequired_ = reqRequired;
+    loadedRequisites_ = true;
+  }
+  //@AE1A End
 
   /**
    * Package scope constructor used by Product.getPTFs().
@@ -1075,6 +1108,8 @@ public class PTF
       if (requisites[i].getID().equals(id2))
       {
         if (requisites[i].isCoRequisite()) return RELATIONSHIP_COREQ;
+        else if (requisites[i].isDistRequisite()) return RELATIONSHIP_DSTREQ;         //@AE1A
+        else if (requisites[i].isTechRefreshRequisite()) return RELATIONSHIP_TRREQ;   //@AE1A
         return RELATIONSHIP_DEPEND;
       }
     }
@@ -1864,6 +1899,7 @@ public class PTF
         offset += 2;
         String reqMaxLvl = conv.byteArrayToString(output, offset, 2);
         offset += 2;
+        int reqType = (int)(output[offset++] & 0x000F); //@AE1A Type of requisite
         byte prereqType = output[offset++];
         boolean type = (prereqType == (byte)0xF1); // '1' is a pre-req; '2' is a co-req.
         boolean cond = (output[offset++] == (byte)0xF1); // '1' is conditional; '0' is not.
@@ -1871,7 +1907,8 @@ public class PTF
         String option = conv.byteArrayToString(output, offset, 4);
         offset += 4;
         String reqLoadID = conv.byteArrayToString(output, offset, 4);
-        requisites_[i] = new PTF(system_, reqProdID, reqPTFID, release, option, reqLoadID, reqMinLvl, reqMaxLvl, type, cond, required);
+        //requisites_[i] = new PTF(system_, reqProdID, reqPTFID, release, option, reqLoadID, reqMinLvl, reqMaxLvl, type, cond, required); //@AE1D
+        requisites_[i] = new PTF(system_, reqProdID, reqPTFID, release, option, reqLoadID, reqMinLvl, reqMaxLvl, reqType, cond, required); //@AE1A
         if (type)
         {
           isDependent_ = true;
@@ -2056,6 +2093,7 @@ public class PTF
    * @throws InterruptedException
    * @throws IOException
    * @throws ObjectDoesNotExistException
+   * @deprecated Use isTechRefreshPTF() instead.
    */
   public boolean getTechRefreshPTF()
 		  throws AS400Exception,
@@ -2065,6 +2103,25 @@ public class PTF
 		         IOException,
 		         ObjectDoesNotExistException
 		  {
+	        if (!loaded200_) refresh(200);
+	        if (techRefreshPTF_ == 0) {
+	        	return false;
+	        } else {
+	        	return true;
+	        }
+		  }
+  
+  
+  
+  public boolean isTechRefreshPTF()
+		  throws AS400Exception,
+		         AS400SecurityException,
+		         ErrorCompletingRequestException,
+		         InterruptedException,
+		         IOException,
+		         ObjectDoesNotExistException
+		  {
+	        if (!loaded200_) refresh(200);
 	        if (techRefreshPTF_ == 0) {
 	        	return false;
 	        } else {
@@ -2072,4 +2129,31 @@ public class PTF
 	        }
 		  }
   // @Z8A End
+  
+  //@AE1A Start
+  public boolean isDistRequisite() 
+		  throws AS400Exception,
+	         AS400SecurityException,
+	         ErrorCompletingRequestException,
+	         InterruptedException,
+	         IOException,
+	         ObjectDoesNotExistException
+	  {
+	    if (!loadedRequisites_ && !loaded300_) refresh(300);
+	    return isDistRequisite_;
+  }
+  
+  public boolean isTechRefreshRequisite() 
+		  throws AS400Exception,
+	         AS400SecurityException,
+	         ErrorCompletingRequestException,
+	         InterruptedException,
+	         IOException,
+	         ObjectDoesNotExistException
+      {
+	    if (!loadedRequisites_ && !loaded300_) refresh(300);
+	    return isTechRefreshRequisite_;
+  }
+  //@AE1A End
+  
 }
