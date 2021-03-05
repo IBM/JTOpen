@@ -24,7 +24,7 @@ import java.util.Vector;
 It is used to translate SQL statements with JDBC escape
 syntax to DB2 for IBM i format.
 **/
-class JDEscapeClause
+public class JDEscapeClause
 {
     // String constants.  These will hopefully help performance
     // slightly - assuming a similar optimization does not
