@@ -303,10 +303,32 @@ public class ServiceProgramCall extends ProgramCall
             Trace.log(Trace.ERROR, "Attempt to run before setting procedure name.");
             throw new ExtendedIllegalStateException("procedureName", ExtendedIllegalStateException.PROPERTY_NOT_SET );
         }
-        if (parameterList_.length > 7)
-        {
-            Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 7 parameters:", parameterList_.length);
-            throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList_.length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        
+        //@AE2 For 7.4 and 7.3, QZRUCLSP PTF SI75449 and SI75397 supports 248 parameters. 
+        if (system_.getVRM() > 0x00070200) {
+        	if (parameterList_.length > 248)
+            {
+                Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 248 parameters:", parameterList_.length);
+                throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList_.length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            }
+            
+            if (parameterList_.length > 7) {
+            	for (int i = 0; i < parameterList_.length; ++i)
+                {
+                    int parameterType = parameterList_[i].getParameterType();
+                    if (parameterType != 2) {
+                    	Trace.log(Trace.ERROR, "Parameter list length is larger than 7 parameters, all parameters must be passed as pointers. The parameter ", i);
+                        throw new ExtendedIllegalArgumentException("The parameter [" + i + "]", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                    }
+                }
+            }
+        } else {
+        	//@AE2 End
+        	if (parameterList_.length > 7)
+            {
+                Trace.log(Trace.ERROR, "Parameter list length exceeds limit of 7 parameters:", parameterList_.length);
+                throw new ExtendedIllegalArgumentException("parameterList.length (" + parameterList_.length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            }
         }
         
         //@M2A Add support for running program located on IASP and path set starting with iasp name.

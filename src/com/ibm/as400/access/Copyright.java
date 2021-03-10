@@ -295,6 +295,7 @@ package com.ibm.as400.access;
 //@AD8   20210215  Conversion:  CCSID 1379 Updates
 //@AD9   20210216  JDBC:  Handle multiple warnings
 //@AE1   20210302  PTF Requisite
+//@AE2   20210310  Service program support 248 parameters
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -305,7 +306,7 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.6"; 
     //                                                                                         built=20210210 automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20210210 @AD9";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20210210 @AE2";  
 
 
     // Constants for reference by AS400JDBCDriver.
