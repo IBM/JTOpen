@@ -1756,7 +1756,7 @@
 		<taskdef name="pcml" classname="PCMLTask" classpath="."/>
 		<pcml srcdir="${source-java6}"
 	          destdir="${output6}"
-	          classpath="${output6}:${include}:${source}"
+	          classpath="${output6}:${include}:${source-java6}"
 	          includes="**/*.pcml"/>
 		<!-- Classpath:
 	           Need "output" to run the com.ibm.as400.data.ProgramCallDocument class.
@@ -1775,9 +1775,9 @@
 		</condition>
 		<fail message="Can't find PCML runtime." unless="pcmlRuntimeExists"/>
 		<taskdef name="pcml" classname="PCMLTask" classpath="."/>
-		<pcml srcdir="${source}"
+		<pcml srcdir="${source-java8}"
 	          destdir="${output8}"
-	          classpath="${output8}:${include}:${source}"
+	          classpath="${output8}:${include}:${source-java8}"
 	          includes="**/*.pcml"/>
 		<!-- Classpath:
 	           Need "output" to run the com.ibm.as400.data.ProgramCallDocument class.
@@ -1797,13 +1797,13 @@
 		</condition>
 		<fail message="Can't find PCML runtime." unless="pcmlRuntimeExists"/>
 		<taskdef name="pcml" classname="PCMLTask" classpath="."/>
-		<pcml srcdir="${source}"
+		<pcml srcdir="${source-java9}"
 	          destdir="${output9}"
-	          classpath="${output9}:${include}:${source}"
+	          classpath="${output9}:${include}:${source-java9}"
 	          includes="**/*.pcml"/>
 		<pcml srcdir="${source}"
 	          destdir="${output9native}"
-	          classpath="${output9}:${include}:${source}"
+	          classpath="${output9}:${include}:${source-java9}"
 	          includes="**/*.pcml"/>
 		<!-- Classpath:
 	           Need "output" to run the com.ibm.as400.data.ProgramCallDocument class.
