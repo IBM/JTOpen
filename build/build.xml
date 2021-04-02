@@ -520,6 +520,7 @@
 	    ///////////////////////////////////////////////////////////////////////////-->
 	<target name="compile8" depends="source8">
 		<fail message="Can't find ${include}/servlet.jar." unless="servletJarExists"/>
+		<delete file="${output8}/com/ibm/as400/access/AS400.class"/>
 		<javac nowarn="on" srcdir="${source-java8}:${source-contrib}"
 	           destdir="${output8}"
 	           memoryMaximumSize="256m"
@@ -1456,6 +1457,38 @@
 		<echo> jtopenRelease set to ${jtopenRelease} </echo>
 	</target> 	
 
+	<target	name="setJtopenRelease6" depends="jar-jt4006">
+		<exec executable="java" outputproperty="jtopenRelease">
+		  <arg value="-cp"/>
+		  <arg value="${dist6}/jt400.jar"/>
+		  <arg value="com.ibm.as400.util.AboutToolbox"/>
+		  <arg value="RELEASENAME"/>
+		</exec>
+		<echo> jtopenRelease set to ${jtopenRelease} </echo>
+	</target> 	
+
+	<target	name="setJtopenRelease8" depends="jar-jt4008">
+		<exec executable="java" outputproperty="jtopenRelease">
+		  <arg value="-cp"/>
+		  <arg value="${dist8}/jt400.jar"/>
+		  <arg value="com.ibm.as400.util.AboutToolbox"/>
+		  <arg value="RELEASENAME"/>
+		</exec>
+		<echo> jtopenRelease set to ${jtopenRelease} </echo>
+	</target> 	
+
+	<target	name="setJtopenRelease9" depends="jar-jt4009">
+		<exec executable="java" outputproperty="jtopenRelease">
+		  <arg value="-cp"/>
+		  <arg value="${dist9}/jt400.jar"/>
+		  <arg value="com.ibm.as400.util.AboutToolbox"/>
+		  <arg value="RELEASENAME"/>
+		</exec>
+		<echo> jtopenRelease set to ${jtopenRelease} </echo>
+	</target> 	
+
+	
+	
 	<target name="setJavadoc8Exec" depends="setJavadoc8ExecOverride">
 		<property name="javadoc8Exec" value="${javadoc8ExecDefault}"/>
 		<echo> Using javadoc8 ${javadoc8Exec} </echo>
@@ -1549,7 +1582,7 @@
     </echo>
 	</target>
 
-	<target name="javadoc6" depends="init,source6,checkJavadocIncludes,setJavadoc6Exec,setJtopenRelease">
+	<target name="javadoc6" depends="init,source6,checkJavadocIncludes,setJavadoc6Exec,setJtopenRelease6">
 		<javadoc packagenames="com.*,utilities"
 	             excludepackagenames="com.ibm.as400.security"
                  sourcepath="${source-java6}:${source-jtopenlite}:${source-contrib}:${include}"
@@ -1583,7 +1616,7 @@
 	</target>
 
 
-	<target name="javadoc8" depends="init,source8,checkJavadocIncludes,setJavadoc8Exec,setJtopenRelease">
+	<target name="javadoc8" depends="init,source8,checkJavadocIncludes,setJavadoc8Exec,setJtopenRelease8">
 		<javadoc packagenames="com.*,utilities"
 	             excludepackagenames="com.ibm.as400.security"
                  sourcepath="${source-java8}:${source-jtopenlite}:${source-contrib}:${include}"
