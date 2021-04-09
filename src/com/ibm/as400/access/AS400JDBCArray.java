@@ -2099,6 +2099,103 @@ public class AS400JDBCArray implements Array, Serializable {
       }
       break;
 
+    case Types.BOOLEAN:
+        if ("java.lang.Boolean".equals(arrayType)) {
+        Boolean[] inBooleanArray = (Boolean[]) inArray;
+        Boolean[] booleanArray = new Boolean[inBooleanArray.length];
+        for (int i = 0; i < inBooleanArray.length; i++) {
+            booleanArray[i] = inBooleanArray[i]; 
+        }
+        data_ = booleanArray;
+      } else if ("boolean".equals(arrayType)) {
+        boolean[] inBooleanArray = (boolean[]) inArray;
+        Boolean[] booleanArray = new Boolean[inBooleanArray.length];
+        for (int i = 0; i < inBooleanArray.length; i++) {
+            booleanArray[i] = new Boolean(inBooleanArray[i]); 
+        }
+        data_ = booleanArray;
+
+      } else if ("java.lang.Integer".equals(arrayType)) {
+        Integer[] inIntegerArray = (Integer[]) inArray;
+        Boolean[] booleanArray = new Boolean[inIntegerArray.length];
+        for (int i = 0; i < inIntegerArray.length; i++) {
+            booleanArray[i] = SQLBoolean.getBooleanObject(this, inIntegerArray[i]); 
+        }
+        data_ = booleanArray;
+
+      } else if ("int".equals(arrayType)) {
+        int[] inIntegerArray = (int[]) inArray;
+        Boolean[] booleanArray = new Boolean[inIntegerArray.length];
+        for (int i = 0; i < inIntegerArray.length; i++) {
+            booleanArray[i] = new Boolean(SQLBoolean.getBoolean(this, inIntegerArray[i])); 
+        }
+        data_ = booleanArray;
+      } else if ("java.math.BigDecimal".equals(arrayType)) {
+        BigDecimal[] inBigDecimalArray = (BigDecimal[]) inArray;
+        Boolean[] booleanArray = new Boolean[inBigDecimalArray.length];
+        for (int i = 0; i < inBigDecimalArray.length; i++) {
+            booleanArray[i] = SQLBoolean.getBooleanObject(this, inBigDecimalArray[i]); 
+        }
+        data_ = booleanArray;
+      } else if ("java.lang.Long".equals(arrayType)) {
+        Long[] inLongArray = (Long[]) inArray;
+        Boolean[] booleanArray = new Boolean[inLongArray.length];
+        for (int i = 0; i < inLongArray.length; i++) {
+            booleanArray[i] = SQLBoolean.getBooleanObject(this, inLongArray[i]); 
+        }
+        data_ = booleanArray;
+      } else if ("java.lang.Float".equals(arrayType)) {
+        Float[] inFloatArray = (Float[]) inArray;
+        Boolean[] booleanArray = new Boolean[inFloatArray.length];
+        for (int i = 0; i < inFloatArray.length; i++) {
+            booleanArray[i] = SQLBoolean.getBooleanObject(this, inFloatArray[i]); 
+        }
+        data_ = booleanArray;
+
+      } else if ("java.lang.Double".equals(arrayType)) {
+        Double[] inDoubleArray = (Double[]) inArray;
+        Boolean[] booleanArray = new Boolean[inDoubleArray.length];
+        for (int i = 0; i < inDoubleArray.length; i++) {
+            booleanArray[i] = SQLBoolean.getBooleanObject(this, inDoubleArray[i]); 
+        }
+        data_ = booleanArray;
+
+      } else if ("java.lang.Byte".equals(arrayType)) {
+        Byte[] inByteArray = (Byte[]) inArray;
+        Boolean[] booleanArray = new Boolean[inByteArray.length];
+        for (int i = 0; i < inByteArray.length; i++) {
+            booleanArray[i] = SQLBoolean.getBooleanObject(this, inByteArray[i]); 
+        }
+        data_ = booleanArray;
+
+      } else if ("java.lang.Short".equals(arrayType)) {
+        Short[] inShortArray = (Short[]) inArray;
+        Boolean[] booleanArray = new Boolean[inShortArray.length];
+        for (int i = 0; i < inShortArray.length; i++) {
+            booleanArray[i] = SQLBoolean.getBooleanObject(this, inShortArray[i]); 
+        }
+        data_ = booleanArray;
+
+      } else if ("java.lang.String".equals(arrayType)) {
+        String[] inStringArray = (String[]) inArray;
+        Boolean[] booleanArray = new Boolean[inStringArray.length];
+        for (int i = 0; i < inStringArray.length; i++) {
+            booleanArray[i] = SQLBoolean.getBooleanObject(this, inStringArray[i]); 
+        }
+        data_ = booleanArray;
+
+      } else {
+        if (JDTrace.isTraceOn()) {
+          JDTrace.logInformation(this,
+              "DB2Array.validate 07006 type is INTEGER but array types is "
+                  + arrayType);
+        }
+        JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH, "INTEGER<>"+arrayType);
+      }
+      break;
+      
+      
+      
     /* Array of array not supported */
 
     /* case Types.ROWID : */
@@ -2110,7 +2207,6 @@ public class AS400JDBCArray implements Array, Serializable {
     case Types.LONGVARBINARY:
     case Types.LONGVARCHAR:
     case Types.DATALINK:
-    case Types.BOOLEAN:
     case Types.OTHER:
     case Types.REF:
     case Types.TINYINT:

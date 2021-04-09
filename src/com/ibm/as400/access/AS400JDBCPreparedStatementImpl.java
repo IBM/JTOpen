@@ -2339,6 +2339,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
             sqlData.set(new ConvTableReader(parameterValue, 819, 0,
                 LOB_BLOCK_SIZE), null, length); // @J0M hacked this to use the
                                                 // scale parm for the length
+          } else if (sqlType == SQLData.BOOLEAN) {
+            // The stream to boolean conversion is not supported
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
           } else {
             sqlData.set(JDUtilities.readerToString(new ConvTableReader(
                 parameterValue, 819, 0, LOB_BLOCK_SIZE), length), null, -1);
@@ -2708,6 +2711,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
               -1); // @pdc length is incorrect for double-byte chars. Use a
                    // slower, but correct method, until we can create a real
                    // ConvTableReader
+          } else if (sqlType == SQLData.BOOLEAN) {
+            // The stream to boolean conversion is not supported
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         } else {
           sqlData.set(JDUtilities.readerToString(parameterValue, length), null,
               -1);
@@ -3525,6 +3531,9 @@ endif */
                 LOB_BLOCK_SIZE), null, length / 2); // @J0M hacked this to use
                                                     // the scale parm for the
                                                     // length
+          } else if (sqlType == SQLData.BOOLEAN) {
+            // The stream to boolean conversion is not supported
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
           } else {
             sqlData.set(JDUtilities.readerToString(new ConvTableReader(
                 parameterValue, 13488, 0, LOB_BLOCK_SIZE), length / 2), null,
@@ -4599,6 +4608,9 @@ endif */
                     + parameterRow_.getFieldLOBLocatorHandle(parameterIndex));
           sqlData.set(reader, null, SQLData.ALL_READER_BYTES); // @readerlen -2 flag to read all of
                                          // reader chars
+          } else if (sqlType == SQLData.BOOLEAN) {
+            // The stream to boolean conversion is not supported
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         } else {
           sqlData.set(JDUtilities.readerToString(reader), null, -1);
         }

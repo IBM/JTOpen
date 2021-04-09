@@ -4700,7 +4700,7 @@ public class Main implements Runnable {
               }
 
               cstmt.setArray(parm, makeArray(newParameter, "SMALLINT"));
-          } else if (typename.equals("boolean")) {
+          } else if (typename.equals("boolean") || typename.equals("Boolean") ) {
             boolean[] parameter = new boolean[arrayCardinality];
             for (int i = 0; i < arrayCardinality; i++) {
               String s = (String) parameterVector.get(i);

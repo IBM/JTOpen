@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Blob;
+import java.sql.Clob;
 import java.sql.Date;
 /* ifdef JDBC40 
 import java.sql.NClob;
@@ -82,60 +83,88 @@ final class SQLBoolean extends SQLDataBase {
   // SET METHODS //
   // //
   // ---------------------------------------------------------//
+  public static Boolean getBooleanObject(Object caller, String string) throws SQLException { 
+    if (string == null) return null; 
+    return new Boolean(getBoolean(caller,string)); 
+  }
+  
+  public static boolean getBoolean(Object caller, String string)
+      throws SQLException {
+    string = string.toUpperCase().trim();
+    boolean value = false;
+    if ("TRUE".equals(string) || "T".equals(string) || "Y".equals(string)
+        || "YES".equals(string) || "ON".equals(string)) {
+      value = true;
+    } else if ("FALSE".equals(string) || "F".equals(string)
+        || "N".equals(string) || "NO".equals(string) || "OFF".equals(string)) {
 
+      value = false;
+    } else {
+      try {
+        long longValue = Long.parseLong(string);
+        if (longValue == 0) {
+          if (string.charAt(0) == '0') {
+            value = false;
+          } else {
+            if (JDTrace.isTraceOn()) {
+              JDTrace.logInformation(caller,
+                  "Unable to assign string (" + string + ")");
+            }
+            JDError.throwSQLException(caller, JDError.EXC_DATA_TYPE_MISMATCH);
+          }
+        } else {
+          value = true;
+        }
+      } catch (NumberFormatException nfe) {
+        if (JDTrace.isTraceOn()) {
+          JDTrace.logInformation(caller,
+              "Unable to assign string (" + string + ")");
+        }
+        JDError.throwSQLException(caller, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
+      }
+    }
+    return value;
+  }
+
+  public static Boolean getBooleanObject(Object caller, Number object) throws SQLException { 
+    if (object == null) return null; 
+    return new Boolean(getBoolean(caller,object)); 
+  }
+
+  public static boolean getBoolean(Object caller, Number object) {
+     boolean value; 
+      long longValue = ((Number) object).longValue();
+      if (longValue == 0L) {
+        value = false;
+      } else {
+        value = true;
+      }
+      return value; 
+  }
+
+  
+    public static boolean getBoolean(Object caller, long longValue) {
+     boolean value; 
+      if (longValue == 0L) {
+        value = false;
+      } else {
+        value = true;
+      }
+      return value; 
+  }
+
+  
   public void set(Object object, Calendar calendar, int scale)
       throws SQLException {
     truncated_ = 0;
     outOfBounds_ = false;
 
     if (object instanceof String) {
-      String string = (String) object;
-      string = string.toUpperCase().trim();
-      if ("TRUE".equals(string) ||
-          "T".equals(string) ||
-          "Y".equals(string) ||
-          "YES".equals(string) ||
-          "ON".equals(string)) {
-        value_ = true;
-      } else if ("FALSE".equals(string) ||
-          "F".equals(string) ||
-          "N".equals(string) ||
-          "NO".equals(string) ||
-          "OFF".equals(string)
-          ){
-        
-        value_ = false;
-      } else {
-        try { 
-        long longValue = Long.parseLong(string); 
-        if (longValue == 0) {
-          if (string.charAt(0) == '0') {
-            value_ = false; 
-          } else { 
-            if (JDTrace.isTraceOn()) {
-                JDTrace.logInformation(this, "Unable to assign string ("+string+")");
-            }
-            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
-          }
-        } else {
-          value_ = true; 
-        }
-        } catch (NumberFormatException nfe) { 
-          if (JDTrace.isTraceOn()) {
-            JDTrace.logInformation(this, "Unable to assign string ("+string+")");
-        }
-        JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, nfe);
-        }
-      }
+      value_ = getBoolean(this, (String) object);
     }
 
     else if (object instanceof Number) {
-      long longValue = ((Number) object).longValue();
-      if (longValue == 0L) {
-        value_ = false;
-      } else {
-        value_ = true;
-      }
+      value_ = getBoolean(this, (Number) object); 
     } else if (object instanceof Boolean)
       value_ = (((Boolean) object).booleanValue());
     else {
@@ -152,6 +181,7 @@ final class SQLBoolean extends SQLDataBase {
     }
 
   }
+
 
   public void set(int value) {
     value_ = (value == 0);
@@ -277,6 +307,12 @@ final class SQLBoolean extends SQLDataBase {
     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
     return null;
   }
+  
+    public Clob getClob() throws SQLException {
+    JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+    return null;
+  }
+
 
   public boolean getBoolean() throws SQLException {
     return value_;
@@ -376,6 +412,14 @@ final class SQLBoolean extends SQLDataBase {
       JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
       return null;
   }
+  
+  
+    public NClob getNClob() throws SQLException
+  {
+      JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+      return null;
+  }
+
 endif */     
 
   /* ifdef JDBC40 
