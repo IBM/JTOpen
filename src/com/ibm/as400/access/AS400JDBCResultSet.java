@@ -3893,7 +3893,42 @@ implements ResultSet
             JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
     }
 
+    
+    /**
+    Checks necessary conditions before updating a value in a row.  All
+    update value methods should call this before updating.
+    
+    @exception  SQLException    If the result set is not open
+                                or the result set is not updatable.
+    **/
+    
+    private void beforeUpdateValue(int columnIndex) throws SQLException { 
+      beforeUpdate(); 
+            // Check that there is a current row.
+      if ((positionValid_ == false) && (positionInsert_ == false))
+        JDError.throwSQLException(JDError.EXC_CURSOR_POSITION_INVALID);
 
+      // Validate The column index.
+      if (columnIndex < 1)
+        JDError.throwSQLException(JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+"<1");
+      if (columnIndex > columnCount_)
+        JDError.throwSQLException(JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+">"+columnCount_);
+    }
+
+    /**
+     * Checks to see if blindly converting to a string use JDUtilities.readerToStream is valid
+     * for the datatype of the column. 
+     * @throws SQLException 
+     */
+    private void checkForValidConversion(int columnIndex) throws SQLException { 
+            // check for invalid conversions 
+        SQLData sqlData = updateRow_.getSQLType(columnIndex); 
+        int sqlType = sqlData.getSQLType();
+        if (sqlType == SQLData.BOOLEAN) {
+            // The stream to boolean conversion is not supported
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        }
+    }
 
     // JDBC 2.0
     /**
@@ -4700,9 +4735,9 @@ implements ResultSet
     {
         if(length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
-        // @B1D if (columnValue == null)
-        // @B1D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
-
+        beforeUpdateValue(columnIndex);
+        checkForValidConversion(columnIndex);
+        
         updateValue (columnIndex, 
                      (columnValue == null) ? null : JDUtilities.readerToString (columnValue, length), // @B1C
                      null, -1); //@P0C
@@ -5814,7 +5849,6 @@ endif */
     }
 
 
-
     /**
     Updates a column for the specified index, and performs all
     appropriate validation.
@@ -5835,17 +5869,7 @@ endif */
   private void updateValue(int columnIndex, Object columnValue,
       Calendar calendar, int scale) throws SQLException {
     synchronized (internalLock_) { // @D1A
-      beforeUpdate();
-
-      // Check that there is a current row.
-      if ((positionValid_ == false) && (positionInsert_ == false))
-        JDError.throwSQLException(JDError.EXC_CURSOR_POSITION_INVALID);
-
-      // Validate The column index.
-      if (columnIndex < 1)
-        JDError.throwSQLException(JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+"<1");
-      if (columnIndex > columnCount_)
-        JDError.throwSQLException(JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+">"+columnCount_);
+      beforeUpdateValue(columnIndex);
 
       // Set the update value. If there is a type mismatch,
       // set() with throw an exception.
@@ -6588,6 +6612,8 @@ endif */
     {
         if(length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
+        beforeUpdateValue(columnIndex);
+        checkForValidConversion(columnIndex);
       
         updateValue (columnIndex, 
                      (x == null) ? null : JDUtilities.readerToString (x, (int)length), null, -1);
@@ -6644,6 +6670,8 @@ endif */
     {
         if(length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
+        beforeUpdateValue(columnIndex);
+        checkForValidConversion(columnIndex);
 
         updateValue (columnIndex, 
                      (reader == null) ? null : JDUtilities.readerToString (reader, (int)length), null, -1);
@@ -6704,8 +6732,11 @@ endif */
      */
     public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException
     {
+        
         if(length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
+        beforeUpdateValue(columnIndex);
+        checkForValidConversion(columnIndex);
       
         updateValue (columnIndex, 
                      (x == null) ? null : JDUtilities.readerToString (x, (int)length), null, -1);
@@ -6772,6 +6803,8 @@ endif */
     {
         if(length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
+        beforeUpdateValue(columnIndex);
+        checkForValidConversion(columnIndex);
       
         updateValue (columnIndex, 
                      (reader == null) ? null : JDUtilities.readerToString (reader, (int)length), null, -1);
@@ -7003,7 +7036,10 @@ endif */
      */
     public void updateCharacterStream(int columnIndex, Reader x) throws SQLException
     {
-        updateValue (columnIndex, 
+      beforeUpdateValue(columnIndex);
+      checkForValidConversion(columnIndex);
+
+      updateValue (columnIndex, 
                 (x == null) ? null : JDUtilities.readerToString(x), null, -1);
     }
 
@@ -7063,6 +7099,9 @@ endif */
      */
     public void updateClob(int columnIndex, Reader reader) throws SQLException
     {
+              beforeUpdateValue(columnIndex);
+        checkForValidConversion(columnIndex);
+
         updateValue (columnIndex, 
                 (reader == null) ? null : JDUtilities.readerToString(reader), null, -1);
     }
@@ -7127,6 +7166,9 @@ endif */
      */
     public void updateNCharacterStream(int columnIndex, Reader x) throws SQLException
     {
+              beforeUpdateValue(columnIndex);
+        checkForValidConversion(columnIndex);
+
         updateValue (columnIndex, 
                 (x == null) ? null : JDUtilities.readerToString(x), null, -1);
     }
@@ -7198,6 +7240,9 @@ endif */
      */
     public void updateNClob(int columnIndex, Reader reader) throws SQLException
     {
+              beforeUpdateValue(columnIndex);
+        checkForValidConversion(columnIndex);
+
         updateValue (columnIndex, 
                 (reader == null) ? null : JDUtilities.readerToString(reader), null, -1);
     }
@@ -7263,17 +7308,8 @@ endif */
     {
         synchronized(internalLock_)
         {                                          
-            beforeUpdate ();
+            beforeUpdateValue (columnIndex);
 
-            // Check that there is a current row.
-            if((positionValid_ == false) && (positionInsert_ == false))
-                JDError.throwSQLException (JDError.EXC_CURSOR_POSITION_INVALID);
-
-            // Validate The column index.
-            if((columnIndex < 1))
-                JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+"<1");
-            if((columnIndex > columnCount_))
-              JDError.throwSQLException (JDError.EXC_DESCRIPTOR_INDEX_INVALID, columnIndex+">"+columnCount_);
 
             // Set the update value.  If there is a type mismatch,
             // set() with throw an exception.

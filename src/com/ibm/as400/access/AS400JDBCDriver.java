@@ -458,7 +458,7 @@ endif */
 	
 	
 	@param  system   The IBM i system to connect.
-        @param  clone    True if the AS400 object should be cloned, false otherwises
+        @param  clone    True if the AS400 object should be cloned, false otherwise.
 	@return         The connection to the database or null if
 					the driver does not understand how to connect
 					to the database.
@@ -496,7 +496,7 @@ endif */
 	@param  system   The IBM i system to connect.
         @param  info     The connection properties.
         @param  schema   The default SQL schema or null meaning no default SQL schema specified.
-        @param  clone    True if the AS400 object should be cloned, false otherwises
+        @param  clone    True if the AS400 object should be cloned, false otherwise.
 	@return         The connection to the database or null if
 					the driver does not understand how to connect
 					to the database.
