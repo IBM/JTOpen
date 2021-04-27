@@ -4276,6 +4276,9 @@ implements ResultSet
         // @B1D if (columnValue == null)
         // @B1D     JDError.throwSQLException (JDError.EXC_PARAMETER_TYPE_INVALID);
 
+              beforeUpdateValue(columnIndex);
+      checkForValidConversion(columnIndex);
+
         updateValue (columnIndex, 
                      (columnValue == null) ? null : JDUtilities.streamToString (columnValue, length, "ISO8859_1"), // @B1C
                      null, -1); //@P0C
@@ -6448,6 +6451,9 @@ endif */
      */
     public void updateAsciiStream(int columnIndex, InputStream x, long length) throws SQLException
     {
+      beforeUpdateValue(columnIndex);
+      checkForValidConversion(columnIndex);
+
         if(length < 0)
             JDError.throwSQLException (JDError.EXC_BUFFER_LENGTH_INVALID);
    

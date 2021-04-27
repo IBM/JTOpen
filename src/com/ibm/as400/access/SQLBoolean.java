@@ -133,8 +133,8 @@ final class SQLBoolean extends SQLDataBase {
 
   public static boolean getBoolean(Object caller, Number object) {
      boolean value; 
-      long longValue = ((Number) object).longValue();
-      if (longValue == 0L) {
+      double doubleValue = ((Number) object).doubleValue();
+      if (doubleValue == 0.0) {
         value = false;
       } else {
         value = true;
