@@ -12,8 +12,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 package com.ibm.as400.access;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
 /**
  The ISeriesNetServerFileShare class represents a NetServer file share.
@@ -68,18 +66,34 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
   int ccsidForTextConversion_;
   String textConversionEnablement_;  // "0", "1", or "2"
   String[] fileExtensions_;
+  String encryptionRequired_; //"0", "1", //@AE3A
+  String authorizationList_; //@AE3A
 
-
-
-  ISeriesNetServerFileShare(String shareName, int permissions, int maxUsers, int currentUsers, String description, String path, int ccsid, String enableConversion, String[] fileExtensions)
+  //@AE3A Start
+  //7.5+
+  ISeriesNetServerFileShare(String shareName, int permissions, int maxUsers, int currentUsers, String description, String path, int ccsid, String enableConversion, String[] fileExtensions, String encryptionRequired, String authorizationList)
   {
-    setAttributeValues(shareName, permissions, maxUsers, currentUsers, description, path, ccsid, enableConversion, fileExtensions);
+    setAttributeValues(shareName, permissions, maxUsers, currentUsers, description, path, ccsid, enableConversion, fileExtensions, encryptionRequired, authorizationList);
   }
-
-
-  // This method does no argument validity checking, nor does it update attributes on server.
-  // For use by ISeriesNetServer class when composing lists of shares.
-  void setAttributeValues(String shareName, int permissions, int maxUsers, int currentUsers, String description, String path, int ccsid, String enableConversion, String[] fileExtensions)
+  
+ //This method does no argument validity checking, nor does it update attributes on server.
+ // For use by ISeriesNetServer class when composing lists of shares. V7R5+
+  //@AE3A Start
+  /**
+   * 
+   * @param shareName
+   * @param permissions
+   * @param maxUsers
+   * @param currentUsers
+   * @param description
+   * @param path
+   * @param ccsid
+   * @param enableConversion
+   * @param fileExtensions
+   * @param encryptionRequired
+   * @param authorizationList
+   */
+  void setAttributeValues(String shareName, int permissions, int maxUsers, int currentUsers, String description, String path, int ccsid, String enableConversion, String[] fileExtensions, String encryptionRequired, String authorizationList )
   {
     super.setAttributeValues(shareName, description, true);
     path_ = path;
@@ -89,7 +103,10 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
     ccsidForTextConversion_ = ccsid;
     textConversionEnablement_ = enableConversion;
     fileExtensions_ = fileExtensions;
-  }
+    encryptionRequired_ = encryptionRequired;
+    authorizationList_ = authorizationList;
+   }
+   //@AE3A End
 
 
   /**
@@ -265,6 +282,67 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
     // We'll need to use the 3rd and 4th optional parms on the API.
     numOptionalParmsToSet_ = Math.max(numOptionalParmsToSet_, 4);
   }
+  
+//@AE3A Start
+  /**
+  Gets the value of the "Encryption Required" attribute.
+  Possible values are {@link #ENABLED ENABLED}, {@link #NOT_ENABLED NOT_ENABLED}.
+  @return The Encryption Required.
+  **/
+ public int getEncryptionRequired()
+ {
+	 if (encryptionRequired_ == null ) throw new NullPointerException("Encryption required");
+   switch (encryptionRequired_.charAt(0)) {
+     case '0' : return NOT_ENABLED;       // text conversion is not enabled
+     case '1' : return ENABLED;           // text conversion is enabled
+     default  : return NOT_ENABLED; // text conversion is enabled, and mixed data is allowed
+   }
+ }
+ 
+ /**
+ Sets the value of the "Encryption Required" attribute.
+ Valid values are {@link #ENABLED ENABLED}, {@link #NOT_ENABLED NOT_ENABLED}.
+ @param Encryption Required, required
+ **/
+public void setEncryptionRequired(int required)
+{
+  if (required < NOT_ENABLED || required > ENABLED) {
+    throw new ExtendedIllegalArgumentException(Integer.toString(required), ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+  }
+  char[] charArray = new char[1];
+  switch (required) {
+    case NOT_ENABLED : charArray[0] = '0'; break;
+    case ENABLED : charArray[0] = '1'; break;
+    default : charArray[0] = '0';
+  }
+  encryptionRequired_ = new String(charArray); 
+  // We'll need to use the 2nd optional parm on the API.
+  numOptionalParmsToSet_ = Math.max(numOptionalParmsToSet_, 5);
+}
+
+/**
+Gets the value of the "Authorization List" attribute.
+@return The Authorization List.
+**/
+public String getAuthorizationList()
+{
+	 if (authorizationList_ == null ) throw new NullPointerException("Authorization list");
+	 return authorizationList_;
+}
+
+/**
+Sets the value of the "Authorization List" attribute.
+@param Authorization List
+**/
+public void setAuthorizationList(String authorizationList)
+{
+	if (authorizationList.length() != 0) {
+		authorizationList_ = authorizationList;
+	}
+	// We'll need to use the 2nd optional parm on the API.
+	if (authorizationList_ != null) numOptionalParmsToSet_ = Math.max(numOptionalParmsToSet_, 6);
+}
+//@AE3A End
 
 }
 

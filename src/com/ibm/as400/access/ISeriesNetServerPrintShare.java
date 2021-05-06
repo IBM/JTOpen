@@ -49,32 +49,58 @@ public class ISeriesNetServerPrintShare extends ISeriesNetServerShare
   // The following are optional parameters for the "Change Print Server Share" API.
   String printerFile_;  // qualified printer file name; always 20 chars long.
   boolean isPublished_;
+  
+  //@AE3A Start
+  String encryptionRequired_; //"0", "1", 
+  /**
+  Value of the "Encryption Required" attribute, indicating "Encryption Required is not required".
+  **/
+ public final static int NOT_REQUIRED = 0;
 
+ /**
+  Value of the "Encryption Required" attribute, indicating "Encryption Required is required".
+  **/
+ public final static int REQUIRED = 1;
+ String authorizationList_;
+ //@AE3A End
 
+  /**supports Authorization List on 7.5+
+   * 
+   * @param shareName
+   * @param spooledFileType
+   * @param outQueue
+   * @param printDriver
+   * @param description
+   * @param printerFile
+   * @param isPublished
+   * @param encryptionRequired
+   */
   ISeriesNetServerPrintShare(String shareName, int spooledFileType,
-                             String outQueue, String printDriver, String description,
-                             String printerFile, boolean isPublished)
+          String outQueue, String printDriver, String description,
+          String printerFile, boolean isPublished, String encryptionRequired, String authorizationList)
   {
-    setAttributeValues(shareName, spooledFileType, outQueue, printDriver, description,
-                       printerFile, isPublished);
+       setAttributeValues(shareName, spooledFileType, outQueue, printDriver, description,
+          printerFile, isPublished, encryptionRequired, authorizationList);
   }
-
 
   // This method does no argument validity checking, nor does it update attributes on server.
   // For use by ISeriesNetServer class when composing lists of shares.
+  //@AE3A Start
   void setAttributeValues(String shareName,
-                          int spooledFileType,
-                          String outQueue, String printDriver, String description,
-                          String printerFile, boolean isPublished)
+       int spooledFileType,
+       String outQueue, String printDriver, String description,
+       String printerFile, boolean isPublished, String encryptionRequired, String authorizationList)
   {
-    super.setAttributeValues(shareName, description, false);
-    spooledFileType_ = spooledFileType;
-    outputQueue_ = outQueue;
-    printDriver_ = printDriver;
-    printerFile_ = printerFile;
-    isPublished_ = isPublished;
-  }
-
+       super.setAttributeValues(shareName, description, false);
+       spooledFileType_ = spooledFileType;
+       outputQueue_ = outQueue;
+       printDriver_ = printDriver;
+       printerFile_ = printerFile;
+       isPublished_ = isPublished;
+       encryptionRequired_ = encryptionRequired;
+       authorizationList_ = authorizationList;
+   }
+   //@AE3A End
 
   /**
    Returns the name of the output queue associated with the share.
@@ -281,6 +307,67 @@ public class ISeriesNetServerPrintShare extends ISeriesNetServerShare
 
     spooledFileType_ = spooledFileType;
   }
+  
+  //@AE3A Start
+  /**
+  Gets the value of the "Encryption Required" attribute, only available on 7.4 and above
+  Possible values are {@link #ENABLED ENABLED}, {@link #NOT_ENABLED NOT_ENABLED}.
+  @return The Encryption Required.
+  **/
+ public int getEncryptionRequired()
+ {
+	 if (encryptionRequired_ == null ) throw new NullPointerException("Encryption required");
+     switch (encryptionRequired_.charAt(0)) {
+         case '0' : return NOT_REQUIRED;       // text conversion is not enabled
+         case '1' : return REQUIRED;           // text conversion is enabled
+         default  : return NOT_REQUIRED; // text conversion is enabled, and mixed data is allowed
+     }
+ }
+ 
+ /**
+ Sets the value of the "Encryption Required" attribute. only available on 7.4 and above
+ Valid values are {@link #ENABLED ENABLED}, {@link #NOT_ENABLED NOT_ENABLED}.
+ @param Encryption Required, required
+ **/
+public void setEncryptionRequired(int required)
+{
+  if (required < NOT_REQUIRED || required > REQUIRED) {
+    throw new ExtendedIllegalArgumentException(Integer.toString(required), ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+  }
+  char[] charArray = new char[1];
+  switch (required) {
+    case NOT_REQUIRED : charArray[0] = '0'; break;
+    case REQUIRED : charArray[0] = '1'; break;
+    default : charArray[0] = '0';
+  }
+  encryptionRequired_ = new String(charArray); 
+  // We'll need to use the 2nd optional parm on the API.
+  numOptionalParmsToSet_ = Math.max(numOptionalParmsToSet_, 3);
+}
+
+/**
+Gets the value of the "Authorization List" attribute.
+@return The Authorization List.
+**/
+public String getAuthorizationList()
+{
+	if (authorizationList_ == null ) throw new NullPointerException("Authorization list");
+	 return authorizationList_;
+}
+
+/**
+Sets the value of the "Authorization List" attribute.
+@param Authorization List
+**/
+public void setAuthorizationList(String authorizationList)
+{
+	if (authorizationList.length() != 0) {
+		authorizationList_ = authorizationList;
+	}
+	// We'll need to use the 2nd optional parm on the API.
+	if (authorizationList_ != null) numOptionalParmsToSet_ = Math.max(numOptionalParmsToSet_, 4);
+}
+//@AE3A End
 
 }
 

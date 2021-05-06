@@ -211,10 +211,14 @@ implements Serializable
   private final static int MESSAGE_AUTHENTICATION = 26; // BINARY(4)   V5R4+
   private final static int MIN_MESSAGE_SEVERITY   = 27; // BINARY(4)   V5R4+
   private final static int LAN_MGR_AUTHENTICATION = 28; // BINARY(4)   V5R4+
+  private final static int ENCRYPTED_CONNECTION_ENFORCE = 29;  // BINARY(4)  V7R4+ //@AE3A
+  private final static int SERVER_AUTHORIZATION_LIST = 30;     // CHAR(10)   V7R5+ //@AE3A
 
-  private final static int MAX_ATTR = 28;   // Increment this as new attr's are added.
+  private final static int MAX_ATTR = 30;   // Increment this as new attr's are added. //@AE3A
 
   private final static int ZLSL0101_MAX_RECORD_LENGTH = 1221; // Max path length is 1024 bytes.
+  private final static int ZLSL0101_MAX_RECORD_LENGTH_74 = 1223; // Max path length is 1024 bytes.  //@AE3A
+  private final static int ZLSL0101_MAX_RECORD_LENGTH_75 = 1233; // Max path length is 1024 bytes.  //@AE3A
 
   // Tables of "in effect" and "pending" attribute values.
 
@@ -242,6 +246,9 @@ implements Serializable
   private transient boolean userHasSpecialAuthority_ = false;
 
   private static final boolean DEBUG = false;
+  
+  private static boolean IBMi74 = false;  //@AE3A
+  private static boolean IBMi75 = false;  //@AE3A
 
 
   // Note: If required, we'll make this class into a Bean later.
@@ -663,6 +670,9 @@ implements Serializable
     int numRecords = callListProgram(pc, parms, len);
 
     byte[] data = parms[0].getOutputData();
+    
+    if (getSystemVRM() >= 0x00070400) IBMi74 = true; //@AE3A
+    if (getSystemVRM() >= 0x00070500) IBMi75 = true; //@AE3A
 
     return parseZLSL0101(data, conv, numRecords, desiredType, null);
   }
@@ -924,6 +934,16 @@ implements Serializable
       int deviceType = BinaryConverter.byteArrayToInt(data, offsetInData + 16);// file vs. print
       int maxUsers = BinaryConverter.byteArrayToInt(data, offsetInData + 24);
       int currentUsers = BinaryConverter.byteArrayToInt(data, offsetInData + 28);
+      
+       //@AE3A
+      String encryptionRequired = null;
+      String shareAuthorizationList = null;
+      if (IBMi74) {
+    	  encryptionRequired = conv.byteArrayToString(data, offsetInData + 198, 1).trim();
+    	  if (IBMi75)
+    		  shareAuthorizationList = conv.byteArrayToString(data, offsetInData + 199, 1).trim();
+      }
+      //@AE3A
 
       if (deviceType == FILE)  // It's a file share.
       {
@@ -941,6 +961,8 @@ implements Serializable
           String enableTextConv = conv.byteArrayToString(data, offsetInData + 196, 1).trim();
           int extTableOffset = BinaryConverter.byteArrayToInt(data, offsetInData + 188);
           int numExtTableEntries = BinaryConverter.byteArrayToInt(data, offsetInData + 192);
+          
+          
 
           // Store the File Extension Table entries into a pair of arrays (lengths, values).
           // From the API spec: "Length of file extension: The size in bytes of the file extension. The length does not include the byte used for null-termination."
@@ -957,11 +979,18 @@ implements Serializable
           }
 
           if (oldShare == null) { // The caller wants a new object created.
-            ISeriesNetServerFileShare share =
-              new ISeriesNetServerFileShare(shareName, permissions, maxUsers,
-                                            currentUsers, description, pathName,
-                                            ccsidForTextConv, enableTextConv,
-                                            extensions);
+        	  ISeriesNetServerFileShare share = 
+        			  new ISeriesNetServerFileShare(shareName, 
+        					                        permissions, 
+        					                        maxUsers, 
+        					                        currentUsers, 
+        					                        description, 
+        					                        pathName,
+        					                        ccsidForTextConv, 
+        					                        enableTextConv,
+        					                        extensions,
+        					                        encryptionRequired,      //@AE3A
+        					                        shareAuthorizationList); //@AE3A
             if (desiredType == FILE) fileShares[counter++] = share;
             else allShares[counter++] = share;
           }
@@ -974,7 +1003,10 @@ implements Serializable
                                                                      pathName,
                                                                      ccsidForTextConv,
                                                                      enableTextConv,
-                                                                     extensions);
+                                                                     extensions,
+                                                                     encryptionRequired,       //@AE3A
+                                                                     shareAuthorizationList);  //@AE3A
+            
             return null; // Don't bother creating an array to return.
           }
         }
@@ -997,21 +1029,29 @@ implements Serializable
           boolean isPublished = (publish.equals("1") ? true : false);
 
           if (oldShare == null) { // The caller wants a new object created.
-            ISeriesNetServerPrintShare share =
-              new ISeriesNetServerPrintShare(shareName, spooledFileType,
-                                             outQueue, printDriverType, description,
-                                             printerFile, isPublished);
+            ISeriesNetServerPrintShare share = 
+            		new ISeriesNetServerPrintShare(shareName, 
+            				                       spooledFileType,
+            				                       outQueue, 
+            				                       printDriverType, 
+            				                       description,
+            				                       printerFile, 
+            				                       isPublished, 
+            				                       encryptionRequired,           //@AE3A
+            				                       shareAuthorizationList);      //@AE3A
             if (desiredType == PRINT) printShares[counter++] = share;
             else allShares[counter++] = share;
           }
           else { // The caller specified an existing Share object.  Just update it.
-            ((ISeriesNetServerPrintShare)oldShare).setAttributeValues(shareName,
-                                                                      spooledFileType,
-                                                                      outQueue,
-                                                                      printDriverType,
-                                                                      description,
-                                                                      printerFile,
-                                                                      isPublished);
+        		((ISeriesNetServerPrintShare)oldShare).setAttributeValues(shareName,
+                          spooledFileType,
+                          outQueue,
+                          printDriverType,
+                          description,
+                          printerFile,
+                          isPublished,
+                          encryptionRequired,                //@AE3A
+                          shareAuthorizationList);           //@AE3A
             return null; // Don't bother creating an array to return.
           }
         }
@@ -2146,6 +2186,15 @@ implements Serializable
         needToChangeServerInfo = true;
       }
     }
+    
+    //@AE3A Start
+    if (getSystemVRM() >= 0x00070400) {
+    	if (userChangedAttribute_[ENCRYPTED_CONNECTION_ENFORCE] &&
+    	          !userCommittedChange_[ENCRYPTED_CONNECTION_ENFORCE]) {
+    	    needToChangeServerInfo = true;
+    	}
+    }
+    //@AE3A End
 
     if (needToChangeServerInfo)  { changeServerInfo(); }
 
@@ -2288,7 +2337,16 @@ implements Serializable
 
     // Compose a ZLSS0100 structure (passed-in as argument to the QZLSCHSI API).
 
-    ByteArrayOutputStream stream = new ByteArrayOutputStream(300);
+    ByteArrayOutputStream stream = new ByteArrayOutputStream(296);
+    //@AE3A Start
+    if (getSystemVRM() >= 0x00070400) {
+    	stream = new ByteArrayOutputStream(300);
+    	if (getSystemVRM() >= 0x00070500) {
+    		stream = new ByteArrayOutputStream(310);
+    	}
+    }
+    //@AE3A End
+    
 
     stream.write(BinaryConverter.intToByteArray(pendingValueInt_[CCSID]));
     stream.write(BinaryConverter.intToByteArray(pendingValueInt_[IDLE_TIMEOUT]));
@@ -2328,8 +2386,17 @@ implements Serializable
       stream.write(BinaryConverter.intToByteArray(pendingValueInt_[MESSAGE_AUTHENTICATION]));
       stream.write(BinaryConverter.intToByteArray(pendingValueInt_[MIN_MESSAGE_SEVERITY]));
       stream.write(BinaryConverter.intToByteArray(pendingValueInt_[LAN_MGR_AUTHENTICATION]));
+      
+      //@AE3A Start
+      if (getSystemVRM() >= 0x00070400) {
+      	stream.write(BinaryConverter.intToByteArray(pendingValueInt_[ENCRYPTED_CONNECTION_ENFORCE])); 
+      	if (getSystemVRM() >= 0x00070500) {
+      		final AS400Text text10 = new AS400Text(10, ccsid);
+      		stream.write(text10.toBytes(pendingValueInt_[SERVER_AUTHORIZATION_LIST])); 
+      	}
+      }
+      //@AE3A End
     }
-
 
     stream.flush();
     byte[] requestVariable = stream.toByteArray();
@@ -2392,7 +2459,14 @@ implements Serializable
     final CharConverter conv = new CharConverter(ccsid);
     final AS400Text text15 = new AS400Text(15, ccsid);
 
-    int len = 772;  // length of receiver variable
+    int len = 772;
+    //@AE3A Start
+    if (getSystemVRM() >= 0x00070500)
+    	len = 800;
+    else if (getSystemVRM() >= 0x00070400) 
+    	len = 780;
+    //@AE3A End
+    	
     ProgramParameter[] parms = new ProgramParameter[6];
 
     parms[0] = new ProgramParameter(len);             // receiver variable
@@ -2497,8 +2571,25 @@ implements Serializable
       if (!userChangedAttribute_[LAN_MGR_AUTHENTICATION]) {
         pendingValueInt_[LAN_MGR_AUTHENTICATION] = BinaryConverter.byteArrayToInt(data, 768);
       }
+      
+      //@AE3A Start
+      if (getSystemVRM() >= 0x00070400) {
+    	  //Encrypted connection enforce
+      	  effectiveValueInt_[ENCRYPTED_CONNECTION_ENFORCE] = BinaryConverter.byteArrayToInt(data, 772);
+          if (!userChangedAttribute_[ENCRYPTED_CONNECTION_ENFORCE]) {
+            pendingValueInt_[ENCRYPTED_CONNECTION_ENFORCE] = BinaryConverter.byteArrayToInt(data, 776);
+          }
+          
+          //Server authorization list
+          if (getSystemVRM() >= 0x00070500) {
+        	  effectiveValueStr_[SERVER_AUTHORIZATION_LIST] = conv.byteArrayToString(data,780,10);
+        	  if (!userChangedAttribute_[SERVER_AUTHORIZATION_LIST]) {
+        	      pendingValueStr_[SERVER_AUTHORIZATION_LIST] = conv.byteArrayToString(data,790,10);
+        	  }
+          } 
+      }
+      //@AE3A End
     }
-
   }
 
 
@@ -2927,8 +3018,18 @@ implements Serializable
     final int ccsid = system_.getCcsid();
     final CharConverter conv = new CharConverter(ccsid);
     final AS400Text text15 = new AS400Text(15, ccsid);
+    if (getSystemVRM() >= 0x00070400) IBMi74 = true; //@AE3A
+    if (getSystemVRM() >= 0x00070500) IBMi75 = true; //@AE3A
 
     int len = ZLSL0101_MAX_RECORD_LENGTH;  // We expect a single ZLSL0101 record back.
+    //@AE3A Start
+    if (IBMi74) {
+    	len = ZLSL0101_MAX_RECORD_LENGTH_74;
+    	if (IBMi75) 
+    		len = ZLSL0101_MAX_RECORD_LENGTH_75;
+    }
+    //@AE3A End	
+    
     ProgramParameter[] parms = new ProgramParameter[6];
 
     parms[0] = new ProgramParameter(len);                     // receiver variable
@@ -3088,6 +3189,30 @@ implements Serializable
       // parameter 12 - number of table entries
       parms[11] = new ProgramParameter(BinaryConverter.intToByteArray(numFileExtensions));
     }
+    
+    //@AE3A Start
+    //optional parameter group 2 - Encryption required, 7.4+
+    if (getSystemVRM() >= 0x00070400 && numberOfOptionalParms >= 5) {
+    	byte[] encryptionRequired = new byte[1];
+    	if (share.encryptionRequired_.equals("0")) {
+    		encryptionRequired[0] = (byte)0xF0;
+        } else if (share.encryptionRequired_.equals("1")) {
+        	encryptionRequired[0] = (byte)0xF1;
+        }
+    			
+    	parms[12] = new ProgramParameter(encryptionRequired);
+    }
+    
+    //optional parameter group 3 - Authorization list, 7.5+
+    final AS400Text text10 = new AS400Text(10, ccsid);
+    if (getSystemVRM() >= 0x00070500 && numberOfOptionalParms >= 6) {
+    	String authorizationList = "";
+    	if (share.authorizationList_ != null) {
+    		authorizationList = share.authorizationList_;
+    	}		
+    	parms[13] = new ProgramParameter(text10.toBytes(authorizationList));
+    }
+    //@AE3A End
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSCHFS.PGM", parms);
 
@@ -3158,6 +3283,30 @@ implements Serializable
       }
       parms[7] = new ProgramParameter(publishPrintShare);
     }
+    
+    //@AE3A
+    //optional parameter group 3 - Authorization list, 7.4+
+    if (getSystemVRM() >= 0x00070400 && numberOfOptionalParms >= 3) {
+    	byte[] encryptionRequired = new byte[1];
+    	if (share.encryptionRequired_.equals("0")) {
+    		encryptionRequired[0] = (byte)0xF0;
+        } else if (share.encryptionRequired_.equals("1")) {
+        	encryptionRequired[0] = (byte)0xF1;
+        }
+    			
+    	parms[8] = new ProgramParameter(encryptionRequired);
+    }
+    
+    //optional parameter group 4 - Authorization list, 7.5+
+    final AS400Text text10 = new AS400Text(10, ccsid);
+    if (getSystemVRM() >= 0x00070500 && numberOfOptionalParms >= 6) {
+    	String authorizationList = "";
+    	if (share.authorizationList_ != null) {
+    		authorizationList = share.authorizationList_;
+    	}		
+    	parms[9] = new ProgramParameter(text10.toBytes(authorizationList));
+    }
+    //@AE3A
 
     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSCHPS.PGM", parms);
 
@@ -3167,6 +3316,44 @@ implements Serializable
 
     share.numOptionalParmsToSet_ = 0;
   }
+  
+  //@AE3A Start
+  /**
+  Returns the value of the "browsing interval" attribute.
+  This attribute represents the amount of time, in milliseconds, between each system announcement that is used for browsing.  A value of zero indicates that there will be no system announcements.
+  @return  The value of the "browsing interval" attribute.
+  **/
+ public int getEncryptedConnectionEnforcement()
+ {
+   if (!refreshedSinceStart_) refreshWithoutException();
+   return effectiveValueInt_[ENCRYPTED_CONNECTION_ENFORCE];
+ }
+  
+  /**
+  Returns the pending value of the "Encrypted connection enforcement" attribute.
+  @return  The pending value of the "Encrypted connection enforcement" attribute.
+  @see #getEncryptedConnectionEnforcement()
+  **/
+ public String getEncryptedConnectionEnforcementPending()
+ {
+   if (!refreshedSinceStart_) refreshWithoutException();
+   return pendingValueStr_[ENCRYPTED_CONNECTION_ENFORCE];
+ }
+
+ /**
+  Sets the value of the "WINS secondary address" attribute.
+  This attribute represents the IP address of the secondary WINS server.
+  @param value  The value of the "WINS secondary address" attribute.
+  **/
+ public void setEncryptedConnectionEnforcement(String value)
+ {
+   if (value == null) { throw new NullPointerException(); }
+
+   pendingValueStr_[ENCRYPTED_CONNECTION_ENFORCE] = value.trim();
+   userChangedAttribute_[ENCRYPTED_CONNECTION_ENFORCE] = true;
+   userCommittedChange_[ENCRYPTED_CONNECTION_ENFORCE] = false;
+ }
+ //@AE3A End
 
 
 }
