@@ -151,7 +151,9 @@ final class SQLClobLocator implements SQLLocator
         {
             String s = (String)object;
             int length = s.length(); 
-            truncated_ = (length > maxLength_ ? length-maxLength_ : 0);  
+            if (maxLength_ > 0) { 
+                truncated_ = (length > maxLength_ ? length-maxLength_ : 0);
+            }
             outOfBounds_ = false; 
         }
         else if( !(object instanceof Reader) &&

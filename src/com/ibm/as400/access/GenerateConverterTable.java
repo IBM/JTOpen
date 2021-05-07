@@ -2,7 +2,7 @@
 //
 // JTOpen (IBM Toolbox for Java - OSS version)
 //
-// Filename:  AS400.java
+// Filename:  GenerateConverterTable.java
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.

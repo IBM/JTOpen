@@ -101,8 +101,8 @@ final class SQLBoolean extends SQLDataBase {
       value = false;
     } else {
       try {
-        long longValue = Long.parseLong(string);
-        if (longValue == 0) {
+        double doubleValue = Double.parseDouble(string);
+        if (doubleValue == 0.0) {
           if (string.charAt(0) == '0') {
             value = false;
           } else {
