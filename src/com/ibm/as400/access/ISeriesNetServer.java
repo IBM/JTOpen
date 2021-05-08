@@ -2392,7 +2392,7 @@ implements Serializable
       	stream.write(BinaryConverter.intToByteArray(pendingValueInt_[ENCRYPTED_CONNECTION_ENFORCE])); 
       	if (getSystemVRM() >= 0x00070500) {
       		final AS400Text text10 = new AS400Text(10, ccsid);
-      		stream.write(text10.toBytes(pendingValueInt_[SERVER_AUTHORIZATION_LIST])); 
+      		stream.write(text10.toBytes(pendingValueStr_[SERVER_AUTHORIZATION_LIST])); 
       	}
       }
       //@AE3A End
@@ -3300,7 +3300,7 @@ implements Serializable
     //optional parameter group 4 - Authorization list, 7.5+
     final AS400Text text10 = new AS400Text(10, ccsid);
     if (getSystemVRM() >= 0x00070500 && numberOfOptionalParms >= 6) {
-    	String authorizationList = "";
+    	String authorizationList = "*SAME";
     	if (share.authorizationList_ != null) {
     		authorizationList = share.authorizationList_;
     	}		
