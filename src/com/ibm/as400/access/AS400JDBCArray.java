@@ -1249,7 +1249,7 @@ public class AS400JDBCArray implements Array, Serializable {
             floatArray[i] = null;
           } else { /* not null */
             long lv = inLongArray[i].longValue();
-            if (lv >= Float.MIN_VALUE && lv <= Float.MAX_VALUE) {
+            if (lv >= - Float.MAX_VALUE && lv <= Float.MAX_VALUE) {
               floatArray[i] = new Float(lv);
             } else { /* in range */
               if (JDTrace.isTraceOn()) {
@@ -1272,7 +1272,7 @@ public class AS400JDBCArray implements Array, Serializable {
             floatArray[i] = null;
           } else { /* not null */
             float lv = inFloatArray[i].floatValue();
-            if (lv >= Float.MIN_VALUE && lv <= Float.MAX_VALUE) {
+            if (lv >= - Float.MAX_VALUE && lv <= Float.MAX_VALUE) {
               floatArray[i] = new Float(lv);
             } else { /* in range */
               if (JDTrace.isTraceOn()) {
@@ -1295,7 +1295,7 @@ public class AS400JDBCArray implements Array, Serializable {
             floatArray[i] = null;
           } else {
             double lv = inDoubleArray[i].doubleValue();
-            if (lv >= Float.MIN_VALUE && lv <= Float.MAX_VALUE) {
+            if (lv >= - Float.MAX_VALUE && lv <= Float.MAX_VALUE) {
               floatArray[i] = new Float(lv);
             } else {
               if (JDTrace.isTraceOn()) {
