@@ -829,7 +829,8 @@ class JDUtilities {
       return "NVARCHAR";
     case 2009: /* Types.SQLXML */
       return "SQLXML";
-
+    case Types.BOOLEAN: /* boolean */ 
+      return "BOOLEAN"; 
     default:
       return "UNKNOWN";
 
