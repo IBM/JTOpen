@@ -99,3 +99,4 @@ com/ibm/as400/access/SQLVarcharForBitData.java
 com/ibm/as400/access/SQLVargraphic.java
 com/ibm/as400/access/SQLXMLLocator.java
 com/ibm/as400/access/ToolboxWrapper.java
+com/ibm/as400/access/Trace.java

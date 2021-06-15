@@ -1622,10 +1622,28 @@ private static final void log(int category, Object source, String message, byte[
       // Create a FileOutputStream and PrintWriter to handle the trace data.
       // If the file exists, we will append to it (rather than replace it).
       File file = new File(fileName);
+      boolean fileExists = file.exists(); 
+      if (!fileExists) { 
+        // Make sure the file exists
+        file.createNewFile();
+      }
+      // Set the permissions on the file .. only possible for JDK 1.6.
+      // Note:  this does not work on some platforms (i.e. Windows)
+    /* ifdef JDBC40 
+      boolean publicSet; 
+      boolean ownerSet; 
+      publicSet = file.setReadable(false, // readable
+                       false); // owner only 
+      ownerSet = file.setReadable(true, // readable
+                       true); // owner only
+    endif */                        
+      
       FileOutputStream os = new FileOutputStream(fileName, file.exists());
       destination_ = new PrintWriter(os, true); // note: leave the stream open
       userSpecifiedDestination_ = true;
       fileName_ = fileName;
+      
+      
     }
     else  // The specified fileName is null - Use default destination.
     {
