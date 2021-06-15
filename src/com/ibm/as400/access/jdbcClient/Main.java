@@ -3837,7 +3837,7 @@ public class Main implements Runnable {
             } else if (array[i] instanceof java.sql.Clob) {
               java.sql.Clob clob = (java.sql.Clob) array[i];
               long length = clob.length();
-              out1.print(clob.getSubString(1, (int) length));
+              printUnicodeString(out1, clob.getSubString(1, (int) length));
             } else if (array[i] instanceof String) {
               printUnicodeString(out1, (String) array[i]);
             } else {

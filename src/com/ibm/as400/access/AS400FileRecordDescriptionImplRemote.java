@@ -409,6 +409,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
         }
         break;
       case 'H': // Hex field
+      case '5': // SQL Binary type
         // Need to get the length in bytes of the field
         // when creating the AS400ByteArray object.  The name of the field is set to be
         // the DDS name of the field (which causes the DDS name of the field description
