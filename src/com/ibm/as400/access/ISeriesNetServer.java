@@ -3203,10 +3203,10 @@ implements Serializable
     	parms[12] = new ProgramParameter(encryptionRequired);
     }
     
-    //optional parameter group 3 - Authorization list, 7.5+
+    //optional parameter group 3 - Authorization list
     final AS400Text text10 = new AS400Text(10, ccsid);
     if (getSystemVRM() >= 0x00070500 && numberOfOptionalParms >= 6) {
-    	String authorizationList = "";
+    	String authorizationList = "*SAME";
     	if (share.authorizationList_ != null) {
     		authorizationList = share.authorizationList_;
     	}		
@@ -3297,9 +3297,9 @@ implements Serializable
     	parms[8] = new ProgramParameter(encryptionRequired);
     }
     
-    //optional parameter group 4 - Authorization list, 7.5+
+    //optional parameter group 4 - Authorization list
     final AS400Text text10 = new AS400Text(10, ccsid);
-    if (getSystemVRM() >= 0x00070500 && numberOfOptionalParms >= 6) {
+    if (getSystemVRM() >= 0x00070500 && numberOfOptionalParms >= 4) {
     	String authorizationList = "*SAME";
     	if (share.authorizationList_ != null) {
     		authorizationList = share.authorizationList_;
@@ -3319,9 +3319,9 @@ implements Serializable
   
   //@AE3A Start
   /**
-  Returns the value of the "browsing interval" attribute.
-  This attribute represents the amount of time, in milliseconds, between each system announcement that is used for browsing.  A value of zero indicates that there will be no system announcements.
-  @return  The value of the "browsing interval" attribute.
+  Returns the value of the "encrypted connection enforce" attribute.
+  Whether the server requires access to the share to use encryption.
+  @return  The value of the "encrypted connection enforce" attribute.
   **/
  public int getEncryptedConnectionEnforcement()
  {
@@ -3334,25 +3334,57 @@ implements Serializable
   @return  The pending value of the "Encrypted connection enforcement" attribute.
   @see #getEncryptedConnectionEnforcement()
   **/
- public String getEncryptedConnectionEnforcementPending()
+ public int getEncryptedConnectionEnforcementPending()
  {
    if (!refreshedSinceStart_) refreshWithoutException();
-   return pendingValueStr_[ENCRYPTED_CONNECTION_ENFORCE];
+   return pendingValueInt_[ENCRYPTED_CONNECTION_ENFORCE];
  }
 
  /**
-  Sets the value of the "WINS secondary address" attribute.
-  This attribute represents the IP address of the secondary WINS server.
-  @param value  The value of the "WINS secondary address" attribute.
+  Sets the value of the "Encrypted connection enforcement" attribute.
+  @param value  The value of the "Encrypted connection enforcement" attribute.
   **/
- public void setEncryptedConnectionEnforcement(String value)
+ public void setEncryptedConnectionEnforcement(int value)
  {
-   if (value == null) { throw new NullPointerException(); }
-
-   pendingValueStr_[ENCRYPTED_CONNECTION_ENFORCE] = value.trim();
+   pendingValueInt_[ENCRYPTED_CONNECTION_ENFORCE] = value;
    userChangedAttribute_[ENCRYPTED_CONNECTION_ENFORCE] = true;
    userCommittedChange_[ENCRYPTED_CONNECTION_ENFORCE] = false;
  }
+ 
+ /**
+ Returns the value of the "Server Authorization List" attribute.
+ Whether the server requires access to the share to use encryption.
+ @return  The value of the "encrypted connection enforce" attribute.
+ **/
+public String getServerAuthorizationList()
+{
+  if (!refreshedSinceStart_) refreshWithoutException();
+  return effectiveValueStr_[SERVER_AUTHORIZATION_LIST];
+}
+ 
+ /**
+ Returns the pending value of the "Server Authorization List" attribute.
+ @return  The pending value of the "Encrypted connection enforcement" attribute.
+ @see #getEncryptedConnectionEnforcement()
+ **/
+public String getServerAuthorizationListPending()
+{
+  if (!refreshedSinceStart_) refreshWithoutException();
+  return pendingValueStr_[SERVER_AUTHORIZATION_LIST];
+}
+
+/**
+ Sets the value of the "Server Authorization List" attribute.
+ @param value  The value of the "Encrypted connection enforcement" attribute.
+ **/
+public void setServerAuthorizationList(String value)
+{
+  if (value == null) { throw new NullPointerException(); }
+
+  pendingValueStr_[SERVER_AUTHORIZATION_LIST] = value.trim();
+  userChangedAttribute_[SERVER_AUTHORIZATION_LIST] = true;
+  userCommittedChange_[SERVER_AUTHORIZATION_LIST] = false;
+}
  //@AE3A End
 
 
