@@ -38,6 +38,7 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException; //@A6A
 import java.net.UnknownHostException;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 import java.util.StringTokenizer;            //@D4A
 
@@ -1495,9 +1496,18 @@ public class IFSFile
       //return impl_.getOwnerNameByUserHandle();//@V4C
       return impl_.getOwnerNameByUserHandle(false);  //@AC7 
     }
-    else
-      //return impl_.getOwnerName();
-      return impl_.getOwnerName(true);  //@AC7 
+    else 
+      //return impl_.getOwnerName(); //@AE8D
+      //@AE8A
+    {
+    	String pathUpperCase = path_.toUpperCase(system_.getLocale());
+    	if (pathUpperCase.startsWith("/QSYS.LIB") && !pathUpperCase.endsWith(".FILE")) {
+    		return impl_.getOwnerNameByUserHandle();
+    	} else {
+    		return impl_.getOwnerName(true);  //@AC7 
+    	}
+    }
+      
   }
 
 
@@ -1784,8 +1794,9 @@ public class IFSFile
   public boolean isSourcePhysicalFile()
     throws AS400Exception, AS400SecurityException, IOException
   {
-    if (!path_.endsWith(".FILE") ||
-        path_.indexOf("/QSYS.LIB") == -1 ||
+	String pathUpperCase = path_.toUpperCase(system_.getLocale()); //@AE8A
+    if (!pathUpperCase.endsWith(".FILE") ||
+    		pathUpperCase.indexOf("/QSYS.LIB") == -1 ||
         !getSubtype().equals("PF"))
     {
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Not a physical file.");
@@ -3730,5 +3741,6 @@ public int getASP(boolean retrieveAll) throws IOException, AS400SecurityExceptio
   {
     return path_;
   }
+
 }
 
