@@ -3551,6 +3551,7 @@ public class Job implements Serializable
         {
             throw new AS400Exception(cmd.getMessageList());
         }
+        cmd.getSystem().disconnectService(AS400.COMMAND); //@AE5A
     }
 
     private final CommandCall getCommandCall(String cmd)
