@@ -2090,6 +2090,12 @@ public class AS400ImplRemote implements AS400Impl {
   public boolean getPasswordType() {
     return (passwordLevel_ >= 2);
   }
+  
+  //Returns true of password level @AE5A
+  public int getPasswordLevel() {
+    return passwordLevel_;
+  }
+
 
   // Check if service is connected.
   public boolean isConnected(int service) {
