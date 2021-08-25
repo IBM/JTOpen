@@ -2091,7 +2091,7 @@ public class AS400ImplRemote implements AS400Impl {
     return (passwordLevel_ >= 2);
   }
   
-  //Returns true of password level @AE5A
+  //Returns true of password level @AE6A
   public int getPasswordLevel() {
     return passwordLevel_;
   }
