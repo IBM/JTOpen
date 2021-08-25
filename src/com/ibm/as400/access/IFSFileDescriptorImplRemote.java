@@ -2111,10 +2111,10 @@ implements IFSFileDescriptorImpl
   //@AC7A Start
   private void retrieveAttributes(ClientAccessDataStream ds, int objectHandle) throws IOException, AS400SecurityException {
 		  fileAsp_ = ((IFSLookupRep) ds).getASP();
-		  if (isDirectory_) {
+		  //if (isDirectory_) { @AE8D
 			  fileOwnerName_ = ((IFSLookupRep) ds).getOwnerName(system_.getCcsid());
 			  fileDataCCSID_ = ((IFSLookupRep) ds).getCCSID(serverDatastreamLevel_);
-		  }
+		  //}
 		  int userHandle = system_.getUserHandle();		 
 		  int rc = 0;
 		  ds = null;
