@@ -298,6 +298,10 @@ package com.ibm.as400.access;
 //@AE2   20210310  Service program support 248 parameters
 //@AE3   20210506  NetServer API updates for AUTL and SMB
 //@AE4   20210615  Trace: Remove public read access from trace file
+//@AE5   20210824  Fix commandcall connection keeps active after Job end().
+//@AE6   20210824  Support to get password level.
+//@AE7   20210825  Support to IFS File open node request and response.
+//@AE8   20210825  Fix path name lower case issue for IFSFile functions.
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -306,15 +310,15 @@ public interface Copyright
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
     public static String copyright = "Copyright (C) 1997-2020 International Business Machines Corporation and others.";
     // Name of current release to be picked up by Java doc build. 
-    public static String JTOpenName = "JTOpen 10.6"; 
+    public static String JTOpenName = "JTOpen 10.7"; 
     //                                                                                         built=20210615 automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20210615 @AE4";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20210615 @AE8";  
 
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 12; // ex: "12" indicates V7R4, "10" indicates V7R2, while "9" indicates V7R1
-    static final int    MINOR_VERSION = 6; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
+    static final int    MINOR_VERSION = 7; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
                                            //Note: JTOpen 10.1 is synching with ptf 12.1
-    static final String DRIVER_LEVEL  = "07040006"; //(ex: 07030008 -> V7R3M0 PTF#8) (needed for hidden clientInfo) (each # is 2 digits in length)
+    static final String DRIVER_LEVEL  = "07040007"; //(ex: 07030008 -> V7R3M0 PTF#8) (needed for hidden clientInfo) (each # is 2 digits in length)
 
 }
