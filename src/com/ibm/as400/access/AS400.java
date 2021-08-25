@@ -4657,4 +4657,29 @@ public class AS400 implements Serializable
     }
     //@Z6A End
     
+    /**
+     * Password level
+     * @return  -1   - Not remote method, such as proxy method.
+     *          0, 1 - password type is DES
+     *          2, 3 - password type is SHA-1
+     *          4    - password type is SHA-512
+     * @throws  AS400SecurityException  If a security or authority error occurs.
+     * @throws  IOException  If an error occurs while communicating with the system.
+     */
+    //@AE6A
+    public int passwordLevel() throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if use password phrase");
+        
+        chooseImpl();
+        signon(false);
+        int pwdlvl = -1;
+        if (impl_ instanceof AS400ImplRemote)
+        	pwdlvl = ((AS400ImplRemote)impl_).getPasswordLevel();
+        
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Use password level: " + pwdlvl);
+
+        return pwdlvl;
+    }
+    
 }
