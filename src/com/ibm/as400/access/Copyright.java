@@ -302,6 +302,7 @@ package com.ibm.as400.access;
 //@AE6   20210824  Support to get password level.
 //@AE7   20210825  Support to IFS File open node request and response.
 //@AE8   20210825  Fix path name lower case issue for IFSFile functions.
+//@AF1   20210929  JDBC: Report warnings from prepare
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -312,7 +313,7 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.7"; 
     //                                                                                         built=20210615 automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20210615 @AE8";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20210615 @AF1";  
 
 
     // Constants for reference by AS400JDBCDriver.

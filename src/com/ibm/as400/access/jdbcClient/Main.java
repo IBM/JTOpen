@@ -1353,19 +1353,28 @@ public class Main implements Runnable {
       //
       String upcaseCommand = command1.toUpperCase();
       if (upcaseCommand.startsWith("PREPARE")) {
-        history.addElement("!"+command1);
+        history.addElement("!" + command1);
         command1 = command1.substring(7).trim();
         if (pstmt_ != null) {
           if (closeStatementRS_) {
             pstmt_.close();
           }
         }
-          pstmt_ = connection_.prepareStatement(command1, resultSetType_,
-              resultSetConcurrency_, resultSetHoldability_);
+        pstmt_ = connection_.prepareStatement(command1, resultSetType_,
+            resultSetConcurrency_, resultSetHoldability_);
+        // Display any warnings
+        SQLWarning warning = pstmt_.getWarnings();
+        if (warning != null) {
+          if (!silent_) {
+            dispWarning(printStreamForExecuteCommand, warning, hideWarnings_,
+                html_);
+          }
+        }
+
         addVariable("PSTMT", pstmt_);
 
       } else if (upcaseCommand.startsWith("SETRESULTSETTYPE")) {
-        history.addElement("!"+command1);
+        history.addElement("!" + command1);
         command1 = command1.substring(16).trim();
         if (command1.indexOf("FORWARD_ONLY") >= 0) {
           resultSetType_ = ResultSet.TYPE_FORWARD_ONLY;
