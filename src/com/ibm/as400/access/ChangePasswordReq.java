@@ -20,7 +20,7 @@ class ChangePasswordReq extends ClientAccessDataStream
 {
     ChangePasswordReq(byte[] userID, byte[] encryptedPw, byte[] oldPassword, int oldPasswordLength, byte[] newPassword, int newPasswordLength, int serverLevel)
     {
-        super(new byte[63 + oldPassword.length + newPassword.length + (encryptedPw.length == 8 ? 0 : 42) + (serverLevel < 5 ? 0 : 7)]);
+        super(new byte[(encryptedPw.length > 20? 101:63) + oldPassword.length + newPassword.length + (encryptedPw.length == 8 ? 0 : 42) + (serverLevel < 5 ? 0 : 7)]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);
@@ -31,7 +31,8 @@ class ChangePasswordReq extends ClientAccessDataStream
         setReqRepID(0x7005);
 
         // Password's always encrypted.
-        data_[20] = (encryptedPw.length == 8) ? (byte)0x01 : (byte)0x03;
+        //0X07 QPWDLVL4, 0X03 SHA-1 Encrypted.
+        data_[20] = (encryptedPw.length == 8) ? (byte)0x01 : ((encryptedPw.length == 20)?(byte)0x03: (byte)0x07); //@AF2C
 
         // Set user ID.
         //   LL
@@ -73,7 +74,7 @@ class ChangePasswordReq extends ClientAccessDataStream
             //   CP
             set16bit(0x111C, 59 + encryptedPw.length + oldPassword.length + newPassword.length);
             //   Old password length.
-            set32bit(oldPasswordLength, 61 + encryptedPw.length + oldPassword.length + newPassword.length);
+            set32bit(oldPasswordLength, 61 + encryptedPw.length + oldPassword.length + newPassword.length); 
 
             // Set protected new password length.
             //   LL

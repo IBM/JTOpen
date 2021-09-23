@@ -941,7 +941,7 @@ implements Serializable
       if (IBMi74) {
     	  encryptionRequired = conv.byteArrayToString(data, offsetInData + 198, 1).trim();
     	  if (IBMi75)
-    		  shareAuthorizationList = conv.byteArrayToString(data, offsetInData + 199, 1).trim();
+    		  shareAuthorizationList = conv.byteArrayToString(data, offsetInData + 199, 10).trim(); //@AF2C fix a typo issue.
       }
       //@AE3A
 

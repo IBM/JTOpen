@@ -26,7 +26,8 @@ class AS400XChgRandSeedDS extends ClientAccessDataStream
         super(new byte[28]);
         setLength(28);
         // Header ID replaced with Attributes.
-        data_[4] = 0x01;  // Client Attributes, 1 means can use SHA-1.
+        //data_[4] = 0x01;  // Client Attributes, 1 means can use SHA-1. @AF2D 
+        data_[4] = 0x02;    // Client Attributes, 1 means can use SHA-2 512, password level 4. @AF2A
         // data_[5] = 0x00;  // Server Attributes.
         setServerID(serverId);
         // setCSInstance(0x00000000);

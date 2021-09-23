@@ -25,6 +25,9 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.Socket;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -32,6 +35,8 @@ import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.Vector;
 
@@ -43,6 +48,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
@@ -372,7 +378,7 @@ public class AS400ImplRemote implements AS400Impl {
         encryptedPassword = encryptNewPassword(userIdEbcdic, oldPasswordEbcdic,
             newPasswordEbcdic, oldProtected, newProtected, clientSeed_,
             serverSeed_);
-      } else {
+      } else if (passwordLevel_< 4 ) {
         // Do SHA-1 encryption.
         byte[] userIdBytes = BinaryConverter
             .charArrayToByteArray(SignonConverter
@@ -429,7 +435,51 @@ public class AS400ImplRemote implements AS400Impl {
 
         oldProtected = generateShaProtected(oldPasswordBytes, newToken,
             serverSeed_, clientSeed_, userIdBytes, sequence);
-      }
+      } //@AF2 password level >= 4 QPWDLVL4
+      else {
+    	  if (oldPassword.length == 0) {
+              Trace.log(Trace.ERROR, "Parameter 'oldPassword' is empty.");
+              throw new AS400SecurityException(
+                  AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+            }
+            if (oldPassword[0] == '*') {
+              Trace.log(Trace.ERROR,
+                  "Parameter 'oldPassword' begins with a '*' character.");
+              throw new AS400SecurityException(
+                  AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+            }
+            if (newPassword.length == 0) {
+              Trace.log(Trace.ERROR, "Parameter 'newPassword' is empty.");
+              throw new AS400SecurityException(
+                  AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+            }
+            if (newPassword[0] == '*') {
+              Trace.log(Trace.ERROR,
+                  "Parameter 'newPassword' begins with a '*' character.");
+              throw new AS400SecurityException(
+                  AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+            }
+      /*
+       * If a sequence number is used, the client increments its password sequence "PWSEQs" by
+       * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
+       * uses a sequence number of 1.
+      */
+	      byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+	      byte[] oldPasswordBytes = BinaryConverter
+	              .charArrayToByteArray(trimUnicodeSpace(oldPassword));
+	      byte[] newPasswordBytes = BinaryConverter
+	              .charArrayToByteArray(trimUnicodeSpace(newPassword));
+	  
+	      byte[] token = generatePwdTokenForPasswordLevel4(userId_, oldPassword);
+		  encryptedPassword = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
+		  
+		  newProtected = generateSha512Protected(newPasswordBytes, token, serverSeed_, clientSeed_, userId, sequence);
+		  
+		  byte[] newToken = generatePwdTokenForPasswordLevel4(userId, newPassword);
+		  
+		  oldProtected = generateSha512Protected(oldPasswordBytes, newToken, serverSeed_, clientSeed_, userId, sequence);
+  }
+  //@AF2 End
 
       if (PASSWORD_TRACE) {
         Trace.log(Trace.DIAGNOSTIC, "Sending Change Password Request...");
@@ -1643,7 +1693,7 @@ public class AS400ImplRemote implements AS400Impl {
         }
         encryptedPassword = encryptPassword(userIdEbcdic, passwordEbcdic,
             clientSeed, serverSeed);
-      } else {
+      } else if (passwordLevel_< 4) { //@AF2
         // Do SHA-1 encryption.
         byte[] userIdBytes = BinaryConverter
             .charArrayToByteArray(SignonConverter
@@ -1678,7 +1728,45 @@ public class AS400ImplRemote implements AS400Impl {
         byte[] token = generateShaToken(userIdBytes, passwordBytes);
         encryptedPassword = generateShaSubstitute(token, serverSeed,
             clientSeed, userIdBytes, sequence);
-      }
+        //@AF2A Start
+      } else {
+    	  if (password.length == 0) {
+              Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
+              throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+          }
+          // Screen out passwords that start with a star.
+          if (password[0] == '*') {
+              Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
+              throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+            }
+          /*
+           * If a sequence number is used, the client increments its password sequence "PWSEQs" by
+           * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
+           * uses a sequence number of 1.
+          */
+    	  byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+    	  //Generate salt for password level 4
+          /*
+           * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
+           * 1. Convert the 10-character blank padded user ID to upper case.
+           * 2. Convert the 10-character blank padded upper case user ID to Unicode (CCSID 13488).
+           * 3. Convert the password value to Unicode (CCSID 13488).
+           * 4. Generate the salt value:
+           *    a. Fill a 28-byte variable with Unicode blanks (0x0020).
+           *    b. Copy the Unicode user ID value into the first 20 bytes of the 28-byte blank filled variable.
+           *    c. Copy the last 8 bytes (last 4 characters) of the Unicode password value into the last 8 bytes of the 28-byte variable. If the password is less than 4 characters, then copy the entire Unicode password value.
+           *    d. Do a SHA-256 hash on the 28-byte variable to produce the 32-byte salt value.
+           * 5. Generate the pwdlvl 4 version of the password using PBKDF2 with HMAC SHA-512 with the following values:
+           *    Hash algorithm = HMAC SHA-512 (produces a 64-byte key)
+           *    Data = Unicode password value
+           *    Data Length = Length of Unicode password value
+           *    Iterations = 10022
+           *    Initialization vector length = 32
+           *    Initialization vector (salt) = value generated in Step #4.
+           */
+	      byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
+		  encryptedPassword = generateSha512Substitute(userId_, token, serverSeed, clientSeed, sequence);
+      } //@AF2A End
     }
 
     if (PASSWORD_TRACE) {
@@ -4479,4 +4567,129 @@ public class AS400ImplRemote implements AS400Impl {
 	    return UserHandle2_;
 	  }
     //@ACAA End
+  
+  //@AF2 Start
+  //Generate salt for password level 4
+  /*
+   * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
+   * 1. Convert the 10-character blank padded user ID to upper case.
+   * 2. Convert the 10-character blank padded upper case user ID to Unicode (CCSID 13488).
+   * 3. Convert the password value to Unicode (CCSID 13488).
+   * 4. Generate the salt value:
+   *    a. Fill a 28-byte variable with Unicode blanks (0x0020).
+   *    b. Copy the Unicode user ID value into the first 20 bytes of the 28-byte blank filled variable.
+   *    c. Copy the last 8 bytes (last 4 characters) of the Unicode password value into the last 8 bytes of the 28-byte variable. If the password is less than 4 characters, then copy the entire Unicode password value.
+   *    d. Do a SHA-256 hash on the 28-byte variable to produce the 32-byte salt value.
+   * 5. Generate the pwdlvl 4 version of the password using PBKDF2 with HMAC SHA-512 with the following values:
+   *    Hash algorithm = HMAC SHA-512 (produces a 64-byte key)
+   *    Data = Unicode password value
+   *    Data Length = Length of Unicode password value
+   *    Iterations = 10022
+   *    Initialization vector length = 32
+   *    Initialization vector (salt) = value generated in Step #4.
+   */
+  private byte[] generateSaltForPasswordLevel4(String userId, char[] password) {
+  	// leftmost 10 chars of userid blank-padded to exactly 10...
+      // ...and rightmost 4 chars of password blank-padded to 4, ...
+      // ...produces 14 characters (28 bytes)
+      final char[] saltCharArray = new char[14];
+      final CharBuffer saltCharBuffer = CharBuffer.wrap(saltCharArray);
+      saltCharBuffer.put((userId + "          ").substring(0, 10));
+      //saltCharBuffer.append((userId + "          ").substring(0, 10));
+      final int passwdEnd = password.length;
+      final int passwdStart = Math.max(passwdEnd - 4, 0);
+      for (int i = passwdStart; i < passwdEnd; ++i) {
+          saltCharBuffer.put(password[i]);
+      }
+      //saltCharBuffer.append("    ".substring(0, 4 - passwdEnd + passwdStart));
+      saltCharBuffer.put("    ".substring(0, 4 - passwdEnd + passwdStart));
+      saltCharBuffer.flip();
+      final ByteBuffer saltByteBuffer = Charset.forName("utf-16be").encode(saltCharBuffer);
+      MessageDigest saltDigest;
+      byte[] salt = null;
+		try {
+			saltDigest = MessageDigest.getInstance("SHA-256");
+			saltDigest.update(saltByteBuffer.array());
+	        salt = saltDigest.digest(); // returns a 32 byte array
+	        Arrays.fill(saltCharArray, ' ');
+	        Arrays.fill(saltByteBuffer.array(), (byte) 0);
+		} catch (NoSuchAlgorithmException e) {
+			Trace.log(Trace.ERROR, "Error getting instance of SHA-256 algorithm:", e);
+		    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+		}
+      return salt;
+  }
+  //Generates a 64-byte password token "PW_TOKEN" as described by the security team for the QPWDLVL4 algorithm.
+  private byte[] generatePwdTokenForPasswordLevel4(final String userProfile_, final char[] passwd_) {
+      final byte[] salt = generateSaltForPasswordLevel4(userProfile_, passwd_);
+      final KeySpec spec = new PBEKeySpec(passwd_, salt, 10022, 64 * 8); // takes a bit length so *8
+      SecretKeyFactory factory;
+		try {
+			factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+			return factory.generateSecret(spec).getEncoded();
+		} catch (NoSuchAlgorithmException e) {
+			Trace.log(Trace.ERROR, "Error getting instance of PBKDF2WithHmacSHA512 algorithm:", e);
+		      throw new InternalErrorException(
+		          InternalErrorException.UNEXPECTED_EXCEPTION, e);
+		} catch (InvalidKeySpecException e) {
+			Trace.log(Trace.ERROR, "Invalid Key Spec Exception:", e);
+		      throw new InternalErrorException(
+		          InternalErrorException.UNEXPECTED_EXCEPTION, e);
+		}
+  }
+  
+  //Generates a 64-byte password substitute "PW_SUB" as follows: PW_SUB = SHA-2 512(PW_TOKEN, RDr, RDs, ID, PWSEQs)
+  static byte[] generateSha512Substitute(final String userProfile_, final byte[] passwdToken_, final byte[] serverSeed_, final byte[] clientSeed_, final byte[] sequence_){
+      MessageDigest messageDigest;
+		try {
+			messageDigest = MessageDigest.getInstance("SHA-512");
+			messageDigest.update(passwdToken_);
+	        messageDigest.update(serverSeed_);
+	        messageDigest.update(clientSeed_);
+			messageDigest.update((userProfile_ + "          ").substring(0, 10).getBytes("utf-16be"));
+	        messageDigest.update(sequence_);
+	        return messageDigest.digest();
+		} catch (NoSuchAlgorithmException e) {
+			Trace.log(Trace.ERROR, "Error getting instance of SHA-512 algorithm:", e);
+		    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+		} catch (UnsupportedEncodingException e) {
+			Trace.log(Trace.ERROR, "Unsupported Encoding Exception:", e);
+		    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+		}
+  }
+
+  //Generate 32 bytes hash with algorithmType
+  private static byte[] generateShabytes(byte[] data, String algorithmType) {
+      try {
+  	    MessageDigest md = MessageDigest.getInstance(algorithmType);
+  	    md.update(data);
+  	    byte[] result = md.digest();
+  	    return result;
+  	} catch (NoSuchAlgorithmException e) {
+  	    Trace.log(Trace.ERROR, "Error getting instance of " + algorithmType + " algorithm:", e);
+  	    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+  	}
+  }
+  
+  private static byte[] generateSha512Protected(byte[] bytes, byte[] token,
+	      byte[] serverSeed, byte[] clientSeed, String userId, byte[] sequence) {
+	    // Protected length will be rounded up to next 64.
+	    int protectedLength = (((bytes.length - 1) / 64) + 1) * 64;
+	    byte[] protectedPassword = new byte[protectedLength];
+	    for (int i = 0; i < protectedLength; i += 64) {
+	      incrementString(sequence);
+	      byte[] encryptedSection = generateSha512Substitute(userId, token, serverSeed,
+	          clientSeed, sequence);
+	      for (int ii = 0; ii < 64; ++ii) {
+	        if (i + ii < bytes.length) {
+	          protectedPassword[i + ii] = (byte) (encryptedSection[ii] ^ bytes[i
+	              + ii]);
+	        } else {
+	          protectedPassword[i + ii] = encryptedSection[ii];
+	        }
+	      }
+	    }
+	    return protectedPassword;
+	  }
+  //@AF2 End
 }

@@ -34,8 +34,28 @@ class AS400StrSvrDS extends ClientAccessDataStream
         // setCorrelation(0x00000000);
         setTemplateLen(2);
         setReqRepID(0x7002);
+        
+        //@AF2A 
+        if (byteType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) 
+        	data_[20] = (byte)0x06;
+        else 
+        	data_[20] = (byte)0x02;
+        
+        if (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+        	data_[20] = (byte)0x05;
+        
+        if (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) {
+        	if (authenticationBytes.length == 8) {
+        		data_[20] = (byte)0x01;
+        	} else if (authenticationBytes.length == 20) {
+        		data_[20] = (byte)0x03;
+        	} else {
+        		data_[20] = (byte)0x07;
+        	}
+        }
+        //data_[20] = (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) ? (authenticationBytes.length == 8) ? (byte)0x01 : (byte)0x03 : (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) ? (byte)0x05 : (byteType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) ? (byte)0x06 : (byte)0x02;
+        //@AF2A End
 
-        data_[20] = (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) ? (authenticationBytes.length == 8) ? (byte)0x01 : (byte)0x03 : (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) ? (byte)0x05 : (byteType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) ? (byte)0x06 : (byte)0x02;
         data_[21] = 0x01;  // Send reply true.
 
         // Set password or authentication token.

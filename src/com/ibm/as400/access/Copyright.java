@@ -303,6 +303,7 @@ package com.ibm.as400.access;
 //@AE7   20210825  Support to IFS File open node request and response.
 //@AE8   20210825  Fix path name lower case issue for IFSFile functions.
 //@AF1   20210929  JDBC: Report warnings from prepare
+//@AF2   20210923  Support password level 4
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
