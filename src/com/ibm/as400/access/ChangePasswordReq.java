@@ -20,7 +20,7 @@ class ChangePasswordReq extends ClientAccessDataStream
 {
     ChangePasswordReq(byte[] userID, byte[] encryptedPw, byte[] oldPassword, int oldPasswordLength, byte[] newPassword, int newPasswordLength, int serverLevel)
     {
-        super(new byte[(encryptedPw.length > 20? 101:63) + oldPassword.length + newPassword.length + (encryptedPw.length == 8 ? 0 : 42) + (serverLevel < 5 ? 0 : 7)]);
+        super(new byte[(encryptedPw.length == 64? 107:63) + oldPassword.length + newPassword.length + (encryptedPw.length == 8 ? 0 : 42) + (serverLevel < 5 ? 0 : 7)]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);
@@ -95,7 +95,7 @@ class ChangePasswordReq extends ClientAccessDataStream
 
         if (serverLevel >= 5)
         {
-            int offset = 63 + oldPassword.length + newPassword.length + (encryptedPw.length == 8 ? 0 : 42);
+            int offset = (encryptedPw.length == 64? 107:63) + oldPassword.length + newPassword.length + (encryptedPw.length == 8 ? 0 : 42);
             // Set return error messages.
             //   LL
             set32bit(7, offset);
