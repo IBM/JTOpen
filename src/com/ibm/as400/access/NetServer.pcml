@@ -1,0 +1,375 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: NetServer.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+
+
+
+<!-- Start Server. -->
+<program name="qzlsstrs" path="/QSYS.LIB/QZLSSTRS.PGM">
+        <data name="resetQualifier"                     usage="input"           type="char" length="1" init="0"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+
+
+<!-- End Server. -->
+<program name="qzlsends" path="/QSYS.LIB/QZLSENDS.PGM">
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+
+
+<!-- End Server Session. -->
+<program name="qzlsenss" path="/QSYS.LIB/QZLSENSS.PGM">
+        <data name="workstationName"                    usage="input"           type="char" length="15"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+
+
+<!-- Remove Server Share. -->
+<program name="qzlsrms" path="/QSYS.LIB/QZLSRMS.PGM">
+        <data name="shareName"                          usage="input"           type="char" length="12"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+
+
+<!-- Change Server Name. -->
+<program name="qzlschsn" path="/QSYS.LIB/QZLSCHSN.PGM">
+        <data name="serverNameP"                        usage="input"           type="char" length="15"/>
+        <data name="domainNameP"                        usage="input"           type="char" length="15"/>
+        <data name="descriptionP"                       usage="input"           type="char" length="50" init=" "/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+        <data name="allowSystemNameP"                   usage="input"           type="char" length="1"/>
+</program>
+
+
+<!-- This variation omits the allowSystemName parameter, thereby leaving it unchanged on the system. -->
+<program name="qzlschsn1" path="/QSYS.LIB/QZLSCHSN.PGM">
+        <data name="serverNameP"                        usage="input"           type="char" length="15"/>
+        <data name="domainNameP"                        usage="input"           type="char" length="15"/>
+        <data name="descriptionP"                       usage="input"           type="char" length="50" init=" "/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+
+
+<!-- Change Server Information -->
+<program name="qzlschsi" path="/QSYS.LIB/QZLSCHSI.PGM">
+        <data name="requestVariable"                    usage="input"           type="struct" struct="zlss0100"/>
+        <data name="lengthOfRequestVariable"            usage="input"           type="int" length="4" init="281"/>
+        <data name="format"                             usage="input"           type="char" length="8" init="ZLSS0100"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+<!-- Length is 280 bytes. -->
+<struct name="zlss0100"                                 usage="input">
+        <data name="ccsidP"                             type="int" length="4"/>
+        <data name="idleTimeOutP"                       type="int" length="4"/>
+        <data name="oppLockTimeOutP"                    type="int" length="4"/>
+        <data name="browsingIntervalP"                  type="int" length="4"/>
+        <data name="winsPrimaryAddressP"                type="char" length="15"/>
+        <data name="winsSecondaryAddressP"              type="char" length="15"/>
+        <data name="scopeIdP"                           type="char" length="224"/>
+        <data name="winsEnablementP"                    type="char" length="1"/>
+        <data                                           type="char" length="5" init=" "/>
+        <data name="serverRoleP"                        type="int"  length="4"/>
+        <data name="authenticationMethodP"              type="char" length="1" minvrm="V5R2M0"/>
+</struct>
+
+
+<!-- Change Server Guest. -->
+<program name="qzlschsg" path="/QSYS.LIB/QZLSCHSG.PGM">
+        <data name="guestUserProfileP"                  usage="input"           type="char" length="10"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+
+
+<!-- Retrieve Autostart. -->
+<program name="qtocauto_rtv" path="/QSYS.LIB/QTOCAUTO.PGM">
+        <data name="function"                           usage="input"           type="char" length="4" init="*RTV"/>
+        <data name="server"                             usage="input"           type="char" length="30" init="*NETSVR"/>
+        <data name="autostart"                          usage="output"          type="char" length="4"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+
+
+<!-- Change Autostart. -->
+<program name="qtocauto_chg" path="/QSYS.LIB/QTOCAUTO.PGM">
+        <data name="function"                           usage="input"           type="char" length="4" init="*CHG"/>
+        <data name="server"                             usage="input"           type="char" length="30" init="*NETSVR"/>
+        <data name="autostart"                          usage="input"           type="char" length="4"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+
+
+<!-- Add File Server Share. -->
+<program name="qzlsadfs" path="/QSYS.LIB/QZLSADFS.PGM">
+        <data name="shareName"                          usage="input"           type="char" length="12"/>
+<!-- Note: As of 10/17/00, the NetServer API support on pre-V5 OS/400 does *not* accept pathnames in Unicode.  The user will see an error indicating "REQUIRED PARAMETER 2 OMITTED". -->
+        <data name="pathName"                           usage="input"           type="char" length="lengthOfPathName" ccsid="13488"/>
+        <data name="lengthOfPathName"                   usage="input"           type="int" length="4"/>
+        <data name="ccsidOfPathName"                    usage="input"           type="int" length="4" init="13488"/>
+        <data name="description"                        usage="input"           type="char" length="50" init=" "/>
+        <data name="permissions"                        usage="input"           type="int" length="4" init="2"/>
+        <data name="maximumUsers"                       usage="input"           type="int" length="4" init="-1"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+
+
+<!-- Change File Server Share. -->
+<program name="qzlschfs" path="/QSYS.LIB/QZLSCHFS.PGM">
+        <data name="shareName"                          usage="input"           type="char" length="12"/>
+<!-- Note: As of 10/17/00, the NetServer API support on pre-V5 OS/400 does *not* accept pathnames in Unicode.  The user will see an error indicating "REQUIRED PARAMETER 2 OMITTED". -->
+        <data name="pathName"                           usage="input"           type="char" length="lengthOfPathName" ccsid="13488"/>
+        <data name="lengthOfPathName"                   usage="input"           type="int" length="4"/>
+        <data name="ccsidOfPathName"                    usage="input"           type="int" length="4" init="13488"/>
+        <data name="description"                        usage="input"           type="char" length="50" init=" "/>
+        <data name="permissions"                        usage="input"           type="int" length="4" init="2"/>
+        <data name="maximumUsers"                       usage="input"           type="int" length="4" init="-1"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+
+<struct name="qualifiedOutputQueueName">
+        <data name="queueName"          type="char" length="10"/>
+        <data name="libraryName"        type="char" length="10"/>
+</struct>
+
+
+<!-- Add Print Server Share. -->
+<program name="qzlsadps" path="/QSYS.LIB/QZLSADPS.PGM">
+        <data name="shareName"                          usage="input"           type="char" length="12"/>
+        <data name="qualifiedOutputQueueName"           usage="input"           type="struct" struct="qualifiedOutputQueueName"/>
+        <data name="description"                        usage="input"           type="char" length="50" init=" "/>
+        <data name="spooledFileType"                    usage="input"           type="int" length="4" init="4"/>
+        <data name="printDriverType"                    usage="input"           type="char" length="50" init=" "/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+
+
+<!-- Change Print Server Share. -->
+<program name="qzlschps" path="/QSYS.LIB/QZLSCHPS.PGM">
+        <data name="shareName"                          usage="input"           type="char" length="12"/>
+        <data name="qualifiedOutputQueueName"           usage="input"           type="struct" struct="qualifiedOutputQueueName"/>
+        <data name="description"                        usage="input"           type="char" length="50" init=" "/>
+        <data name="spooledFileType"                    usage="input"           type="int" length="4" init="4"/>
+        <data name="printDriverType"                    usage="input"           type="char" length="50" init=" "/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+
+
+<!-- Referenced by qzlsolst_xxxx -->
+<!-- Length is 64 bytes. -->
+<struct name="listInformation"                          usage="output">
+        <data name="totalRecords"                       type="int" length="4"/>
+        <data name="recordsReturned"                    type="int" length="4"/>
+        <data name="recordLength"                       type="int" length="4"/>
+        <data name="lengthOfInformationReturned"        type="int" length="4"/>
+        <data name="informationCompleteIndicator"       type="char" length="1"/>
+        <data name="dateAndTimeCreated"                 type="char" length="13"/>
+        <data                                           type="byte" length="34"/>
+</struct>
+
+
+
+<!-- Open List of Server Information. -->
+
+
+<!-- Share information. -->
+<!-- Note: Multiple variable-length records may be returned. -->
+<program name="qzlsolst_zlsl0100" path="/QSYS.LIB/QZLSOLST.PGM" parseorder="listInformation receiverVariable">
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="zlsl0100"
+                                                                                count="listInformation.recordsReturned"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="1188"/>
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="format"                             usage="input"           type="char" length="8" init="ZLSL0100"/>
+        <data name="informationQualifier"               usage="input"           type="char" length="15"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+<!-- Length is "lengthOfThisEntry" bytes (164 plus length of pathName). -->
+<!-- Note: Maximum path length is 1024 bytes, therefore maximum length for this struct is 1188 bytes. -->
+<struct name="zlsl0100"                                 usage="output">
+        <data name="lengthOfThisEntry"                  type="int" length="4"/>
+        <data name="shareName"                          type="char" length="12"/>
+        <data name="deviceType"                         type="int" length="4"/>
+        <data name="permissions"                        type="int" length="4"/>
+        <data name="maximumUsers"                       type="int" length="4"/>
+        <data name="currentUsers"                       type="int" length="4"/>
+        <data name="spooledFileType"                    type="int" length="4"/>
+        <data name="offsetToPathName"                   type="int" length="4"/>
+        <data name="lengthOfPathName"                   type="int" length="4"/>
+        <data name="qualifiedOutputQueueName"           type="struct" struct="qualifiedOutputQueueName"/>
+        <data name="printDriverType"                    type="char" length="50"/>
+        <data name="description"                        type="char" length="50"/>
+        <data name="pathName"                           type="char" length="lengthOfPathName" 
+                                                        offset="offsetToPathName"/>
+        <data                                           type="byte" length="0"
+                                                        offset="lengthOfThisEntry"/>
+</struct>
+
+<!-- Configuration information. -->
+<!-- Note: Only a single fixed-length record is returned. -->
+<program name="qzlsolst_zlsl0201" path="/QSYS.LIB/QZLSOLST.PGM" parseorder="listInformation receiverVariable">
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="zlsl0201"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="748"/>
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="format"                             usage="input"           type="char" length="8" init="ZLSL0201"/>
+        <data name="informationQualifier"               usage="input"           type="char" length="15" init=" "/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+<!-- Length is 748 bytes. -->
+<!-- Note: "P" suffix indicates "pending". -->
+<struct name="zlsl0201"                                 usage="output">
+        <data name="ccsid"                              type="int" length="4"/>
+        <data name="ccsidP"                             type="int" length="4"/>
+        <data name="idleTimeOut"                        type="int" length="4"/>
+        <data name="idleTimeOutP"                       type="int" length="4"/>
+        <data name="oppLockTimeOut"                     type="int" length="4"/>
+        <data name="oppLockTimeOutP"                    type="int" length="4"/>
+        <data name="browsingInterval"                   type="int" length="4"/>
+        <data name="browsingIntervalP"                  type="int" length="4"/>
+        <data name="winsEnablement"                     type="int" length="4"/>
+        <data name="winsEnablementP"                    type="int" length="4"/>
+        <data name="guestSupport"                       type="int" length="4"/>
+        <data name="guestSupportP"                      type="int" length="4"/>
+        <data name="guestUserProfile"                   type="char" length="10"/>
+        <data name="guestUserProfileP"                  type="char" length="10"/>
+        <data name="serverName"                         type="char" length="15"/>
+        <data name="serverNameP"                        type="char" length="15"/>
+        <data name="domainName"                         type="char" length="15"/>
+        <data name="domainNameP"                        type="char" length="15"/>
+        <data name="description"                        type="char" length="50"/>
+        <data name="descriptionP"                       type="char" length="50"/>
+        <data name="winsPrimaryAddress"                 type="char" length="15"/>
+        <data name="winsPrimaryAddressP"                type="char" length="15"/>
+        <data name="winsSecondaryAddress"               type="char" length="15"/>
+        <data name="winsSecondaryAddressP"              type="char" length="15"/>
+        <data name="scopeId"                            type="char" length="224"/>
+        <data name="scopeIdP"                           type="char" length="224"/>
+        <data name="allowSystemName"                    type="char" length="1"/>
+        <data name="allowSystemNameP"                   type="char" length="1"/>
+        <data name="authenticationMethod"               type="char" length="1"/>
+        <data name="authenticationMethodP"              type="char" length="1"/>
+        <data name="serverRole"                         type="int" length="4"/>
+        <data name="serverRoleP"                        type="int" length="4"/>
+</struct>
+
+
+<!-- Session information. -->
+<!-- Note: Multiple fixed-length records may be returned. -->
+<program name="qzlsolst_zlsl0300" path="/QSYS.LIB/QZLSOLST.PGM" parseorder="listInformation receiverVariable">
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="zlsl0300"
+                                                                                count="listInformation.recordsReturned"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="64"/>
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="format"                             usage="input"           type="char" length="8" init="ZLSL0300"/>
+        <data name="informationQualifier"               usage="input"           type="char" length="15"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+<!-- Length is 64 bytes. -->
+<struct name="zlsl0300"                                 usage="output">
+        <data name="workstationName"                    type="char" length="15"/>
+        <data name="userProfileName"                    type="char" length="10"/>
+        <data                                           type="char" length="3"/>
+        <data name="numberOfConnections"                type="int" length="4"/>
+        <data name="numberOfFilesOpen"                  type="int" length="4"/>
+        <data name="numberOfSessions"                   type="int" length="4"/>
+        <data name="sessionTime"                        type="int" length="4"/>
+        <data name="idleTime"                           type="int" length="4"/>
+        <data name="logonType"                          type="char" length="1"/>
+        <data name="encryptedPassword"                  type="char" length="1"/>
+        <data                                           type="char" length="6"/>
+        <data name="sessionId"                          type="int" length="8"/>
+</struct>
+
+
+<!-- Session connection information. -->
+<!-- Note: Multiple fixed-length records may be returned. -->
+<program name="qzlsolst_zlsl0600" path="/QSYS.LIB/QZLSOLST.PGM" parseorder="listInformation receiverVariable">
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="zlsl0600"
+                                                                                count="listInformation.recordsReturned"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="64"/>
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="format"                             usage="input"           type="char" length="8" init="ZLSL0600"/>
+        <data name="informationQualifier"               usage="input"           type="char" length="15"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+<!--    Optional parameters:
+        <data name="sessionUser"                        usage="input"           type="char" length="10" init="*SESSID"/>
+        <data name="sessionId"                          usage="input"           type="int" length="8"/>
+-->
+</program>
+
+<!-- Length is 64 bytes. -->
+<struct name="zlsl0600"                                 usage="output">
+        <data name="connectionId"                       type="int" length="4"/>
+        <data name="connectionType"                     type="int" length="4"/>
+        <data name="numberOfFilesOpen"                  type="int" length="4"/>
+        <data name="numberOfConnectionUsers"            type="int" length="4"/>
+        <data name="connectionTime"                     type="int" length="4"/>
+        <data name="userName"                           type="char" length="10"/>
+        <data name="resourceName"                       type="char" length="12"/>  <!-- share name -->
+        <data                                           type="char" length="6"/>
+        <data name="sessionId"                          type="int" length="8" minvrm="V5R1M0"/>
+        <data                                           type="char" length="8" minvrm="V5R1M0"/>
+</struct>
+
+
+<!-- Share connection information. -->
+<!-- Note: Multiple fixed-length records may be returned. -->
+<program name="qzlsolst_zlsl0700" path="/QSYS.LIB/QZLSOLST.PGM" parseorder="listInformation receiverVariable">
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="zlsl0700"
+                                                                                count="listInformation.recordsReturned"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="64"/>
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="format"                             usage="input"           type="char" length="8" init="ZLSL0700"/>
+        <data name="informationQualifier"               usage="input"           type="char" length="15"/>
+        <data name="errorCode"                          usage="input"           type="byte" length="17" init="0"/>
+</program>
+
+<!-- Length is 64 bytes. -->
+<struct name="zlsl0700"                                 usage="output">
+        <data name="connectionId"                       type="int" length="4"/>
+        <data name="connectionType"                     type="int" length="4"/>
+        <data name="numberOfFilesOpen"                  type="int" length="4"/>
+        <data name="numberOfConnectionUsers"            type="int" length="4"/>
+        <data name="connectionTime"                     type="int" length="4"/>
+        <data name="userName"                           type="char" length="10"/>
+        <data name="resourceName"                       type="char" length="15"/>  <!-- workstation name -->
+        <data                                           type="char" length="3"/>
+        <data name="sessionId"                          type="int" length="8" minvrm="V5R1M0"/>
+	<data                                           type="char" length="8" minvrm="V5R1M0"/>
+        <data name="expandedResourceNameType"           type="int" length="4" minvrm="V6R1M0"/>
+	<data name="expandedResourceName"               type="char" length="124" minvrm="V6R1M0"/>
+</struct>
+
+
+
+</pcml>
+
