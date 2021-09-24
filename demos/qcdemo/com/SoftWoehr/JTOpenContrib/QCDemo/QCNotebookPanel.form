@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<Form version="1.0" type="com.netbeans.developer.modules.loaders.form.forminfo.JPanelFormInfo">
+  <SyntheticProperties>
+    <SyntheticProperty name="encoding" type="java.lang.String" value="ISO-8859-1"/>
+  </SyntheticProperties>
+
+  <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+  <SubComponents>
+    <Container class="javax.swing.JTabbedPane" name="jTabbedPane1">
+      <Properties>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="com.netbeans.developer.editors.DimensionEditor">
+          <Dimension value="[450, 350]"/>
+        </Property>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="Center"/>
+        </Constraint>
+      </Constraints>
+
+      <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout"/>
+      <SubComponents>
+        <Container class="com.SoftWoehr.JTOpenContrib.QCDemo.QCCommandPanel" name="qCCommandPanel1">
+          <Properties>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="com.netbeans.developer.editors.DimensionEditor">
+              <Dimension value="[450, 380]"/>
+            </Property>
+            <Property name="name" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value=""/>
+            <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Uses an AS400 Command Button to execute a command on a server."/>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Command" toolTip="Click here for Command page."/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+        </Container>
+        <Container class="com.SoftWoehr.JTOpenContrib.QCDemo.QCIFSPanel" name="qCIFSPanel1">
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="IFS Viewer" toolTip=""/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+        </Container>
+        <Container class="com.SoftWoehr.JTOpenContrib.QCDemo.QCUserListPanel" name="qCUserListPanel1">
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="User List" toolTip="Click here to get a list of users."/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+        </Container>
+        <Container class="com.SoftWoehr.JTOpenContrib.QCDemo.QCJobListPanel" name="qCJobListPanel1">
+          <Properties>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="com.netbeans.developer.editors.DimensionEditor">
+              <Dimension value="[450, 380]"/>
+            </Property>
+            <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Shows Job List on system of your choice."/>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="JobList" toolTip="Click here for Job List page."/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+        </Container>
+        <Container class="com.SoftWoehr.JTOpenContrib.QCDemo.QCPrinterListPanel" name="qCPrinterListPanel1">
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Printer List" toolTip=""/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+        </Container>
+        <Container class="com.SoftWoehr.JTOpenContrib.QCDemo.QCSpooledFileViewerPanel" name="qCSpooledFileViewerPanel1">
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Spooled File Viewer" toolTip=""/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+        </Container>
+        <Container class="com.SoftWoehr.JTOpenContrib.QCDemo.QCSQLQueryBuilderPanel" name="qCSQLQueryBuilderPanel1">
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="SQL Query Builder" toolTip=""/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+        </Container>
+        <Container class="com.SoftWoehr.JTOpenContrib.QCDemo.QCSQLResultSetTablePanel" name="qCSQLResultSetTablePanel1">
+          <Properties>
+            <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Shows the results of queries issued by the SQL Query Builder."/>
+          </Properties>
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="SQL Result Table" toolTip=""/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+        </Container>
+        <Container class="com.SoftWoehr.JTOpenContrib.QCDemo.QCSQLResultSetFormPanel" name="qCSQLResultSetFormPanel1">
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="SQL Result Form" toolTip=""/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+        </Container>
+        <Container class="com.SoftWoehr.JTOpenContrib.QCDemo.QCMgrViewer" name="qCMgrViewer1">
+          <Constraints>
+            <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+              <JTabbedPaneConstraints tabName="Connection Manager Viewer" toolTip=""/>
+            </Constraint>
+          </Constraints>
+
+          <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+        </Container>
+      </SubComponents>
+    </Container>
+  </SubComponents>
+</Form>
