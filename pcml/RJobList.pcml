@@ -1,0 +1,160 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: RJobList.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+
+
+
+<struct name="qualifiedName">
+        <data name="objectName"         type="char" length="10"/>
+        <data name="libraryName"        type="char" length="10"/>
+</struct>
+
+
+
+<struct name="dateAndTime">
+        <data name="date"               type="char" length="7"/>
+        <data name="time"               type="char" length="6"/>
+</struct>
+
+
+
+<program name="qgyoljob" path="/QSYS.LIB/QGY.LIB/QGYOLJOB.PGM" parseorder="listInformation receiverVariable">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="oljb0100"
+                                                                                count="listInformation.recordsReturned"
+                                                                                outputsize="lengthOfReceiverVariable"/>
+        <data name="lengthOfReceiverVariable"           usage="input"           type="int" length="4" init="560"/>
+        <data name="formatName"                         usage="input"           type="char" length="8" init="OLJB0100"/>
+        <data name="receiverVariableDefinitionInfo"     usage="output"          type="char"
+                                                                                outputsize="lengthOfReceiverVariableDefinitionInfo"/>
+        <data name="lengthOfReceiverVariableDefinitionInfo" usage="input"       type="int" length="4" init="0"/>                                                                                
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="numberOfRecordsToReturn"            usage="input"           type="int" length="4" init="10"/> 
+        <data name="sortInformation"                    usage="input"           type="struct" struct="sortInformation"/>
+        <data name="jobSelectionInformation"            usage="input"           type="struct" struct="oljs0200"/>
+        <data name="sizeOfJobSelectionInformation"      usage="input"           type="int" length="4" init="740"/> 
+        <data name="numberOfFieldsToReturn"             usage="input"           type="int" length="4" init="0"/> 
+        <data name="keyOfFieldsToBeReturned"            usage="input"           type="int" length="4" 
+                                                                                count="numberOfFieldsToReturn"/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+
+
+<struct name="oljs0200">
+        <data name="jobName"                                    type="char" length="10"/>
+        <data name="userName"                                   type="char" length="10"/>
+        <data name="jobNumber"                                  type="char" length="6"/>
+        <data name="jobType"                                    type="char" length="1"/>
+        <data                                                   type="char" length="1" init=" "/>
+        <data name="offsetToPrimaryJobStatusArray"              type="int" length="4"/>
+        <data name="numberOfPrimaryJobStatusEntries"            type="int" length="4" init="0"/>
+        <data name="offsetToActiveJobStatusArray"               type="int" length="4" init="0"/>
+        <data name="numberOfActiveJobStatusEntries"             type="int" length="4" init="0"/>
+        <data name="offsetToJobsOnJobQueueStatusArray"          type="int" length="4" init="0"/>
+        <data name="numberOfJobsOnJobQueueStatusEntries"        type="int" length="4" init="0"/>
+        <data name="offsetToJobQueueNamesArray"                 type="int" length="4" init="0"/>
+        <data name="numberOfJobQueueNamesEntries"               type="int" length="4" init="0"/>
+        <data name="offsetToCurrentUserProfileArray"            type="int" length="4" init="0"/>
+        <data name="numberOfCurrentUserProfileEntries"          type="int" length="4" init="0"/>
+        <data name="offsetToServerTypeArray"                    type="int" length="4" init="0"/>
+        <data name="numberOfServerTypeEntries"                  type="int" length="4" init="0"/>
+        <data                                                   type="int" length="4" init="0"/>
+        <data                                                   type="int" length="4" init="0"/>
+        <data                                                   type="int" length="4" init="0"/>
+        <data                                                   type="int" length="4" init="0"/>
+        <data                                                   type="int" length="4" init="0"/>
+        <data                                                   type="int" length="4" init="0"/>
+        <data                                                   type="int" length="4" init="0"/>
+        <data                                                   type="int" length="4" init="0"/>        
+        <data name="primaryJobStatus"                           type="char" length="10"
+                                                                count="numberOfPrimaryJobStatusEntries"/>
+        <data name="activeJobStatus"                            type="char" length="4"
+                                                                count="numberOfActiveJobStatusEntries"/>
+        <data name="jobsOnJobQueueStatus"                       type="char" length="10"
+                                                                count="numberOfJobsOnJobQueueStatusEntries"/>
+        <data name="jobQueueNames"                              type="char" length="20"
+                                                                count="numberOfJobQueueNamesEntries"/>
+        <data name="currentUserProfile"                         type="char" length="10"
+                                                                count="numberOfCurrentUserProfileEntries"/>
+        <data name="serverType"                                 type="char" length="30"
+                                                                count="numberOfServerTypeEntries"/>
+</struct>        
+
+
+
+<program name="qgygtle" path="/QSYS.LIB/QGY.LIB/QGYGTLE.PGM" parseorder="listInformation receiverVariable">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="oljb0100"
+                                                                                count="listInformation.recordsReturned"
+                                                                                outputsize="receiverVariableLength" />
+        <data name="receiverVariableLength"             usage="input"           type="int" length="4"/>
+        <data name="requestHandle"                      usage="input"           type="byte" length="4"/>
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="numberOfRecordsToReturn"            usage="input"           type="int" length="4"/> 
+        <data name="startingRecord"                     usage="input"           type="int" length="4"/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+
+
+<program name="qgyclst" path="/QSYS.LIB/QGY.LIB/QGYCLST.PGM">
+        <data name="requestHandle"                      usage="input"           type="byte" length="4"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+
+
+<struct name="oljb0100">
+        <data name="jobNameUsed"                        type="char" length="10"/>
+        <data name="userNameUsed"                       type="char" length="10"/>
+        <data name="jobNumberUsed"                      type="char" length="6"/>
+        <data name="internalJobIdentifier"              type="byte" length="16"/>
+        <data name="status"                             type="char" length="10"/>
+        <data name="jobType"                            type="char" length="1"/>
+        <data name="jobSubtype"                         type="char" length="1"/>
+        <data                                           type="char" length="2"/>
+</struct>
+
+
+
+<struct name="listInformation">
+        <data name="totalRecords"                       type="int" length="4"/>
+        <data name="recordsReturned"                    type="int" length="4"/>
+        <data name="requestHandle"                      type="byte" length="4"/>
+        <data name="recordLength"                       type="int" length="4"/>
+        <data name="informationCompleteIndicator"       type="char" length="1"/>
+        <data name="dateAndTimeCreated"                 type="struct" struct="dateAndTime"/>
+        <data name="listStatusIndicator"                type="char" length="1"/>
+        <data                                           type="byte" length="1"/>
+        <data name="lengthOfInformationReturned"        type="int" length="4"/>
+        <data name="firstRecordInReceiverVariable"      type="int" length="4"/>
+        <data                                           type="byte" length="40"/>
+</struct>
+
+
+
+<struct name="sortInformation">
+        <data name="numberOfKeysToSortOn"                       type="int" length="4"/>
+        <struct name="sortKey"                                  count="numberOfKeysToSortOn">
+                <data name="sortKeyFieldStartingPosition"       type="int" length="4"/>
+                <data name="sortKeyFieldLength"                 type="int" length="4"/>
+                <data name="sortKeyFieldDataType"               type="int" length="2"/>
+                <data name="sortOrder"                          type="char" length="1"/>
+                <data                                           type="byte" length="1" init=" "/>
+        </struct>
+</struct>
+
+
+
+</pcml>        
+
