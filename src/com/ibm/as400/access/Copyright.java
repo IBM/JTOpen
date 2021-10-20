@@ -304,6 +304,7 @@ package com.ibm.as400.access;
 //@AE8   20210825  Fix path name lower case issue for IFSFile functions.
 //@AF1   20210929  JDBC: Report warnings from prepare
 //@AF2   20210923  Support password level 4
+//@AF3   20211020  Fix Base64 issue for Java11
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -314,7 +315,7 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.7.1"; 
     //                                                                                         built=20210615 automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20210615 @AF2";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20210615 @AF3";  
 
 
     // Constants for reference by AS400JDBCDriver.
