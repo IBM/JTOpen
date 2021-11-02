@@ -14,9 +14,6 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.BindException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -109,6 +106,22 @@ reassigned to a peer.  This option may be abbreviated
 <dd>
 Specifies the port to use for accepting connections from clients.
 This option may be abbreviated <code>-po</code>.  The default port is 3470.
+This port is not used if the JVM property javax.net.ssl.keyStore has been set. 
+</dd>
+
+<dt><b><code>-securePort </code></b><var>port</var></dt>
+<dd>
+Specifies the port to use for accepting secure SSL connections from clients.
+The default port is 3471.
+<p>This will be used only if the JVM property javax.net.ssl.keyStore has been set.
+<p>This used the SSL support provided by JSSE.  To use this support the 
+following JVM properties must be set. 
+<ul>
+<li>javax.net.ssl.keyStoreType</li>
+<li>javax.net.ssl.keyStore</li>
+<li>javax.net.ssl.keyStorePassword</li>
+</ul>
+
 </dd>
 
 
@@ -236,30 +249,6 @@ Returns the name of the configuration properties.
         return configuration_.getName ();
     }
 
-
-/**
-Returns the keyring file that the proxy server will use during
-SSL connections from clients.
-
-@return The proxy server keyring file name.
-**/
-    public String getKeyring ()           //$B1A
-    {
-        return null; 
-    }
-
-
-
-/**
-Returns the password to the proxy server keyring file.
-
-@return The proxy server keyring password.
-**/
-    String getKeyringPassword ()          //$B1A
-    {
-       return null; 
-       
-    }
 
 
 
@@ -402,8 +391,6 @@ accordingly.
             if (securePortOptionValue.length() > 0)                                                     //$B1C
                 setSecurePort (Integer.parseInt (securePortOptionValue));                               //$B1C
 
-        // Removed sslight support 
-
         // Extra options.
         Enumeration list = cla.getExtraOptions ();
         while (list.hasMoreElements ()) {
@@ -462,35 +449,6 @@ a configuration.
         configuration_.load ();
     }
 
-
-/**
-Sets the name of the keyring the proxy server
-will use during SSL communications.  The proxy
-server keyring name can be set only if the proxy
-server is not running.
-
-@param keyringName The proxy server keyring name.
-**/
-    public void setKeyringName(String keyringName)              //$B1A
-    {
-          throw new ExtendedIllegalArgumentException ("keyringName", 
-              ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-    }
-
-
-/**
-Sets the password to the keyring the proxy server
-will use during SSL communications.  The proxy
-server keyring password can be set only if the proxy
-server is not running.
-
-@param keyringPassword The proxy server keyring password.
-**/
-    public void setKeyringPassword(String keyringPassword)      //$B1A
-    {
-          throw new ExtendedIllegalArgumentException ("keyringPassword", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-
-    }
 
 
 
@@ -569,8 +527,14 @@ be set only if the proxy server is not running.
 /**
 Sets the port to use for accepting Secure Sockets
 Layer (SSL) connections from clients.  
-Using SSL with the proxy is no longer supported
-since com.ibm.sslight is no long supported. 
+This is implemented JSSE support.  To function, the following
+JVM properties need to be set. 
+<ul>
+<li>javax.net.ssl.keyStoreType</li>
+<li>javax.net.ssl.keyStore</li>
+<li>javax.net.ssl.keyStorePassword</li>
+</ul>
+
 
 @param securePort The port to use for accepting Secure
             Sockets Layer (SSL) connections from
@@ -578,8 +542,12 @@ since com.ibm.sslight is no long supported.
 **/
     public void setSecurePort (int securePort)                                             //$B1C
     {
-        throw new ExtendedIllegalArgumentException ("setSecurePort", 
-            ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        if (isStarted ())
+            throw new ExtendedIllegalStateException ("securePort", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        if ((securePort < 0) || (securePort > 65535))
+            throw new ExtendedIllegalArgumentException ("securePort", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+
+      securePort_ = securePort; 
     }
 
 
@@ -617,18 +585,30 @@ for this proxy server.
         // Initialize the server socket.  If the port is in use, send the
         // existing proxy server a configure request.
         try {
-            PSServerSocketContainerAdapter serverSocket = new PSServerSocketContainer (port_);
-            port_ = serverSocket.getLocalPort ();
-            PSController controller = new PSController (threadGroup_,
+          // Determine if proxy is secure.  This is the case if the JSSE properties for
+          // the key store are set. 
+          String keyStore = System.getProperty("javax.net.ssl.keyStore");
+          PSServerSocketContainerAdapter serverSocket; 
+          if (keyStore == null) { 
+              /* Use non-SSL support */ 
+              serverSocket = new PSServerSocketContainer (port_);
+          } else {
+              /* Use SSL support */
+              serverSocket = new PSServerSocketContainer (securePort_, true);
+            
+          }
+              port_ = serverSocket.getLocalPort ();
+              PSController controller = new PSController (threadGroup_,
                                                                           this,
                                                                           load_,
                                                                           loadBalancer_,
                                                                           configuration_,
                                                                           serverSocket);
 
-            controller.start ();
-            threadGroup_.addElement (controller);
-            Verbose.println (ResourceBundleLoader.getText ("PROXY_SERVER_LISTENING", serverSocket, Integer.toString (port_)));
+              controller.start ();
+              threadGroup_.addElement (controller);
+              Verbose.println (ResourceBundleLoader.getText ("PROXY_SERVER_LISTENING", serverSocket, Integer.toString (port_)));
+         
         }
         catch (BindException e) {
             Verbose.println (ResourceBundleLoader.getText ("PROXY_ALREADY_LISTENING", Integer.toString (port_)));
@@ -651,7 +631,6 @@ for this proxy server.
             errors_.println (e.getMessage ());
         }
 
-        // Remove SSLIGHT support 
 
     }
 

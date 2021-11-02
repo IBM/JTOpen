@@ -56,7 +56,7 @@ public class AS400UnsignedBin8 implements AS400DataType
     catch (CloneNotSupportedException e)
     {
       Trace.log(Trace.ERROR, "Unexpected cloning error", e);
-      throw new InternalErrorException(InternalErrorException.UNKNOWN);
+      throw new InternalErrorException(InternalErrorException.UNKNOWN,e);
     }
   }
 

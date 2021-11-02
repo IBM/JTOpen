@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.SocketException;
 
+import javax.net.ServerSocketFactory;
+import javax.net.ssl.SSLServerSocketFactory;
+
 
 
 /**
@@ -44,10 +47,25 @@ Constructs a PSServerSocketContainer object.
     public PSServerSocketContainer (int port)
         throws IOException
     {        
-        super (createServerSocket (port));
+        super (createServerSocket (port, false));
     }
 
 
+    /**
+Constructs a PSServerSocketContainer object.
+
+@param port   The port.
+ * @throws  IOException  If an error occurs while communicating with the system.
+**/
+    public PSServerSocketContainer (int port, boolean secure)
+        throws IOException
+    {        
+        super (createServerSocket (port, secure));
+    }
+
+
+
+    
 
 /**
 Creates the server socket. 
@@ -58,10 +76,11 @@ Creates the server socket.
 //  creating a ServerSocket on a port previously used, even when
 //  it was cleaned up properly.
 //
-    private static ServerSocket createServerSocket(int port)
+    private static ServerSocket createServerSocket(int port, boolean secure)
         throws IOException
     {
         ServerSocket serverSocket = null;
+        if (!secure) { 
         try {
             serverSocket = new ServerSocket(port);
         }
@@ -75,7 +94,12 @@ Creates the server socket.
             }
             serverSocket = new ServerSocket(port);
         }
+        } else {
+          // If this has a problem, the exception will be thrown
+         ServerSocketFactory sslServerSocketFactory = SSLServerSocketFactory.getDefault();
+         serverSocket = sslServerSocketFactory.createServerSocket(port);
 
+        }
         return serverSocket;
     }
 

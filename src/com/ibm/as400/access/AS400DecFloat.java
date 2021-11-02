@@ -81,7 +81,7 @@ public class AS400DecFloat implements AS400DataType
         catch (CloneNotSupportedException e)
         {
             Trace.log(Trace.ERROR, "Unexpected cloning error", e);
-            throw new InternalErrorException(InternalErrorException.UNKNOWN);
+            throw new InternalErrorException(InternalErrorException.UNKNOWN, e);
         }
     }
 
@@ -914,7 +914,7 @@ public class AS400DecFloat implements AS400DataType
             roundingMode = ((Integer) Class.forName("java.math.BigDecimal").getDeclaredField(mcRoundingMode).get(null)).intValue(); 
         } catch (Exception e)
         {
-            throw new InternalErrorException(InternalErrorException.UNKNOWN); //should never happen
+            throw new InternalErrorException(InternalErrorException.UNKNOWN, e); //should never happen
         }
         BigDecimal rounded = preRoundedBD.divide(divisor, scale, roundingMode); // do actual rounding here
         

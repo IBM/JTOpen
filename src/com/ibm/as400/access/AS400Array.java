@@ -65,7 +65,7 @@ public class AS400Array implements AS400DataType
      catch (CloneNotSupportedException e)
      {
          Trace.log(Trace.ERROR, "Unexpected cloning error", e);
-         throw new InternalErrorException(InternalErrorException.UNKNOWN);
+         throw new InternalErrorException(InternalErrorException.UNKNOWN, e);
      }
     }
 

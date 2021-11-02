@@ -530,8 +530,11 @@ implements ResultSet
             if(isMetadataResultSet == true)  //@mdclose
                 statement_.close();          //@mdclose
             
-            if(JDTrace.isTraceOn())
+            if(JDTrace.isTraceOn()) {
+                SQLException sqlex = new SQLException("Cursor was closed here");
+                JDTrace.logException(this, "Closing info", sqlex);
                 JDTrace.logClose (this);
+            }
         }
     }
 

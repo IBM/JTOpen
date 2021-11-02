@@ -127,7 +127,7 @@ public class AS400BeanInfo extends SimpleBeanInfo
         catch (IntrospectionException e)
         {
             Trace.log(Trace.ERROR, "Unexpected IntrospectionException:", e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
         }
     }
 

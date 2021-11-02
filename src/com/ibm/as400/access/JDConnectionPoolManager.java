@@ -1911,7 +1911,7 @@ implements ConnectionEventListener
       }
       catch (ClassCastException e) {
         logException("Exception when comparing connections", e);
-        throw new InternalErrorException(InternalErrorException.UNKNOWN);
+        throw new InternalErrorException(InternalErrorException.UNKNOWN, e);
       }
     }
   }  // internal class JDAgeComparator
