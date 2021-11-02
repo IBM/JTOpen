@@ -53,7 +53,6 @@ package.
 //                        AS400JDBCConnectionPoolDataSourceBeanInfoTestcase.java,
 //                        AS400JDBCDataSourceBeanInfoTestcase.java,
 //                        JDConnectionCommit.java,
-//                        JDDriverGetPropertyInfo.java.
 //
 //    __ Test serialization
 //
@@ -177,10 +176,11 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              RETRY_INTERVAL_FOR_CLIENT_REROUTE = 97; 
     static final int              ENABLE_SEAMLESS_FAILOVER   = 98; 
     static final int              AFFINITY_FAILBACK_INTERVAL = 99; 
+    static final int              TCP_NO_DELAY               = 100; 
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 100;    // @A0C @C1C @A3A @D0C @E0C
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 101;    // @A0C @C1C @A3A @D0C @E0C
                                                                // @E1C @D1c @E2C @E3C @E9C @F1C
                                                                // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
                                                                // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
@@ -248,6 +248,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String SORT_LANGUAGE_          = "sort language";
     private static final String SORT_TABLE_             = "sort table";
     private static final String SORT_WEIGHT_            = "sort weight";
+    private static final String TCP_NO_DELAY_           = "tcp no delay"; 
     private static final String THREAD_USED_            = "thread used";            // @E1A
     private static final String TIME_FORMAT_            = "time format";
     private static final String TIMESTAMP_FORMAT_       = "timestamp format";
@@ -1130,6 +1131,17 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         dpi_[i].choices[0]  = SORT_WEIGHT_SHARED;
         dpi_[i].choices[1]  = SORT_WEIGHT_UNIQUE;
         defaults_[i]        = SORT_WEIGHT_SHARED;
+
+        
+                // affinity failback interval
+        i = TCP_NO_DELAY; 
+        dpi_[i] = new DriverPropertyInfo (TCP_NO_DELAY_, "");
+        dpi_[i].description = "TCP_NO_DELAY_DESC";
+        dpi_[i].required    = false;
+        dpi_[i].choices     = new String[2];
+        dpi_[i].choices[0]  = TRUE_;
+        dpi_[i].choices[1]  = FALSE_;
+        defaults_[i]        = FALSE_;
 
         // Thread used.                                          // @E1C
         i = THREAD_USED;

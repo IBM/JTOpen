@@ -1405,7 +1405,19 @@ endif */
                 sockProps = as400.getSocketProperties();
             sockProps.setSoTimeout(jdProperties.getInt(JDProperties.SOCKET_TIMEOUT)); //@STIMEOUT already in milliseconds
         }
-        
+
+              
+        if( jdProperties.getBoolean(JDProperties.TCP_NO_DELAY) == true)
+        {
+            if(sockProps == null)
+                sockProps = as400.getSocketProperties();
+            
+            sockProps.setTcpNoDelay(true);
+                      if (JDTrace.isTraceOn())
+            JDTrace.logInformation(this, "Setting sockProps.setTcpNoDelay(true)");
+                      
+        }
+
         String defaultImpl = "com.ibm.as400.access.AS400JDBCConnectionImpl"; 
         if (jdProperties.getInt(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST) == 1) {
           defaultImpl = "com.ibm.as400.access.AS400JDBCConnectionRedirect"; 

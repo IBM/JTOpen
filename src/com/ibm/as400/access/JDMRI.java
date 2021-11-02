@@ -130,6 +130,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_CONCURRENT_ACCESS_RESOLUTION", "concurrentAccessResolution"}, //@cc1
       { "PROP_NAME_JVM16_SYNCHRONIZE", "jvm16Synchronize"}, //@dmy
       { "PROP_NAME_SOCKET_TIMEOUT", "socketTimeout"}, //@STIMEOUT
+      { "PROP_NAME_TCP_NO_DELAY", "tcpNoDelay"}, 
       { "PROP_NAME_MAXIMUM_BLOCKED_INPUT_ROWS", "maximumBlockedInputRows"}, 
       { "PROP_NAME_QUERY_TIMEOUT_MECHANISM", "queryTimeoutMechanism" },                // @M0A
       { "PROP_NAME_QUERY_REPLACE_TRUNCATED_PARAMETER", "queryReplaceTruncatedParameter" },                // @M0A
