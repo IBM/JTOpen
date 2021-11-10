@@ -4613,6 +4613,14 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
     /**
+    * Gets the socket TCP no delay option.
+    * @return The value of the socket TCP no delay option.
+    **/
+    public boolean isTcpNoDelay() { 
+      return sockProps_.isTcpNoDelay();
+    }
+ 
+    /**
     * This property allows the turning on of socket keep alive.
     * @param keepAlive The keepalive option value.
     **/
@@ -4692,6 +4700,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         sockProps_.setTcpNoDelay(noDelay);
     }
+    
+   
     // @F1A End of new socket option methods
 
     // @M0A - added support for sending statements in UTF-16 and storing them in a UTF-16 package

@@ -460,7 +460,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo
             soTimeout.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_SO_TIMEOUT",null));
             soTimeout.setShortDescription(AS400JDBCDriver.getResource("SO_TIMEOUT_DESC",null));
 
-            PropertyDescriptor tcpNoDelay = new PropertyDescriptor("tcpNoDelay", beanClass, "getTcpNoDelay", "setTcpNoDelay");
+            PropertyDescriptor tcpNoDelay = new PropertyDescriptor("tcpNoDelay", beanClass, "isTcpNoDelay", "setTcpNoDelay");
             tcpNoDelay.setBound(true);
             tcpNoDelay.setConstrained(false);
             tcpNoDelay.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TCP_NO_DELAY",null));
