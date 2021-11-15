@@ -922,7 +922,7 @@ public class AS400ImplRemote implements AS400Impl {
           authenticationBytes = encryptPassword(userIdEbcdic,
               SignonConverter.stringToByteArray(new String(password)
                   .toUpperCase()), clientSeed_, serverSeed_);
-        } else {
+        } else if (passwordLevel_ < 4){
           // Do SHA-1 encryption.
           byte[] userIdBytes = BinaryConverter
               .charArrayToByteArray(SignonConverter
@@ -955,7 +955,44 @@ public class AS400ImplRemote implements AS400Impl {
           byte[] token = generateShaToken(userIdBytes, passwordBytes);
           authenticationBytes = generateShaSubstitute(token, serverSeed_,
               clientSeed_, userIdBytes, sequence);
-        }
+        } else { //@AF6A Start
+        	if (password.length == 0) {
+                Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
+                throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+            }
+            // Screen out passwords that start with a star.
+            if (password[0] == '*') {
+                Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
+                throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+            /*
+             * If a sequence number is used, the client increments its password sequence "PWSEQs" by
+             * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
+             * uses a sequence number of 1.
+            */
+      	  byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+      	  //Generate salt for password level 4
+            /*
+             * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
+             * 1. Convert the 10-character blank padded user ID to upper case.
+             * 2. Convert the 10-character blank padded upper case user ID to Unicode (CCSID 13488).
+             * 3. Convert the password value to Unicode (CCSID 13488).
+             * 4. Generate the salt value:
+             *    a. Fill a 28-byte variable with Unicode blanks (0x0020).
+             *    b. Copy the Unicode user ID value into the first 20 bytes of the 28-byte blank filled variable.
+             *    c. Copy the last 8 bytes (last 4 characters) of the Unicode password value into the last 8 bytes of the 28-byte variable. If the password is less than 4 characters, then copy the entire Unicode password value.
+             *    d. Do a SHA-256 hash on the 28-byte variable to produce the 32-byte salt value.
+             * 5. Generate the pwdlvl 4 version of the password using PBKDF2 with HMAC SHA-512 with the following values:
+             *    Hash algorithm = HMAC SHA-512 (produces a 64-byte key)
+             *    Data = Unicode password value
+             *    Data Length = Length of Unicode password value
+             *    Iterations = 10022
+             *    Initialization vector length = 32
+             *    Initialization vector (salt) = value generated in Step #4.
+             */
+  	      byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
+  	      authenticationBytes = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
+        }//@AF6A End
       }
 
       AS400GenAuthTknDS req = new AS400GenAuthTknDS(userIdEbcdic,

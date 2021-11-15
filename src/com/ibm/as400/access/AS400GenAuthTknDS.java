@@ -32,7 +32,25 @@ class AS400GenAuthTknDS extends ClientAccessDataStream
         setReqRepID(0x7007);
 
         // Type of authentication bytes.
-        data_[20] = (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) ? (authenticationBytes.length == 8) ? (byte)0x01 : (byte)0x03 : (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) ? (byte)0x05 : (byteType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) ? (byte)0x06 : (byte)0x02;
+        //@AF6A Start 
+        if (byteType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) 
+        	data_[20] = (byte)0x06;
+        else 
+        	data_[20] = (byte)0x02;
+        
+        if (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+        	data_[20] = (byte)0x05;
+        
+        if (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) {
+        	if (authenticationBytes.length == 8) {
+        		data_[20] = (byte)0x01;
+        	} else if (authenticationBytes.length == 20) {
+        		data_[20] = (byte)0x03;
+        	} else {
+        		data_[20] = (byte)0x07;
+        	}
+        }//@AF6A End
+        //data_[20] = (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) ? (authenticationBytes.length == 8) ? (byte)0x01 : (byte)0x03 : (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) ? (byte)0x05 : (byteType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) ? (byte)0x06 : (byte)0x02; //@AF6D
         // Return type, 0x01 = profile token.
         data_[21] = 0x01;
 
