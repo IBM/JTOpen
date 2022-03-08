@@ -32,6 +32,13 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.net.URL;
 
+/* ifdef JDBC42
+import java.time.LocalTime;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+endif */ 
+
+
 final class SQLGraphic
 extends SQLDataBase
 {
@@ -183,6 +190,21 @@ extends SQLDataBase
             value = xml.getString();
         }
         endif */
+        /* ifdef JDBC42
+
+        else if(object instanceof java.time.LocalDate) 
+        {    
+             value = SQLDate.localDateToString((java.time.LocalDate)object, settings_, calendar); 
+        }     
+         
+        else if(object instanceof LocalTime) { 
+            value = SQLTime.localTimeToString((LocalTime)object, settings_, calendar);   
+        } 
+        else if(object instanceof LocalDateTime) { 
+            value = SQLTimestamp.localDateTimeToStringTrimTrailingZeros((LocalDateTime)object,  calendar, settings_);   
+        } 
+        
+endif */ 
 
     if (value == null) {
       if (JDTrace.isTraceOn()) {

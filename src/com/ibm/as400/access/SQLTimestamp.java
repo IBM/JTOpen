@@ -248,6 +248,31 @@ extends SQLDataBase
         return timestampToString(ts, calendar, -1, 26, settings);             // @F4C
     }
 
+   /* ifdef JDBC42
+  public static String localDateTimeToStringTrimTrailingZeros(
+      java.time.LocalDateTime ldt, Calendar calendar0,
+      SQLConversionSettings settings) {
+
+    Calendar calendar = AS400Calendar.getGregorianInstance();
+
+    calendar.set(ldt.getYear(), ldt.getMonthValue() -1 , ldt.getDayOfMonth(),
+        ldt.getHour(), ldt.getMinute(), ldt.getSecond());
+    long millis;
+    if (jdk14) {
+      millis = calendar.getTimeInMillis();
+    } else {
+      millis = calendar.getTime().getTime();
+    }
+
+    Timestamp ts = new Timestamp(millis);
+    ts.setNanos(ldt.getNano());
+
+    String tsString = timestampToStringTrimTrailingZeros(ts, calendar0,
+        settings);
+
+    return tsString;
+  }
+ endif */ 
     
     /**
      * Convert a timestamp to a string and get rid of trailing zeros. 
@@ -512,6 +537,21 @@ extends SQLDataBase
           picos_  = ts.getPicos();
           length_ = ts.getLength(); 
         }
+/* ifdef JDBC42
+        else if(object instanceof java.time.LocalDateTime)
+        {
+            java.time.LocalDateTime ts = ((java.time.LocalDateTime) object);
+            year_   = ts.getYear();
+          month_  = ts.getMonthValue() - 1;
+          day_    = ts.getDayOfMonth();
+          hour_   = ts.getHour();
+          minute_ = ts.getMinute();
+          second_ = ts.getSecond();
+          picos_  = ts.getNano() * 1000L;
+           
+        }
+
+ endif */ 
         else {
           if (JDTrace.isTraceOn()) {
               if (object == null) { 

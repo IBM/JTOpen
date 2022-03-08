@@ -29,6 +29,7 @@ endif */
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 final class SQLDate
 extends SQLDataBase
@@ -194,6 +195,17 @@ extends SQLDataBase
         }
     }
 
+    /* ifdef JDBC42
+    public static String localDateToString(java.time.LocalDate d,
+                                       SQLConversionSettings dateFormat,
+                                      Calendar calendar) {
+      GregorianCalendar gcal = new GregorianCalendar(d.getYear(),d.getMonthValue()-1, d.getDayOfMonth());
+
+      
+      return dateToString(gcal.getTime(),dateFormat,calendar); 
+    }
+    endif */ 
+    
     public static String dateToString(java.util.Date d,              // @F5C
                                       SQLConversionSettings dataFormat,
                                       Calendar calendar)
@@ -438,7 +450,23 @@ extends SQLDataBase
             month_  = calendar.get(Calendar.MONTH);
             day_    = calendar.get(Calendar.DAY_OF_MONTH);
         }
+/* ifdef JDBC42 
+        else if(object instanceof java.time.LocalDate)
+        {     // @F5C
+            java.time.LocalDate d = (java.time.LocalDate) object; 
+            year_   = d.getYear(); 
+            month_  = d.getMonthValue() -1;
+            day_    = d.getDayOfMonth();
+        }
+        else if(object instanceof java.time.LocalDateTime)
+        {     // @F5C
+            java.time.LocalDateTime d = (java.time.LocalDateTime) object; 
+            year_   = d.getYear(); 
+            month_  = d.getMonthValue() -1;
+            day_    = d.getDayOfMonth();
+        }
 
+endif */
         else {
           if (JDTrace.isTraceOn()) {
               if (object == null) { 
@@ -448,8 +476,12 @@ extends SQLDataBase
                 }
           }
 
-        
+        if (object != null) { 
+            JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, object.getClass().getName());
+          
+        } else { 
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
+        }
         }
     }
 

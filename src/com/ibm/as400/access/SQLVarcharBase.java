@@ -29,6 +29,16 @@ endif */
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+/* ifdef JDBC40 
+import java.util.GregorianCalendar; 
+endif */
+
+/* ifdef JDBC42
+import java.time.LocalTime;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+endif */ 
+
 import java.net.URL;
 
 abstract class SQLVarcharBase
@@ -293,6 +303,21 @@ extends SQLDataBase  implements SQLVariableCompressible
             value = xml.getString();
         }   
         endif */         
+        /* ifdef JDBC42
+
+        else if(object instanceof java.time.LocalDate) 
+        {    
+             value = SQLDate.localDateToString((java.time.LocalDate)object, settings_, calendar); 
+        }
+        
+        else if(object instanceof LocalTime)
+            value = SQLTime.localTimeToString((LocalTime) object, settings_, calendar);   
+
+        else if(object instanceof LocalDateTime)
+            value = SQLTimestamp.localDateTimeToStringTrimTrailingZeros((LocalDateTime) object, calendar, settings_); 
+
+             
+        endif */ 
 
         if(value == null)           {                                                // @C1C
           if (JDTrace.isTraceOn()) {

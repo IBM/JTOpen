@@ -7453,6 +7453,21 @@ endif */
       } else if (type == SQLXML.class){
         return getSQLXML(columnIndex);
 endif */
+/* ifdef JDBC42 
+      } else if (type == java.time.LocalTime.class){
+        Time time = getTime(columnIndex);
+        if (time != null ) return time.toLocalTime();
+        return null; 
+      } else if (type == java.time.LocalDate.class){
+        Date date = getDate(columnIndex);
+        if (date != null) return date.toLocalDate();
+        return null; 
+      } else if (type == java.time.LocalDateTime.class){
+        Timestamp ts = getTimestamp(columnIndex);
+        if (ts != null) return ts.toLocalDateTime();
+        return null; 
+endif */
+        
       } else if (type == Object.class){
         return getObject(columnIndex);
       }

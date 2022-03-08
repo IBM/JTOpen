@@ -308,6 +308,7 @@ package com.ibm.as400.access;
 //@AF4   20211102  Preserve original exception
 //@AF5   20211102  JDBC: Add connection property:  tcp no delay 
 //@AF6   20211115  Generate profile token for Password level 4
+//@AF7   20220308  JDBC:  Support LocalTime,LocalDate,LocalDateTime
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -317,8 +318,8 @@ public interface Copyright
     public static String copyright = "Copyright (C) 1997-2020 International Business Machines Corporation and others.";
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 10.7.1"; 
-    //                                                                                                 built=20211102 atomatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20211102 @AF6";  
+    //                                                                                                 built=20220308 automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20220308 @AF7";  
 
 
     // Constants for reference by AS400JDBCDriver.

@@ -29,6 +29,10 @@ endif */
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+/* ifdef JDBC42
+import java.time.LocalTime;
+import java.time.LocalDateTime;
+endif */
 
 final class SQLTime
 extends SQLDataBase
@@ -160,6 +164,27 @@ extends SQLDataBase
         }
     }
 
+     /* ifdef JDBC42
+  public static String localTimeToString(java.time.LocalTime lt,
+      SQLConversionSettings dataFormat, Calendar calendar0) {
+    Calendar calendar = AS400Calendar.getGregorianInstance();
+
+    calendar.set(1970, Calendar.JANUARY, 1, lt.getHour(), lt.getMinute(),
+        lt.getSecond());
+    calendar.set(Calendar.MILLISECOND, 0); // @F2A
+
+    long millis;
+    if (jdk14) {
+      millis = calendar.getTimeInMillis();
+    } else {
+      millis = calendar.getTime().getTime();
+    }
+    Time t = new Time(millis);
+
+    return timeToString(t, dataFormat, calendar0, -1); // @E3C
+  }
+  endif */ 
+    
     public static String timeToString(Time t,
                                       SQLConversionSettings dataFormat,
                                       Calendar calendar)
@@ -380,6 +405,27 @@ extends SQLDataBase
             second_ = calendar.get(Calendar.SECOND);
         }
 
+        /* ifdef JDBC42
+                else if(object instanceof LocalTime)
+        {
+            LocalTime t = ((LocalTime) object);
+            hour_   = t.getHour();
+            minute_ = t.getMinute(); 
+            second_ = t.getSecond(); 
+        }
+
+        else if(object instanceof LocalDateTime)
+        {
+            LocalDateTime t = ((LocalDateTime) object);
+            hour_   = t.getHour();
+            minute_ = t.getMinute(); 
+            second_ = t.getSecond(); 
+        }
+
+ endif */ 
+
+        
+        
         else {
           if (JDTrace.isTraceOn()) {
               if (object == null) { 
