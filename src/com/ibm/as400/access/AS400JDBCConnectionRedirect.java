@@ -636,12 +636,15 @@ extends AS400JDBCConnection {
   
   /* Should the connection reconnect for the SQL7061 exception */
   /* Error code 71 means a new connection should be obtained */
+  /* Error code 80 also means a new connection should be obtained */ 
   /* @X1A */ 
   private boolean should7061Reconnect(SQLException e) {
     String message = e.getMessage();
     if (message.indexOf(" 71.") > 0) {
       return true; 
-    } else {
+    } else  if (message.indexOf(" 80.") > 0) {
+      return true; 
+    }else {
       return false; 
     }
   }
