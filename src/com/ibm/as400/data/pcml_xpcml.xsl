@@ -211,6 +211,64 @@
       </xsl:choose>
     </xsl:if>
 
+    <!-- Varchar -->
+    <xsl:if test="@type='varchar'">
+     <xsl:choose>
+      <xsl:when test="@count and @count != '0'" >
+       <arrayOfStringParm>
+         <xsl:call-template name="commonAttributes"/> 
+         <xsl:copy-of select="@length"/>
+         <xsl:copy-of select="@ccsid"/>
+         <xsl:copy-of select="@trim"/>
+          <xsl:if test="@bidistringtype">  <!-- the stringParm has a 'trim' attribute -->
+             <xsl:attribute name="bidiStringType">
+            	<xsl:value-of select="@bidistringtype"/>
+             </xsl:attribute>
+          </xsl:if>
+         <xsl:if test="@chartype">  <!-- the stringParm has a 'charType' attribute -->
+             <xsl:attribute name="bytesPerChar">
+            	<xsl:value-of select="@chartype"/>
+            </xsl:attribute>
+         </xsl:if>
+         <xsl:if test="@init">
+            <xsl:if test="@init=''">
+                <xsl:attribute name="isEmptyString">true</xsl:attribute>
+            </xsl:if>
+            <xsl:variable name="count" select="@count"/>
+            <xsl:call-template name="writeArrayElements">
+              <xsl:with-param name="countVal" select="$count" />
+              <xsl:with-param name="val" select="@init"  />
+            </xsl:call-template>
+         </xsl:if>
+         </arrayOfStringParm>
+      </xsl:when>
+      <xsl:otherwise>
+       <stringParm>
+         <xsl:call-template name="commonAttributes"/> 
+         <xsl:copy-of select="@length"/>
+         <xsl:copy-of select="@ccsid"/>
+         <xsl:copy-of select="@trim"/>
+         <xsl:if test="@bidistringtype">  <!-- the stringParm has a 'trim' attribute --> 
+            <xsl:attribute name="bidiStringType">
+             	<xsl:value-of select="@bidistringtype"/>
+            </xsl:attribute>
+         </xsl:if>
+         <xsl:if test="@chartype">  <!-- the stringParm has a 'charType' attribute -->
+             <xsl:attribute name="bytesPerChar">
+            	<xsl:value-of select="@chartype"/>
+            </xsl:attribute>
+         </xsl:if>
+         <xsl:if test="@init">
+            <xsl:if test="@init=''">
+                <xsl:attribute name="isEmptyString">true</xsl:attribute>
+            </xsl:if>
+            <xsl:value-of select="@init"/>
+         </xsl:if>
+       </stringParm>
+       </xsl:otherwise>
+      </xsl:choose>
+    </xsl:if>
+
   <!-- QUESTION - Is hexBinary the right way to represent binary data? -->
   <xsl:if test="@type='byte'">
      <xsl:choose>
