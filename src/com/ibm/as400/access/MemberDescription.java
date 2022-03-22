@@ -551,7 +551,8 @@ public class MemberDescription
       memberName = "*FIRST";
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Defaulting to member *FIRST", pathName_.getPath());
     }
-    parameterList[4] = new ProgramParameter(new AS400Text(10).toBytes(memberName));
+    //parameterList[4] = new ProgramParameter(new AS400Text(10).toBytes(memberName)); //@AF9D
+    parameterList[4] = new ProgramParameter(charConverter.stringToByteArray(memberName)); //@AF9A
     // Override processing:  (1 == "overrides are processed")
     parameterList[5] = new ProgramParameter(charConverter.stringToByteArray("1"));
     // Error code:
