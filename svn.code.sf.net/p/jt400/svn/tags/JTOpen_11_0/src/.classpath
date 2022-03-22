@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk1.4"/>
+	<classpathentry excluding="utilities/*" kind="src" path=""/>
+	<classpathentry kind="lib" path="/build"/>
+	<classpathentry kind="lib" path="/contrib"/>
+	<classpathentry kind="lib" path="/include"/>
+	<classpathentry kind="lib" path="C:/jtopen_build/include/sslightx.zip"/>
+	<classpathentry kind="lib" path="C:/jtopen_build/include/cldcapi10.jar"/>
+	<classpathentry kind="lib" path="C:/jtopen_build/include/jui400.jar"/>
+	<classpathentry kind="lib" path="C:/jtopen_build/include/midpapi10.jar"/>
+	<classpathentry kind="lib" path="C:/jtopen_build/include/servlet.jar"/>
+	<classpathentry kind="lib" path="C:/jtopen_build/include"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
