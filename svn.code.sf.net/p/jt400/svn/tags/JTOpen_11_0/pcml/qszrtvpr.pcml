@@ -1,0 +1,56 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: qszrtvpr.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+
+<program name="qszrtvpr" path="/QSYS.LIB/QSZRTVPR.PGM">
+  <data name="receiverVariable" usage="output" type="struct" struct="prdr0100"/>
+  <data name="lengthOfReceiverVariable" usage="input" type="int" length="4" init="112"/>
+  <data name="formatName" usage="input" type="char" length="8" init="PRDR0100"/>
+  <data name="productInformation" usage="input" type="struct" struct="prdi0100"/>
+  <data name="errorCode" usage="input" type="int" length="4" init="0"/>
+</program>
+
+<struct name="prdi0100">
+  <data name="productID" type="char" length="7"/>
+  <data name="releaseLevel" type="char" length="6"/>
+  <data name="productOption" type="char" length="4"/>
+  <data name="loadID" type="char" length="10"/>
+</struct>
+
+<struct name="prdr0100">
+  <data name="bytesReturned" type="int" length="4"/>
+  <data name="bytesAvailable" type="int" length="4"/>
+  <data type="int" length="4"/>
+  <data name="productID" type="char" length="7"/>
+  <data name="releaseLevel" type="char" length="6"/>
+  <data name="productOption" type="char" length="4"/>
+  <data name="loadID" type="char" length="4"/>
+  <data name="loadType" type="char" length="10"/>
+  <data name="symbolicLoadState" type="char" length="10"/>
+  <data name="loadErrorIndicator" type="char" length="10"/>
+  <data name="loadState" type="char" length="2"/>
+  <data name="supportedFlag" type="char" length="1"/>
+  <data name="registrationType" type="char" length="2"/>
+  <data name="registrationValue" type="char" length="4"/>
+  <data type="char" length="2"/>
+  <data name="offsetToAdditionalInformation" type="int" length="4"/>
+  <data name="primaryLanguageLoadIdentifier" type="char" length="4"/>
+  <data name="minimumTargetRelease" type="char" length="6"/>
+  <data name="minimumVRM" type="char" length="6"/>
+  <data name="requirements" type="char" length="1"/>
+  <data name="level" type="char" length="3"/>
+  <data type="char" length="4"/>
+</struct>
+
+</pcml>
