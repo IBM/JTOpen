@@ -322,7 +322,7 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 11.0"; 
     //                                                                                                 built=20220309 automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R4M0.00 built=20220309 @AF8";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R5M0.00 built=20220309 @AF8";  
 
 
     // Constants for reference by AS400JDBCDriver.
