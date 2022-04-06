@@ -63,6 +63,9 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
         //@B2D initializeTransient();    //@A2A
     }
 
+    public AS400JDBCConnectionPoolDataSource(AS400 as400) {
+      super(as400); 
+    }
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified <i>serverName</i>.
     *  @param serverName The IBM i system name.
