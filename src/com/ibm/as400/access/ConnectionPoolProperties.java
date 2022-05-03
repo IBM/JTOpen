@@ -355,6 +355,13 @@ class ConnectionPoolProperties implements Serializable
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ConnectionPoolProperties.setThreadUsed("+useThreads+","+isInUse+")");
 
     String property = "threadUsed";
+    //
+    // If the value does not change, just return
+    // 
+    if (useThreads_ == useThreads) { 
+      return; 
+    }
+    
     if (isInUse)
       throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
 
