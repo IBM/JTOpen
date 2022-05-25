@@ -313,6 +313,8 @@ package com.ibm.as400.access;
 //@AF9   20220322  Fix MemberDescription convert issue.
 //@AG1   20220322  Support varchar when convert pcml to xpcml
 //@AG2   20220406  Add constructor AS400JDBCConnectionPoolDataSource(AS400)
+//@AH1   20220625  JDBC: Update trace to include system name with RDB name
+// 
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 
@@ -322,8 +324,8 @@ public interface Copyright
     public static String copyright = "Copyright (C) 1997-2020 International Business Machines Corporation and others.";
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 11.0"; 
-    //                                                                                                 built=20220309 automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R5M0.00 built=20220309 @AG2";  
+    //                                                                                                 built=20220406 automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R5M0.00 built=20220406 @AH1";  
 
 
     // Constants for reference by AS400JDBCDriver.

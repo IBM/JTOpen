@@ -420,6 +420,24 @@ Maps an object to a string.
     buffer.append(className);
     buffer.append(" ");
     buffer.append(object.toString());
+    if (object instanceof AS400JDBCConnectionImpl)  {
+      AS400JDBCConnectionImpl connection = (AS400JDBCConnectionImpl) object;
+      if (connection.dataSourceUrl_ != null)  {
+        buffer.append(":"); 
+        buffer.append(connection.dataSourceUrl_.getServerName()); 
+      }
+    }
+
+    if (object instanceof AS400JDBCConnectionRedirect)  {
+      AS400JDBCConnectionRedirect connection = (AS400JDBCConnectionRedirect) object;
+      if (connection.currentUrl_ != null)  {
+        buffer.append(":"); 
+        buffer.append(connection.currentUrl_.getServerName()); 
+      }
+    }
+
+    
+    
     buffer.append(" (");                            // @J3a
     buffer.append(object.hashCode());               // @J3a 
     buffer.append(") ");                            // @J3a

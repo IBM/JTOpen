@@ -187,7 +187,7 @@ extends AS400JDBCConnection
             ConvTable                   converter_; //@P0C
     private int                         dataCompression_            = -1;               // @ECA
     private boolean                     disableCompression_ = false;   //@L9A
-    private JDDataSourceURL             dataSourceUrl_;
+            JDDataSourceURL             dataSourceUrl_;
     private boolean                     drda_;                          // @B1A
     private String                      defaultSchema_;
     private boolean                     extendedFormats_;
