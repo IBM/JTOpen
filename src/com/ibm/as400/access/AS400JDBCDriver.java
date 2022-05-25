@@ -31,11 +31,14 @@ import java.util.ResourceBundle;
 
 
 /**
-A JDBC 3.0/4.0/4.2 driver that accesses DB2 for IBM i databases.
+A JDBC 3.0/4.0/4.2/4.3 driver that accesses DB2 for IBM i databases.
 
 <p>To use this driver, the application or caller must register 
-the driver with the JDBC DriverManager.  This class also registers 
+the driver with the JDBC DriverManager prior to JDBC 4.0.  
+This class also registers 
 itself automatically when it is loaded.
+When using the JDBC 4.0 or later versions, the driver is 
+automatically registered. 
 
 <p>After registering the driver, applications make connection
 requests to the DriverManager, which dispatches them to the

@@ -771,7 +771,6 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
 <A NAME="alternate"></A>
 <h3>Alternate server properties</h3>
 
-<p>The properties were added in JTOpen 9.6</p>
 <p>These properties are used to enable the JDBC driver to connect to an 
 alternate server if the connection to the current server is lost or 
 if the current DB2 Mirror for i system is blocked.</p>
@@ -780,12 +779,10 @@ will automatically reconnect to a system.   The systems are tried in order,
 and the order of the systems are first, the original system specified in 
 the original connection, followed by the servers specified in the 
 clientRouteServerName property.  
-The default behavior is that existing JDBC Statement, PreparedStatement, 
-and CallableStatement objects will throw an SQLException with SQLCode=-4498 
-the first time an object uses a reestablished connection.</p> 
-
-<p>After the JDBC driver connects to the alternate server, existing Statement, 
-PreparedStatement, and CallableStatement objects remain usable. </p>
+<p>When an error occurs, the JDBC driver throws an SQLException with SQLCode=-4498 
+that indicates that the current operation failed because the connection was dropped. 
+Existing JDBC statement objects have been changed to reference the new connection, so 
+these statement objects can be used to retry the operation that failed. 
 <p>When using this support, JDBC applications must be aware a connection
  may be redirected to another server at any time.   
  Therefore, applications must be aware that the following items 
@@ -930,8 +927,6 @@ retryIntervalForClientReroute is 0 (no wait).</p>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat7">&quot;enableSeamlessFailover&quot;</TD>
     <TD HEADERS="cat7t2">
-<p>This feature is not yet fully implemented in the current JTOpen release.   If you choose to try this feature, please 
-post problems you encounter using the bugs page for JTOpen at https://sourceforge.net/p/jt400/bugs/.
 <p>Specifies whether the JTOpen JDBC driver uses seamless failover for 
 client reroute.  This setting is only used if the &quot;enableClientAffinitiesList&quot; 
 property is set to 1.</p> 
@@ -955,13 +950,12 @@ the original connection failed.</p>
 <p>When this setting is in effect, if a server goes down, the driver 
 tries to fail back or fail over to an alternate server. If failover or 
 failback is successful, the driver throws an SQLException with SQL error 
-code -4498 with the next operation on the connection.  
+code -4498 on the current operation on the connection.  
 This indicates that the operation and connection failed, but the connection was 
 successfully reestablished.  An SQLException with SQL error code -4498 
 informs the application that it should retry the transaction during which 
 the connection failure occurred. If the driver cannot reestablish a connection, 
-it throws an SQLException indicating the first error seen when attempting to 
-establish the connection.</p>
+it throws an SQLException indicating the first error seen using the connection.</p>
    
     </TD>
     <TD HEADERS="cat7t3" ALIGN="CENTER">no</TD>
@@ -1034,7 +1028,7 @@ establish the connection.</p>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat4">&quot;tcp no delay&quot;</TD>
     <TD HEADERS="cat4t2">Sets the TCP no delay used by the network socket. To minimize response time, this
-    should be set to true on Windows systems that use the nagle algorithm to reduce network load. 
+    should be set to true on Windows systems that use Nagle's algorithm to reduce network load. 
      
     </TD>
     <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
@@ -1053,7 +1047,6 @@ establish the connection.</p>
 <p>Other properties are those properties not easily categorized. These properties 
   determine which JDBC driver is used, and specify options related to level of 
   database access, bidirectional string type, data truncation and so on.</p>
-  
 <TABLE BORDER="1">
   <TR VALIGN="bottom" CLASS="hilightbar"> 
     <TH ID="cat6">Other property</TH>
