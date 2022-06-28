@@ -2905,6 +2905,8 @@ throws SQLException
         // @J5D }                                                                    // @C1A
         catch (IOException e)
         {                                              // @J5A
+            // Make sure socket is closed @AH2
+            as400_.disconnectServer (server_);
             server_ = null;                                                  // @J5A
             //@P0D request.freeCommunicationsBuffer();                              // @J5A
             JDError.throwSQLException (this, JDError.EXC_COMMUNICATION_LINK_FAILURE, e); // @J5A
@@ -3134,6 +3136,8 @@ throws SQLException
         // @J5D }                                                                   // @C1A
         catch (IOException e)
         {                                             // @J5A
+            // Make sure the underlying socket is closed.  @AH2
+            as400_.disconnectServer (server_);
             server_ = null;                                                  // @J5A
             if (Trace.isTraceErrorOn()) {
               Trace.log(Trace.ERROR, "Communication Link Failure "); 
@@ -3220,6 +3224,8 @@ throws SQLException
         // @J5D }                                                                   // @C1A
         catch (IOException e)
         {                                             // @J5A
+            // Make sure socket is closed @AH2
+            as400_.disconnectServer (server_);
             server_ = null;                                                  // @J5A
             //@P0D request.freeCommunicationsBuffer();                              // @J5A
             JDError.throwSQLException (this, JDError.EXC_COMMUNICATION_LINK_FAILURE, e); // @J5A
