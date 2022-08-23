@@ -315,6 +315,9 @@ package com.ibm.as400.access;
 //@AG2   20220406  Add constructor AS400JDBCConnectionPoolDataSource(AS400)
 //@AH1   20220625  JDBC: Update trace to include system name with RDB name
 //@AH2   20220628  JDBC: Close socket on error 
+//@AH3   20220823  Update URL in java doc
+//@AH4   20220823  Set SECMEC value for password level 4 for DDM SECCHK Request
+//@AH5   20220823  Fix swap user failure when user is disabled or expired.
 // 
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
