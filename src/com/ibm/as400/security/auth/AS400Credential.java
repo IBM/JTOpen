@@ -487,7 +487,10 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     *
     */
    AS400CredentialImpl getImplPrimitive() throws AS400SecurityException {
-      validateVRM();
+	  //With jt400.jar, it failed to swap user, if the target user(high authority) is disabled or expired, because validateVRM() (it failed because connect to signon host server before set token).
+	  //With jt400Native.jar, it works.
+	  //Validate VRM > V4R5, 
+      //validateVRM();  //@AH5C comment method.
       AS400CredentialImpl impl = null;
       try
       {
