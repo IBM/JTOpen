@@ -74,8 +74,8 @@ class DDMSECCHKRequestDataStream extends DDMDataStream
       if (byteType == AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD) {
         set16bit(DDMTerm.EUSRIDPWD, 14); // Set value for SECMEC term. @U4A
       } else {
-        if (authenticationBytes.length == 20) {
-          set16bit(8, 14); // Set value for SECMEC term.
+        if (authenticationBytes.length == 20 || authenticationBytes.length == 64) { //@AH4
+          set16bit(8, 14); // Set value for SECMEC term. password level 4 as 8.
         } else {
           set16bit(DDMTerm.USRSBSPWD, 14); // Set value for SECMEC term.
                                            // USRSBSPWD - User ID with
