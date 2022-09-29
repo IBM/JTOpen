@@ -76,6 +76,7 @@
 
           dateseparator (ampersand | blank | comma | hyphen | period | slash | none) #IMPLIED
           timeseparator (ampersand | blank | colon | comma | period | none) #IMPLIED
+          boolean (true | false) #IMPLIED
 >
 
 <!-- Note: The required format for the 'init' attribute is: -->
