@@ -138,7 +138,7 @@ implements RowSet, Serializable             // @A3C
     private boolean useDataSource_ = true;          // Whether the dataSource specified is used.
     private String url_;                            // The user defined URL used to make the connection.
     private String username_;                           // The user name used to make the connection.
-    private char[] passwordChars_;                       // The password used to make the connection.
+    private char[] confusedPasswordChars_;                       // The confused password used to make the connection.
 
     // Toolbox classes.
     private Connection connection_;             // The JDBC connection.
@@ -402,9 +402,9 @@ implements RowSet, Serializable             // @A3C
                 throw  eise; 
             }
             if (dataSource_ instanceof AS400JDBCDataSource) { 
-              connection_ = ((AS400JDBCDataSource)dataSource_).getConnection(username_, passwordChars_);
+              connection_ = ((AS400JDBCDataSource)dataSource_).getConnection(username_, AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_));
             } else {
-              connection_ = dataSource_.getConnection(username_, new String(AS400JDBCDataSource.xpwDeconfuseToChar(passwordChars_)));
+              connection_ = dataSource_.getConnection(username_, new String(AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_)));
             }
         }
         else
@@ -415,8 +415,8 @@ implements RowSet, Serializable             // @A3C
             if (url_ == null)
                 throw new ExtendedIllegalStateException("url", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
-            if (username_ != null && passwordChars_ != null)
-                connection_ = DriverManager.getConnection(url_, username_, new String(AS400JDBCDataSource.xpwDeconfuseToChar(passwordChars_)));
+            if (username_ != null && confusedPasswordChars_ != null)
+                connection_ = DriverManager.getConnection(url_, username_, new String(AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_)));
             else
                 connection_ = DriverManager.getConnection(url_);
         }
@@ -2967,7 +2967,7 @@ implements RowSet, Serializable             // @A3C
             throw new NullPointerException(property);
         validateConnection();
 
-        passwordChars_ = AS400JDBCDataSource.xpwConfuse(password);
+        confusedPasswordChars_ = AS400JDBCDataSource.xpwConfuse(password);
         changes_.firePropertyChange(property, "", password);
     }
 
