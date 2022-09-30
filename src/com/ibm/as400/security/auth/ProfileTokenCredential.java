@@ -502,9 +502,91 @@ public final class ProfileTokenCredential extends AS400Credential
     * @exception Exception
     *        If an exception occurs.
     *
+    * @deprecated Use initialize(AS400BasicAuthenticationPrincipal principal,
+    *       char[] password, boolean isPrivate, boolean isReusable, 
+    *       boolean isRenewable, int timeoutInterval) instead.
     */
     public void initialize(AS400BasicAuthenticationPrincipal principal,
             String password, boolean isPrivate, boolean isReusable, 
+            boolean isRenewable, int timeoutInterval)
+        throws Exception {
+        if (Trace.isTraceOn())
+            Trace.log(Trace.INFORMATION,
+                new StringBuffer("Initializing credential >> "
+                        ).append(toString()
+                        ).append(", for principal >> "
+                        ).append(principal.toString()
+                        ).append(", isPrivate == "
+                        ).append(isPrivate
+                        ).append(", isReusable == "
+                        ).append(isReusable
+                        ).append(", isRenewable == "
+                        ).append(isRenewable
+                        ).append(", timeoutInterval == "
+                        ).append(timeoutInterval
+                        ).toString());
+
+        // Validate parameters
+        if (isRenewable && !isReusable) {
+            Trace.log(Trace.ERROR, "Profile tokens must be multi-use" +
+                    " if declared as regenerable.");
+            throw new ExtendedIllegalArgumentException("isReusable",
+                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        // Assign to the local host system
+        AS400 sys = AuthenticationSystem.localHost();
+        setSystem(sys);
+        // Assign an appropriate principal
+        AS400Principal pr =
+            (AS400Principal.class.isAssignableFrom(principal.getClass()))
+                ? (AS400Principal)principal
+                : new UserProfilePrincipal(sys, principal.getUserProfileName());
+        setPrincipal(pr);
+        // Assign profile token attributes
+        private_ = isPrivate;
+        setTimeoutInterval(timeoutInterval);
+        if (isRenewable) setTokenType(TYPE_MULTIPLE_USE_RENEWABLE);
+            else if (isReusable) setTokenType(TYPE_MULTIPLE_USE_NON_RENEWABLE);
+                else setTokenType(TYPE_SINGLE_USE);
+        // Generate the token
+        setTokenExtended(pr, password);
+    }
+
+    /**
+    * Initializes and validates a credential for the local IBM i system.
+    *
+    * @param principal
+    *        The principal identifying the authenticated user.
+    *        If not an instance of AS400Principal, a corresponding
+    *        UserProfilePrincipal is generated and assigned.
+    *
+    * @param password
+    *        The password for the authenticated user.
+    *
+    * @param isPrivate
+    *        Indicates whether the credential is considered private.
+    *
+    * @param isReusable
+    *        true if the credential can be used to swap
+    *        thread identity multiple times;
+    *        otherwise false.
+    *
+    * @param isRenewable
+    *        true if the validity period of the credential
+    *        can be programmatically updated or extended;
+    *        otherwise false.
+    *
+    * @param timeoutInterval
+    *        The number of seconds to expiration when the credential
+    *        is initially created; ignored if the credential
+    *        does not expire based on time.
+    *
+    * @exception Exception
+    *        If an exception occurs.
+    *
+    */
+    public void initialize(AS400BasicAuthenticationPrincipal principal,
+            char[] password, boolean isPrivate, boolean isReusable, 
             boolean isRenewable, int timeoutInterval)
         throws Exception {
         if (Trace.isTraceOn())
@@ -1197,9 +1279,51 @@ public final class ProfileTokenCredential extends AS400Credential
     * @exception ExtendedIllegalStateException
     *        If the token cannot be initialized due
     *        to the current state.
-    *
+    * @deprecated  Use setTokenExtended(AS400Principal principal, char[] password) instead
     */
     public void setTokenExtended(AS400Principal principal, String password) 
+            throws PropertyVetoException, AS400SecurityException {
+        setTokenExtended(principal.getUserProfileName(), password);
+    }
+
+    
+      /**
+    * Sets the token bytes based on the provided principal and password.
+    *
+    * <p> The <i>system</i> property must be set prior to
+    * invoking this method.
+    *
+    * <p> If successful, this method results in a new token being created
+    * on the IBM i system. The new token is generated using the
+    * previously established <i>tokenType</i> and <i>timeoutInterval</i>
+    * settings.
+    *
+    * <p> This property cannot be changed once a request
+    * initiates a connection for the object to the
+    * IBM i system (for example, refresh).
+    *
+    * @param principal
+    *        The principal identifying the user profile for
+    *        which the token is to be generated.
+    *
+    * @param password
+    *        The user profile password. 
+    *
+    * @exception AS400SecurityException
+    *        If an IBM i system security or authentication error occurs.
+    *
+    * @exception PropertyVetoException
+    *        If the change is vetoed.
+    *
+    * @exception ExtendedIllegalArgumentException
+    *        If errors occur during parameter validation.
+    *
+    * @exception ExtendedIllegalStateException
+    *        If the token cannot be initialized due
+    *        to the current state.
+    *
+    */
+    public void setTokenExtended(AS400Principal principal, char[] password) 
             throws PropertyVetoException, AS400SecurityException {
         setTokenExtended(principal.getUserProfileName(), password);
     }
@@ -1240,8 +1364,89 @@ public final class ProfileTokenCredential extends AS400Credential
     *        If the token cannot be initialized due
     *        to the current state.
     *
+    * @deprecated Use setTokenExtended(String name, char[] password) instead. 
     */
     public void setTokenExtended(String name, String password) 
+            throws PropertyVetoException, AS400SecurityException {
+        // Validate state
+        validatePropertySet("system", getSystem());
+
+        // Validate name and password parameters
+        if (name == null) {
+            Trace.log(Trace.ERROR, "User profile name is null");
+            throw new ExtendedIllegalArgumentException("name", 
+                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        if (name.length() > MAX_USERPROFILE_LENGTH) {
+            Trace.log(Trace.ERROR, "User profile name exceeds " + 
+                    "maximum allowed length");
+            throw new ExtendedIllegalArgumentException("name",
+                ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+        if (password == null) {
+            Trace.log(Trace.ERROR, "User profile password is null");
+            throw new ExtendedIllegalArgumentException("password",
+                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        // Instantiate a new impl but do not yet set as the default impl_
+        ProfileTokenImpl impl = (ProfileTokenImpl)getImplPrimitive();
+
+        // Generate and set the token value
+        char[] passwordChars = password.toCharArray(); 
+        setToken(
+            impl.generateTokenExtended(
+                name,
+                passwordChars,
+                getTokenType(),
+                getTimeoutInterval()));
+        for (int i = 0; i < passwordChars.length; i++) { 
+          passwordChars[i] = (char) i; 
+        }
+        // If successful, all defining attributes are now set.
+        // Set the impl for subsequent references.
+        setImpl(impl);
+
+        // Indicate that a new token was created.
+        fireCreated();
+    }
+   /**
+    * Sets the token bytes based on the provided user profile and password.
+    *
+    * <p> The <i>system</i> property must be set prior to
+    * invoking this method.
+    *
+    * <p> If successful, this method results in a new token being created
+    * on the IBM i system. The new token is generated using the
+    * previously established <i>tokenType</i> and <i>timeoutInterval</i>
+    * settings.
+    *
+    * <p> This property cannot be changed once a request
+    * initiates a connection for the object to the
+    * IBM i system (for example, refresh).
+    *
+    * @param name
+    *        The name of the user profile for which the token
+    *        is to be generated.
+    *
+    * @param password
+    *        The user profile password. 
+    *
+    * @exception AS400SecurityException
+    *        If an IBM i system security or authentication error occurs.
+    *
+    * @exception PropertyVetoException
+    *        If the change is vetoed.
+    *
+    * @exception ExtendedIllegalArgumentException
+    *        If errors occur during parameter validation.
+    *
+    * @exception ExtendedIllegalStateException
+    *        If the token cannot be initialized due
+    *        to the current state.
+    *
+    */
+    public void setTokenExtended(String name, char[] password) 
             throws PropertyVetoException, AS400SecurityException {
         // Validate state
         validatePropertySet("system", getSystem());

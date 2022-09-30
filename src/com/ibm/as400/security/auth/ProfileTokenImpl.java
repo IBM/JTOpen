@@ -115,40 +115,41 @@ public interface ProfileTokenImpl extends AS400CredentialImpl {
     byte[] generateToken(String uid, int pwdSpecialValue, int type,
             int timeoutInterval) throws RetrieveFailedException;
  
-    /**
+  
+   /**
     * Generates and returns a new profile token based on
     * the provided information using a password string.
     *
     * @param uid
-    *		The name of the user profile for which the token
-    *		is to be generated.
+    *   The name of the user profile for which the token
+    *   is to be generated.
     *
     * @param pwd
-    *		The user profile password (encoded). 
+    *   The user profile password (encoded). 
     *       Special values are not supported by this method.
     *
     * @param type
-    *		The type of token.
-    *		Possible types are defined as fields on the 
+    *   The type of token.
+    *   Possible types are defined as fields on the 
     *       ProfileTokenCredential class:
-    *		  <ul>
-    * 			<li>TYPE_SINGLE_USE
-    * 			<li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-    * 			<li>TYPE_MULTIPLE_USE_RENEWABLE
-    *		  </ul>
-    *		<p>
+    *     <ul>
+    *       <li>TYPE_SINGLE_USE
+    *       <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+    *       <li>TYPE_MULTIPLE_USE_RENEWABLE
+    *     </ul>
+    *   <p>
     *
     * @param timeoutInterval
     *    The number of seconds to expiration.
     *
     * @return
-    *		The token bytes.
+    *   The token bytes.
     *
     * @exception RetrieveFailedException
-    *		If errors occur while generating the token.
+    *   If errors occur while generating the token.
     *
     */
-    byte[] generateTokenExtended(String uid, String pwd, int type,
+    byte[] generateTokenExtended(String uid, char[] pwd, int type,
             int timeoutInterval) throws RetrieveFailedException;
 
     /**

@@ -61,10 +61,48 @@ public String[] basicAuthenticationPrompt();
  * @exception Exception
  *		If an exception occurs.
  *
+ *@deprecated.  Use initialize(AS400BasicAuthenticationPrincipal principal, char[] password,
+  boolean isPrivate, boolean isReusable, boolean isRenewable,
+  int timeoutInterval) instead
  */
 public void initialize(AS400BasicAuthenticationPrincipal principal, String password,
 	boolean isPrivate, boolean isReusable, boolean isRenewable,
 	int timeoutInterval) throws Exception;
+/**
+ * Initializes and validates a credential for the local IBM i system.
+ *
+ * @param principal
+ *    The principal identifying the authenticated user.
+ *
+ * @param password
+ *    The password for the authenticated user.
+ *
+ * @param isPrivate
+ *    Indicates whether the credential is considered private.
+ *
+ * @param isReusable
+ *    true if the credential can be used to swap
+ *    thread identity multiple times;
+ *    otherwise false.
+ *
+ * @param isRenewable
+ *    true if the validity period of the credential
+ *    can be programmatically updated or extended;
+ *    otherwise false.
+ *
+ * @param timeoutInterval
+ *    The number of seconds to expiration when the credential
+ *    is initially created; ignored if the credential
+ *    does not expire based on time.
+ *
+ * @exception Exception
+ *    If an exception occurs.
+ *
+ */
+public void initialize(AS400BasicAuthenticationPrincipal principal, char[] password,
+  boolean isPrivate, boolean isReusable, boolean isRenewable,
+  int timeoutInterval) throws Exception;
+
 /**
  * Indicates whether the credential is considered private.
  *

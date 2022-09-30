@@ -14,7 +14,6 @@
 package com.ibm.as400.security.auth;
 
 import com.ibm.as400.access.*;
-import java.util.Random;
 
 /**
  * The ProfileTokenImplRemote class provides an implementation for
@@ -276,8 +275,65 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
     * @exception RetrieveFailedException
     *		If errors occur while generating the token.
     *
+    * @deprecated Use generateTokenExtended(String uid, char[] pwd, int type,
+    *        int timeoutInterval) instead.
     */
     public byte[] generateTokenExtended(String uid, String pwd, int type,
+            int timeoutInterval) throws RetrieveFailedException {
+
+        // Use the AS400 object to obtain the token.
+        // This will obtain the token by interacting with the IBM i 
+        // system signon server and avoid transmitting a cleartext password.
+        byte[] tkn = null;
+        try {
+            tkn = getCredential().getSystem().getProfileToken(uid, pwd, 
+                    type, timeoutInterval).getToken();
+        }
+        catch (AS400SecurityException se) {
+            throw new RetrieveFailedException(se.getReturnCode());
+        }
+        catch (Exception e) {
+            AuthenticationSystem.handleUnexpectedException(e);
+        }
+        return tkn;
+    }
+    /**
+    * Generates and returns a new profile token based on
+    * the provided information using a password string
+    * <p>
+    * This method is used for generating a token using
+    * a password string (vs a special value).
+    *
+    * @param uid
+    *   The name of the user profile for which the token
+    *   is to be generated.
+    *
+    * @param pwd
+    *   The user profile password. 
+    *       Special values are not supported by this method.
+    *
+    * @param type
+    *   The type of token.
+    *   Possible types are defined as fields on the 
+    *       ProfileTokenCredential class:
+    *     <ul>
+    *       <li>TYPE_SINGLE_USE
+    *       <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+    *       <li>TYPE_MULTIPLE_USE_RENEWABLE
+    *     </ul>
+    *   <p>
+    *
+    * @param timeoutInterval
+    *    The number of seconds to expiration.
+    *
+    * @return
+    *   The token bytes.
+    *
+    * @exception RetrieveFailedException
+    *   If errors occur while generating the token.
+    *
+    */
+    public byte[] generateTokenExtended(String uid, char[] pwd, int type,
             int timeoutInterval) throws RetrieveFailedException {
 
         // Use the AS400 object to obtain the token.
