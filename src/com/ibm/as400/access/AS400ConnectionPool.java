@@ -354,7 +354,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
        fill(systemName, userID, (char[]) null, service, numberOfConnections, locale); 
     } else {
       char[] passwordChars = password.toCharArray(); 
-      fill(systemName, userID, (char[]) null, service, numberOfConnections, locale); 
+      fill(systemName, userID, (char[]) passwordChars, service, numberOfConnections, locale); 
       CredentialVault.clearArray(passwordChars);
     }
   }
@@ -846,7 +846,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   userID  The name of the user.
    * @return     An AS400 object.
 * @exception ConnectionPoolException Always thrown because this method has been deprecated.
-     * @deprecated  Use getConnection(String systemName, String userID, char[] password) instead.
+     * @deprecated  Use method with password instead.
    **/ 
   public AS400 getConnection(String systemName, String userID)
   throws ConnectionPoolException

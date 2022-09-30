@@ -48,8 +48,11 @@ class AS400ConnectionPoolAuthentication // Package scoped class
         Trace.log(Trace.DIAGNOSTIC, "Parameter 'password' is null (password prompt may be used).");
         //throw new NullPointerException("password");
     }
-
-    encodedPassword_ = AS400JDBCDataSource.xpwConfuse(password);
+    if (password != null)  {
+      encodedPassword_ = AS400JDBCDataSource.xpwConfuse(password);
+    } else {
+      encodedPassword_ = null; 
+    }
     authenticationScheme_ = AS400.AUTHENTICATION_SCHEME_PASSWORD;
   }
 
@@ -89,7 +92,11 @@ class AS400ConnectionPoolAuthentication // Package scoped class
   {
     if (authenticationScheme_ == AS400.AUTHENTICATION_SCHEME_PASSWORD)
     {
-      return AS400JDBCDataSource.xpwDeconfuseToChar(encodedPassword_);
+      if (encodedPassword_ != null) { 
+        return AS400JDBCDataSource.xpwDeconfuseToChar(encodedPassword_);
+      } else {
+        return null; 
+      }
     }
     else
     {

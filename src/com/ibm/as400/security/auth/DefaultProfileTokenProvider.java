@@ -173,6 +173,7 @@ public class DefaultProfileTokenProvider implements ProfileTokenProvider
    *
    * @param password The password for the user ID that is used
    *                 during the creation of the profile token credential.
+   * @deprecated Use setPassword(char[] password)  instead               
    */
   public void setPassword(String password)
   {
@@ -180,6 +181,24 @@ public class DefaultProfileTokenProvider implements ProfileTokenProvider
       throw new NullPointerException("password");
     }
     if (password.length() == 0) {
+      throw new ExtendedIllegalArgumentException("password", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+    }
+    setExtendedInfo(password);
+  }
+
+  /**
+   * Sets the password for the user ID that is used during the
+   * creation of the profile token credential.
+   *
+   * @param password The password for the user ID that is used
+   *                 during the creation of the profile token credential.
+   */
+  public void setPassword(char [] password)
+  {
+    if (password == null) {
+      throw new NullPointerException("password");
+    }
+    if (password.length == 0) {
       throw new ExtendedIllegalArgumentException("password", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     setExtendedInfo(password);
@@ -246,6 +265,9 @@ public class DefaultProfileTokenProvider implements ProfileTokenProvider
       }
       else if (extended instanceof String) {
         newToken.setTokenExtended(getUserId(), (String)extended);
+      }
+      else if (extended instanceof char[]) {
+        newToken.setTokenExtended(getUserId(), (char[]) extended);
       }
       else {
         throw new ExtendedIllegalStateException("extendedInfo", ExtendedIllegalStateException.UNKNOWN);
