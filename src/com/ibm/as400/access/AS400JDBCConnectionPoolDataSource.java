@@ -81,6 +81,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     *  @param serverName The IBM i system name.
     *  @param user The user id.
     *  @param password The password.
+    *  @deprecated Use  AS400JDBCConnectionPoolDataSource(String serverName, String user, char[] password) instead.
     **/
     public AS400JDBCConnectionPoolDataSource(String serverName, String user, String password)
     {
@@ -88,6 +89,18 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
         //@B2D initializeTransient();    //@A2A
     }
 
+      /**
+    *  Constructs an AS400JDBCConnectionPoolDataSource with the specified signon information.
+    *  @param serverName The IBM i system name.
+    *  @param user The user id.
+    *  @param password The password.
+    *  
+    **/
+    public AS400JDBCConnectionPoolDataSource(String serverName, String user, char[] password)
+    {
+        super(serverName, user, password);
+        //@B2D initializeTransient();    //@A2A
+    }
     //@A1A
     /**
     *  Constructs an AS400JDBCConnectionPoolDataSource with the specified signon information
@@ -97,6 +110,7 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
     *  @param password The password.
     *  @param keyRingNameX The key ring class name to be used for SSL communications with the system.
     *  @param keyRingPasswordX The password for the key ring class to be used for SSL communications with the system.
+    *  @deprecated -- keyrings are not supported. 
     **/
     public AS400JDBCConnectionPoolDataSource(String serverName, String user, String password,
                                              String keyRingNameX, String keyRingPasswordX)
@@ -214,12 +228,28 @@ public class AS400JDBCConnectionPoolDataSource extends AS400JDBCDataSource imple
         //@B2D  return pc; //@A2M
     }
 
+        /**
+    *  Returns a pooled connection that is connected to the IBM i system.
+    *  @param user The userid for the connection.
+    *  @param password The password for the connection.
+    *  @return A pooled connection.
+    *  @exception SQLException If a database error occurs.
+    * 
+    **/
+    public PooledConnection getPooledConnection(String user, char[] password) throws SQLException
+    {
+        PooledConnection pc = new AS400JDBCPooledConnection(getConnection(user,password));
+
+        log("PooledConnection created");
+        return pc;
+    }
     /**
     *  Returns a pooled connection that is connected to the IBM i system.
     *  @param user The userid for the connection.
     *  @param password The password for the connection.
     *  @return A pooled connection.
     *  @exception SQLException If a database error occurs.
+    *  @deprecated Use getPooledConnection(String user, char[] password) instead. 
     **/
     public PooledConnection getPooledConnection(String user, String password) throws SQLException
     {

@@ -304,8 +304,27 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param numberOfConnections The number of connections to be made.
    *
    * @exception ConnectionPoolException If a connection pool error occurred.
+   * @deprecated Use fill(String systemName, String userID, char[] password, int service, int numberOfConnections) instead.
    **/
   public void fill(String systemName, String userID, String password, int service, int numberOfConnections) 
+  throws ConnectionPoolException
+  {
+    fill(systemName, userID, password, service, numberOfConnections, null);
+  }
+
+  /** 
+   * Preconnects a specified number of connections to a specific system, userID,
+   * password, and service.  
+   *
+   * @param systemName The name of the system where the connections should exist.
+   * @param userID The name of the user.
+   * @param password The password of the user.
+   * @param service The service to be connected. See the service number constants defined by AS400 class.
+   * @param numberOfConnections The number of connections to be made.
+   *
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   **/
+  public void fill(String systemName, String userID, char[] password, int service, int numberOfConnections) 
   throws ConnectionPoolException
   {
     fill(systemName, userID, password, service, numberOfConnections, null);
@@ -326,8 +345,36 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * created.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
    *
    * @exception ConnectionPoolException If a connection pool error occurred.
+   * @deprecated Use fill(String systemName, String userID, char[] password, int service, int numberOfConnections, Locale locale) instead.
    **/
   public void fill(String systemName, String userID, String password, int service, int numberOfConnections, Locale locale) 
+  throws ConnectionPoolException
+  {
+    if (password == null) { 
+       fill(systemName, userID, (char[]) null, service, numberOfConnections, locale); 
+    } else {
+      char[] passwordChars = password.toCharArray(); 
+      fill(systemName, userID, (char[]) null, service, numberOfConnections, locale); 
+      CredentialVault.clearArray(passwordChars);
+    }
+  }
+
+  
+    /** 
+   * Preconnects a specified number of connections to a specific system, userID,
+   * password, service, and Locale.  
+   *
+   * @param systemName The name of the system where the connections should exist.
+   * @param userID The name of the user.
+   * @param password The password of the user.
+   * @param service The service to be connected. See the service number constants defined by AS400 class.
+   * @param numberOfConnections The number of connections to be made.
+   * @param locale The Locale used to set the National Language Version (NLV) on the system for the AS400 objects
+   * created.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+   *
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   **/
+  public void fill(String systemName, String userID, char[] password, int service, int numberOfConnections, Locale locale) 
   throws ConnectionPoolException
   {
     if (numberOfConnections < 1)
@@ -494,8 +541,38 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   service  The service to connect. See the service number constants defined by AS400 class.
    * @return     A connected AS400 object.
    * @exception ConnectionPoolException If a connection pool error occurred.
+   * @deprecated
    **/
-  public AS400 getConnection(String systemName, String userID, String password, int service)
+  public AS400 getConnection(String systemName, String userID, String password,
+      int service) throws ConnectionPoolException {
+    if (password == null) {
+      return getConnection(systemName, userID, (char[]) null, service);
+
+    } else {
+      char[] passwordChars = password.toCharArray();
+      AS400 answer =  getConnection(systemName, userID, passwordChars , service);
+      CredentialVault.clearArray(passwordChars);
+      return answer; 
+    }
+  }
+
+  /** 
+   * Get a connected AS400 object from the connection pool.  If an appropriate one is 
+   * not found, one is created.  If the maximum connection limit has been reached, an exception
+   * will be thrown.  
+   * Note that the password is validated only when creating a <b>new</b> connection, 
+   * of the match criteria to pull a connection out of the pool.  This means that
+   * if an <b>existing</b> connection in the pool matches the systemName and userID 
+   * passed in, a connection will be returned without the password being validated.
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   password  The password of the user.
+   * @param   service  The service to connect. See the service number constants defined by AS400 class.
+   * @return     A connected AS400 object.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   **/
+  public AS400 getConnection(String systemName, String userID, char[] password, int service)
   throws ConnectionPoolException
   {
     try
@@ -519,7 +596,36 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     }
   }
 
+    /**
+   * Get a connected AS400 object from the connection pool with the specified Locale.  If an appropriate one is 
+   * not found, one is created.  If the maximum connection limit has been reached, an exception
+   * will be thrown.
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   password  The password of the user.
+   * @param   service  The service to connect. See the service number constants defined by AS400 class.
+   * @param   locale   The Locale used to set the National Language Version (NLV) on the system for the AS400 object returned. 
+   * Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+   * @return     A connected AS400 object.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   * @deprecated Use getConnection(String systemName, String userID, char[] password, int service, Locale locale) instead. 
+   **/
+  public AS400 getConnection(String systemName, String userID, String password, int service, Locale locale)
+  throws ConnectionPoolException
+  {
+    if (password == null) {
+      return getConnection(systemName, userID, (char[]) null, service, locale);
 
+    } else {
+      char[] passwordChars = password.toCharArray();
+      AS400 answer =  getConnection(systemName, userID, passwordChars , service, locale);
+      CredentialVault.clearArray(passwordChars);
+      return answer; 
+    }
+    
+  } 
+  
   //@B3A
   /**
    * Get a connected AS400 object from the connection pool with the specified Locale.  If an appropriate one is 
@@ -535,7 +641,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @return     A connected AS400 object.
    * @exception ConnectionPoolException If a connection pool error occurred.
    **/
-  public AS400 getConnection(String systemName, String userID, String password, int service, Locale locale)
+  public AS400 getConnection(String systemName, String userID, char[] password, int service, Locale locale)
   throws ConnectionPoolException
   {
     try
@@ -570,7 +676,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   service  The service to connect. See the service number constants defined by AS400 class.
    * @return     A connected AS400 object.
      * @exception ConnectionPoolException Always thrown because this method has been deprecated.
-     * @deprecated  Use getConnection(String systemName, String userID, String password, int service) instead.
+     * @deprecated  Use getConnection(String systemName, String userID, char[] password, int service) instead.
   **/
   public AS400 getConnection(String systemName, String userID, int service)
   throws ConnectionPoolException
@@ -608,8 +714,37 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   password  The password of the user.
    * @return     An AS400 object.
    * @exception ConnectionPoolException If a connection pool error occurred.
+   * @deprecated Use getConnection(String systemName, String userID, char[] password) instead. 
    **/ 
   public AS400 getConnection(String systemName, String userID, String password)
+  throws ConnectionPoolException
+  {    
+      if (password==null) { 
+        return getConnection(systemName, userID, (char[]) null ); 
+      } else {
+        char[] passwordChars = password.toCharArray(); 
+        AS400 as400 = getConnection(systemName, userID, passwordChars);
+        CredentialVault.clearArray(passwordChars);
+        return as400; 
+      }
+  }
+
+    /**
+   * Get an AS400 object from the connection pool.  If an appropriate one is not found, 
+   * one is created.  If the maximum connection limit has been reached, an exception
+   * will be thrown.  The AS400 object may not be connected to any services.
+   * Note that the password is validated only when creating a <b>new</b> connection, 
+   * of the match criteria to pull a connection out of the pool.  This means that
+   * if an <b>existing</b> connection in the pool matches the systemName and userID 
+   * passed in, a connection will be returned without the password being validated.
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   password  The password of the user.
+   * @return     An AS400 object.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   **/ 
+  public AS400 getConnection(String systemName, String userID, char[] password)
   throws ConnectionPoolException
   {    
     try
@@ -633,6 +768,35 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     }
   }
 
+  
+    /**
+   * Get an AS400 object from the connection pool with the specified Locale.  If an appropriate one is not found, 
+   * one is created.  If the maximum connection limit has been reached, an exception
+   * will be thrown.  The AS400 object may not be connected to any services.
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   password  The password of the user.
+   * @param   locale   The Locale used to set the National Language Version (NLV) on the system for the AS400 object returned. 
+   * Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+   * @return     An AS400 object.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   * @deprecated Use getConnection(String systemName, String userID, char[] password, Locale locale)  instead. 
+   **/ 
+  public AS400 getConnection(String systemName, String userID, String password, Locale locale)  
+  throws ConnectionPoolException
+  {    
+
+      if (password==null) { 
+        return getConnection(systemName, userID, (char[]) null , locale); 
+      } else {
+        char[] passwordChars = password.toCharArray(); 
+        AS400 as400 = getConnection(systemName, userID, passwordChars, locale);
+        CredentialVault.clearArray(passwordChars);
+        return as400; 
+      }
+    
+  }
   //@B3A
   /**
    * Get an AS400 object from the connection pool with the specified Locale.  If an appropriate one is not found, 
@@ -647,7 +811,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @return     An AS400 object.
    * @exception ConnectionPoolException If a connection pool error occurred.
    **/ 
-  public AS400 getConnection(String systemName, String userID, String password, Locale locale)  
+  public AS400 getConnection(String systemName, String userID, char[] password, Locale locale)  
   throws ConnectionPoolException
   {    
     try
@@ -682,7 +846,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   userID  The name of the user.
    * @return     An AS400 object.
 * @exception ConnectionPoolException Always thrown because this method has been deprecated.
-     * @deprecated  Use getConnection(String systemName, String userID, String password) instead.
+     * @deprecated  Use getConnection(String systemName, String userID, char[] password) instead.
    **/ 
   public AS400 getConnection(String systemName, String userID)
   throws ConnectionPoolException
@@ -860,7 +1024,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
 
 
   
-  private AS400 getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale, AS400ConnectionPoolAuthentication poolAuth)  //@B3C //@B4C //@C1C
+  private AS400 getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale, 
+      AS400ConnectionPoolAuthentication poolAuth)  //@B3C //@B4C //@C1C
   throws AS400SecurityException, IOException, ConnectionPoolException 
   {
     if (systemName == null)
@@ -976,8 +1141,41 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @exception   AS400SecurityException  If a security error occurred.
    * @exception   IOException  If a communications error occurred.
    * @exception ConnectionPoolException If a connection pool error occurred.
+   * @deprecated Use getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale, char[] password) instead.
    **/ 
   private AS400 getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale, String password)  //@B3C //@B4C
+  throws AS400SecurityException, IOException, ConnectionPoolException 
+  {
+    if (password == null) { 
+      return getConnection(systemName, userID, service, connect, secure, locale, (char[])null); 
+    } else { 
+      char[] passwordChars = password.toCharArray(); 
+      AS400 as400 = getConnection(systemName, userID, service, connect, secure, locale, passwordChars); 
+      CredentialVault.clearArray(passwordChars);
+       return as400; 
+    }
+   
+}
+
+  
+    /** 
+   * Get an AS400 object from the connection pool.  If an appropriate one is not found, 
+   * one is created.  The AS400 object may not be connected to any services.  
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   service  The service to connect. See the service number constants defined by AS400 class.
+   * @param   connect  If true connect to specified service.
+   * @param   secure   If true secure AS400 object was requested.   
+   * @param   locale   The Locale used to set the National Language Version (NLV) on the system for the AS400 object returned. 
+   * Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+   * @return     An AS400 object.
+   *
+   * @exception   AS400SecurityException  If a security error occurred.
+   * @exception   IOException  If a communications error occurred.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   **/ 
+  private AS400 getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale, char[] password)  //@B3C //@B4C
   throws AS400SecurityException, IOException, ConnectionPoolException 
   {
     AS400ConnectionPoolAuthentication poolAuth = new AS400ConnectionPoolAuthentication(password); //@C1A
@@ -1001,7 +1199,8 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @exception   IOException  If a communications error occurred.
    * @exception ConnectionPoolException If a connection pool error occurred.
    **/ 
-  private AS400 getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale, ProfileTokenCredential profileToken)
+  private AS400 getConnection(String systemName, String userID, int service, boolean connect, boolean secure, Locale locale, 
+      ProfileTokenCredential profileToken)
   throws AS400SecurityException, IOException, ConnectionPoolException 
   {
     AS400ConnectionPoolAuthentication poolAuth = new AS400ConnectionPoolAuthentication(profileToken); //@C1A
@@ -1023,8 +1222,37 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   password  The password of the user.
    * @return     A secure connected AS400 object.
    * @exception ConnectionPoolException If a connection pool error occurred.
+   * @deprecated Use  getSecureConnection(String systemName, String userID, char[] password) instead.
   **/  
   public AS400 getSecureConnection(String systemName, String userID, String password)
+  throws ConnectionPoolException
+  {    
+    if (password == null) { 
+      return getSecureConnection(systemName, userID, (char[]) null); 
+    } else {
+      char[] passwordChars = password.toCharArray(); 
+      AS400 as400 = getSecureConnection(systemName, userID, passwordChars); 
+      CredentialVault.clearArray(passwordChars);
+      return as400; 
+    }
+  }
+
+  /**
+   * Get an secure connected AS400 object from the connection pool.  If an appropriate one is not found, 
+   * one is created.  If the maximum connection limit has been reached, an exception
+   * will be thrown.  The AS400 object may not be connected to any services.
+   * Note that the password is validated only when creating a <b>new</b> connection, 
+   * of the match criteria to pull a connection out of the pool.  This means that
+   * if an <b>existing</b> connection in the pool matches the systemName and userID 
+   * passed in, a connection will be returned without the password being validated.
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   password  The password of the user.
+   * @return     A secure connected AS400 object.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+  **/  
+  public AS400 getSecureConnection(String systemName, String userID, char[] password)
   throws ConnectionPoolException
   {    
     try
@@ -1049,7 +1277,6 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     }
   }
 
-
   /**
    * Get an secure connected AS400 object from the connection pool.  If an appropriate one is not found, 
    * one is created.  If the maximum connection limit has been reached, an exception
@@ -1059,7 +1286,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   userID  The name of the user.
    * @return     A secure connected AS400 object.
      * @exception ConnectionPoolException Always thrown because this method has been deprecated.
-     * @deprecated  Use getSecureConnection(String systemName, String userID, String password) instead.
+     * @deprecated  Use getSecureConnection(String systemName, String userID, char[] password) instead.
   **/  
   public AS400 getSecureConnection(String systemName, String userID)
   throws ConnectionPoolException
@@ -1083,7 +1310,37 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     throw new ConnectionPoolException(new ExtendedIOException(ExtendedIOException.REQUEST_NOT_SUPPORTED));  //@B4A
   }
 
-
+ /**
+   * Get a secure connected AS400 object from the connection pool.  If an appropriate one is 
+   * not found, one is created.  If the maximum connection limit has been reached, an exception
+     * will be thrown.  
+     * Note that the password is validated only when creating a <b>new</b> connection, 
+     * of the match criteria to pull a connection out of the pool.  This means that
+     * if an <b>existing</b> connection in the pool matches the systemName and userID 
+     * passed in, a connection will be returned without the password being validated.
+   *
+   * @param   systemName  The name of the system where the object should exist.
+   * @param   userID  The name of the user.
+   * @param   password  The password of the user.
+   * @param   service  The service to connect. See the service number constants defined by AS400 class.
+   * @return     A connected AS400 object.
+   * @exception ConnectionPoolException If a connection pool error occurred.
+   * @deprecated Use getSecureConnection(String systemName, String userID, char[] password, int service) instead. 
+  **/
+  public AS400 getSecureConnection(String systemName, String userID, String password, int service)
+  throws ConnectionPoolException
+  {
+    if (password == null)  {
+      return getSecureConnection(systemName, userID, (char[]) null, service); 
+      
+    }  else {
+      char[] passwordChars = password.toCharArray();
+      AS400 as400 = getSecureConnection(systemName, userID, passwordChars, service);
+      CredentialVault.clearArray(passwordChars);
+      return as400; 
+    }
+  }
+  
   /**
    * Get a secure connected AS400 object from the connection pool.  If an appropriate one is 
    * not found, one is created.  If the maximum connection limit has been reached, an exception
@@ -1100,7 +1357,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @return     A connected AS400 object.
    * @exception ConnectionPoolException If a connection pool error occurred.
   **/
-  public AS400 getSecureConnection(String systemName, String userID, String password, int service)
+  public AS400 getSecureConnection(String systemName, String userID, char[] password, int service)
   throws ConnectionPoolException
   {
     try
@@ -1135,7 +1392,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
    * @param   service  The service to connect. See the service number constants defined by AS400 class.
    * @return     A connected AS400 object.
      * @exception ConnectionPoolException Always thrown because this method has been deprecated.
-     * @deprecated  Use getConnection(String systemName, String userID, String password, int service) instead.
+     * @deprecated  Use getConnection(String systemName, String userID, char[] password, int service) instead.
    **/
   public AS400 getSecureConnection(String systemName, String userID, int service)
   throws ConnectionPoolException

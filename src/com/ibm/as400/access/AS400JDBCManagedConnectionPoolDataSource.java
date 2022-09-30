@@ -145,6 +145,17 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
     super(serverName, user, password);
   }
 
+  /**
+   Constructs an AS400JDBCManagedConnectionPoolDataSource with the specified signon information.
+   @param serverName The IBM i system name.
+   @param user The user id.
+   @param password The password.
+   **/
+  public AS400JDBCManagedConnectionPoolDataSource(String serverName, String user, char[] password)
+  {
+    super(serverName, user, password);
+  }
+
 
   // Note: We do not provide a constructor that takes an AS400 object,
   // because we need to capture the password so we can use it as part of the pool key.
@@ -360,6 +371,30 @@ public class AS400JDBCManagedConnectionPoolDataSource extends AS400JDBCManagedDa
    @throws SQLException If a database error occurs.
    **/
   public PooledConnection getPooledConnection(String user, String password) throws SQLException
+  {
+    char[] passwordChars;
+    if (password == null ) {
+      passwordChars = null; 
+    } else { 
+      passwordChars = password.toCharArray(); 
+    }
+    PooledConnection pc = new AS400JDBCPooledConnection(createPhysicalConnection(user,passwordChars));
+    if (JDTrace.isTraceOn() || log_ != null) logInformation("PooledConnection created for user " + user);
+    if (passwordChars != null) { 
+      CredentialVault.clearArray(passwordChars);
+    }
+    return pc;
+  }
+
+
+    /**
+   Returns a pooled connection that is connected to the IBM i system.
+   @param user The userid for the connection.
+   @param password The password for the connection.
+   @return A pooled connection.
+   @throws SQLException If a database error occurs.
+   **/
+  public PooledConnection getPooledConnection(String user, char[] password) throws SQLException
   {
     PooledConnection pc = new AS400JDBCPooledConnection(createPhysicalConnection(user,password));
     if (JDTrace.isTraceOn() || log_ != null) logInformation("PooledConnection created for user " + user);

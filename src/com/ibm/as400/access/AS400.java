@@ -588,6 +588,7 @@ public class AS400 implements Serializable
      @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
      @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      @param  password  The user profile password to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+     @deprecated   Use AS400(String systemName, String userId, char[] password) instead
      **/
     public AS400(String systemName, String userId, String password)
     {
@@ -606,14 +607,7 @@ public class AS400 implements Serializable
         {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
-        if (password == null)
-        {
-            throw new NullPointerException("password");
-        }
-        if (password.length() > 128)
-        {
-            throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
+        checkPasswordNullAndLength(password);
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
@@ -628,6 +622,49 @@ public class AS400 implements Serializable
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
+    /**
+     Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
+     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+     @param  password  The user profile password to use to authenticate to the system.   
+     The caller is responsible for clearing the password array to keep the password from residing in memory. 
+                     
+     **/
+    public AS400(String systemName, String userId, char[] password)
+    {
+        super();
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "'");
+        if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + password + "'");
+        if (systemName == null)
+        {
+            throw new NullPointerException("systemName");
+        }
+        if (userId == null)
+        {
+            throw new NullPointerException("userId");
+        }
+        if (userId.length() > 10)
+        {
+            throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+        checkPasswordNullAndLength(password);
+        construct();
+        systemName_ = systemName;
+        systemNameLocal_ = resolveSystemNameLocal(systemName);
+        //@W9 Start
+        if (isTurkish()) {
+          userId = userId.toUpperCase(Locale.ENGLISH);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
+        userId_ = userId.toUpperCase();
+        credVault_ = new PasswordVault(password);
+        proxyServer_ = resolveProxyServer(proxyServer_);
+    }
+
+    
+    
+    
     private static final String[] USRLIBL_SINGLE_VALUE = new String[]
     {
         "*CURSYSBAS",
@@ -847,6 +884,7 @@ public class AS400 implements Serializable
      @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      @param  password  The user profile password to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
+     @deprecated  Use AS400((String systemName, String userId, char[] password, String proxyServer) instead.
      **/
     public AS400(String systemName, String userId, String password, String proxyServer)
     {
@@ -865,14 +903,7 @@ public class AS400 implements Serializable
         {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
-        if (password == null)
-        {
-            throw new NullPointerException("password");
-        }
-        if (password.length() > 128)
-        {
-            throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
+        checkPasswordNullAndLength(password);
         if (proxyServer == null)
         {
             throw new NullPointerException("proxyServer");
@@ -890,6 +921,49 @@ public class AS400 implements Serializable
         credVault_ = new PasswordVault(password);
         proxyServer_ = resolveProxyServer(proxyServer);
     }
+
+       /**
+     Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
+     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+     @param  password  The user profile password to use to authenticate to the system.   The caller is responsible fore clearing sensitive data from password after the constructor runs.
+     @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
+     **/
+    public AS400(String systemName, String userId, char[] password, String proxyServer)
+    {
+        super();
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
+        if (systemName == null)
+        {
+            throw new NullPointerException("systemName");
+        }
+        if (userId == null)
+        {
+            throw new NullPointerException("userId");
+        }
+        if (userId.length() > 10)
+        {
+            throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+        checkPasswordNullAndLength(password);
+        if (proxyServer == null)
+        {
+            throw new NullPointerException("proxyServer");
+        }
+        construct();
+        systemName_ = systemName;
+        systemNameLocal_ = resolveSystemNameLocal(systemName);
+        //@W9 Start
+        if (isTurkish()) {
+          userId = userId.toUpperCase(Locale.ENGLISH);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
+        userId_ = userId.toUpperCase();
+        credVault_ = new PasswordVault(password);
+        proxyServer_ = resolveProxyServer(proxyServer);
+    }
+
 
     /**
      Constructs an AS400 object.  It uses the same system name and user ID.  This does not create a clone.  The new object has the same behavior, but results in a new set of socket connections.
@@ -1000,11 +1074,45 @@ public class AS400 implements Serializable
      @param  password  The user profile password.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
+     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password) instead
+    
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "'");
         addPasswordCacheEntry(new AS400(systemName, userId, password));
+    }
+
+    
+       /**
+     Validates the user ID and password, and if successful, adds the information to the password cache.
+     @param  systemName  The name of the IBM i system.
+     @param  userId  The user profile name.
+     @param  password  The user profile password.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     **/
+    public static void addPasswordCacheEntry(String systemName, String userId, char[] password) throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "'");
+        addPasswordCacheEntry(new AS400(systemName, userId, password));
+    }
+
+    
+    /**
+     Validates the user ID and password, and if successful, adds the information to the password cache.
+     @param  systemName  The name of the IBM i system.
+     @param  userId  The user profile name.
+     @param  password  The user profile password.
+     @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) instead. 
+     **/
+    public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
+        addPasswordCacheEntry(new AS400(systemName, userId, password, proxyServer));
     }
 
     /**
@@ -1016,7 +1124,7 @@ public class AS400 implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      **/
-    public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException
+    public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
         addPasswordCacheEntry(new AS400(systemName, userId, password, proxyServer));
@@ -1094,8 +1202,28 @@ public class AS400 implements Serializable
      @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
+     @deprecated Using a String as a password is insecure. 
      **/
     public boolean authenticate(String userId, String password) throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Authenticating signon information:", userId);
+        return validateSignon(userId, password);
+    }
+
+    
+        /**
+     Authenticates the user profile name and user profile password.
+     <p>This method is functionally equivalent to the <i>validateSignon()</i> method.  It does not alter the user profile assigned to this object, impact the status of existing connections, or otherwise impact the user and authorities on which the application is running.
+     <p>The system name needs to be set prior to calling this method.
+     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.
+     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
+     @param  userId  The user profile name.
+     @param  password  The user profile password.
+     @return  true if successful.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     **/
+    public boolean authenticate(String userId, char[] password) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Authenticating signon information:", userId);
         return validateSignon(userId, password);
@@ -1202,6 +1330,7 @@ public class AS400 implements Serializable
      @param  newPassword  The new user profile password.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
+     @deprecated Use changePassword(char[] oldPassword, char[] newPassword) instead
      **/
     public void changePassword(String oldPassword, String newPassword) throws AS400SecurityException, IOException
     {
@@ -1211,23 +1340,8 @@ public class AS400 implements Serializable
             Trace.log(Trace.DIAGNOSTIC, "oldPassword: '" + oldPassword + "'");
             Trace.log(Trace.DIAGNOSTIC, "newPassword: '" + newPassword + "'");
         }
-        if (oldPassword == null)
-        {
-            throw new NullPointerException("oldPassword");
-        }
-        if (oldPassword.length() > 128)
-        {
-            throw new ExtendedIllegalArgumentException("oldPassword.length {" + oldPassword.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
-        if (newPassword == null)
-        {
-            throw new NullPointerException("newPassword");
-        }
-        if (newPassword.length() > 128)
-        {
-            throw new ExtendedIllegalArgumentException("newPassword.length {" + newPassword.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
-
+        checkPasswordNullAndLength(oldPassword, "oldPassword");
+        checkPasswordNullAndLength(newPassword, "newPassword");
         if (systemName_.length() == 0 && !systemNameLocal_)
         {
             Trace.log(Trace.ERROR, "Cannot change password before system name is set.");
@@ -1271,6 +1385,74 @@ public class AS400 implements Serializable
             credVault_ = new PasswordVault(newPassword);
         }
     }
+
+    
+        /**
+     Changes the user profile password.  The system name and user profile name need to be set prior to calling this method.
+     @param  oldPassword  The old user profile password.
+     @param  newPassword  The new user profile password.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     **/
+    public void changePassword(char[] oldPassword, char[] newPassword) throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Changing password.");
+        if (PASSWORD_TRACE)
+        {
+            Trace.log(Trace.DIAGNOSTIC, "oldPassword: '" + oldPassword + "'");
+            Trace.log(Trace.DIAGNOSTIC, "newPassword: '" + newPassword + "'");
+        }
+        checkPasswordNullAndLength(oldPassword, "oldPassword");
+        checkPasswordNullAndLength(newPassword, "newPassword");
+        if (systemName_.length() == 0 && !systemNameLocal_)
+        {
+            Trace.log(Trace.ERROR, "Cannot change password before system name is set.");
+            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+        userId_ = resolveUserId(userId_);
+        if (userId_.length() == 0)
+        {
+            Trace.log(Trace.ERROR, "Cannot change password before user ID is set.");
+            throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+
+        chooseImpl();
+
+        // Synchronize to protect sign-on information.
+        synchronized (this)
+        {
+            byte[] proxySeed = new byte[9];
+            CredentialVault.rng.nextBytes(proxySeed);
+            byte[] remoteSeed = impl_.exchangeSeed(proxySeed);
+
+            if (PASSWORD_TRACE)
+            {
+                Trace.log(Trace.DIAGNOSTIC, "AS400 object proxySeed:", proxySeed);
+                Trace.log(Trace.DIAGNOSTIC, "AS400 object remoteSeed:", remoteSeed);
+            }
+
+            // Note that in this particular case it is OK to just pass byte arrays
+            // instead of credential vaults.  That is because we have the clear text
+            // passwords, so all we need to do is encode them and send them over
+            // to the impl.  After the password has been changed, we will update
+            // our own credential vault with the new password, and create ourselves
+            // the appropriate type of credential vault to store the password in.
+
+            signonInfo_ = impl_.changePassword(systemName_, 
+                systemNameLocal_, userId_, 
+                CredentialVault.encode(proxySeed, remoteSeed, 
+                    BinaryConverter.charArrayToByteArray(oldPassword)), 
+                CredentialVault.encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(newPassword)));
+
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Password changed successfully.");
+
+            // Update credential vault with new password.
+            credVault_.empty();
+            credVault_ = new PasswordVault(newPassword);
+        }
+    }
+
+
 
     // Choose between remote and proxy implementation objects, set state information into remote implementation object.  Synchronized to protect impl_ and propertiesFrozen_ instance variables.  This method can safely be called multiple times because it checks its state before performing the code.
     private synchronized void chooseImpl()
@@ -2167,8 +2349,27 @@ public class AS400 implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
+     @deprecated  Use getProfileToken(String userId, char[] password) instead.
      **/
     public ProfileTokenCredential getProfileToken(String userId, String password) throws AS400SecurityException, IOException, InterruptedException
+    {
+        return getProfileToken(userId, password, ProfileTokenCredential.TYPE_SINGLE_USE, 3600);
+    }
+
+    /**
+     Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if successful.
+     <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.
+     <p>This method generates a single use token with a timeout of one hour.
+     <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
+     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
+     @param  userId  The user profile name.
+     @param  password  The user profile password.
+     @return  A ProfileTokenCredential representing the authenticated profile and password.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  InterruptedException  If this thread is interrupted.
+     **/
+    public ProfileTokenCredential getProfileToken(String userId, char[] password) throws AS400SecurityException, IOException, InterruptedException
     {
         return getProfileToken(userId, password, ProfileTokenCredential.TYPE_SINGLE_USE, 3600);
     }
@@ -2191,6 +2392,7 @@ public class AS400 implements Serializable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
+     @deprecated Using string for password is insecure.
      **/
     public ProfileTokenCredential getProfileToken(String userId, String password, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException
     {
@@ -2205,19 +2407,78 @@ public class AS400 implements Serializable
         {
             throw new ExtendedIllegalArgumentException("userId", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
-        if (password == null)
-        {
-            throw new NullPointerException("password");
-        }
-        if (password.length() > 128)
-        {
-            throw new ExtendedIllegalArgumentException("password.length (" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
-
+        checkPasswordNullAndLength(password);
+ 
         //@W9 Start
         if (isTurkish()) {
         	userId = userId.toUpperCase(Locale.ENGLISH);
         	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
+        userId = resolveUserId(userId.toUpperCase());
+
+        ProfileTokenCredential profileToken = new ProfileTokenCredential();
+        try
+        {
+            profileToken.setSystem(this);
+            profileToken.setTokenType(tokenType);
+            profileToken.setTimeoutInterval(timeoutInterval);
+        }
+        catch (PropertyVetoException e)
+        {
+            Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+        }
+
+        byte[] proxySeed = new byte[9];
+        CredentialVault.rng.nextBytes(proxySeed);
+        synchronized (this)
+        {
+            PasswordVault tempVault = new PasswordVault(password);
+            tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));
+            impl_.generateProfileToken(profileToken, userId, tempVault, gssName_);
+        }
+        return profileToken;
+    }
+
+    /**
+     Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if successful.
+     <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.
+     <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
+     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
+     @param  userId  The user profile name.
+     @param  password  The user profile password.
+     @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
+     <ul>
+     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE TYPE_SINGLE_USE}
+     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE TYPE_MULTIPLE_USE_NON_RENEWABLE}
+     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_RENEWABLE TYPE_MULTIPLE_USE_RENEWABLE}
+     </ul>
+     @param  timeoutInterval  The number of seconds to expiration when the token is created (1-3600).
+     @return  A ProfileTokenCredential representing the authenticated profile and password.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  InterruptedException  If this thread is interrupted.
+     **/
+    public ProfileTokenCredential getProfileToken(String userId, char[] password, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException
+    {
+        connectService(AS400.SIGNON);
+
+        // Validate parms.
+        if (userId == null)
+        {
+            throw new NullPointerException("userId");
+        }
+        if (userId.length() > 10)
+        {
+            throw new ExtendedIllegalArgumentException("userId", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+        checkPasswordNullAndLength(password);
+      
+        //@W9 Start
+        if (isTurkish()) {
+          userId = userId.toUpperCase(Locale.ENGLISH);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
         //@W9 End
         userId = resolveUserId(userId.toUpperCase());
@@ -3907,19 +4168,32 @@ public class AS400 implements Serializable
     /**
      Sets the password for this object.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any previously set authentication information.
      @param  password  The user profile password.
+     @deprecated 
      **/
     public void setPassword(String password)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting password.");
 
-        if (password == null)
+        checkPasswordNullAndLength(password);
+                synchronized (this)
         {
-            throw new NullPointerException("password");
+            credVault_.empty();
+            credVault_ = new PasswordVault(password);
+            signonInfo_ = null;
         }
-        if (password.length() > 128)
-        {
-            throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
+    }
+
+        /**
+     Sets the password for this object using a char array.  
+     The caller is responsible for clearing the array after the method returns. 
+     Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any previously set authentication information.
+     @param  password  The user profile password.
+     **/
+    public void setPassword(char[] password)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting password.");
+
+        checkPasswordNullAndLength(password);
 
         synchronized (this)
         {
@@ -3928,6 +4202,7 @@ public class AS400 implements Serializable
             signonInfo_ = null;
         }
     }
+
 
     /**
      Sets the number of days before password expiration to warn the user.
@@ -4460,6 +4735,7 @@ public class AS400 implements Serializable
      @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
+     @deprecated
      **/
     public boolean validateSignon(String password) throws AS400SecurityException, IOException
     {
@@ -4490,6 +4766,69 @@ public class AS400 implements Serializable
         return validateSignon(userId_, tempVault);
     }
 
+     private void  checkPasswordNullAndLength(char [] password) { 
+        if (password == null)
+        {
+            throw new NullPointerException("password");
+        }
+        if (password.length > 128)
+        {
+            throw new ExtendedIllegalArgumentException("password.length {" + password.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+      }
+
+    /**
+     Validates the user ID and password on the system but does not add to the signed-on list.  The user ID and system name need to be set before calling this method.
+     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
+     @param  password  The user profile password to validate.
+     @return  true if successful.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     **/
+    public boolean validateSignon(char[] password) throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating Signon, with password.");
+        checkPasswordNullAndLength(password); 
+        if (systemName_.length() == 0 && !systemNameLocal_)
+        {
+            Trace.log(Trace.ERROR, "Cannot validate signon before system name is set.");
+            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+        userId_ = resolveUserId(userId_);
+        if (userId_.length() == 0)
+        {
+            Trace.log(Trace.ERROR, "Cannot validate signon before user ID is set.");
+            throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+
+        PasswordVault tempVault = new PasswordVault(password);
+        return validateSignon(userId_, tempVault);
+    }
+
+      private void checkPasswordNullAndLength(String password) { 
+           checkPasswordNullAndLength(password,"password");
+           
+      }
+      private void checkPasswordNullAndLength(String password, String label) { 
+        if (password == null)
+        {
+            throw new NullPointerException(label);
+        }
+        if (password.length() > 128)
+        {
+            throw new ExtendedIllegalArgumentException(label+".length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+      }
+      private void checkPasswordNullAndLength(char[] password, String label) { 
+        if (password == null)
+        {
+            throw new NullPointerException(label);
+        }
+        if (password.length > 128)
+        {
+            throw new ExtendedIllegalArgumentException(label+".length {" + password.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+      }
     /**
      Validates the user ID and password on the system but does not add to the signed-on list.  The system name needs to be set prior to calling this method.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
@@ -4498,6 +4837,7 @@ public class AS400 implements Serializable
      @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
+     @deprecated Using a string as a password is insecure
      **/
     public boolean validateSignon(String userId, String password) throws AS400SecurityException, IOException
     {
@@ -4511,14 +4851,7 @@ public class AS400 implements Serializable
         {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
-        if (password == null)
-        {
-            throw new NullPointerException("password");
-        }
-        if (password.length() > 128)
-        {
-            throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
+        checkPasswordNullAndLength(password);
 
         if (systemName_.length() == 0 && !systemNameLocal_)
         {
@@ -4536,6 +4869,49 @@ public class AS400 implements Serializable
         return validateSignon(userId.toUpperCase(), tempVault);
     }
 
+
+        /**
+     Validates the user ID and password on the system but does not add to the signed-on list.  The system name needs to be set prior to calling this method.
+     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
+     @param  userId  The user profile name to validate.
+     @param  password  The user profile password to validate.
+     @return  true if successful.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @deprecated Using a string as a password is insecure
+     **/
+    public boolean validateSignon(String userId, char[] password) throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating signon, user ID: '" + userId + "'");
+
+        if (userId == null)
+        {
+            throw new NullPointerException("userId");
+        }
+        if (userId.length() > 10)
+        {
+            throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+        checkPasswordNullAndLength(password);
+ 
+        if (systemName_.length() == 0 && !systemNameLocal_)
+        {
+            Trace.log(Trace.ERROR, "Cannot validate signon before system name is set.");
+            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+
+        PasswordVault tempVault = new PasswordVault(password);
+        //@W9 Start
+        if (isTurkish()) {
+          userId = userId.toUpperCase(Locale.ENGLISH);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+        }
+        //@W9 End
+        return validateSignon(userId.toUpperCase(), tempVault);
+    }
+
+
+    
     // Internal version of validate sign-on; takes checked user ID and twiddled password bytes.
     // If the signon info is not valid, an exception is thrown.
     private boolean validateSignon(String userId, CredentialVault pwVault) throws AS400SecurityException, IOException

@@ -138,7 +138,7 @@ implements RowSet, Serializable             // @A3C
     private boolean useDataSource_ = true;          // Whether the dataSource specified is used.
     private String url_;                            // The user defined URL used to make the connection.
     private String username_;                           // The user name used to make the connection.
-    private String password_;                       // The password used to make the connection.
+    private char[] passwordChars_;                       // The password used to make the connection.
 
     // Toolbox classes.
     private Connection connection_;             // The JDBC connection.
@@ -401,7 +401,11 @@ implements RowSet, Serializable             // @A3C
                 eise.initCause(ne); 
                 throw  eise; 
             }
-            connection_ = dataSource_.getConnection(username_, password_);
+            if (dataSource_ instanceof AS400JDBCDataSource) { 
+              connection_ = ((AS400JDBCDataSource)dataSource_).getConnection(username_, passwordChars_);
+            } else {
+              connection_ = dataSource_.getConnection(username_, new String(AS400JDBCDataSource.xpwDeconfuseToChar(passwordChars_)));
+            }
         }
         else
         {                          // Use the url to make the connection.
@@ -411,8 +415,8 @@ implements RowSet, Serializable             // @A3C
             if (url_ == null)
                 throw new ExtendedIllegalStateException("url", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
-            if (username_ != null && password_ != null)
-                connection_ = DriverManager.getConnection(url_, username_, password_);
+            if (username_ != null && passwordChars_ != null)
+                connection_ = DriverManager.getConnection(url_, username_, new String(AS400JDBCDataSource.xpwDeconfuseToChar(passwordChars_)));
             else
                 connection_ = DriverManager.getConnection(url_);
         }
@@ -2963,7 +2967,7 @@ implements RowSet, Serializable             // @A3C
             throw new NullPointerException(property);
         validateConnection();
 
-        password_ = password;
+        passwordChars_ = AS400JDBCDataSource.xpwConfuse(password);
         changes_.firePropertyChange(property, "", password);
     }
 

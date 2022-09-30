@@ -1076,7 +1076,7 @@ implements ConnectionEventListener
   /**
    Attempts to create one new physical connection with the specified key, and add it to the foreground 'available' list.
    **/
-  private final void createNewConnection(JDConnectionPoolKey poolKey, boolean keyIsDefault, String password)
+  private final void createNewConnection(JDConnectionPoolKey poolKey, boolean keyIsDefault, char[]  password)
   {
     if (DEBUG) logInformation("createNewConnection("+poolKey.getUser()+")");
     if (poolClosed_) return;
@@ -1334,7 +1334,7 @@ implements ConnectionEventListener
    @return The connection, or null if the pool is at or near capacity.
    @throws SQLException if the pool is closed; or if no connection is available from the full pool and the pool size limit is being strictly enforced.
    **/
-  final AS400JDBCConnectionHandle getConnection(JDConnectionPoolKey poolKey, String password) throws SQLException
+  final AS400JDBCConnectionHandle getConnection(JDConnectionPoolKey poolKey, char[] password) throws SQLException
   {
     if (DEBUG || GATHER_STATS) numGetConnectionCalls_received_++;
 

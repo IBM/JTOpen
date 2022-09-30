@@ -125,7 +125,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     private String serialServerName_;                         // system name used in serialization.
     private String serialUserName_;                           // User used in serialization.
-    private String serialKeyRingName_;     //@B4A             // Key ring name used in serialization.
     transient PropertyChangeSupport changes_; //@B0C
     private boolean isSecure_ = false;  //@B4A
 
@@ -140,7 +139,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     // clear.  The password string is confused so that something more than just looking at the 
     // serialized bytes must be done to see the password.  
     private char[]  serialPWBytes_ = null;               //@J3a
-    private char[]  serialKeyRingPWBytes_ = null;        //@J3a
     private boolean savePasswordWhenSerialized_ = false; //@J3a   by default, don't save password!!!!
 
     /**
@@ -245,6 +243,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  @param serverName The name of the IBM i system.
     *  @param user The user id.
     *  @param password The user password.
+    *  @deprecated Use AS400JDBCDataSource(String serverName, String user, char[] password) instead.
     **/
     public AS400JDBCDataSource(String serverName, String user, String password)
     {
@@ -254,6 +253,23 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         setUser(user);
         setPassword(password);
     }
+
+    
+        /**
+    *  Constructs an AS400JDBCDataSource object with the specified signon information.
+    *  @param serverName The name of the IBM i system.
+    *  @param user The user id.
+    *  @param password The user password.  The caller is responsible for clearing password after the constructor returns. 
+    **/
+    public AS400JDBCDataSource(String serverName, String user, char[] password)
+    {
+        this();
+
+        setServerName(serverName);
+        setUser(user);
+        setPassword(password);
+    }
+
 
     //@K1A
     /**
@@ -361,7 +377,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
                     // get the password back from the serialized char[]
                     serialPWBytes_ = value.toCharArray();
                     // decode the password and set it on the as400
-                    as400_.setPassword(xpwDeconfuse(serialPWBytes_));
+                    char[] passwordArray = xpwDeconfuseToChar(serialPWBytes_);
+                    as400_.setPassword(passwordArray);
+                    CredentialVault.clearArray(passwordArray);
                 }                                                                               //@K1A
             }
             else if (property.equals(SAVE_PASSWORD)) {
@@ -576,8 +594,29 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *  @param password The database password.
     *  @return The connection
     *  @exception SQLException If a database error occurs.
+    *  @deprecated Use getConnection(String,char[]) instead. 
     **/
     public Connection getConnection(String user, String password) throws SQLException
+      
+    {
+        if (password == null) { 
+          return getConnection(user, (char[])null); 
+        } else {
+          char[] passwordChars = password.toCharArray(); 
+          Connection c = getConnection(user, passwordChars); 
+          CredentialVault.clearArray(passwordChars);
+          return c; 
+        }
+    }
+
+    /**
+    *  Returns the database connection using the specified <i>user</i> and <i>password</i>.
+    *  @param user The database user.
+    *  @param password The database password.
+    *  @return The connection
+    *  @exception SQLException If a database error occurs.
+    **/
+    public Connection getConnection(String user, char[] password) throws SQLException
     {
         // Validate the parameters.
         //@pw3 Add way to get old behavior allowing "" (!but also need to allow new behavior of allowing null is/passwd so customers can slowly migrate)
@@ -601,7 +640,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
                 forcePrompt = true;  //@prompt
             }  //@pw3
         }                                                                 //@pw1
-        if ("".equals(password))                                          //@pw1
+       
+        
+        if (password != null && password.length == 0 )                                          //@pw1
         {                                                                 //@pw1
             if(isSecureCurrentUser)//@pw3
             {  //@pw3
@@ -617,7 +658,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (user == null)                                                         //@pw1
             user = "";                                                            //@pw1
         if (password == null)                                                     //@pw1
-            password = "";                                                        //@pw1
+            password = new char[0];                                               //@pw1
         
         //check for *current
         if (user.compareToIgnoreCase("*CURRENT") == 0)                    //@pw1
@@ -631,7 +672,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             }  //@pw3
             
         }                                                                 //@pw1
-        if (password.compareToIgnoreCase("*CURRENT") == 0)                //@pw1
+        if (CredentialVault.isStarCurrent(password))                //@pw1
         {                                                                 //@pw1
             if(isSecureCurrentUser)//@pw3
             {  //@pw3
@@ -680,7 +721,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
         //@C2D return getConnection(new AS400(getServerName(), user, password));
     }
-
 
     /**
     *  Creates the database connection based on the signon and property information.
@@ -1571,7 +1611,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             if ((serialPWBytes_ != null) &&                             // @J3a
                 (serialPWBytes_.length > 0))                            // @J3a
             {                                                           // @J3a
-                as400_.setPassword(xpwDeconfuse(serialPWBytes_));        // @J3a
+                char[] passwordChars = xpwDeconfuseToChar(serialPWBytes_);
+                as400_.setPassword(passwordChars);        // @J3a
+                CredentialVault.clearArray(passwordChars); 
             }                                                           // @J3a
         }
 
@@ -3476,6 +3518,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     /**
     *  Sets the database password.
     *  @param password The password.
+    *  @deprecated Use setPassword(char[] password) instead. 
     **/
     public void setPassword(String password)
     {
@@ -3484,7 +3527,19 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         log(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));     //@A9C
     }
 
-    /**
+
+        /**
+    *  Sets the database password using a char array
+    *  @param password The password.
+    **/
+    public void setPassword(char[] password)
+    {
+        as400_.setPassword(password);
+        serialPWBytes_ = xpwConfuse(password);                  //@J3a
+        log(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));     //@A9C
+    }
+
+/**
     *  Sets whether to prefetch data upon executing a SELECT statement.
     *  This will increase performance when accessing the initial rows in the result set.
     *  @param prefetch If prefetch is used; false otherwise.
@@ -5426,7 +5481,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     // @J3 new method.
     // Twiddle password bytes.
-    private static char[] xpwConfuse(String info)
+    static char[] xpwConfuse(String info)
     {
         Random rng = new Random();
         byte[] adderBytes = new byte[18];
@@ -5446,9 +5501,30 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return returnBytes;
     }
 
-    // @J3 new method.
-    // Get clear password bytes back.
-    private static String xpwDeconfuse(char[] info)
+    /* confuse the password coming from a byte array */ 
+    static char[] xpwConfuse(char[] info)
+    {
+        Random rng = new Random();
+        byte[] adderBytes = new byte[18];
+        rng.nextBytes(adderBytes);
+        char[] adder = BinaryConverter.byteArrayToCharArray(adderBytes);
+
+        byte[] maskBytes = new byte[14];
+        rng.nextBytes(maskBytes);
+        char[] mask = BinaryConverter.byteArrayToCharArray(maskBytes);
+
+        char[] infoBytes = xencode(adder, mask, info);
+        char[] returnBytes = new char[info.length + 16];
+        System.arraycopy(adder, 0, returnBytes, 0, 9);
+        System.arraycopy(mask, 0, returnBytes, 9, 7);
+        System.arraycopy(infoBytes, 0, returnBytes, 16, info.length);
+
+        return returnBytes;
+    }
+
+
+    
+     static char[] xpwDeconfuseToChar(char[] info)
     {
         char[] adder = new char[9];
         System.arraycopy(info, 0, adder, 0, 9);
@@ -5457,9 +5533,11 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         char[] infoBytes = new char[info.length - 16];
         System.arraycopy(info, 16, infoBytes, 0, info.length - 16);
 
-        return new String(xdecode(adder, mask, infoBytes));
+        return xdecode(adder, mask, infoBytes);
     }
 
+    
+    
     // @J3 new method    
     // Scramble some bytes.
     private static char[] xencode(char[] adder, char[] mask, char[] bytes)

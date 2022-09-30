@@ -56,7 +56,7 @@ class PoolItem
            int service, boolean connect, boolean threadUse, SocketProperties socketProperties, int ccsid)  //@B4C
   throws AS400SecurityException, IOException  //@B4A
   {
-    String password = null; //@C1A
+    char[] password = null; //@C1A
     if (poolAuth.getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN) //@C1A
     {
       ProfileTokenCredential profileToken = poolAuth.getProfileToken(); //@C1A
@@ -95,6 +95,9 @@ class PoolItem
         }
         else														//Stevers
           AS400object_ = new AS400(systemName, userID, password);   //@B4C
+      }
+      if (password != null) { 
+        CredentialVault.clearArray(password);
       }
     }
     

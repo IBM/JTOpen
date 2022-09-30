@@ -3530,6 +3530,9 @@ throws SQLException
           }
           finally                                               //@dbldrvr
           {                                                     //@dbldrvr
+        if (JDTrace.isTraceOn())
+          JDTrace.logInformation(this, "Calling DriverManager.getDrivers");
+
               //Since driver is registered twice in DriverManager via DriverManager.registerDriver(new AS400JDBCDriver()),
               //remove extra driver references now so we don't waste resources by continuing to try, and also so we don't lock out id if pwd is not correct.
               Enumeration en = DriverManager.getDrivers();      //@dbldrvr
@@ -3538,6 +3541,9 @@ throws SQLException
               while (en.hasMoreElements())                      //@dbldrvr
               {                                                 //@dbldrvr
                   nextDriver = (Driver) en.nextElement();       //@dbldrvr
+                  if (JDTrace.isTraceOn())
+                    JDTrace.logInformation(this, "..found driver "+nextDriver.toString()+":"+nextDriver.hashCode()+" class:"+nextDriver.getClass().toString());
+                  
                   if(nextDriver instanceof AS400JDBCDriver)     //@dbldrvr
                   {                                             //@dbldrvr
                       if(firstDriver == null)                   //@dbldrvr
@@ -3546,6 +3552,9 @@ throws SQLException
                           DriverManager.deregisterDriver(nextDriver); //@dbldrvr
                   }                                             //@dbldrvr
               }                                                 //@dbldrvr
+              if (JDTrace.isTraceOn())
+                JDTrace.logInformation(this, "done looking at drivers");
+
           }                                                     //@dbldrvr
         }
 

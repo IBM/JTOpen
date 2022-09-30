@@ -3,7 +3,7 @@
 // JTOpen (IBM Toolbox for Java - OSS version)                              
 //                                                                             
 // Filename: AS400ConnectionPool.java
-//                                                                             
+//                                                                            
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
 // Copyright (C) 1997-2008 International Business Machines Corporation and     
@@ -31,15 +31,16 @@ class AS400ConnectionPoolAuthentication // Package scoped class
   private int authenticationScheme_ = -1;
   
   // For AS400.AUTHENTICATION_SCHEME_PASSWORD retain the password.
-  private String password_  = null;
+  private char[] encodedPassword_  = null;
   
   // For AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN retain the token.
   private ProfileTokenCredential profileToken_;
 
-  /**
+
+    /**
    *  Constructs an AS400ConnectionPool for AS400.AUTHENTICATION_SCHEME_PASSWORD
    **/
-  AS400ConnectionPoolAuthentication(String password)
+  AS400ConnectionPoolAuthentication(char[] password)
   {
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400ConnectionPoolAuthentication object (password)");
     if (password == null)
@@ -48,9 +49,10 @@ class AS400ConnectionPoolAuthentication // Package scoped class
         //throw new NullPointerException("password");
     }
 
-    password_ = password;
+    encodedPassword_ = AS400JDBCDataSource.xpwConfuse(password);
     authenticationScheme_ = AS400.AUTHENTICATION_SCHEME_PASSWORD;
   }
+
 
   /**
    *  Constructs an AS400ConnectionPool for AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN
@@ -83,11 +85,11 @@ class AS400ConnectionPoolAuthentication // Package scoped class
    *  else null will be returned.
    *  @return The password
    **/
-  String getPassword()
+  char[]  getPassword()
   {
     if (authenticationScheme_ == AS400.AUTHENTICATION_SCHEME_PASSWORD)
     {
-      return (password_);
+      return AS400JDBCDataSource.xpwDeconfuseToChar(encodedPassword_);
     }
     else
     {

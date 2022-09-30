@@ -87,6 +87,18 @@ Constructs an AS400JDBCXADataSource with the specified signon information.
       super(serverName, user, password);
    }
 
+/**
+Constructs an AS400JDBCXADataSource with the specified signon information.
+   
+@param serverName The name of the IBM i system.
+@param user The user id.
+@param password The password.
+**/
+   public AS400JDBCXADataSource(String serverName, String user, char[] password)
+   {
+      super(serverName, user, password);
+   }
+
 
 //@A1A
 /**

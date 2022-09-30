@@ -108,6 +108,61 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             uid.toUpperCase(), pwd, type, timeoutInterval);
     }
 
+        /**
+    * Generates and returns a new profile token based on
+    * the provided information.
+    *
+    * @deprecated As of V5R3, replaced 
+    * by {@link #generateTokenExtended(String,String,int,int)}
+    * for password strings 
+    * and {@link #generateToken(String,int,int,int)} 
+    * for password special values.
+    *
+    * @param uid
+    *   The name of the user profile for which the token
+    *   is to be generated.
+    *
+    * @param pwd
+    *   The user profile password or special value.
+    *
+    * @param type
+    *   The type of token.
+    *   Possible types are defined as fields on the 
+    *       ProfileTokenCredential class:
+    *     <ul>
+    *       <li>TYPE_SINGLE_USE
+    *       <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+    *       <li>TYPE_MULTIPLE_USE_RENEWABLE
+    *     </ul>
+    *   <p>
+    *
+    * @param timeoutInterval
+    *    The number of seconds to expiration.
+    *
+    * @return
+    *   The token bytes.
+    *
+    * @exception RetrieveFailedException
+    *   If errors occur while generating the token.
+    *
+    */
+    public byte[] generateToken(String uid, char[] pwd, int type,
+            int timeoutInterval) throws RetrieveFailedException {
+
+        if (pwd.length > 10) {
+            Trace.log(Trace.ERROR, "User profile password exceeds " + 
+                "allowed length");
+            throw new ExtendedIllegalArgumentException(
+                "password",
+                ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        }
+
+        return nativeCreateTokenChar(
+            uid.toUpperCase(), pwd, type, timeoutInterval);
+    }
+
+    
+    
     /**
     * Generates and returns a new profile token based on
     * the provided information using a password special value.
@@ -168,8 +223,8 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         }
 
         // Call native method and return token bytes
-        return nativeCreateToken(
-            uid.toUpperCase(), pwdSpecialVal, type, timeoutInterval);
+        return nativeCreateTokenChar(
+            uid.toUpperCase(), pwdSpecialVal.toCharArray(), type, timeoutInterval);
     }
 
     /**
@@ -290,6 +345,125 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
 	    return parmlist[0].getOutputData();
 	}
 
+
+    /**
+    * Generates and returns a new profile token based on
+    * the provided information using a password string.
+    *
+    * @param uid
+    *   The name of the user profile for which the token
+    *   is to be generated.
+    *
+    * @param pwd
+    *   The user profile password (encoded). 
+    *       Special values are not supported by this method.
+    *
+    * @param type
+    *   The type of token.
+    *   Possible types are defined as fields on the 
+    *       ProfileTokenCredential class:
+    *     <ul>
+    *       <li>TYPE_SINGLE_USE
+    *       <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+    *       <li>TYPE_MULTIPLE_USE_RENEWABLE
+    *     </ul>
+    *   <p>
+    *
+    * @param timeoutInterval
+    *    The number of seconds to expiration.
+    *
+    * @return
+    *   The token bytes.
+    *
+    * @exception RetrieveFailedException
+    *   If errors occur while generating the token.
+    *
+    */
+    public byte[] generateTokenExtended(String uid, char [] pwd, int type,
+            int timeoutInterval) throws RetrieveFailedException {
+
+      AS400 sys = getCredential().getSystem();
+
+      ProgramParameter[] parmlist = new ProgramParameter[8];
+      
+      // Output: Profile token.
+      parmlist[0] = new ProgramParameter(
+          ProfileTokenCredential.TOKEN_LENGTH);
+
+        // Input: User profile name. Uppercase, get bytes (ccsid 37).
+        try {
+            parmlist[1] = new ProgramParameter(
+                SignonConverter.stringToByteArray(uid.toUpperCase()));
+        }
+        catch (AS400SecurityException se) {
+            throw new RetrieveFailedException(se.getReturnCode());
+        }
+        
+      // Input: User password. String to char[], char[] to byte[] (unicode).
+        parmlist[2] = new ProgramParameter(
+            BinaryConverter.charArrayToByteArray(pwd));
+
+      // Input: Time out interval. Int to byte[].
+      parmlist[3] = new ProgramParameter(
+          BinaryConverter.intToByteArray(timeoutInterval));
+
+      // Input: Profile token type. Int to string, get bytes.
+      parmlist[4] = new ProgramParameter(
+          CharConverter.stringToByteArray(
+          sys, new Integer(type).toString()));
+
+      // Input/output: Error code. NULL.
+      parmlist[5] = new ProgramParameter(
+          BinaryConverter.intToByteArray(0));
+
+      // Input: Length of user password. Int to byte[].
+      parmlist[6] = new ProgramParameter(
+          BinaryConverter.intToByteArray(
+          parmlist[2].getInputData().length));
+      
+      // Input: CCSID of user password. Int to byte[]. Unicode = 13488.
+      parmlist[7] = new ProgramParameter(
+          BinaryConverter.intToByteArray(13488));
+
+      ProgramCall programCall = new ProgramCall(sys);
+
+      try {
+        programCall.setProgram(
+            QSYSObjectPathName.toPath(
+            "QSYS", "QSYGENPT", "PGM"), parmlist);
+        programCall.suggestThreadsafe(); // Run on-thread if possible; allows app to use disabled profile.
+        if (!programCall.run()) {
+          Trace.log(Trace.ERROR, "Call to QSYGENPT failed.");
+          throw new RetrieveFailedException(
+              programCall.getMessageList());
+        }
+      }
+      catch (RetrieveFailedException e) {
+        throw e; // just rethrow
+    }
+      catch (java.io.IOException ioe) {
+          Trace.log(Trace.ERROR, "Unexpected IOException: ", ioe);
+          throw new InternalErrorException(
+              InternalErrorException.UNEXPECTED_EXCEPTION);
+      }
+      catch (java.beans.PropertyVetoException pve) {
+          Trace.log(Trace.ERROR, "Unexpected PropertyVetoException: ", pve);
+          throw new InternalErrorException(
+              InternalErrorException.UNEXPECTED_EXCEPTION);
+      }
+      catch (InterruptedException ine) {
+          Trace.log(Trace.ERROR, "Unexpected InterruptedException: ", ine);
+          throw new InternalErrorException(
+              InternalErrorException.UNEXPECTED_EXCEPTION);
+      }
+      catch (Exception e) {
+          Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
+        throw new RetrieveFailedException(); 
+    }
+
+      return parmlist[0].getOutputData();
+  }
+
     // Returns the credential delegating behavior to the implementation 
     // object.
     // @return  The associated credential.
@@ -337,6 +511,34 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         }
     }
 
+    /** 
+     Generates and returns a new profile token based on a user profile and 
+     password special value.
+     @param  name  The name of the user profile for which the token is to 
+     be generated.
+     @param  passwordSpecialValue  The special value for the user profile 
+     password. Possible values are:
+     <ul>
+     <li> ProfileTokenCredential.PW_NOPWD
+     <li> ProfileTokenCredential.PW_NOPWDCHK
+     </ul>
+     @param  type  The type of token.  Possible types are defined as fields 
+     on the ProfileTokenCredential class:
+     <ul>
+     <li>ProfileTokenCredential.TYPE_SINGLE_USE
+     <li>ProfileTokenCredential.TYPE_MULTIPLE_USE_NON_RENEWABLE
+     <li>ProfileTokenCredential.TYPE_MULTIPLE_USE_RENEWABLE
+     </ul>
+     @param  timeoutInterval  The number of seconds to expiration.
+     @return  The token bytes.
+     @exception  RetrieveFailedException  If errors occur while generating
+     the token.
+     @deprecated Use nativeCreateToken(String user, char[] password, int type,
+            int timeoutInterval) instead
+     */
+    native byte[] nativeCreateToken(String user, String password, int type,
+            int timeoutInterval) throws RetrieveFailedException;
+
     // Generates and returns a new profile token based on a user profile and 
     // password special value.
     // @param  name  The name of the user profile for which the token is to 
@@ -358,7 +560,9 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     // @return  The token bytes.
     // @exception  RetrieveFailedException  If errors occur while generating
     // the token.
-    native byte[] nativeCreateToken(String user, String password, int type,
+    
+    // TODO:  Write native code in /osxpf/v7r5m0.xpf/cur/cmvc/base.pgm/yjsp.xpf
+    native byte[] nativeCreateTokenChar(String user, char[] password, int type,
             int timeoutInterval) throws RetrieveFailedException;
 
     // Returns the number of seconds before the credential is due to expire.

@@ -409,6 +409,43 @@ abstract class CredentialVault implements Cloneable, Serializable
 
     return sb.toString();
   }
+
+  public static void clearArray(char[] passwordChars) {
+     for (int i = 0; i < passwordChars.length; i++) { 
+       passwordChars[i]=(char) i; 
+     }
+    
+  }
+
+  public static boolean isStarCurrent(char[] password) {
+    if ((password.length == 8)  &&
+          password[0]=='*' &&
+          ((password[1] == 'C') || (password[1] == 'c')) &&
+          ((password[2] == 'U') || (password[2] == 'u')) &&
+          ((password[3] == 'R') || (password[3] == 'r')) &&
+          ((password[4] == 'R') || (password[4] == 'r')) &&
+          ((password[5] == 'E') || (password[5] == 'e')) &&
+          ((password[6] == 'N') || (password[6] == 'n')) &&
+          ((password[7] == 'T') || (password[7] == 't'))) {
+        return true;  
+      }
+ 
+      
+   
+    return false; 
+    
+    
+  }
+
+  public static int getHashCode(char[] password) {
+    int len = password.length; 
+    int hashcode = 0; 
+    for (int i = 0; i < len; i++) {
+      hashcode =+ password[i] * 31 ^ (len - 1) ; 
+    }
+    
+    return hashcode;   
+  }
   
   
 }

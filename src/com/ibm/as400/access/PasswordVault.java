@@ -43,6 +43,18 @@ class PasswordVault extends CredentialVault implements Cloneable, Serializable
     encodedCredential_ = store(thePassword);
   }
 
+  
+  /**
+   * Constructs a PasswordVault object that contains the provided password
+   * credential.  The password is stored internally as encoded raw bytes.
+   *
+   * @param thePassword The password
+   */
+  protected PasswordVault(char[] thePassword) {
+    super();
+    encodedCredential_ = store(thePassword);
+  }
+
   /**
    * Constructs a PasswordVault object that contains the provided password
    * credential.  The password is stored internally as encoded raw bytes.
@@ -96,5 +108,33 @@ class PasswordVault extends CredentialVault implements Cloneable, Serializable
 
     return super.store(BinaryConverter.charArrayToByteArray(credential.toCharArray()));
   }
+
+    /**
+   * Encodes the String credential using the parent class encode method.
+   * The credential string is converted into an array of bytes
+   * and, using this representation, is encoded and stored internally.
+   *
+   * @param credential The credential to encode
+   * @return The encoded credential
+   */
+  private byte[] store(char[] credential)
+  {
+    if (PASSWORD_TRACE)
+    {
+      Trace.log(Trace.DIAGNOSTIC, "AS400 object store, password: '" + credential + "'");
+    }
+    if (AS400.onAS400) {
+      if (credential.length == 0) {
+        return null; 
+      }
+      if (CredentialVault.isStarCurrent(credential)) {
+        return null ;
+            
+      }
+    }
+
+    return super.store(BinaryConverter.charArrayToByteArray(credential));
+  }
+
 
 }

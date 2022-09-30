@@ -237,6 +237,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    @param serverName The name of the IBM i system.
    @param user The user id.
    @param password The user password.
+   @deprecated Use AS400JDBCManagedDataSource(String serverName, String user, char[] password) instead. 
    **/
   public AS400JDBCManagedDataSource(String serverName, String user, String password)
   {
@@ -247,6 +248,20 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     setPassword(password);
   }
 
+  /**
+   Constructs an AS400JDBCManagedDataSource object with the specified signon information.
+   @param serverName The name of the IBM i system.
+   @param user The user id.
+   @param password The user password.
+   **/
+  public AS400JDBCManagedDataSource(String serverName, String user, char[] password)
+  {
+    this();
+
+    setServerName(serverName);
+    setUser(user);
+    setPassword(password);
+  }
 
   // Note: We do not provide a constructor that takes an AS400 object,
   // because we need to capture the password so we can use it as part of the pool key.
@@ -343,9 +358,11 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
           // get the password back from the serialized char[]
           if (value != null) {
             serialPWBytes_ = value.toCharArray();
-            pwHashcode_ = xpwDeconfuse(serialPWBytes_).hashCode();
+            char[] passwordChars = AS400JDBCDataSource.xpwDeconfuseToChar(serialPWBytes_);
+            pwHashcode_ = CredentialVault.getHashCode(passwordChars);
             // decode the password and set it on the as400
-            as400_.setPassword(xpwDeconfuse(serialPWBytes_));
+            as400_.setPassword(passwordChars);
+            CredentialVault.clearArray(passwordChars);
           }
         }
       }
@@ -461,10 +478,10 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    @return The connection
    @throws SQLException If a database error occurs.
    **/
-  final AS400JDBCConnection createPhysicalConnection(String user, String password) throws SQLException
+  final AS400JDBCConnection createPhysicalConnection(String user, char[] password) throws SQLException
   {
     if (JDTrace.isTraceOn()) {
-      JDTrace.logInformation(this, "createPhysicalConnection("+user+","+password+")");
+      JDTrace.logInformation(this, "createPhysicalConnection("+user+",*****)");
     }
 
     // Validate the parameters.
@@ -811,12 +828,38 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    @return The connection
    @throws SQLException If a database error occurs.
    @see #setDataSourceName
+   @deprecated Use getConnection(String user, char[] password) instead. 
    **/
   public Connection getConnection(String user, String password) throws SQLException
   {
+    if (password != null) {
+    char[] passwordChars = password.toCharArray(); 
+    Connection c = getConnection(user, passwordChars); 
+    CredentialVault.clearArray(passwordChars);
+    return c; 
+    
+      
+    } else {
+      return getConnection(user, (char[])null); 
+    }
+  }
+  /**
+   Returns a database connection using the specified <i>user</i> and <i>password</i>.
+   <br>Note: If a dataSourceName has been specified (via {@link #setDataSourceName setDataSourceName()}, this method will return a pooled connection.  Otherwise it will return a non-pooled connection.
+   <p>If pooling, the very first call to one of the getConnection() methods for this class will create and initialize the connection pool, and may have slow response.  Therefore it is advisable for the application to make an initial "dummy" call to getConnection().
+   <br>If the connection pool is at or near capacity, a non-pooled connection may be returned.
+   <p>It is the responsibility of the caller to ultimately call <tt>Connection.close()</tt> to release the connection, even if the connection has become unusable.
+   @param user The database user.
+   @param password The database password.
+   @return The connection
+   @throws SQLException If a database error occurs.
+   @see #setDataSourceName
+   **/
+  public Connection getConnection(String user, char[] password) throws SQLException
+  {
     // Note: This method will return either an AS400JDBCConnection or an AS400JDBCConnectionHandle.
     if (JDTrace.isTraceOn()) {
-      JDTrace.logInformation(this, "getConnection("+user+","+password+")");
+      JDTrace.logInformation(this, "getConnection("+user+",*********)");
     }
 
     // Validate the parameters.
@@ -825,11 +868,12 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     if (password == null)
       throw new NullPointerException("password");
 
+    
     Connection connection = null;
     if (dataSourceNameSpecified_  || (this instanceof AS400JDBCManagedConnectionPoolDataSource) )  // A datasource name has been specified, so use pooling.
     {
-      // Note: xpwConfuse() generates different output each time it's called against the same password, so we can't use it bo build the pool key.
-      JDConnectionPoolKey key = new JDConnectionPoolKey(user, password.hashCode());
+      // Note: xpwConfuse() generates different output each time it's called against the same password, so we can't use it to build the pool key.
+      JDConnectionPoolKey key = new JDConnectionPoolKey(user, CredentialVault.getHashCode(password));
       connection = getConnectionFromPool(key, password);  // Returns a connection handle or null.
 
       // The pooling implementation can return null if it can't produce a
@@ -880,6 +924,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
 
+ 
   /**
    Returns a database connection from the pool, or null if the connection pool is at or near capacity.
 
@@ -887,7 +932,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
    @return The connection.  May return null if pool is at or near capacity.
    @throws SQLException If a database error occurs.
    **/
-  private final AS400JDBCConnectionHandle getConnectionFromPool(JDConnectionPoolKey key, String password) throws SQLException
+  private final AS400JDBCConnectionHandle getConnectionFromPool(JDConnectionPoolKey key, char[] password) throws SQLException
   {
     if (JDTrace.isTraceOn()) {
       JDTrace.logInformation(this, "getConnectionFromPool(key,password) ");
@@ -899,7 +944,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
     if ((serialUserName_ == null) ||  (pwHashcode_ == 0)) { 
       if (key != null) serialUserName_ = key.getUser(); 
-      if (password != null) pwHashcode_ = password.hashCode() ; 
+      if (password != null) pwHashcode_ = CredentialVault.getHashCode(password) ; 
       
     }
     
@@ -1998,7 +2043,9 @@ return connection;
       if ((serialPWBytes_ != null) &&
           (serialPWBytes_.length > 0))
       {
-        as400_.setPassword(xpwDeconfuse(serialPWBytes_));
+    	  char[] passwordChars = AS400JDBCDataSource.xpwDeconfuseToChar(serialPWBytes_);
+        as400_.setPassword(passwordChars);
+        CredentialVault.clearArray(passwordChars);
       }
     }
 
@@ -2037,7 +2084,7 @@ return connection;
    **/
   public void invalidate(String user, String password)
   {
-    invalidate(user, (password == null ? null : xpwConfuse(password)));
+    invalidate(user, (password == null ? null : AS400JDBCDataSource.xpwConfuse(password)));
   }
 
   /**
@@ -2049,7 +2096,7 @@ return connection;
    **/
   private final void invalidate(String user, char[] pwBytes)
   {
-    int hash = (pwBytes == null ? 0 : xpwDeconfuse(pwBytes).hashCode());
+    int hash = (pwBytes == null ? 0 : CredentialVault.getHashCode(AS400JDBCDataSource.xpwDeconfuseToChar(pwBytes)));
     JDConnectionPoolKey key = new JDConnectionPoolKey(user, hash);
     if (poolManager_ != null) poolManager_.invalidate(key);
   }
@@ -3574,12 +3621,26 @@ return connection;
     if (password == null)
       throw new NullPointerException(property);
 
-    char[] newSerialPWBytes = xpwConfuse(password);
+    char[] passwordChars = password.toCharArray(); 
+    setPassword(passwordChars); 
+   }
+
+    /**
+   Sets the 'password' property.
+   @param password The password.
+   **/
+  public void setPassword(char[] password)
+  {
+    final String property = "password";
+    if (password == null)
+      throw new NullPointerException(property);
+
+    char[] newSerialPWBytes = AS400JDBCDataSource.xpwConfuse(password);
     if (!Arrays.equals(newSerialPWBytes, serialPWBytes_)) {
       as400_.setPassword(password);
       invalidate(getUser(), serialPWBytes_);  // invalidate any pooled connections with old password
       serialPWBytes_ = newSerialPWBytes;
-      pwHashcode_    = password.hashCode();
+      pwHashcode_    = PasswordVault.getHashCode(password);
 
       connectionKeyNeedsUpdate_ = true;
       // Note: We deliberately do _not_ store the password into properties_.
@@ -3587,6 +3648,7 @@ return connection;
     logInformation(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));
     logProperty(property, "***");
   }
+
 
   /**
    Sets whether to prefetch data upon executing a SELECT statement.
@@ -5154,41 +5216,8 @@ public boolean isUseDrdaMetadataVersion()
     return getDataSourceName();
   }
 
-  // Twiddle password bytes.
-  // Note: This method generates different output each time it's called against the same password.
-  private static final char[] xpwConfuse(String info)
-  {
-    Random rng = new Random();
-    byte[] adderBytes = new byte[18];
-    rng.nextBytes(adderBytes);
-    char[] adder = BinaryConverter.byteArrayToCharArray(adderBytes);
-
-    byte[] maskBytes = new byte[14];
-    rng.nextBytes(maskBytes);
-    char[] mask = BinaryConverter.byteArrayToCharArray(maskBytes);
-
-    char[] infoBytes = xencode(adder, mask, info.toCharArray());
-    char[] returnBytes = new char[info.length() + 16];
-    System.arraycopy(adder, 0, returnBytes, 0, 9);
-    System.arraycopy(mask, 0, returnBytes, 9, 7);
-    System.arraycopy(infoBytes, 0, returnBytes, 16, info.length());
-
-    return returnBytes;
-  }
-
-  // Get clear password bytes back.
-  private static final String xpwDeconfuse(char[] info)
-  {
-    char[] adder = new char[9];
-    System.arraycopy(info, 0, adder, 0, 9);
-    char[] mask = new char[7];
-    System.arraycopy(info, 9, mask, 0, 7);
-    char[] infoBytes = new char[info.length - 16];
-    System.arraycopy(info, 16, infoBytes, 0, info.length - 16);
-
-    return new String(xdecode(adder, mask, infoBytes));
-  }
-
+  
+ 
   // Scramble some bytes.
   private static final char[] xencode(char[] adder, char[] mask, char[] bytes)
   {

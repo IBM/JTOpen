@@ -121,8 +121,23 @@ public class SecureAS400 extends AS400
      @param  systemName  The name of the system.
      @param  userId  The user profile name to use to authenticate to the system.
      @param  password  The user profile password to use to authenticate to the system.
+     @deprecated
      **/
     public SecureAS400(String systemName, String userId, String password)
+    {
+        super(systemName, userId, password);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
+        construct();
+    }
+
+        /**
+     Constructs a SecureAS400 object. It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
+     @param  systemName  The name of the system.
+     @param  userId  The user profile name to use to authenticate to the system.
+     @param  password  The user profile password to use to authenticate to the system.
+    
+     **/
+    public SecureAS400(String systemName, String userId, char[] password)
     {
         super(systemName, userId, password);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
@@ -135,6 +150,7 @@ public class SecureAS400 extends AS400
      @param  userId  The user profile name to use to authenticate to the system.
      @param  password  The user profile password to use to authenticate to the system.
      @param  proxyServer  The name and port in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
+     @deprecated
      **/
     public SecureAS400(String systemName, String userId, String password, String proxyServer)
     {
@@ -143,6 +159,26 @@ public class SecureAS400 extends AS400
         construct();
     }
 
+
+        /**
+     Constructs a SecureAS400 object.  It uses the specified system, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
+     @param  systemName  The name of the system.
+     @param  userId  The user profile name to use to authenticate to the system.
+     @param  password  The user profile password to use to authenticate to the system.
+     @param  proxyServer  The name and port in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
+
+     **/
+    public SecureAS400(String systemName, String userId, char[] password, String proxyServer)
+    {
+        super(systemName, userId, password, proxyServer);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
+        construct();
+    }
+
+
+    
+    
+    
     /**
      Constructs a SecureAS400 object.  It uses the same system name and user ID.  This does not create a clone.  The new SecureAS400 object has the same behavior, but results in a new set of socket connections.
      @param  system  A previously instantiated AS400 or SecureAS400 object.
@@ -167,11 +203,43 @@ public class SecureAS400 extends AS400
      @param  password  The user profile password.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
+     @deprecated
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "'");
         addPasswordCacheEntry(new SecureAS400(systemName, userId, password));
+    }
+
+        /**
+     Validates the user ID and password against the system, and if successful, adds the information to the password cache.
+     @param  systemName  The name of the system.
+     @param  userId  The user profile name.
+     @param  password  The user profile password.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     **/
+    public static void addPasswordCacheEntry(String systemName, String userId, char[] password) throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "'");
+        addPasswordCacheEntry(new SecureAS400(systemName, userId, password));
+    }
+
+
+    /**
+     Validates the user ID and password against the system, and if successful, adds the information to the password cache.
+     @param  systemName  The name of the system.
+     @param  userId  The user profile name.
+     @param  password  The user profile password.
+     @param  proxyServer  The name and port in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @deprecated
+     **/
+    public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
+        addPasswordCacheEntry(new SecureAS400(systemName, userId, password, proxyServer));
     }
 
     /**
@@ -183,7 +251,7 @@ public class SecureAS400 extends AS400
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      **/
-    public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException
+    public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
         addPasswordCacheEntry(new SecureAS400(systemName, userId, password, proxyServer));
