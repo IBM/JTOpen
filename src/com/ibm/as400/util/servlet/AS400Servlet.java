@@ -303,6 +303,7 @@ public abstract class AS400Servlet extends AuthenticationServlet
      *  @exception ConnectionPoolException If a connection pool error occurs. 
      *
      *  @return The system object.
+     *  @deprecated Use getSystem(String systemName, String userId, char[] password) instead.
      **/
     public AS400 getSystem(String systemName, String userId, String password)
 		throws ConnectionPoolException                 
@@ -323,6 +324,38 @@ public abstract class AS400Servlet extends AuthenticationServlet
         { }
 
 	return sys;    
+    }
+   
+    /**
+     *  Returns an object representing the system. It uses the specified <i>systemName</i>, <i>user ID</i>, and <i>password</i>.  
+     *
+     *  @param  systemName  The name of the system.  
+     *  @param  userId  The user ID to use to connect to the system.  
+     *  @param  password  The password to use to connect to the system.  
+     *
+     *  @exception ConnectionPoolException If a connection pool error occurs. 
+     *
+     *  @return The system object.
+     **/
+    public AS400 getSystem(String systemName, String userId, char[] password)
+    throws ConnectionPoolException                 
+    {
+        AS400 sys = null;
+
+        if (connectionPool_ != null)
+            sys = connectionPool_.getConnection(systemName, userId, password);
+        else
+            sys = new AS400(systemName, userId, password);
+
+        try
+        {
+            // do this so the signon dialog or expiration warning will not display                            // @B2A
+            sys.setGuiAvailable(false);
+        }
+        catch (PropertyVetoException e)
+        { }
+
+  return sys;    
     }
    
     

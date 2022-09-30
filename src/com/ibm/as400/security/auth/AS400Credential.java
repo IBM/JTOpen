@@ -1201,7 +1201,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
          getSystem().resetAllServices();
          // Reset the system user ID & password to force re-resolve
          getSystem().setUserId("*CURRENT");
-         getSystem().setPassword("*CURRENT");
+         getSystem().setPassword("*CURRENT".toCharArray());
          // Request a service port to take system out of unset state
          getSystem().getServicePort(AS400.SIGNON);
          // Signal completion

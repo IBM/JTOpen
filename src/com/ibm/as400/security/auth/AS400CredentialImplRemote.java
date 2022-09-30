@@ -12,7 +12,6 @@ package com.ibm.as400.security.auth;
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
-import com.ibm.as400.access.ExtendedIllegalStateException;
 import com.ibm.as400.access.Trace;
 /**
  * The AS400CredentialImplRemote class provides the
