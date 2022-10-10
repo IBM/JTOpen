@@ -732,7 +732,8 @@ endif */
     return currentConnection_.checkHoldabilityConstants(holdability);
   }
 
-  public synchronized void checkOpen() throws SQLException {
+  // Do not synchronize as this is called by cancel
+  public void checkOpen() throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {

@@ -319,6 +319,7 @@ package com.ibm.as400.access;
 //@AH4   20220823  Set SECMEC value for password level 4 for DDM SECCHK Request
 //@AH5   20220823  Fix swap user failure when user is disabled or expired.
 //@AH6   20220929  Deprecate interfaces where password passed as a String
+//@AH7   20221010  JDBC:  Permit cancel when using seamless failover
 // 
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
@@ -329,8 +330,8 @@ public interface Copyright
     public static String copyright = "Copyright (C) 1997-2020 International Business Machines Corporation and others.";
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 11.0"; 
-    //                                                                                                 built=20220629 automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R5M0.00 built=20220929 @AH6";  
+    //                                                                                                 built=20221010 automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R5M0.00 built=20221010 @AH7";  
 
 
     // Constants for reference by AS400JDBCDriver.
