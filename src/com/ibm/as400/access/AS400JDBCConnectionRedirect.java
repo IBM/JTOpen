@@ -1078,12 +1078,14 @@ endif */
 
   }
 
-  public synchronized String getServerJobIdentifier() {
+  // Do not synchronize, just use the current information with whatever the currentConnection_ happens to be. 
+  public String getServerJobIdentifier() {
     return currentConnection_.getServerJobIdentifier();
 
   }
 
-  public synchronized int getServerFunctionalLevel() {
+  // Do not synchronize, just use the current information with whatever the currentConnection_ happens to be. 
+  public int getServerFunctionalLevel() {
     return currentConnection_.getServerFunctionalLevel();
 
   }
@@ -2354,37 +2356,37 @@ endif */
 
   }
 
-  public synchronized boolean isQueryTimeoutMechanismCancel() {
+  public boolean isQueryTimeoutMechanismCancel() {
     return currentConnection_.isQueryTimeoutMechanismCancel();
 
   }
 
-  public synchronized void setupVariableFieldCompression() {
+  public void setupVariableFieldCompression() {
     currentConnection_.setupVariableFieldCompression();
 
   }
 
-  public synchronized boolean useVariableFieldCompression() {
+  public boolean useVariableFieldCompression() {
     return currentConnection_.useVariableFieldCompression();
 
   }
 
-  public synchronized boolean useVariableFieldInsertCompression() {
+  public boolean useVariableFieldInsertCompression() {
     return currentConnection_.useVariableFieldInsertCompression();
 
   }
 
-  public synchronized void setDisableCompression(boolean disableCompression_) {
+  public void setDisableCompression(boolean disableCompression_) {
     currentConnection_.setDisableCompression(disableCompression_);
 
   }
 
-  public synchronized void dumpStatementCreationLocation() {
+  public void dumpStatementCreationLocation() {
     currentConnection_.dumpStatementCreationLocation();
 
   }
 
-  public synchronized boolean testDataTruncation(AS400JDBCStatement statementWarningObject,
+  public boolean testDataTruncation(AS400JDBCStatement statementWarningObject,
       AS400JDBCResultSet resultSetWarningObject, int parameterIndex,
       boolean isParameter, SQLData data, JDSQLStatement sqlStatement)
       throws SQLException {
@@ -2404,16 +2406,16 @@ endif */
 
   }
 
-  public synchronized ConvTable getConverter() {
+  public ConvTable getConverter() {
     return currentConnection_.getConverter();
   }
 
-  public synchronized void setLastServerSQLState(String lastSqlState) {
+  public void setLastServerSQLState(String lastSqlState) {
     currentConnection_.setLastServerSQLState(lastSqlState);
 
   }
 
-  public synchronized String getLastServerSQLState() {
+  public  String getLastServerSQLState() {
     return currentConnection_.getLastServerSQLState();
   }
 
