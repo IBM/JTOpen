@@ -164,6 +164,8 @@ public class FTP implements java.io.Serializable
 
     private transient FTPThread activeModeObject_;
     private transient Thread activeModeThread_;
+    
+    private int socketTimeOut_ = 0; //@AH8
 
 // -----------------------------------------------------------------------
    /**
@@ -2456,7 +2458,8 @@ public class FTP implements java.io.Serializable
     final Socket getDataSocket()
       throws IOException
     {
-        // Try the extended passive command.
+        Socket sc;
+    	// Try the extended passive command.
         String response = issueCommand("EPSV");
         if (response.startsWith("229"))
         {
@@ -2489,12 +2492,18 @@ public class FTP implements java.io.Serializable
 
             // Extract the port number from the response.
             int port = Integer.parseInt(response.substring(begin, end));
-            return new Socket(server_, port);
+            sc = new Socket(server_, port);
+            if (socketTimeOut_ > 0) //@AH8A
+            	sc.setSoTimeout(socketTimeOut_);
+            return sc; //new Socket(server_, port);
         }
         // System may not support EPSV, fallback to the passive command.
         response = issueCommand("PASV");
         int p = extractPortAddress(response);
-        return new Socket(server_, p);
+        sc = new Socket(server_, p);
+        if (socketTimeOut_ > 0) //@AH8A
+        	sc.setSoTimeout(socketTimeOut_);
+        return sc;//new Socket(server_, p);
     }
 
 
@@ -2506,6 +2515,11 @@ public class FTP implements java.io.Serializable
       if (property != null) {
         reuseSocket_ = (property.equalsIgnoreCase("true") ? true : false);
       }
+    }
+    
+    //@AH8A
+    public void setTimeOut(int socketTimeOut) {
+    	socketTimeOut_ = socketTimeOut;
     }
 
 }
