@@ -155,7 +155,7 @@ public class AS400ImplRemote implements AS400Impl {
   // disconnect.
   byte[] clientSeed_;
   
-  private int UserHandle2_ = UNINITIALIZED; //TODO @ZZA
+  private int UserHandle2_ = UNINITIALIZED;
 
   private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
   static {
@@ -1130,13 +1130,14 @@ public class AS400ImplRemote implements AS400Impl {
           socket.getOutputStream(), "ISO8859_1"), true);
 
       readFTPLine(reader);
-
-      writer.println("USER " + userId_);
+      writer.print("USER " + userId_+ "\r\n"); //@AI1
+      writer.flush();
       readFTPLine(reader);
-
-      writer.println("PASS "
-          + new String(BinaryConverter.byteArrayToCharArray(credVault_
-              .getClearCredential())));
+      writer.print("PASS " 
+              + new String(BinaryConverter.byteArrayToCharArray(credVault_
+            		  .getClearCredential())) + "\r\n"); //@AI1
+      writer.flush(); //@AI1
+      
       if (!readFTPLine(reader).startsWith("230"))
         throw new IOException();
 
