@@ -48,6 +48,8 @@ class PcmlData extends PcmlDocNode
     public static final int DATE        =  8; // PCML version 6.0
     public static final int TIME        =  9; // PCML version 6.0
     public static final int TIMESTAMP   = 10; // PCML version 6.0
+    
+    public static final int VARCHAR = 11; //TODO
 
     // Largest length= supported for type="char" and type="byte"
     public static final int MAX_STRING_LENGTH = 16*1024*1024-4112;          // @C6C @L17C Support max size of 16MB. 4112 is the header size for single level store
@@ -450,7 +452,7 @@ class PcmlData extends PcmlDocNode
     // Get Java native value
     final Object getValue(PcmlDimensions indices) throws PcmlException
     {
-        if (m_Type == CHAR)                                     // @C9A
+        if (m_Type == CHAR || m_Type == VARCHAR)                                     // @C9A @AI2C
         {
             return getStringValue(indices, m_Bidistringtype);   // @C9A
         }
@@ -480,8 +482,8 @@ class PcmlData extends PcmlDocNode
         if ( indices.size() >= getNbrOfDimensions() )                   // @C9A
         {
             PcmlDataValues values = getPcmlDataValues(indices);         // @C9A
-            if (m_Type == CHAR)                                         // @CBA
-                values.setStringType(type); // Set the string type             @C9A
+            if (m_Type == CHAR || m_Type == VARCHAR)                                         // @CBA
+                values.setStringType(type); // Set the string type      @C9A
             val = values.getValue();    // Get the value              @C9A @CAC
             if (val == null)                                            // @CBA
             {
@@ -1748,7 +1750,7 @@ class PcmlData extends PcmlDocNode
         m_TypeStr = type;
 
         // char | int | packed | zoned | float | byte | struct
-        //      | date | time | timestamp
+        //      | date | time | timestamp | varchar
         if (type.equals("char"))
             m_Type = CHAR;
         else if (type.equals("int"))
@@ -1769,6 +1771,8 @@ class PcmlData extends PcmlDocNode
             m_Type = TIME;
         else if (type.equals("timestamp"))
             m_Type = TIMESTAMP;
+        else if (type.equals("varchar"))  //@AI2A
+        	m_Type = VARCHAR;
 
 
         else  // none of the above
@@ -1979,6 +1983,7 @@ class PcmlData extends PcmlDocNode
             switch (getDataType())
             {
                 case CHAR:
+                case VARCHAR:   //@AI2A
                 case BYTE:
                     break;
                 default:
@@ -2018,6 +2023,7 @@ class PcmlData extends PcmlDocNode
                 switch (getDataType())
                 {
                     case CHAR:
+                    case VARCHAR: //@AI2A
                     case BYTE:
                         if ( m_Length < 0 || m_Length > (MAX_STRING_LENGTH) )
                         {
@@ -2215,6 +2221,7 @@ class PcmlData extends PcmlDocNode
             {
                 // precision= is not allowed for these data types
                 case CHAR:
+                case VARCHAR: //@AI2A
                 case BYTE:
                 case FLOAT:
                 case STRUCT:
@@ -2342,7 +2349,7 @@ class PcmlData extends PcmlDocNode
             }                                                       // @D2A
             else
             {
-                if (getDataType() != CHAR)                             // @D2A
+                if (getDataType() != CHAR && getDataType() != VARCHAR)                             // @D2A @AI2C
                 {
                   getDoc().addPcmlSpecificationError(DAMRI.ATTRIBUTE_NOT_ALLOWED, new Object[] {makeQuotedAttr("chartype",  getAttributeValue("chartype")), makeQuotedAttr("type", getDataTypeString()), getBracketedTagName(), getNameForException()} );
                 }
