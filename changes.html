@@ -48,6 +48,7 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 
 <HR>
 <H3>Contents</H3>
+<A HREF="#111">Fixes and enhancements in JTOpen 11.1</A><br>
 <A HREF="#110">Fixes and enhancements in JTOpen 11.0</A><br>
 <A HREF="#107_1">Fixes and enhancements in JTOpen 10.7.1</A><br>
 <A HREF="#107">Fixes and enhancements in JTOpen 10.7</A><br>
@@ -114,6 +115,26 @@ fail to serialize when running in Java 6 JVMs.  These classes include:
 <A HREF="#41">Fixes and enhancements in JTOpen 4.1</A><BR>
 <A HREF="#40">Fixes and enhancements in JTOpen 4.0</A>
 <P>
+
+<HR>
+<H3><A NAME="111">Fixes and enhancements in JTOpen 11.1</A> <i>released 2022-11-04</i></H3>
+<Pre>
+Add constructor AS400JDBCConnectionPoolDataSource(AS400)
+Add new attribute boolean in pcml 
+Deprecate interfaces where password passed as a String
+Fix AS400FTP issue when send user and password
+Fix MemberDescription ten characters issue and need set ccsid for member name
+JDBC: Close network socket on error 
+JDBC: ConnectionPool do not error if setThreadUsed does not change setting
+JDBC: javadoc updates
+JDBC:  Permit cancel when using seamless failover
+JDBC: Update trace to include system name with RDB name
+Set SECMEC value for password level 4 for DDM SECCHK Request
+Support VARCHAR in PCML
+Support to set socket timeout for FTP
+Update copyright AH3 - AH5
+Update URL for Toolbox Java doc
+</Pre>
 
 <HR>
 <H3><A NAME="110">Fixes and enhancements in JTOpen 11.0</A> <i>released 2022-04-13</i></H3>
