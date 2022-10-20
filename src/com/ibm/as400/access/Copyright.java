@@ -324,6 +324,7 @@ package com.ibm.as400.access;
 //@AH9   20221017  Add boolean attribute in PCML (pcml.dtd)
 //@AI1   20221017  AS400FTP send \r\n when send user and pwd
 //@AI2   20221017  Support VARCHAR in pcml.
+//@AI3   20221020  Fix parse issue when non-ASCII characters in PCML
 // 
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
@@ -335,7 +336,7 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 11.1"; 
     //                                                                                                 built=20221010 automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R5M0.00 built=20221010 @AI2";  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R5M0.00 built=20221010 @AI3";  
 
 
     // Constants for reference by AS400JDBCDriver.
