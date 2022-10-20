@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="US-ASCII"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--///////////////////////////////////////////////////////////////////////////
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                              
@@ -76,6 +76,7 @@
 
           dateseparator (ampersand | blank | comma | hyphen | period | slash | none) #IMPLIED
           timeseparator (ampersand | blank | colon | comma | period | none) #IMPLIED
+
           boolean (true | false) #IMPLIED
 >
 
