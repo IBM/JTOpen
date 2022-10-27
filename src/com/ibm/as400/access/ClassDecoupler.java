@@ -191,9 +191,36 @@ public class ClassDecoupler
       } else {      
         throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
       }
-        
-        
+    } else {
+    	// Check to see if we need to upgrade to AES
+        if (ACCSECRep.aesUpgrade()) {
+            try { 
+              if (Trace.traceOn_) {
+                Trace.log(Trace.DIAGNOSTIC, "ClassDecoupler: Upgrading to AES due to server negotiation");
+              }
+                keyPair = DDMTerm.getAESKeyPair();
+                forceAES = true; 
+            } catch (GeneralSecurityException e) {
+              ServerStartupException serverStartupException = new ServerStartupException(
+                  ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+              serverStartupException.initCause(e);
+              throw serverStartupException; 
+            }
+            
+            ACCSECReq = new DDMACCSECRequestDataStream(aesEncryption, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
+            if (Trace.traceOn_) ACCSECReq.setConnectionID(connectionID);
+            ACCSECReq.write(outStream);
+
+            ACCSECRep = new DDMACCSECReplyDataStream();
+            if (Trace.traceOn_) ACCSECRep.setConnectionID(connectionID);
+            ACCSECRep.read(inStream);
+            
+            if (!ACCSECRep.checkReplyForEUSRIDPWD(byteType_)) {
+                throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+            }
+         }
     }
+
     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "DDM ACCSEC successful.");
 
     // Seeds for substitute password generation.
