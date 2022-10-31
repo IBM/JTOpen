@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<TITLE>IBM Toolbox for Java Example: Using Record-level Access Classes</TITLE>
+</head>
+<BODY>
+<H3>Example: Using record-level access classes to read records from a file</H3>
+<p><b>Note:</b> Read the <a href="codedisclaimer.htm">Code example disclaimer</a>
+for important legal information.
+</p>
+
+<PRE>///////////////////////////////////////////////////////////////////////////////
+//
+// Record-Level Access example.  This program uses the record-level
+// access classes to read records from a file on the system.
+//
+// Command syntax:
+//    java RLReadFile system
+//
+// This program reads the records from CA/400's sample database file
+// (QCUSTCDT in library QIWS).  If you change this example to update
+// records you should make a copy of QCUSTCDT and update the copy.
+//
+// This source is an example of IBM Toolbox for Java &quot;Record-level access&quot;.
+//
+///////////////////////////////////////////////////////////////////////////////
+
+
+import java.io.*;
+import java.util.*;
+import java.math.*;
+import com.ibm.as400.access.*;
+
+public class RLReadFile extends Object
+{
+   public static void main(String[] parameters)
+   {
+
+      String system = &quot;&quot;;
+
+      // Continue only if a system name was specified.
+
+      if (parameters.length >= 1)
+      {
+
+         try
+         {
+
+            // Assume the first parameter is the system name.
+
+            system = parameters[0];
+
+            // Create an AS400 object for the system that has the file.
+
+            AS400 as400 = new AS400(system);
+
+
+            // Create a record description for the file.  The file is QCUSTCDT
+            // in library QIWS.
+  
+            ZonedDecimalFieldDescription customerNumber =
+                          new ZonedDecimalFieldDescription(new AS400ZonedDecimal(6,0),
+                                                           &quot;CUSNUM&quot;);
+            CharacterFieldDescription lastName =
+                          new CharacterFieldDescription(new AS400Text(8, as400), &quot;LSTNAM&quot;);
+
+            CharacterFieldDescription initials =
+                          new CharacterFieldDescription(new AS400Text(3, as400), &quot;INIT&quot;);
+
+            CharacterFieldDescription street =
+                          new CharacterFieldDescription(new AS400Text(13, as400), &quot;STREET&quot;);
+
+            CharacterFieldDescription city =
+                          new CharacterFieldDescription(new AS400Text(6, as400), &quot;CITY&quot;);
+
+            CharacterFieldDescription state =
+                          new CharacterFieldDescription(new AS400Text(2, as400), &quot;STATE&quot;);
+
+            ZonedDecimalFieldDescription zipCode =
+                          new ZonedDecimalFieldDescription(new AS400ZonedDecimal(5,0),
+                                                           &quot;ZIPCOD&quot;);
+            ZonedDecimalFieldDescription creditLimit =
+                          new ZonedDecimalFieldDescription(new AS400ZonedDecimal(4,0),
+                                                           &quot;CDTLMT&quot;);
+            ZonedDecimalFieldDescription chargeCode =
+                          new ZonedDecimalFieldDescription(new AS400ZonedDecimal(1,0),
+                                                           &quot;CHGCOD&quot;);
+            ZonedDecimalFieldDescription balanceDue =
+                          new ZonedDecimalFieldDescription(new AS400ZonedDecimal(6,2),
+                                                           &quot;BALDUE&quot;);
+            ZonedDecimalFieldDescription creditDue =
+                          new ZonedDecimalFieldDescription(new AS400ZonedDecimal(6,2),
+                                                           &quot;CDTDUE&quot;);
+       
+ 
+            // The record format name should be specified for a DDM file.
+            // In the case of the QCUSTCDT file, its record format is called CUSREC.
+
+            RecordFormat qcustcdt = new RecordFormat(&quot;CUSREC&quot;);
+
+            qcustcdt.addFieldDescription(customerNumber);
+            qcustcdt.addFieldDescription(lastName);
+            qcustcdt.addFieldDescription(initials);
+            qcustcdt.addFieldDescription(street);
+            qcustcdt.addFieldDescription(city);
+            qcustcdt.addFieldDescription(state);
+            qcustcdt.addFieldDescription(zipCode);
+            qcustcdt.addFieldDescription(creditLimit);
+            qcustcdt.addFieldDescription(chargeCode);
+            qcustcdt.addFieldDescription(balanceDue);
+            qcustcdt.addFieldDescription(creditDue);
+
+
+            // Create the sequential file object that represents the
+            // file on the system.  We use a QSYSObjectPathName object
+            // to get the name of the file into the correct format.
+
+            QSYSObjectPathName fileName = new QSYSObjectPathName(&quot;QIWS&quot;,
+                                                                 &quot;QCUSTCDT&quot;,
+                                                                 &quot;FILE&quot;);
+
+            SequentialFile file = new SequentialFile(as400, fileName.getPath());
+
+
+            // Let the file object know the format of the records.
+
+            file.setRecordFormat(qcustcdt);
+
+
+            // Open the file for read-only access.  Specify a blocking
+            // factor of 10 (the file object will get 10 records when
+            // it accesses the system for data).  Do not use commitment
+            // control.
+
+            file.open(SequentialFile.READ_ONLY,
+                      10,
+                      SequentialFile.COMMIT_LOCK_LEVEL_NONE);
+
+
+            // Read the first record of the file.
+
+            Record data = file.readNext();
+
+
+            // Loop while there are records in the file (while we have not
+            // reached end-of-file).
+
+            while (data != null)
+            {
+
+               // Display the record only if balance due is greater than
+               // zero.  In that case display the customer name and
+               // the balance due.  The following code pulls fields out
+               // of the record by field name.  As the field is retrieved
+               // from the record it is converted from i5/OS format to
+               // Java format.
+
+               if (((BigDecimal)data.getField(&quot;BALDUE&quot;)).floatValue() > 0.0)
+               {
+                  System.out.print((String) data.getField(&quot;INIT&quot;) + &quot;  &quot;);
+                  System.out.print((String) data.getField(&quot;LSTNAM&quot;) + &quot;  &quot;);
+                  System.out.println((BigDecimal) data.getField(&quot;BALDUE&quot;));
+               }
+
+               // Read the next record in the file.
+
+               data = file.readNext();
+            }
+
+
+            // When there are no more records to read, disconnect from the system.
+
+            as400.disconnectAllServices();
+         }
+
+         catch (Exception e)
+         {
+
+            // If any of the above operations failed, print an error message
+            // and output the exception.
+
+            System.out.println(&quot;Could not read the file&quot;);
+            System.out.println(e);
+         }
+      }
+
+
+      // Display help text when parameters are incorrect.
+
+      else
+      {
+         System.out.println(&quot;&quot;);
+         System.out.println(&quot;&quot;);
+         System.out.println(&quot;&quot;);
+         System.out.println(&quot;Parameters are not correct.  Command syntax is:&quot;);
+         System.out.println(&quot;&quot;);
+         System.out.println(&quot;   RLReadFile as400&quot;);
+         System.out.println(&quot;&quot;);
+         System.out.println(&quot;Where&quot;);
+         System.out.println(&quot;&quot;);
+         System.out.println(&quot;   as400 = system that contains the file&quot;);
+         System.out.println(&quot;&quot;);
+         System.out.println(&quot;For example:&quot;);
+         System.out.println(&quot;&quot;);
+         System.out.println(&quot;   RLReadFile mySystem&quot;);
+         System.out.println(&quot;&quot;);
+         System.out.println(&quot;&quot;);
+         System.out.println(&quot;Note, this program reads data base file QIWS/QCUSTCDT.  &quot;);
+         System.out.println(&quot;&quot;);
+         System.out.println(&quot;&quot;);
+      }
+
+      System.exit(0);
+
+   }
+}</PRE>
+</BODY>
+</HTML>
