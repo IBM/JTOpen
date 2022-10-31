@@ -1,0 +1,34 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (IBM Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: qcdrcmdd.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+
+<!-- PCML source for calling "Retrieve Command Definition" (QCDRCMDD) API -->
+
+  <!-- receiver -->
+  <struct name="recStruct">
+	<data name="bytesReturned" type="int" length="4"	init="0" />
+	<data name="bytesAvailable" type="int" length="4"	init="0" />
+	<data name="xml"			type="byte" length="bytesReturned" init=" " />
+  </struct>
+    
+  <program name="qcdrcmdd" path="/QSYS.LIB/QCDRCMDD.PGM" >
+    <data   name="name"           type="char"   length="20" usage="input" />
+    <data   name="length"		  type="int"    length="4"  usage="input"  init="49152" />
+    <data   name="formatName"	  type="char"   length="8"  usage="input"  init="DEST0100" />
+    <data   name="receiver"       type="struct" struct="recStruct" usage="output" outputsize="length" />
+    <data   name="receiverFormat" type="char"   length="8"  usage="input"  init="CMDD0100" />
+    <data   name="errorCode"      type="int"    length="4"  usage="input"  init="0" />
+  </program>    
+</pcml>
+
