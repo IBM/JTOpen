@@ -1,0 +1,161 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//
+// JTOpenLite
+//
+// Filename: build.xml
+//
+// The source code contained herein is licensed under the IBM Public License
+// Version 1.0, which has been approved by the Open Source Initiative.
+// Copyright (C) 1997-2012 International Business Machines Corporation and
+// others. All rights reserved.
+//
+///////////////////////////////////////////////////////////////////////////////
+//
+// The purpose of this build file is to easily build jtopenlite.jar.
+// This assumes that the source is available in the ${source} directory,
+// which is commonly ".".
+//
+///////////////////////////////////////////////////////////////////////////////
+//
+// Getting Started
+//
+//
+// Pre-requisites:
+//   - JDK 1.5 (or higher)
+//   - Apache Ant 1.5
+//
+// 1. In this file, change the value of the "build" property to be the directory
+//    where you want the JTOpen files to be downloaded and built to. It
+//    defaults to ".".
+//
+// 2. Make sure Ant is installed and in your CLASSPATH, and you are familiar
+//    with how to run builds using Ant.
+//    See http://ant.apache.org to download and read up on it.
+//    For those with less time on their hands, get the binary from:
+//    http://jakarta.apache.org/builds/jakarta-ant/release/v1.5/bin/
+//    Once installed, add the ant.jar to your CLASSPATH.
+//    To run a build:
+//      java org.apache.tools.ant.Main target1 target2 target3 ...
+//    This assumes that a "build.xml" file (such as this one) exists in your
+//    current directory. Override this by using the -file flag.
+//
+//
+// 7. Run any of the targets in this file. To build JTOpen cleanly, it is
+//    suggested that you run it like this:
+//
+//      java org.apache.tools.ant.Main clean clean-source source all
+//
+// 8. Output files will appear in the "dist" directory, as well as
+//    "javadoc" and the various "output*" directories.
+//
+///////////////////////////////////////////////////////////////////////////////
+//
+// Useful targets
+//    all            - Build jarfiles and javadoc
+//    clean          - Removes all built files and javadoc.
+//    jar            - Builds jtopenlite.jar
+//    srcjar         - Builds jtopenlite-src.jar
+//    javadoc        - Builds just the javadoc (assuming the source has been downloaded).
+//
+// Suggested build invocation:
+//
+//   java org.apache.tools.ant.Main clean all
+//
+// The resulting jar and zip files can be found in the "dist" subdirectory.
+// The resulting class files can be found in the various "output" subdirectories.
+// The resulting javadoc can be found in the "javadoc" subdirectory.
+//
+////////////////////////////////////////////////////////////////////////////-->
+
+<project name="JTOpenLite" basedir="." default="all">
+  <property name="source" value="."/>
+  <property name="build" value="/jtopenlite"/>
+  <property name="dist" value="${build}/dist"/>
+  <property name="output" value="${build}/output"/>
+  <property name="javadoc" value="${build}/javadoc"/>
+  <property name="doclink" value="http://download.oracle.com/javase/1.4.2/docs/api"/>
+
+
+
+	<target name="all" depends="jar,srcjar,javadoc">
+	</target>
+
+	<!--///////////////////////////////////////////////////////////////////////////
+	    // Target: init
+	    ///////////////////////////////////////////////////////////////////////////-->
+	  <target name="init">
+	    <tstamp/>
+	    <mkdir dir="${build}"/>
+	    <mkdir dir="${dist}"/>
+	    <mkdir dir="${javadoc}"/>
+	    <mkdir dir="${output}"/>
+	  </target>
+
+  <target name="jar" depends="compile-jtopenlite">
+    <jar jarfile="${dist}/jtopenlite.jar" >
+      <fileset dir="${output}" includes="**/*.class">
+      </fileset>
+    </jar>
+    <checksum file="${dist}/jtopenlite.jar"/>
+  </target>
+
+  <target name="srcjar">
+    <jar jarfile="${dist}/jtopenlite-src.jar" >
+      <fileset dir="${source}">
+        <filename name="**/*.java"/>
+      </fileset>
+    </jar>
+    <checksum file="${dist}/jtopenlite.jar"/>
+  </target>
+
+
+  <target name="compile-jtopenlite" depends="init">
+    <javac srcdir="${source}"
+           destdir="${output}"
+           memoryMaximumSize="256m"
+           failonerror="true"
+           debug="on"
+           debuglevel="lines,source"
+           fork="true"
+           encoding="iso-8859-1"
+           target="1.5">
+    <include name="com/ibm/jtopenlite/*.java"/>
+    <include name="com/ibm/jtopenlite/ccsidConversion/*.java"/>
+    <include name="com/ibm/jtopenlite/command/*.java"/>
+    <include name="com/ibm/jtopenlite/command/program/*.java"/>
+    <include name="com/ibm/jtopenlite/components/*.java"/>
+    <include name="com/ibm/jtopenlite/database/*.java"/>
+    <include name="com/ibm/jtopenlite/database/jdbc/*.java"/>
+    <include name="com/ibm/jtopenlite/ddm/*.java"/>
+    <include name="com/ibm/jtopenlite/file/*.java"/>
+
+   </javac>
+  </target>
+
+
+  <target name="javadoc" >
+    <javadoc packagenames="com.*"
+             sourcepath="${source}"
+             destdir="${javadoc}"
+             use="false"
+             link="${doclink}"
+             maxmemory="256m"
+             failonerror="true"
+             additionalparam="-breakiterator">
+    </javadoc>
+  </target>
+
+<target name="jdepend">
+
+  <jdepend outputfile="docs/jdepend-report.txt">
+      <exclude name="java.*"/>
+      <exclude name="javax.*"/>
+      <classespath>
+        <pathelement location="${output}" />
+      </classespath>
+      <classpath location="${output}" />
+  </jdepend>
+
+</target>
+
+</project>
