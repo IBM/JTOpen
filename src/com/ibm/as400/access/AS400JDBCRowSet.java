@@ -196,6 +196,21 @@ implements RowSet, Serializable             // @A3C
         setPassword(password);
     }
 
+    
+        /**
+    *  Constructs an AS400JDBCRowSet with the specified parameters.
+    *  @param url The url used to make the connection.
+    *  @param username The user name.
+    *  @param password The password.
+    **/
+    public AS400JDBCRowSet(String url, String username, char[] password)
+    {
+        this();
+        setUrl(url);
+        setUsername(username);
+        setPassword(password);
+    }
+
     /**
     *  Positions the cursor to an absolute row number.
     *
@@ -2970,6 +2985,24 @@ implements RowSet, Serializable             // @A3C
         confusedPasswordChars_ = AS400JDBCDataSource.xpwConfuse(password);
         changes_.firePropertyChange(property, "", password);
     }
+
+    
+        /**
+    *  Sets the password used to make the connection.
+    *  Note: This property has no effect unless the useDataSource property is set to false.
+    *  @param password The password.
+    **/
+    public void setPassword(char[] password)
+    {
+        String property = "password";
+        if (password == null)
+            throw new NullPointerException(property);
+        validateConnection();
+
+        confusedPasswordChars_ = AS400JDBCDataSource.xpwConfuse(password);
+        changes_.firePropertyChange(property, "", password);
+    }
+
 
     /**
     *  Sets the maximum wait time in seconds for a statement to execute.
