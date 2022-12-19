@@ -160,6 +160,22 @@ Returns an XA connection to IBM i.
    }
    
 
+   /**
+Returns an XA connection to IBM i.
+
+@param user The userid for the connection.
+@param password The password for the connection.
+@return An XA connection.
+@exception SQLException If a database error occurs.
+**/
+   public XAConnection getXAConnection(String user, char[] password) 
+   throws SQLException
+   {
+       AS400JDBCConnection connection = (AS400JDBCConnection)getConnection(user, password);
+       return new AS400JDBCXAConnection(connection);
+   }
+   
+
 
 /**
 Returns the Reference object for the data source object.
