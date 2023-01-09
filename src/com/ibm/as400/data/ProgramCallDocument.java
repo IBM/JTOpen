@@ -1117,6 +1117,28 @@ public class ProgramCallDocument implements Serializable, Cloneable
     {
         m_pcmlDoc.setStringValue(name, value, new PcmlDimensions(indices), type);           // @C9A
     }
+    
+   //@AI6A
+   public void setCharArrayValue(String name, char[] value)
+            throws PcmlException
+        {
+            setCharArrayValue(name, value, BidiStringType.DEFAULT);
+        }
+
+   //@AI6A
+   public void setCharArrayValue(String name, char[] value, int type)
+            throws PcmlException                                            
+        {
+            m_pcmlDoc.setCharArrayValue(name, value, type);                    
+        }
+
+   //@AI6A
+   public void setCharArrayValue(String name, int[] indices, char[] value, int type)
+            throws PcmlException                                            
+        {
+            m_pcmlDoc.setCharArrayValue(name, value, new PcmlDimensions(indices), type);           
+        }
+    
 
     /**
     Sets the PCML or XPCML document resource.

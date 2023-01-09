@@ -657,6 +657,19 @@ class PcmlDocument extends PcmlDocRoot
     {
         getDataNode(name).setStringValue(value, indices, type);  // @C7A
     }
+    
+    //@AI6A
+    synchronized void setCharArrayValue(String name, char[] value, int type) throws PcmlException  
+    {
+        setCharArrayValue(name, value, new PcmlDimensions(), type);     
+    }
+
+    //@AI6A
+    synchronized void setCharArrayValue(String name, char[] value, PcmlDimensions indices, int type)
+        throws PcmlException                                            
+    {
+        getDataNode(name).setCharArrayValue(value, indices, type);  
+    }
 
     // Overrides the threadsafe= attribute
     void setThreadsafeOverride(String program, boolean threadsafe)   // @C6A

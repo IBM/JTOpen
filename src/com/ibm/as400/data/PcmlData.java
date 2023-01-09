@@ -49,7 +49,7 @@ class PcmlData extends PcmlDocNode
     public static final int TIME        =  9; // PCML version 6.0
     public static final int TIMESTAMP   = 10; // PCML version 6.0
     
-    public static final int VARCHAR = 11; //TODO
+    public static final int VARCHAR = 11;
 
     // Largest length= supported for type="char" and type="byte"
     public static final int MAX_STRING_LENGTH = 16*1024*1024-4112;          // @C6C @L17C Support max size of 16MB. 4112 is the header size for single level store
@@ -532,6 +532,25 @@ class PcmlData extends PcmlDocNode
 
     // Set String value specifying string type
     final void setStringValue(String val, PcmlDimensions indices, int type)
+        throws PcmlException                                            // @C9A
+    {
+        // Make sure enough indices are specified
+        if ( indices.size() >= getNbrOfDimensions() )                   // @C9A
+        {
+            PcmlDataValues values = getPcmlDataValues(indices);         // @C9A
+            values.flushValues();       // Flush current values            @C9A
+            values.setStringType(type); // Set the string type             @C9A
+            values.setValue(val);       // Set the value                   @C9A
+        }
+        else
+        {
+            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {new Integer(indices.size()), new Integer(getNbrOfDimensions()), getNameForException()} );  // @C9A
+        }
+    }
+    
+    //@AI6A
+    // Set char[] value specifying string type
+    final void setCharArrayValue(char[] val, PcmlDimensions indices, int type)
         throws PcmlException                                            // @C9A
     {
         // Make sure enough indices are specified
