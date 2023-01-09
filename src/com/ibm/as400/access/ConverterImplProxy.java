@@ -124,4 +124,41 @@ class ConverterImplProxy extends AbstractProxyImpl implements ConverterImpl
             throw ProxyClientConnection.rethrow(e);
         }
     }
+    
+    //@AI5A
+    public byte[] charArrayToByteArray(char[] source)
+    {
+    	try
+        {
+            return(byte[])connection_.callMethod(pxId_, "stringToByteArray", new Class[] { String.class}, new Object[] { source }).getReturnValue();
+        }
+        catch (InvocationTargetException e)
+        {
+            throw ProxyClientConnection.rethrow(e);
+        }
+    }
+    
+    public byte[] charArrayToByteArray(char[] source, BidiConversionProperties properties)
+    {
+    	try
+        {
+            return(byte[])connection_.callMethod(pxId_, "stringToByteArray", new Class[] { String.class, BidiConversionProperties.class}, new Object[] { source, properties }).getReturnValue();
+        }
+        catch (InvocationTargetException e)
+        {
+            throw ProxyClientConnection.rethrow(e);
+        }
+    }
+
+	//@Override
+	public char[] byteArrayToCharArray(byte[] source, int offset, int length) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	//@Override
+	public char[] byteArrayToCharArray(byte[] source, int offset, int length, BidiConversionProperties properties) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

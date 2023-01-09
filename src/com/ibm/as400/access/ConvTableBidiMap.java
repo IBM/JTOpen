@@ -121,4 +121,64 @@ public abstract class ConvTableBidiMap extends ConvTable
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
         return dest;
     }
+    
+    //@AI5A
+    final char[] byteArrayToCharArray(byte[] buf, int offset, int length, BidiConversionProperties properties)
+    {
+        int type = properties.getBidiStringType();
+        if (Trace.traceConversion_)
+        {
+            Trace.log(Trace.CONVERSION, "Bidi String Type: " + type);
+            Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
+        }
+
+        char[] dest = new char[length];
+        // The 0x00FF is so we don't get any negative indices.
+        for (int i = 0; i < length; dest[i] = toUnicode_[0x00FF & buf[offset + (i++)]]);
+        if (type == BidiStringType.NONE)
+        {
+            if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string (no java layout was applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
+            return dest;
+        }
+
+        AS400BidiTransform abt = new AS400BidiTransform(ccsid_);
+        //Bidi-HCG-delete
+        //if (type == BidiStringType.DEFAULT && bidiStringType_ != BidiStringType.DEFAULT)
+        //{
+        //    properties.setBidiStringType(bidiStringType_);
+        //}
+        //abt.setBidiConversionProperties(properties);
+        abt.setBidiConversionProperties(properties);						//@Bidi-HCG3
+        abt.setJavaStringType(properties.getBidiStringType());				//@Bidi-HCG
+        abt.setAS400StringType(AS400BidiTransform.getStringType(ccsid_));	//@Bidi-HCG3
+        
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string (before java layout was applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
+
+        char[] destCharArray = abt.toJavaLayout(dest);
+
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string (after java layout was applied) for ccsid: " + ccsid_, ConvTable.dumpCharArray(destCharArray));
+
+        return destCharArray;
+    }
+
+    // Perform a Unicode to OS/400 CCSID conversion.
+    final byte[] charArrayToByteArray(char[] source, BidiConversionProperties properties)
+    {        
+    	if (Trace.traceConversion_)
+    		Trace.log(Trace.CONVERSION, "Converting string to byte array (before java layout was applied) for ccsid: " + ccsid_, 
+    				ConvTable.dumpCharArray(source));
+    	AS400BidiTransform abt = new AS400BidiTransform(ccsid_);
+    	abt.setBidiConversionProperties(properties);						//@Bidi-HCG3
+    	abt.setJavaStringType(properties.getBidiStringType());
+    	abt.setAS400StringType(AS400BidiTransform.getStringType(ccsid_));	//@Bidi-HCG3
+    	source = abt.toAS400Layout(source);
+    	
+    	//char[] src = source.toCharArray();//Bidi-HCG
+        
+        byte[] dest = new byte[source.length];
+        for (int i = 0; i < source.length; dest[i] = fromUnicode_[source[i++]]);
+
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
+        return dest;
+    }
 }

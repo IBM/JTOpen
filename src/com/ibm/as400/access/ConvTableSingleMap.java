@@ -98,6 +98,59 @@ public abstract class ConvTableSingleMap extends ConvTable
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, src.length);
     }
     
+    //@AI5A
+ // Perform an OS/400 CCSID to Unicode conversion.
+    final char[] byteArrayToCharArray(byte[] buf, int offset, int length, BidiConversionProperties properties)
+    {
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, 
+              "Converting byte array to string for ccsid: " + ccsid_+" offset:"+offset+" len:"+length, 
+              buf, offset, length);
+        char[] dest = new char[length];
+        // The 0x00FF is so we don't get any negative indices.
+        for (int i = 0; i < length; dest[i] = toUnicode_[0x00FF & buf[offset + (i++)]]);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
+        return dest;
+    }
+    
+    // Perform a Unicode to OS/400 CCSID conversion.
+    final byte[] charArrayToByteArray(char[] src, BidiConversionProperties properties)
+    {
+        //char[] src = source.toCharArray();
+        // Call char[] method.
+        return stringToByteArray(src, 0, src.length);
+    }
+
+    public final void charArrayToByteArray(char[] src, byte[] buf, int offset) throws CharConversionException
+    {
+        //char[] src = source.toCharArray();
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
+        try
+        {
+            for (int i = 0; i < src.length; buf[i + offset] = fromUnicode_[src[i++]]);
+        }
+        catch (ArrayIndexOutOfBoundsException aioobe)
+        {
+            throw new CharConversionException();
+        }
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, src.length);
+    }
+
+    public final void charArrayToByteArray(char[] src, byte[] buf, int offset, int length) throws CharConversionException
+    {
+        //char[] src = source.toCharArray();
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
+        try
+        {
+            for (int i = 0; i < src.length && i < length; buf[i + offset] = fromUnicode_[src[i++]]);
+        }
+        catch (ArrayIndexOutOfBoundsException aioobe)
+        {
+            throw new CharConversionException();
+        }
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, src.length);
+    }
+    //@AI5A End
+    
     public void updateToUnicode(int ebcdic, char unicode) {
       char[] oldToUnicode = toUnicode_; 
       

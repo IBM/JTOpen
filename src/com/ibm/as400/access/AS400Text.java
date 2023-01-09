@@ -308,7 +308,7 @@ public class AS400Text implements AS400DataType
 
     /**
      Converts the specified Java object to IBM i format.
-     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
+     @param  javaValue  The object corresponding to the data type.  It must be an instance of String or Char array, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
      @return  The IBM i representation of the data type.
      **/
     public byte[] toBytes(Object javaValue)
@@ -320,7 +320,7 @@ public class AS400Text implements AS400DataType
 
     /**
      Converts the specified Java object into IBM i format in the specified byte array.
-     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
+     @param  javaValue  The object corresponding to the data type.  It must be an instance of String or Char array, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
      @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
      @return  The number of bytes in the IBM i representation of the data type.
      **/
@@ -331,7 +331,7 @@ public class AS400Text implements AS400DataType
 
     /**
      Converts the specified Java object into IBM i format in the specified byte array.
-     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
+     @param  javaValue  The object corresponding to the data type.  It must be an instance of String or Char array, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
      @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
      @param  offset  The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
      @return  The number of bytes in the IBM i representation of the data type.
@@ -363,7 +363,7 @@ public class AS400Text implements AS400DataType
 
     /**
      Converts the specified Java object into IBM i format in the specified byte array.
-     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
+     @param  javaValue  The object corresponding to the data type.  It must be an instance of String or Char array, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
      @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
      @param  offset  The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
      @param  type  The bidi string type, as defined by the CDRA (Character Data Representation Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
@@ -377,7 +377,7 @@ public class AS400Text implements AS400DataType
 
     /**
      Converts the specified Java object into IBM i format in the specified byte array.
-     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
+     @param  javaValue  The object corresponding to the data type.  It must be an instance of String or Char array, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
      @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
      @param  offset  The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
      @param  properties  The bidi conversion properties.
@@ -396,12 +396,19 @@ public class AS400Text implements AS400DataType
         setTable();
 
         // We need to pad the String before the conversion in the case of a Bidi CCSID, because the Bidi transform needs to affect the entire String so it knows where the padding spaces need to go.
-        String toConvert = (String)javaValue;
+        //@AI15C
+        char[] cbuf = null;
+        String toConvert = null;
+        if (javaValue instanceof char[]) {
+        	cbuf = (char[]) javaValue;
+        } else {
+        	toConvert = (String)javaValue;
+        }
 
         // We can't pad the String after the transform if we're bidi.
         if (AS400BidiTransform.isBidiCcsid(ccsid_)) // We can use ccsid_ since we already called setTable().
         {
-            int realLength = toConvert.length();
+            int realLength = (toConvert!=null?toConvert.length():cbuf.length);
             // Cases where we are Bidi, but we are DBCS.
             if (ccsid_ == 13488 || ccsid_ == 61952)
             {
@@ -415,7 +422,10 @@ public class AS400Text implements AS400DataType
             }
             if (numPadBytes > 0)
             {
-                char[] cbuf = toConvert.toCharArray();
+                //char[] cbuf = toConvert.toCharArray();
+            	if (cbuf == null) { //@AI15C
+            		cbuf = toConvert.toCharArray();
+            	}
                 // Since all of our Bidi maps are SBCS, we can add one char for each extra byte we need.
                 char[] paddedBuf = new char[cbuf.length + numPadBytes];
                 System.arraycopy(cbuf, 0, paddedBuf, 0, cbuf.length);
@@ -423,14 +433,16 @@ public class AS400Text implements AS400DataType
                 {
                     paddedBuf[i] = (char)0x0020; // SBCS space
                 }
-                toConvert = new String(paddedBuf);
+                //toConvert = new String(paddedBuf); @AI15D
+                cbuf = paddedBuf;
                 if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Pre-padded Bidi String with " + numPadBytes + " spaces from '" + javaValue + "' to '" + toConvert + "'");
             }
             //Bidi-HCG: Bidi transformation is excluded from stringToByteArray() now, so do it here       
         	//Bidi-HCG2 toConvert = AS400BidiTransform.bidiTransform(toConvert,properties.getBidiStringType(), AS400BidiTransform.getStringType(ccsid_));                        
         }
         
-        byte[] eValue = tableImpl_.stringToByteArray(toConvert, properties);
+        //byte[] eValue = tableImpl_.stringToByteArray(toConvert, properties); TODO
+        byte[] eValue = tableImpl_.charArrayToByteArray(cbuf, properties);
 
         // Check that converted data fits within data type.
         if (eValue.length > length_)
@@ -578,5 +590,72 @@ public class AS400Text implements AS400DataType
     	else
     		return system_.getBidiStringType();
     		
+    }
+    
+    //@AI15A
+    public Object toCharArray(byte[] serverValue)
+    {
+        // Check here to avoid sending bad data to Converter and ConvTable.
+        if (serverValue == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'serverValue' is null.");
+            throw new NullPointerException("serverValue");
+        }
+        setTable(); // Make sure the table is set.
+        
+        //@Bidi-HCG3 return tableImpl_.byteArrayToString(serverValue, 0, length_);        
+        return tableImpl_.byteArrayToCharArray(serverValue, 0, length_, new BidiConversionProperties(getSystemBidiType()));//Bidi-HCG3
+    }
+
+    /**
+     Converts the specified IBM i data type to a Java object.
+     @param  serverValue  The array containing the data type in IBM i format.  The entire data type must be represented.
+     @param  offset  The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
+     @return  The String object corresponding to the data type.
+     **/
+    public Object toCharArray(byte[] serverValue, int offset)
+    {
+        // Check here to avoid sending bad data to Converter and ConvTable.
+        if (serverValue == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'serverValue' is null.");
+            throw new NullPointerException("serverValue");
+        }
+        setTable(); // Make sure the table is set.
+        
+        //@Bidi-HCG3 return tableImpl_.byteArrayToString(serverValue, offset, length_);        
+        return tableImpl_.byteArrayToCharArray(serverValue, offset, length_, new BidiConversionProperties(getSystemBidiType()));//Bidi-HCG3
+    }
+
+    /**
+     Converts the specified IBM i data type to a Java object.
+     @param  serverValue  The array containing the data type in IBM i format.  The entire data type must be represented.
+     @param  offset  The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
+     @param  type  The bidi string type, as defined by the CDRA (Character Data Representation Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
+     @return  The String object corresponding to the data type.
+     @see com.ibm.as400.access.BidiStringType
+     **/
+    public Object toCharArray(byte[] serverValue, int offset, int type)
+    {
+        return toCharArray(serverValue, offset, new BidiConversionProperties(type));
+    }
+
+    /**
+     Converts the specified IBM i data type to a Java object.
+     @param  serverValue  The array containing the data type in IBM i format.  The entire data type must be represented.
+     @param  offset  The offset into the byte array for the start of the IBM i value. It must be greater than or equal to zero.
+     @param  properties  The bidi conversion properties.
+     @return  The String object corresponding to the data type.
+     **/
+    public Object toCharArray(byte[] serverValue, int offset, BidiConversionProperties properties)
+    {
+        // Check here to avoid sending bad data to Converter and ConvTable.
+        if (serverValue == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'serverValue' is null.");
+            throw new NullPointerException("serverValue");
+        }
+        setTable(); // Make sure the table is set
+        return tableImpl_.byteArrayToCharArray(serverValue, offset, length_, properties);
     }
 }

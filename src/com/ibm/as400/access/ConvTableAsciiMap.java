@@ -61,4 +61,24 @@ public abstract class ConvTableAsciiMap extends ConvTable
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
         return dest;
     }
+    
+    //@AI5A
+    // Perform an OS/400 CCSID to Unicode conversion.
+    final char[] byteArrayToCharArray(byte[] buf, int offset, int length, BidiConversionProperties properties)
+    {
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
+        char[] dest = new char[length];
+        // The 0x00FF is so we don't get any negative indices.
+        for (int i=0; i<length; dest[i] = toUnicode_[0x00FF & buf[offset + (i++)]]);
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
+        return dest;
+    }
+
+    // Perform a Unicode to OS/400 CCSID conversion.
+    final byte[] charArrayToByteArray(char[] src, BidiConversionProperties properties)
+    {
+        //char[] src = source.toCharArray();
+        // Call char[] method.
+        return stringToByteArray(src, 0, src.length);
+    }
 }

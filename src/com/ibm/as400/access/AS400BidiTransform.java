@@ -383,6 +383,15 @@ public class AS400BidiTransform
         BidiText src = new BidiText(bdxJ2A_.flags, as400Text);
         return src.transform(bdxA2J_).toString();
     }
+    
+    //@AI5A
+    public char[] toJavaLayout(char[] as400Text)
+    {   lastTransform_ = bdxA2J_;
+    	if(as400Type_ == BidiStringType.NONE || javaType_ == BidiStringType.NONE || javaType_ == as400Type_)	//Bidi-HCG2
+    		return as400Text;																					//Bidi-HCG        
+        BidiText src = new BidiText(bdxJ2A_.flags, as400Text);
+        return src.transform(bdxA2J_).data;
+    }
 
     /**
      Convert data from the Java layout to the IBM i layout.
@@ -395,6 +404,15 @@ public class AS400BidiTransform
     		return javaText;																					//Bidi-HCG
         BidiText src = new BidiText(bdxA2J_.flags, javaText);
         return src.transform(bdxJ2A_).toString();
+    }
+    
+    //@AI5A
+    public char[] toAS400Layout(char[] javaText)    
+    {  	lastTransform_ = bdxJ2A_;
+    	if(as400Type_ == BidiStringType.NONE || javaType_ == BidiStringType.NONE || javaType_ == as400Type_)	//Bidi-HCG2
+    		return javaText;																					//Bidi-HCG
+        BidiText src = new BidiText(bdxA2J_.flags, javaText);
+        return src.transform(bdxJ2A_).data;
     }
 
     /**

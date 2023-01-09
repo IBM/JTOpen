@@ -83,6 +83,19 @@ public abstract class ConvTable
     {
         return byteArrayToString(source, offset, length, new BidiConversionProperties(bidiStringType_));
     }
+    
+    //@AI5A
+    public char[] byteArrayToCharArray(byte[] source, int offset, int length)
+    {
+        return byteArrayToCharArray(source, offset, length, new BidiConversionProperties(bidiStringType_));
+    } 
+    
+    public char[] byteArrayToCharArray(byte[] source, int offset, int length, int type)
+    {
+        return byteArrayToCharArray(source, offset, length, new BidiConversionProperties(type));
+    }
+    abstract char[] byteArrayToCharArray(byte[] source, int offset, int length, BidiConversionProperties properties);
+    //@AI5A End
 
     // Helper method used to decompress conversion tables when they are initialized.  Note that this method also converts the char[] into a byte[] since these are single-byte tables.
     byte[] decompressSB(char[] arr, byte subPad)
@@ -420,6 +433,70 @@ public abstract class ConvTable
             throw new CharConversionException();
         }
     }
+    
+    //@AI5A
+    abstract byte[] charArrayToByteArray(char[] source, BidiConversionProperties properties);
+    
+    public byte[] charArrayToByteArray(char[] source, int type)
+    {
+        return charArrayToByteArray(source, new BidiConversionProperties(type));
+    }
+
+    // This method can be overridden by subclasses for better performance.
+    public byte[] charArrayToByteArray(char[] source)
+    {
+        return charArrayToByteArray(source, new BidiConversionProperties(bidiStringType_));
+    }
+
+    // Subclasses should override this to avoid creating superfluous byte arrays.
+    public void charArrayToByteArray(char[] source, byte[] buf, int offset) throws CharConversionException
+    {
+        byte[] b = charArrayToByteArray(source, new BidiConversionProperties(bidiStringType_));
+        try
+        {
+            System.arraycopy(b, 0, buf, offset, b.length);
+        }
+        catch (ArrayIndexOutOfBoundsException aioobe)
+        {
+            throw new CharConversionException();
+        }
+    }
+
+    // This method can be overridden by subclasses for better performance.
+    public void charArrayToByteArray(char[] source, byte[] buf, int offset, int length) throws CharConversionException
+    {
+    	charArrayToByteArray(source, buf, offset, length, new BidiConversionProperties(bidiStringType_));
+    }
+
+    // Subclasses should override this to avoid creating superfluous byte arrays.
+    public void charArrayToByteArray(char[] source, byte[] buf, int offset, int length, int type) throws CharConversionException
+    {
+    	charArrayToByteArray(source, buf, offset, length, new BidiConversionProperties(type));
+    }
+    
+    public int charArrayToByteArray(char[] source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
+    {
+        int truncated = 0; //@trnc
+        byte[] b = charArrayToByteArray(source, properties);
+        // This detects if truncation did not occur.  If equal
+        // we should go down this path.
+        if (length >= b.length) 
+            length = b.length;
+        else if (length < charArrayToByteArray(source, properties).length){ //@trnc
+            truncated = b.length - length; //@trnc
+        }
+
+        try
+        {
+            System.arraycopy(b, 0, buf, offset, length);
+            return truncated;  //@trnc
+        }
+        catch (ArrayIndexOutOfBoundsException aioobe)
+        {
+            Trace.log(Trace.CONVERSION, "Source length: " + b.length + "; Source offset: 0; Destination length: " + buf.length + "; Destination offset: " + offset + "; Number of bytes to copy: " + length, aioobe);
+            throw new CharConversionException();
+        }
+    }//@AI5A End
 
     // By default validation is not needed, so existing data should be valid @X4A
     public int validateData( byte[] buf, int offset, int length) {

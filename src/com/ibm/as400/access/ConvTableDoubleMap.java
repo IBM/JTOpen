@@ -376,6 +376,39 @@ public class ConvTableDoubleMap extends ConvTable
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
         return String.copyValueOf(dest,0,to);
     }
+    
+    //@AI5A
+     // Perform an OS/400 CCSID to Unicode conversion.
+    final char[] byteArrayToCharArray(byte[] buf, int offset, int length, BidiConversionProperties properties)
+    {
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
+        // Length could be twice as long because of surrogates
+        char[] dest = new char[length ];
+        int to = 0; 
+        for (int i = 0; i < length / 2; ++i)
+        {
+            try
+            { 
+              int fromIndex = ((0x00FF & buf[(i * 2) + offset]) << 8) + (0x00FF & buf[(i * 2) + 1 + offset]);
+              int unicodeLength = toUnicode(dest,  to,  fromIndex);
+              to += unicodeLength; 
+              
+            }
+            catch(ArrayIndexOutOfBoundsException aioobe)
+            {
+                // Swallow this if we are doing fault-tolerant conversion.
+                if(!CharConverter.isFaultTolerantConversion())
+                {
+                    throw aioobe;
+                }
+            }
+        }
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(dest));
+        //return String.copyValueOf(dest,0,to);
+        char[] destChar = new char[to];
+        System.arraycopy(dest, 0, destChar,0,to);
+        return destChar;
+    }
 
     public int toUnicode(char[] dest, int to, int fromIndex) {
       int length = 0; 
@@ -475,6 +508,34 @@ public class ConvTableDoubleMap extends ConvTable
     final byte[] stringToByteArray(String source, BidiConversionProperties properties)
     {
         char[] src = source.toCharArray();
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
+        byte[] dest;
+        // Note.. with surrogates, the output array can be shorter @KDA
+        dest = new byte[src.length * 2];
+        int destIndex = 0; 
+        int[] increment = new int[1 ]; 
+        for (int i = 0; i < src.length; ++i, destIndex++)
+        {
+          char c = fromUnicode(src, i, increment);
+          dest[destIndex * 2] = (byte)(c >>> 8);
+          dest[destIndex * 2 + 1] = (byte)(0x00FF & c);
+          if (increment[0] > 1) {
+            i++; 
+          }
+        }
+        if (destIndex * 2 != dest.length) {
+          byte[] newDest = new byte[destIndex * 2]; 
+          System.arraycopy(dest, 0, newDest, 0, destIndex * 2);
+          dest = newDest; 
+        }
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
+        return dest;
+    }
+    
+    // Perform a Unicode to AS/400 CCSID conversion. @AI5A
+    final byte[] charArrayToByteArray(char[] src, BidiConversionProperties properties)
+    {
+        //char[] src = source.toCharArray();
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
         byte[] dest;
         // Note.. with surrogates, the output array can be shorter @KDA

@@ -109,4 +109,63 @@ public class ConvTableJavaMap extends ConvTable
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for encoding: " + encoding_, ret);
         return ret;
     }
+    
+    //TODO
+    // Let Java perform an Encoding to Unicode conversion.
+    final char[] byteArrayToCharArray(byte[] buf, int offset, int length, BidiConversionProperties properties)
+    {
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting byte array to string for encoding: " + encoding_, buf, offset, length);
+        char[] dest = new char[length];
+        int count = 0;
+        synchronized (inBuffer_)
+        {
+            inBuffer_.setContents(buf, offset, length);
+            try
+            {
+                if (reader_ == null)
+                {
+                    reader_ = new InputStreamReader(inBuffer_, encoding_);
+                }
+                count = reader_.read(dest);
+            }
+            catch (IOException e)
+            {
+                if (Trace.traceConversion_) Trace.log(Trace.ERROR, "IOException occurred on byteArrayToString for encoding " + encoding_, e);
+            }
+            reader_ = null;
+        }
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string for encoding: " + encoding_ + " (" + count + ")", ConvTable.dumpCharArray(dest));
+        //return String.copyValueOf(dest, 0, count);
+        char[] destChar = new char[count];
+        System.arraycopy(dest, 0, destChar,0,count);
+        return destChar;
+    }
+
+    // Let Java perform a Unicode to Encoding conversion.
+    final byte[] charArrayToByteArray(char[] source, BidiConversionProperties properties)
+    {
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for encoding: " + encoding_, ConvTable.dumpCharArray(source));
+        byte[] ret = null;
+        synchronized (outBuffer_)
+        {
+            try
+            {
+                outBuffer_.reset();
+                if (writer_ == null)
+                {
+                    writer_ = new OutputStreamWriter(outBuffer_, encoding_);
+                }
+                writer_.write(source);
+                writer_.flush();
+            }
+            catch (IOException e)
+            {
+                if (Trace.traceConversion_) Trace.log(Trace.ERROR, "IOException occurred on stringToByteArray for encoding " + encoding_, e);
+            }
+            writer_ = null;
+            ret = outBuffer_.toByteArray();
+        }
+        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for encoding: " + encoding_, ret);
+        return ret;
+    }
 }

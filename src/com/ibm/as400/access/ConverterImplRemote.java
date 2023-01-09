@@ -186,4 +186,29 @@ public class ConverterImplRemote implements ConverterImpl
         }
         System.arraycopy(convertedBytes, 0, destination, offset, convertedBytes.length);
     }
+    
+    //@AI5A
+    public byte[] charArrayToByteArray(char[] source)
+    {
+    	// Note:  The type of BidiConversionProperties reflects the Java String type.
+    	//        This should be the default value instead of being set from the ccsid.  @C5C
+        return charArrayToByteArray(source, new BidiConversionProperties());
+    }
+    
+    public byte[] charArrayToByteArray(char[] source, BidiConversionProperties properties)
+    {
+        return table_.charArrayToByteArray(source, properties);
+    }
+    
+    public char[] byteArrayToCharArray(byte[] source, int offset, int length)
+    {
+    	// Note:  The type of BidiConversionProperties reflects the Java String type.
+    	//        This should be the default value instead of being set from the ccsid. @C5C
+        return byteArrayToCharArray(source, offset, length, new BidiConversionProperties());
+    }                                                                     
+
+    public char[] byteArrayToCharArray(byte[] source, int offset, int length, BidiConversionProperties properties)
+    {
+        return table_.byteArrayToCharArray(source, offset, length, properties);
+    }
 }

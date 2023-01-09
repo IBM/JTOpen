@@ -25,4 +25,9 @@ interface ConverterImpl
     abstract String byteArrayToString(byte[] source, int offset, int length, BidiConversionProperties properties);
     abstract byte[] stringToByteArray(String source);
     abstract byte[] stringToByteArray(String source, BidiConversionProperties properties);
+    //@AI5A
+    abstract char[] byteArrayToCharArray(byte[] source, int offset, int length);
+    abstract char[] byteArrayToCharArray(byte[] source, int offset, int length, BidiConversionProperties properties);
+    abstract byte[] charArrayToByteArray(char[] source);
+    abstract byte[] charArrayToByteArray(char[] source, BidiConversionProperties properties);
 }
