@@ -38,15 +38,18 @@ class PasswordVault extends CredentialVault implements Cloneable, Serializable
    *
    * @param thePassword The password
    */
+  /* 
   protected PasswordVault(String thePassword) {
     super();
     encodedCredential_ = store(thePassword);
   }
-
+*/ 
   
   /**
    * Constructs a PasswordVault object that contains the provided password
    * credential.  The password is stored internally as encoded raw bytes.
+   * The caller is responsible for clearing the password after the call
+   * returns. 
    *
    * @param thePassword The password
    */
@@ -93,6 +96,7 @@ class PasswordVault extends CredentialVault implements Cloneable, Serializable
    * @param credential The credential to encode
    * @return The encoded credential
    */
+  /*
   private byte[] store(String credential)
   {
     if (PASSWORD_TRACE)
@@ -108,6 +112,7 @@ class PasswordVault extends CredentialVault implements Cloneable, Serializable
 
     return super.store(BinaryConverter.charArrayToByteArray(credential.toCharArray()));
   }
+  */ 
 
     /**
    * Encodes the String credential using the parent class encode method.
@@ -132,9 +137,13 @@ class PasswordVault extends CredentialVault implements Cloneable, Serializable
             
       }
     }
-
-    return super.store(BinaryConverter.charArrayToByteArray(credential));
+    byte[] bytes = BinaryConverter.charArrayToByteArray(credential);
+    byte[] encodedCredential =  super.store(bytes);
+    clearArray(bytes);           /* Clear the bytes so the password isn't visible in memory */ 
+    return encodedCredential; 
   }
+
+ 
 
 
 }

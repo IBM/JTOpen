@@ -618,7 +618,9 @@ public class AS400 implements Serializable
         }
         //@W9 End
         userId_ = userId.toUpperCase();
-        credVault_ = new PasswordVault(password);
+        char[] passwordChars = password.toCharArray();
+        credVault_ = new PasswordVault(passwordChars);
+        PasswordVault.clearArray(passwordChars);
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
@@ -634,7 +636,7 @@ public class AS400 implements Serializable
     {
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "'");
-        if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + password + "'");
+        if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + new String(password) + "'");
         if (systemName == null)
         {
             throw new NullPointerException("systemName");
@@ -918,7 +920,9 @@ public class AS400 implements Serializable
         }
         //@W9 End
         userId_ = userId.toUpperCase();
-        credVault_ = new PasswordVault(password);
+        char[] passwordChars = password.toCharArray(); 
+        credVault_ = new PasswordVault(passwordChars);
+        PasswordVault.clearArray(passwordChars);
         proxyServer_ = resolveProxyServer(proxyServer);
     }
 
@@ -1382,8 +1386,10 @@ public class AS400 implements Serializable
 
             // Update credential vault with new password.
             credVault_.empty();
-            credVault_ = new PasswordVault(newPassword);
-        }
+      char[] passwordChars = newPassword.toCharArray();
+      credVault_ = new PasswordVault(passwordChars);
+      PasswordVault.clearArray(passwordChars);
+    }
     }
 
     
@@ -1399,8 +1405,8 @@ public class AS400 implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Changing password.");
         if (PASSWORD_TRACE)
         {
-            Trace.log(Trace.DIAGNOSTIC, "oldPassword: '" + oldPassword + "'");
-            Trace.log(Trace.DIAGNOSTIC, "newPassword: '" + newPassword + "'");
+            Trace.log(Trace.DIAGNOSTIC, "oldPassword: '" + new String(oldPassword) + "'");
+            Trace.log(Trace.DIAGNOSTIC, "newPassword: '" + new String(newPassword) + "'");
         }
         checkPasswordNullAndLength(oldPassword, "oldPassword");
         checkPasswordNullAndLength(newPassword, "newPassword");
@@ -2434,9 +2440,12 @@ public class AS400 implements Serializable
         CredentialVault.rng.nextBytes(proxySeed);
         synchronized (this)
         {
-            PasswordVault tempVault = new PasswordVault(password);
-            tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));
-            impl_.generateProfileToken(profileToken, userId, tempVault, gssName_);
+      char[] passwordChars = password.toCharArray();
+      PasswordVault tempVault = new PasswordVault(passwordChars);
+      PasswordVault.clearArray(passwordChars);
+      tempVault.storeEncodedUsingExternalSeeds(proxySeed,
+          impl_.exchangeSeed(proxySeed));
+      impl_.generateProfileToken(profileToken, userId, tempVault, gssName_);
         }
         return profileToken;
     }
@@ -4178,7 +4187,9 @@ public class AS400 implements Serializable
                 synchronized (this)
         {
             credVault_.empty();
-            credVault_ = new PasswordVault(password);
+         char[] passwordChars = password.toCharArray(); 
+           credVault_ = new PasswordVault(passwordChars);
+            PasswordVault.clearArray(passwordChars);
             signonInfo_ = null;
         }
     }
@@ -4762,7 +4773,9 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
 
-        PasswordVault tempVault = new PasswordVault(password);
+        char[] passwordChars = password.toCharArray(); 
+        PasswordVault tempVault = new PasswordVault(passwordChars);
+            PasswordVault.clearArray(passwordChars);
         return validateSignon(userId_, tempVault);
     }
 
@@ -4859,7 +4872,9 @@ public class AS400 implements Serializable
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
 
-        PasswordVault tempVault = new PasswordVault(password);
+        char[] passwordChars = password.toCharArray(); 
+        PasswordVault tempVault = new PasswordVault(passwordChars);
+            PasswordVault.clearArray(passwordChars);
         //@W9 Start
         if (isTurkish()) {
         	userId = userId.toUpperCase(Locale.ENGLISH);
@@ -4878,7 +4893,6 @@ public class AS400 implements Serializable
      @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Using a string as a password is insecure
      **/
     public boolean validateSignon(String userId, char[] password) throws AS400SecurityException, IOException
     {

@@ -104,4 +104,8 @@ class SignonInfoReq extends ClientAccessDataStream
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending retrieve signon information request...");
         super.write(out);
     }
+
+    public void clear() {
+       CredentialVault.clearArray(data_); 
+    }
 }

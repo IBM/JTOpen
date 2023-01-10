@@ -107,4 +107,9 @@ class AS400GenAuthTknDS extends ClientAccessDataStream
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending generate authentication token request...");
         super.write(out);
     }
+
+    /* clear out sensitive information */ 
+    public void clear() {
+     CredentialVault.clearArray(data_);
+    }
 }

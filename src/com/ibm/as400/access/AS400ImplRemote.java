@@ -202,6 +202,9 @@ public class AS400ImplRemote implements AS400Impl {
 
   // Convenience method for removing trailing space from SHA-1 passwords.
   private static char[] trimUnicodeSpace(char[] inputArray) {
+    if (inputArray.length == 0) {
+      return inputArray; 
+    }
     char lastChar = inputArray[inputArray.length - 1];
     if (lastChar != '\u0000' && lastChar != '\u0020' && lastChar != '\u3000')
       return inputArray;
@@ -333,6 +336,7 @@ public class AS400ImplRemote implements AS400Impl {
           passwordWithQ[0] = 'Q';
           System
               .arraycopy(oldPassword, 0, passwordWithQ, 1, oldPassword.length);
+          CredentialVault.clearArray(oldPassword);
           oldPassword = passwordWithQ;
         }
         // @U1A END
@@ -342,12 +346,14 @@ public class AS400ImplRemote implements AS400Impl {
           Trace.log(Trace.ERROR,
               "Length of parameter 'oldPassword' is not valid:",
               oldPassword.length);
+          CredentialVault.clearArray(oldPassword);
           throw new AS400SecurityException(
               AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
         }
         byte[] oldPasswordEbcdic = SignonConverter
-            .stringToByteArray(new String(oldPassword).toUpperCase());
-
+            .upperCharsToByteArray(oldPassword);
+        CredentialVault.clearArray(oldPassword);
+        
         // @U1A START
         if (newPassword.length > 0 && Character.isDigit(newPassword[0])) {
           if (Trace.traceOn_)
@@ -367,8 +373,9 @@ public class AS400ImplRemote implements AS400Impl {
               AS400SecurityException.PASSWORD_NEW_NOT_VALID);
         }
         byte[] newPasswordEbcdic = SignonConverter
-            .stringToByteArray(new String(newPassword).toUpperCase());
-
+            .upperCharsToByteArray(newPassword);
+        CredentialVault.clearArray(newPassword);
+        
         // Setup output variables for encrypt new password.
         oldProtected = (oldPasswordEbcdic[8] == 0x40 && oldPasswordEbcdic[9] == 0x40) ? new byte[8]
             : new byte[16];
@@ -378,6 +385,8 @@ public class AS400ImplRemote implements AS400Impl {
         encryptedPassword = encryptNewPassword(userIdEbcdic, oldPasswordEbcdic,
             newPasswordEbcdic, oldProtected, newProtected, clientSeed_,
             serverSeed_);
+        CredentialVault.clearArray(oldPasswordEbcdic);
+        
       } else if (passwordLevel_< 4 ) {
         // Do SHA-1 encryption.
         byte[] userIdBytes = BinaryConverter
@@ -409,8 +418,22 @@ public class AS400ImplRemote implements AS400Impl {
         }
 
         // Trim space and put in byte array.
+        char[] trimmedOldPassword = trimUnicodeSpace(oldPassword);
+        if (oldPassword != trimmedOldPassword) { 
+          CredentialVault.clearArray(oldPassword);
+          oldPassword = trimmedOldPassword; 
+        }
         byte[] oldPasswordBytes = BinaryConverter
-            .charArrayToByteArray(trimUnicodeSpace(oldPassword));
+            .charArrayToByteArray(oldPassword);
+       
+        
+        char[] trimmedNewPassword = trimUnicodeSpace(newPassword);
+        if (newPassword != trimmedNewPassword) {
+          CredentialVault.clearArray(newPassword);
+          newPassword = trimmedNewPassword;
+        }
+        
+        
         byte[] newPasswordBytes = BinaryConverter
             .charArrayToByteArray(trimUnicodeSpace(newPassword));
         byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
@@ -465,10 +488,26 @@ public class AS400ImplRemote implements AS400Impl {
        * uses a sequence number of 1.
       */
 	      byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+	      
+	      
+	              char[] trimmedOldPassword = trimUnicodeSpace(oldPassword);
+        if (oldPassword != trimmedOldPassword) { 
+          CredentialVault.clearArray(oldPassword);
+          oldPassword = trimmedOldPassword; 
+        }
+      
+        
+        char[] trimmedNewPassword = trimUnicodeSpace(newPassword);
+        if (newPassword != trimmedNewPassword) {
+          CredentialVault.clearArray(newPassword);
+          newPassword = trimmedNewPassword;
+        }
+        
+
 	      byte[] oldPasswordBytes = BinaryConverter
-	              .charArrayToByteArray(trimUnicodeSpace(oldPassword));
+	              .charArrayToByteArray(oldPassword);
 	      byte[] newPasswordBytes = BinaryConverter
-	              .charArrayToByteArray(trimUnicodeSpace(newPassword));
+	              .charArrayToByteArray(newPassword);
 	  
 	      byte[] token = generatePwdTokenForPasswordLevel4(userId_, oldPassword);
 		  encryptedPassword = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
@@ -907,6 +946,7 @@ public class AS400ImplRemote implements AS400Impl {
             char[] passwordWithQ = new char[password.length + 1];
             passwordWithQ[0] = 'Q';
             System.arraycopy(password, 0, passwordWithQ, 1, password.length);
+          CredentialVault.clearArray(password);
             password = passwordWithQ;
             // }
           }
@@ -920,8 +960,8 @@ public class AS400ImplRemote implements AS400Impl {
                 AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
           }
           authenticationBytes = encryptPassword(userIdEbcdic,
-              SignonConverter.stringToByteArray(new String(password)
-                  .toUpperCase()), clientSeed_, serverSeed_);
+              SignonConverter.upperCharsToByteArray(password), clientSeed_, serverSeed_);
+          CredentialVault.clearArray(password);
         } else if (passwordLevel_ < 4){
           // Do SHA-1 encryption.
           byte[] userIdBytes = BinaryConverter
@@ -941,8 +981,11 @@ public class AS400ImplRemote implements AS400Impl {
                 AS400SecurityException.SIGNON_CHAR_NOT_VALID);
           }
 
+          char[] trimmedPassword = trimUnicodeSpace(password);
           byte[] passwordBytes = BinaryConverter
-              .charArrayToByteArray(trimUnicodeSpace(password));
+              .charArrayToByteArray(trimmedPassword);
+          CredentialVault.clearArray(trimmedPassword);
+          CredentialVault.clearArray(password);
           byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
 
           if (PASSWORD_TRACE) {
@@ -998,9 +1041,11 @@ public class AS400ImplRemote implements AS400Impl {
       AS400GenAuthTknDS req = new AS400GenAuthTknDS(userIdEbcdic,
           authenticationBytes, byteType, profileToken.getTokenType(),
           profileToken.getTimeoutInterval(), serverLevel_);
+      CredentialVault.clearArray(authenticationBytes);
       AS400GenAuthTknReplyDS rep = (AS400GenAuthTknReplyDS) signonServer_
           .sendAndReceive(req);
-
+      req.clear(); 
+      
       int rc = rep.getRC();
       if (rc != 0) {
         byte[] rcBytes = new byte[4];
@@ -1681,8 +1726,10 @@ public class AS400ImplRemote implements AS400Impl {
       }
     } else {
       byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId_);
-      char[] password = BinaryConverter.byteArrayToCharArray(credVault_
-          .getClearCredential());
+      byte[] clearCredential = credVault_
+          .getClearCredential();
+      char[] password = BinaryConverter.byteArrayToCharArray(clearCredential);
+      CredentialVault.clearArray(clearCredential);
       if (PASSWORD_TRACE) {
         Trace.log(Trace.DIAGNOSTIC, "  user ID:", userId_);
         Trace.log(Trace.DIAGNOSTIC, "  user ID EBCDIC:", userIdEbcdic);
@@ -1713,19 +1760,22 @@ public class AS400ImplRemote implements AS400Impl {
           char[] passwordWithQ = new char[password.length + 1];
           passwordWithQ[0] = 'Q';
           System.arraycopy(password, 0, passwordWithQ, 1, password.length);
+          CredentialVault.clearArray(password);
           password = passwordWithQ;
           // }
         }
 
         if (password.length > 10) {
+          CredentialVault.clearArray(password);
           Trace.log(Trace.ERROR,
               "Length of parameter 'password' is not valid:", password.length);
           throw new AS400SecurityException(
               AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
         }
         byte[] passwordEbcdic; 
-          passwordEbcdic = SignonConverter.stringToByteArray(new String(
-            password).toUpperCase());
+        passwordEbcdic = SignonConverter.upperCharsToByteArray(
+            password);
+        CredentialVault.clearArray(password);
         if (PASSWORD_TRACE) {
           Trace.log(Trace.DIAGNOSTIC, "  password in ebcdic: ", passwordEbcdic);
         }
@@ -1751,9 +1801,13 @@ public class AS400ImplRemote implements AS400Impl {
           throw new AS400SecurityException(
               AS400SecurityException.SIGNON_CHAR_NOT_VALID);
         }
-
+        // trimUnicodeSpace may return the same pointer if no spaces
+        char[] trimmedPassword = trimUnicodeSpace(password);
         byte[] passwordBytes = BinaryConverter
-            .charArrayToByteArray(trimUnicodeSpace(password));
+            .charArrayToByteArray(trimmedPassword);
+        CredentialVault.clearArray(trimmedPassword);
+        CredentialVault.clearArray(password);
+        
         byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
 
         if (PASSWORD_TRACE) {
@@ -1764,6 +1818,10 @@ public class AS400ImplRemote implements AS400Impl {
         }
 
         byte[] token = generateShaToken(userIdBytes, passwordBytes);
+        /* Clear the password bytes */ 
+        CredentialVault.clearArray(passwordBytes);
+        
+          
         encryptedPassword = generateShaSubstitute(token, serverSeed,
             clientSeed, userIdBytes, sequence);
         //@AF2A Start
@@ -2072,8 +2130,9 @@ public class AS400ImplRemote implements AS400Impl {
       throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
     } else {
       byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId_);
-      char[] password = BinaryConverter.byteArrayToCharArray(credVault_
-          .getClearCredential());
+      byte[] clearCredential = credVault_ .getClearCredential();
+      char[] password = BinaryConverter.byteArrayToCharArray(clearCredential);
+      CredentialVault.clearArray(clearCredential); 
       if (PASSWORD_TRACE) {
         Trace.log(Trace.DIAGNOSTIC, "  user ID:", userId_);
         Trace.log(Trace.DIAGNOSTIC, "  user ID EBCDIC:", userIdEbcdic);
@@ -2102,12 +2161,14 @@ public class AS400ImplRemote implements AS400Impl {
           char[] passwordWithQ = new char[password.length + 1];
           passwordWithQ[0] = 'Q';
           System.arraycopy(password, 0, passwordWithQ, 1, password.length);
+          CredentialVault.clearArray(password);
           password = passwordWithQ;
           // }
         }
 
-        byte[] passwordEbcdic = SignonConverter.stringToByteArray(new String(
-            password));
+        byte[] passwordEbcdic = SignonConverter.charArrayToByteArray(
+            password);
+        CredentialVault.clearArray(password);
         if (PASSWORD_TRACE) {
           Trace.log(Trace.DIAGNOSTIC, "  password in ebcdic: ", passwordEbcdic);
         }
@@ -3333,9 +3394,11 @@ public class AS400ImplRemote implements AS400Impl {
 
         SignonInfoReq signonReq = new SignonInfoReq(userIDbytes,
             encryptedPassword, credVault_.getType(), serverLevel_);
+        CredentialVault.clearArray(encryptedPassword);
         SignonInfoRep signonRep = (SignonInfoRep) signonServer_
             .sendAndReceive(signonReq);
-
+        signonReq.clear(); 
+        
         if (Trace.traceOn_)
           Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
 

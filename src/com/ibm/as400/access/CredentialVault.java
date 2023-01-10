@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * A vault which holds an authentication credential to one or more IBM i host servers.
@@ -218,7 +219,9 @@ abstract class CredentialVault implements Cloneable, Serializable
     }
 
     if (!isEmpty()) {
-      encodedCredential_ = store(CredentialVault.decode(firstSeed, secondSeed, encodedCredential_));
+      byte[] decodedBytes = CredentialVault.decode(firstSeed, secondSeed, encodedCredential_); 
+      encodedCredential_ = store(decodedBytes);
+      clearArray(decodedBytes);
     }
   }
 
@@ -411,11 +414,15 @@ abstract class CredentialVault implements Cloneable, Serializable
   }
 
   public static void clearArray(char[] passwordChars) {
-     for (int i = 0; i < passwordChars.length; i++) { 
-       passwordChars[i]=(char) i; 
-     }
-    
+    Arrays.fill(passwordChars,'\0');
+   
   }
+  
+  public static void clearArray(byte[] bytes) {
+      for (int i = 0; i < bytes.length; i++) {
+        bytes[i]=(byte) 0; 
+      }
+    }
 
   public static boolean isStarCurrent(char[] password) {
     if ((password.length == 8)  &&
