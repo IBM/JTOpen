@@ -55,7 +55,6 @@ extends AS400JDBCConnection {
   private AS400 originalAs400;
   private JDDataSourceURL originalDataSourceUrl_;
   private JDProperties originalProperties_;
-  private Properties originalInfo_; 
   
   private JDDataSourceURL [] reconnectUrls_;
   private JDProperties[]     reconnectProperties_;
@@ -481,7 +480,7 @@ extends AS400JDBCConnection {
           }
 
           connection.setProperties(reconnectUrls_[i], reconnectProperties_[i],
-              as400, originalInfo_);
+              as400);
           boolean result = setupNewConnection(connection, reconnectUrls_[i], originalException, (i == 0));
           if (JDTrace.isTraceOn()) { 
             JDTrace.logInformation(this, "findNewConnection connectionComplete"); 
@@ -1889,7 +1888,7 @@ endif */
   }
 
   public synchronized void setProperties(JDDataSourceURL dataSourceUrl,
-      JDProperties properties, AS400 as400, Properties info) throws SQLException {
+      JDProperties properties, AS400 as400) throws SQLException {
     // We cannot retry this operation since this establishes the connection
 
 
@@ -1897,13 +1896,8 @@ endif */
         originalDataSourceUrl_ = dataSourceUrl; 
         originalProperties_ = properties; 
         originalAs400 = as400; 
-        originalInfo_ = info; 
-        if (info == null) {
-          originalInfo_ = new Properties(); 
-          originalInfo_.put("user", as400.getUserId());
-        }
         setupRetryInformation(); 
-        currentConnection_.setProperties(dataSourceUrl, properties, as400, info);
+        currentConnection_.setProperties(dataSourceUrl, properties, as400);
         currentUrl_ = dataSourceUrl; 
         // Check for alternative server information @X1A
         String alternateServer = currentConnection_.getAlternateServer();

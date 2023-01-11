@@ -216,7 +216,54 @@ endif */
 		return dataSourceUrl.isValid ();
 	}
 
+	
+	 /**
+  Connects to the database named by the specified URL using the 
+  specified userid and password. 
+  
+  @param  url     The URL for the database.
+  @param  userid   The userid for the connection
+  @param  password  The password for the connection. The caller should clear the
+                    password from the array after the method returns. 
+  @return         The connection to the database or null if
+          the driver does not understand how to connect
+          to the database.
+  
+  @exception SQLException If the driver is unable to make the connection.
+  **/
+  public java.sql.Connection connect (String url, String userid, char[] password)
+  throws SQLException
+  {
+    Properties properties = new Properties(); 
+    properties.put("user",  userid); 
+    return connect(url, properties, password); 
+  }
 
+
+	/**
+  Connects to the database named by the specified URL.
+  There are many optional properties that can be specified.
+  Properties can be specified either as part of the URL or in
+  a java.util.Properties object.  See
+<a href="doc-files/JDBCProperties.html" target="_blank">JDBC properties</a>
+  for a complete list of properties
+  supported by this driver.
+  
+  @param  url     The URL for the database.
+  @param  info    The connection properties.
+  @return         The connection to the database or null if
+          the driver does not understand how to connect
+          to the database.
+  
+  @exception SQLException If the driver is unable to make the connection.
+  **/
+  public java.sql.Connection connect (String url,
+                    Properties info)
+  throws SQLException
+  {
+    
+    return connect(url, info, null); 
+  }
 
 	/**
 	Connects to the database named by the specified URL.
@@ -229,6 +276,8 @@ endif */
 	
 	@param  url     The URL for the database.
 	@param  info    The connection properties.
+	@param  password  The password as a char array.  The caller should clear the
+	                 char array after returning. 
 	@return         The connection to the database or null if
 					the driver does not understand how to connect
 					to the database.
@@ -236,7 +285,8 @@ endif */
 	@exception SQLException If the driver is unable to make the connection.
 	**/
 	public java.sql.Connection connect (String url,
-										Properties info)
+										Properties info,
+										char[] password)
 	throws SQLException
 	{
 		// Check first thing to see if the trace property is
@@ -398,13 +448,12 @@ endif */
       JDTrace.logInformation (this,"connect called with URL: "+traceUrl);  
     }
 
-		JDProperties jdProperties = new JDProperties (urlProperties, info);
+		JDProperties jdProperties = new JDProperties (urlProperties, info, password);
 
 		// Initialize the connection if the URL is valid.
 		Connection connection = null;										 //@A0C
 		if (dataSourceUrl.isValid ())
-			connection = initializeConnection (dataSourceUrl, jdProperties,
-											   info);  //@A0C
+			connection = initializeConnection (dataSourceUrl, jdProperties);  //@A0C
 
 		return connection;
 	}
@@ -896,7 +945,7 @@ endif */
 		DriverPropertyInfo[] dpi = null;
 		if (dataSourceUrl.isValid ())
 		{
-			JDProperties properties = new JDProperties (dataSourceUrl.getProperties(), info);
+			JDProperties properties = new JDProperties (dataSourceUrl.getProperties(), info, null);
 			dpi = properties.getInfo ();
 		}
 
@@ -985,19 +1034,23 @@ endif */
 
 	//@B3A  - This logic was formerly in the initializeConnection() method.
 	static AS400 initializeAS400(JDDataSourceURL dataSourceUrl,
-								 JDProperties jdProperties,
-								 Properties info)
+								 JDProperties jdProperties)
 	throws SQLException //@pw1
 	{
 		// We must handle the different combinations of input
 		// user names and passwords.
 		String serverName = dataSourceUrl.getServerName();
 		String userName   = jdProperties.getString (JDProperties.USER);
-		String password   = jdProperties.getString (JDProperties.PASSWORD);
+		char[] clearPassword   = jdProperties.getClearPassword(); 
 		String prompt     = jdProperties.getString (JDProperties.PROMPT);	// @B8C
 		boolean secure    = jdProperties.getBoolean (JDProperties.SECURE);
-                boolean useThreads = jdProperties.getBoolean(JDProperties.THREAD_USED);
+		boolean useThreads = jdProperties.getBoolean(JDProperties.THREAD_USED);
 
+		// Updated 2023 to not pass old Properties information.
+		// Everything should be in the JDProperties object
+		// The JDProperties object was updated to also allow the use of null values. 
+		// 
+		
         //@pw1 Decided to leave connections via AS400() as-is and just implement to mimic Native JDBC
         //@pw1 info contains args from DriverMangager.getConnection(args)
         //@pw1 jdProperties does not represent null values.  Both null and "" have a value of "".
@@ -1013,12 +1066,8 @@ endif */
         if(((secureCurrentUser != null) && (Boolean.valueOf(secureCurrentUser).booleanValue() == false)) || !jdProperties.getBoolean(JDProperties.SECURE_CURRENT_USER))            //@pw3
             isSecureCurrentUser = false;                                                                      //@pw3
                 
-        if(info == null)
-            info = new Properties();
-        String userParm = info.getProperty("user");                               //@pw1
-        String passwordParm = info.getProperty("password");                       //@pw1
         boolean forcePrompt = false;     //@prompt
-        if ("".equals(userName) && "".equals(userParm))                                                  //@pw1 //@pw2
+        if ("".equals(userName))                                                  //@pw1 //@pw2
         {                                                                         //@pw1
             if(isSecureCurrentUser)//@pw3
             {  //@pw3
@@ -1028,7 +1077,7 @@ endif */
                 forcePrompt = true;  //@prompt
             }  //@pw3
         }                                                                         //@pw1
-        if ("".equals(password) && "".equals(passwordParm))                                              //@pw1 //@pw2
+        if (clearPassword != null && clearPassword.length==0)                                              //@pw1 //@pw2
         {                                                                         //@pw1
             if(isSecureCurrentUser)//@pw3
             {  //@pw3
@@ -1039,10 +1088,10 @@ endif */
             }  //@pw3
         }                                                                         //@pw1
                 
-        if(userParm != null)                                                      //@pw1
+        if(userName != null)                                                      //@pw1
         {                                                                         //@pw1
             //check for *current                                                  //@pw1
-            if (userParm.compareToIgnoreCase("*CURRENT") == 0)                    //@pw1
+            if (userName.compareToIgnoreCase("*CURRENT") == 0)                    //@pw1
             {                                                                     //@pw1
                 if(isSecureCurrentUser)//@pw3
                 {  //@pw3
@@ -1053,28 +1102,18 @@ endif */
                 }  //@pw3
             }                                                                     //@pw1
         }                                                                         //@pw1
-        else                                                                      //@pw1
-        {                                                                         //@pw1
-            //since info is null, jdProperty must not be "" or *current, but it can be the default value (ie not set by user)
-            if(!JDProperties.EMPTY_.equals(userName) )                             //@pw1
-            {                                                                     //@pw1
-                //userName was updated by app
-                if( userName.equals("") || (userName.compareToIgnoreCase("*CURRENT") == 0)) //@pw1
-                {                                                                 //@pw1
-                    if(isSecureCurrentUser)//@pw3
-                    {  //@pw3
-                        if (JDTrace.isTraceOn()) //jdbc category trace                //@pw1
-                            JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                        //JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);   //@pw1
-                        forcePrompt = true;  //@prompt
-                    }  //@pw3
-                }                                                                 //@pw1
-            }                                                                     //@pw1
-        }                                                                         //@pw1
         
-        if(passwordParm != null)                                                  //@pw1
+        if(clearPassword!= null)                                                  //@pw1
         {                                                                         //@pw1
-            if (passwordParm.compareToIgnoreCase("*CURRENT") == 0)                //@pw1
+           /* check for *CURRENT */ 
+            if (clearPassword[0] == '*' &&
+                (clearPassword[1] == 'C' || clearPassword[1] == 'c') &&
+                (clearPassword[2] == 'U' || clearPassword[2] == 'u') &&
+                (clearPassword[3] == 'R' || clearPassword[3] == 'r') &&
+                (clearPassword[4] == 'R' || clearPassword[4] == 'r') &&
+                (clearPassword[5] == 'E' || clearPassword[5] == 'e') &&
+                (clearPassword[6] == 'N' || clearPassword[6] == 'n') &&
+                (clearPassword[7] == 'T' || clearPassword[7] == 't') )                //@pw1
             {                                                                         //@pw1
                 if(isSecureCurrentUser)//@pw3
                 {  //@pw3
@@ -1085,24 +1124,6 @@ endif */
                 }  //@pw3
             }                                                                         //@pw1
         }                                                                         //@pw1
-        else                                                                      //@pw1
-        {                                                                         //@pw1
-            //since info is null, jdProperty must not be "" or *current, but it can be the default value (ie not set by user)
-            if(!JDProperties.EMPTY_.equals(password))                              //@pw1
-            {                                                                     //@pw1
-                //password was updated by app
-                if( password.equals("") || (password.compareToIgnoreCase("*CURRENT") == 0)) //@pw1
-                {                                                                         //@pw1
-                    if(isSecureCurrentUser)//@pw3
-                    {  //@pw3
-                        if (JDTrace.isTraceOn()) //jdbc category trace                        //@pw1
-                            JDTrace.logInformation (AS400JDBCDriver.class, "Userid/password cannot be \"\" or *CURRENT due to security constraints.  Use null instead");  //@pw1
-                        //JDError.throwSQLException(JDError.EXC_CONNECTION_REJECTED);           //@pw1
-                        forcePrompt = true;  //@prompt
-                    }  //@pw3
-                }                                                                         //@pw1
-            }                                                                               //@pw1
-        }                                                                         //@pw1
         
         
 		// Create the AS400 object, so we can create a Connection via loadImpl2.
@@ -1111,12 +1132,13 @@ endif */
 		{
 			if (serverName.length() == 0)
 				as400 = new SecureAS400 ();
-			else if (userName.length() == 0)
+			else if (userName == null )
 				as400 = new SecureAS400 (serverName);
-			else if (password.length() == 0)
+			else if (clearPassword == null )
 				as400 = new SecureAS400 (serverName, userName);
 			else
-				as400 = new SecureAS400 (serverName, userName, password);
+				as400 = new SecureAS400 (serverName, userName, clearPassword);
+			
 		}
 		else
 		{
@@ -1124,12 +1146,15 @@ endif */
 				as400 = new AS400 ();
 			else if (userName.length() == 0)
 				as400 = new AS400 (serverName);
-			else if (password.length() == 0)
+			else if (clearPassword == null )
 				as400 = new AS400 (serverName, userName);
 			else
-				as400 = new AS400 (serverName, userName, password);
+				as400 = new AS400 (serverName, userName, clearPassword);
 		}
 
+		if (clearPassword != null) { 
+		  CredentialVault.clearArray(clearPassword);
+		}
 		// Determine when the signon GUI can be presented..
 		try
 		{       
@@ -1156,8 +1181,7 @@ endif */
 
 	//@A0A  - This logic was formerly in the AS400JDBCConnection ctor and open() method.
 	private Connection initializeConnection (JDDataSourceURL dataSourceUrl,
-											 JDProperties jdProperties,
-											 Properties info)
+											 JDProperties jdProperties)
 	throws SQLException
 	{
 		//@B7D Connection connection                       = null;
@@ -1222,7 +1246,7 @@ endif */
 					String nativeURL = dataSourceUrl.getNativeURL();                       
 					if (JDTrace.isTraceOn())
 						JDTrace.logInformation(this, "Using native IBM Developer Kit for Java JDBC driver implementation");//@native don't print passwd
-					return nativeDriver.connect(nativeURL, info);
+					return nativeDriver.connect(nativeURL, jdProperties.getOriginalInfo());
 				}																			// @C2A
 			}
 		}//@C4A
@@ -1253,11 +1277,11 @@ endif */
 				if (JDTrace.isTraceOn())
 					JDTrace.logInformation (this,
 											"Secondary URL [" + secondaryUrl + "]");
-				return DriverManager.getConnection (secondaryUrl, info);
+				return DriverManager.getConnection (secondaryUrl, jdProperties.getOriginalInfo());
 			}
 		}
 
-		as400 = initializeAS400(dataSourceUrl, jdProperties, info);				   // @B3C
+		as400 = initializeAS400(dataSourceUrl, jdProperties);				   // @B3C
 
 		if (proxyServerWasSpecifiedInUrl)
 		{
@@ -1280,7 +1304,7 @@ endif */
 		}
 
 		//@B6C Moved common code to prepareConnection.
-		return prepareConnection(as400, dataSourceUrl, info, jdProperties); 
+		return prepareConnection(as400, dataSourceUrl,  jdProperties); 
 	}
 
 
@@ -1290,10 +1314,10 @@ endif */
 	{
 		JDDataSourceURL dataSourceUrl = new JDDataSourceURL(null);
 		Properties info = new Properties();
-		JDProperties jdProperties = new JDProperties(null, info);
+		JDProperties jdProperties = new JDProperties(null, info, null);
 
 		//@B6C Moved common code to prepareConnection.
-		return prepareConnection(as400, dataSourceUrl, info, jdProperties); 
+		return prepareConnection(as400, dataSourceUrl, jdProperties); 
 	}
 
 
@@ -1310,7 +1334,7 @@ endif */
 			url	= "jdbc:as400://" + as400.getSystemName();		//@B6A
 		JDDataSourceURL dataSourceUrl = new JDDataSourceURL(url);
 
-		JDProperties jdProperties = new JDProperties(null, info);
+		JDProperties jdProperties = new JDProperties(null, info, null);
 
 		if (JDTrace.isTraceOn())
 			JDTrace.logInformation (this, "Using IBM Toolbox for Java JDBC driver implementation");
@@ -1339,7 +1363,7 @@ endif */
 		}
 
 		//@B6C Moved common code to prepareConnection.
-		return prepareConnection(as400, dataSourceUrl, info, jdProperties);      
+		return prepareConnection(as400, dataSourceUrl, jdProperties);      
 	}
 
 
@@ -1356,7 +1380,7 @@ endif */
 
 	//@B6A -- This logic was formerly in the initializeConnection() method.
 	private Connection prepareConnection(AS400 as400, JDDataSourceURL dataSourceUrl, 
-										 Properties info, JDProperties jdProperties)
+										  JDProperties jdProperties)
 	throws SQLException
 	{
 
@@ -1446,7 +1470,7 @@ endif */
             ((JDConnectionProxy)connection).setProperties(dataSourceUrl, jdProperties, as400);
 		      } else { 
 		        ((AS400JDBCConnection)connection).setSystem(as400);
-		        ((AS400JDBCConnection)connection).setProperties(dataSourceUrl, jdProperties, as400, info);
+		        ((AS400JDBCConnection)connection).setProperties(dataSourceUrl, jdProperties, as400);
 		      }
 		    } catch (SQLException sqlex) {
 		      try { 

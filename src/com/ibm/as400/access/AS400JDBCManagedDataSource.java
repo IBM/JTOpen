@@ -402,7 +402,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       }
     }  // 'while' loop
 
-    properties_ = new JDProperties(properties, null);
+    properties_ = new JDProperties(properties, null, null);
     if (sockProps_.isAnyOptionSet()) {  // only need to set if not default
       as400_.setSocketProperties(sockProps_);
     }
@@ -547,7 +547,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       connection = new AS400JDBCConnectionImpl();
     }
 
-    connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400, null);  // Note: This also does an AS400.connectService() to the database host server.
+    connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400);  // Note: This also does an AS400.connectService() to the database host server.
 
     if (JDTrace.isTraceOn() || log_ != null) logInformation(ResourceBundleLoader.getText("AS400_JDBC_DS_CONN_CREATED"));
     return connection;
@@ -3866,8 +3866,12 @@ return connection;
               setDatabaseName(propertyValue);
           else if (propIndex == JDProperties.USER)
               setUser(propertyValue);
-          else if (propIndex == JDProperties.PASSWORD)
-              setPassword(properties_.getString(JDProperties.PASSWORD));
+          else if (propIndex == JDProperties.PASSWORD) {
+            char[] clearPassword = properties_.getClearPassword(); 
+              setPassword(clearPassword);
+              CredentialVault.clearArray(clearPassword);
+          }
+             
           else if (propIndex == JDProperties.SECURE)
               setSecure(propertyValue.equals(TRUE_) ? true : false);
           else if (propIndex == JDProperties.KEEP_ALIVE)

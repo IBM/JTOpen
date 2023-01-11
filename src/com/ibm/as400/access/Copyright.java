@@ -328,6 +328,7 @@ package com.ibm.as400.access;
 //@AI4   20221027  Fix DDM connect issue for Lowest encryption algorithm is AES
 //@AI5   20221213  AS400Text support char array
 //@AI6   20230103  ProgramCallDocument setCharArrayValue
+//@AI7   20230111  JDBC:Internal password changes
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

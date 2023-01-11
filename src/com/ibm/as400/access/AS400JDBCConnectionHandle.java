@@ -1433,12 +1433,12 @@ ResultSet.CONCUR_READ_ONLY.
   /**
   *  Sets the connection properties.
   **/
-  void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties, AS400 as400, Properties info)
+  void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties, AS400 as400)
   throws SQLException
   {
     validateConnection();
     try {
-      connection_.setProperties(dataSourceUrl, properties, as400,  info);
+      connection_.setProperties(dataSourceUrl, properties, as400);
     }
     catch (SQLException e) {
       fireEventIfErrorFatal(e);

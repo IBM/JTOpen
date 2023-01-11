@@ -223,7 +223,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public AS400JDBCDataSource()
     {
         initializeTransient();
-        properties_ = new JDProperties(null, null);
+        properties_ = new JDProperties(null, null, null);
         sockProps_ = new SocketProperties();
     }
 
@@ -339,7 +339,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
         // must initialize the JDProperties so the property change checks dont get a NullPointerException
-        properties_ = new JDProperties(null, null);
+        properties_ = new JDProperties(null, null,null);
 
         Properties properties = new Properties();
         sockProps_ = new SocketProperties();
@@ -412,7 +412,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
                 properties.put(property, value);
             }
         }
-        properties_ = new JDProperties(properties, null);
+        properties_ = new JDProperties(properties, null, null);
 
         // get the prompt property and set it back in the as400 object
         String prmpt = properties_.getString(JDProperties.PROMPT);
@@ -747,7 +747,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         }
         
         connection.setSystem(as400);
-        connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400, null); //@C1C
+        connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400); //@C1C
 
         log(ResourceBundleLoader.getText("AS400_JDBC_DS_CONN_CREATED"));     //@A9C
         return connection;
@@ -3774,9 +3774,11 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
                 setDatabaseName(propertyValue);
             else if (propIndex == JDProperties.USER)
                 setUser(propertyValue);
-            else if (propIndex == JDProperties.PASSWORD)
-                setPassword(properties_.getString(JDProperties.PASSWORD));
-            else if (propIndex == JDProperties.SECURE)
+            else if (propIndex == JDProperties.PASSWORD) {
+              char[] clearPassword = properties_.getClearPassword(); 
+              setPassword(clearPassword);
+              CredentialVault.clearArray(clearPassword);
+            } else if (propIndex == JDProperties.SECURE)
                 setSecure(propertyValue.equals(TRUE_) ? true : false);
             else if (propIndex == JDProperties.KEEP_ALIVE)
                 setKeepAlive(propertyValue.equals(TRUE_) ? true : false);

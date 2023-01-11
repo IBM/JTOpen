@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.Serializable;
 import java.io.IOException;                                // @W2a
 import java.sql.DriverPropertyInfo;
+
 import java.util.Enumeration;
 import java.util.Properties;
 
@@ -533,6 +534,10 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     private boolean             extra_;
     private String[]            values_;
     private Properties          info_;   // @A3A
+
+
+
+    private PasswordVault passwordVault_;
 
 
 
@@ -1645,7 +1650,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     **/
     JDProperties ()
     {
-      this(null, null);
+      this(null, null,null);
     }
 
     /**
@@ -1654,15 +1659,36 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     @param  urlProperties   The URL properties.
     @param  info            The info properties.
     **/
-    JDProperties (Properties urlProperties, Properties info)
+    JDProperties (Properties urlProperties, Properties info, char[] password)
     {
         // Initialize the values.
         info_ = info;
-        values_ = new String[NUMBER_OF_ATTRIBUTES_];
-        for(int i = 0; i < NUMBER_OF_ATTRIBUTES_; ++i) {
-          String supportedProperty = dpi_[i].name; 
-          setString (i, getProperty (urlProperties, info, supportedProperty));
+        
+        // @AI7A
+        if (password == null) { 
+         
+          String passwordString = getProperty (urlProperties, info, "password");
+          if (passwordString != null) { 
+            char[] passwordChars = passwordString.toCharArray(); 
+            passwordVault_ = new PasswordVault(passwordChars); 
+            CredentialVault.clearArray(passwordChars);
+          } else {
+            passwordVault_ = null; 
+          }
+        } else { 
+          passwordVault_ = new PasswordVault(password); 
         }
+        
+    values_ = new String[NUMBER_OF_ATTRIBUTES_];
+    for (int i = 0; i < NUMBER_OF_ATTRIBUTES_; ++i) {
+      if (i != PASSWORD) {  /*@AI7A*/
+        String supportedProperty = dpi_[i].name;
+        String propertyValue = getProperty(urlProperties, info,
+            supportedProperty);
+
+        setString(i, propertyValue);
+      }
+    }
 
         // Check both sets of properties for any extra
         // properties.
@@ -1961,18 +1987,34 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
 
     @param      index   Property index.
     @return     The value.
+
     **/
-    String getString (int index)
+    String getString (int index) 
     {
+        if (index == PASSWORD) { 
+          throw new InternalError("PASSWORD not VALID");  
+        }
         String value = values_[index];
 
-        if(index == PASSWORD || index == KEY_RING_PASSWORD) //@F1C
-            values_[index] = "";
-
+        if (value == null) return null; 
         return value.trim();
     }
 
-
+    /**
+     * Get the clear password.   The caller is responsible for clearing the array
+     * after it is done with the password
+     * @return The password in a char array. 
+     */
+    /* @AI7A*/
+    char[] getClearPassword() {
+      if (passwordVault_ == null) return null; 
+      
+        char[] clearPassword; 
+        byte[] clearBytes = passwordVault_.getClearCredential(); 
+        clearPassword = BinaryConverter.byteArrayToCharArray(clearBytes); 
+        CredentialVault.clearArray(clearBytes);
+        return clearPassword; 
+    }
 
     /**
     Indicates if any extra properties are specified.
@@ -2110,7 +2152,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     void setString (int index, String value)
     {
         // If no property was provided, then set the choice
-        // to the default.
+        // to the default if not USER or PASSWORD 
         if((value == null) || ((value.length() == 0) && (index != USER)&& (index != PASSWORD)))  // @E5C //@pw1
             values_[index] = defaults_[index];
         else

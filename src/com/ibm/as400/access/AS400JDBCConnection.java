@@ -1428,21 +1428,16 @@ implements Connection
 
 
 
-    //@D4A
+    //@D4A @AI7C
     abstract void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties,
-                        AS400 as400, Properties info)
+                        AS400 as400)
     throws SQLException;
 
 
     abstract void setProperties(JDDataSourceURL dataSourceUrl, JDProperties properties, AS400Impl as400)
     throws SQLException;
 
-    /* Backwards compatible method for iAccess */ 
-    void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties,
-        AS400 as400) throws SQLException {
-      setProperties(dataSourceUrl, properties, as400, new Properties());
-    }
-
+ 
     /* Should the warning be ignored  @Q1A*/
     abstract boolean ignoreWarning(String sqlState);
     abstract boolean ignoreWarning(SQLWarning warning);

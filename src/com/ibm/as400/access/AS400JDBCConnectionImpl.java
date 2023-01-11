@@ -3488,7 +3488,7 @@ throws SQLException
 
     //@D4A
     public void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties,
-                        AS400 as400, Properties info)
+                        AS400 as400)
     throws SQLException
     {
         if (TESTING_THREAD_SAFETY) // in certain testing modes, don't contact IBM i system
