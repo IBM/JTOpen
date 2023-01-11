@@ -40,6 +40,8 @@ class ConvTable1202 extends ConvTable // Instead of ConvTableDoubleMap.
     byte[] stringToByteArray(String source, BidiConversionProperties properties)
     {
         char[] src = source.toCharArray();
+        return charArrayToByteArray(src, properties); //@AI5C
+        /*
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + encoding_, ConvTable.dumpCharArray(src));
         byte[] dest = new byte[src.length * 2];
         for (int i = 0; i < src.length; ++i)
@@ -48,7 +50,7 @@ class ConvTable1202 extends ConvTable // Instead of ConvTableDoubleMap.
             dest[i * 2] = (byte)(0x00FF & src[i]);
         }
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
-        return dest;
+        return dest;*/
     }
     
     //@AI5A
@@ -67,7 +69,6 @@ class ConvTable1202 extends ConvTable // Instead of ConvTableDoubleMap.
     // Perform a Unicode to CCSID conversion.
     byte[] charArrayToByteArray(char[] src, BidiConversionProperties properties)
     {
-        //char[] src = source.toCharArray();
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + encoding_, ConvTable.dumpCharArray(src));
         byte[] dest = new byte[src.length * 2];
         for (int i = 0; i < src.length; ++i)

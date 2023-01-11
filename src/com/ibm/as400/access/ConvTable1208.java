@@ -110,7 +110,8 @@ class ConvTable1208 extends ConvTable
     // Perform a Unicode to OS/400 CCSID conversion.
     final byte[] stringToByteArray(String source, BidiConversionProperties properties)
     {
-        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray(), 0, source.length()));
+    	return charArrayToByteArray(source.toCharArray(),properties); //@AI5C
+        /*if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray(), 0, source.length()));
         int len = source.length();
         byte[] buf = new byte[len * 4];
         int bufCount = 0;
@@ -164,7 +165,7 @@ class ConvTable1208 extends ConvTable
         System.arraycopy(buf, 0, ret, 0, bufCount);
 
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
-        return ret;
+        return ret;*/
     }
 
     public final byte[] stringToByteArray(char[] src, int offset, int length)
@@ -227,7 +228,8 @@ class ConvTable1208 extends ConvTable
 
     public final void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
     {
-        int bufCount = offset;
+    	charArrayToByteArray(source.toCharArray(), buf, offset); //@AI5C
+        /*int bufCount = offset;
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray()));
         try
         {
@@ -281,6 +283,7 @@ class ConvTable1208 extends ConvTable
             throw new CharConversionException();
         }
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, bufCount - offset);
+        */
     }
 
     public final void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException {
@@ -554,6 +557,10 @@ class ConvTable1208 extends ConvTable
 
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
         return ret;
+    }
+    
+    public final byte[] charArrayToByteArray(char[] src, int offset, int length) {
+    	return stringToByteArray(src, offset, length);
     }
     
     public final void charArrayToByteArray(char[] source, byte[] buf, int offset, int length) throws CharConversionException {

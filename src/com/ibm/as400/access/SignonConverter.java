@@ -119,8 +119,8 @@ class SignonConverter
         {
             AS400SecurityException exception;
             char c = sourceChars[i];
-            if (Character.isLowerCase(c)) {
-            c = Character.toUpperCase(c); 
+            if (Character.isLowerCase(c) && upperCase) {
+                c = Character.toUpperCase(c); 
             }
             switch (c)
             {

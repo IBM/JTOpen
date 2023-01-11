@@ -103,6 +103,7 @@ public abstract class ConvTableBidiMap extends ConvTable
         //}
     	
     	//Bidi-HCG2 start
+    	/* @AI5D
     	if (Trace.traceConversion_)
     		Trace.log(Trace.CONVERSION, "Converting string to byte array (before java layout was applied) for ccsid: " + ccsid_, 
     				ConvTable.dumpCharArray(source.toCharArray()));
@@ -119,7 +120,8 @@ public abstract class ConvTableBidiMap extends ConvTable
         for (int i = 0; i < src.length; dest[i] = fromUnicode_[src[i++]]);
 
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
-        return dest;
+        return dest;*/
+    	return charArrayToByteArray(source.toCharArray(),properties); //@AI5C
     }
     
     //@AI5A

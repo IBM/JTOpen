@@ -398,17 +398,16 @@ public class AS400Text implements AS400DataType
         // We need to pad the String before the conversion in the case of a Bidi CCSID, because the Bidi transform needs to affect the entire String so it knows where the padding spaces need to go.
         //@AI15C
         char[] cbuf = null;
-        String toConvert = null;
         if (javaValue instanceof char[]) {
         	cbuf = (char[]) javaValue;
         } else {
-        	toConvert = (String)javaValue;
+        	cbuf = ((String)javaValue).toCharArray();
         }
 
         // We can't pad the String after the transform if we're bidi.
         if (AS400BidiTransform.isBidiCcsid(ccsid_)) // We can use ccsid_ since we already called setTable().
         {
-            int realLength = (toConvert!=null?toConvert.length():cbuf.length);
+            int realLength = cbuf.length;
             // Cases where we are Bidi, but we are DBCS.
             if (ccsid_ == 13488 || ccsid_ == 61952)
             {
@@ -422,10 +421,6 @@ public class AS400Text implements AS400DataType
             }
             if (numPadBytes > 0)
             {
-                //char[] cbuf = toConvert.toCharArray();
-            	if (cbuf == null) { //@AI15C
-            		cbuf = toConvert.toCharArray();
-            	}
                 // Since all of our Bidi maps are SBCS, we can add one char for each extra byte we need.
                 char[] paddedBuf = new char[cbuf.length + numPadBytes];
                 System.arraycopy(cbuf, 0, paddedBuf, 0, cbuf.length);
@@ -435,11 +430,11 @@ public class AS400Text implements AS400DataType
                 }
                 //toConvert = new String(paddedBuf); @AI15D
                 cbuf = paddedBuf;
-                if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Pre-padded Bidi String with " + numPadBytes + " spaces from '" + javaValue + "' to '" + toConvert + "'");
+                if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Pre-padded Bidi String with " + numPadBytes + " spaces from '" + javaValue + "' to '" + String.valueOf(cbuf) + "'");
             }
             //Bidi-HCG: Bidi transformation is excluded from stringToByteArray() now, so do it here       
         	//Bidi-HCG2 toConvert = AS400BidiTransform.bidiTransform(toConvert,properties.getBidiStringType(), AS400BidiTransform.getStringType(ccsid_));                        
-        }
+        } 
         
         //byte[] eValue = tableImpl_.stringToByteArray(toConvert, properties); TODO
         byte[] eValue = tableImpl_.charArrayToByteArray(cbuf, properties);
@@ -448,7 +443,7 @@ public class AS400Text implements AS400DataType
         if (eValue.length > length_)
         {
             Trace.log(Trace.ERROR, "Length of parameter 'javaValue' is not valid: '" + javaValue + "'");
-            throw new ExtendedIllegalArgumentException("javaValue (" + toConvert + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("javaValue (" + String.valueOf(cbuf) + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         // Let this line throw ArrayIndexException.
         System.arraycopy(eValue, 0, serverValue, offset, eValue.length);
@@ -506,7 +501,7 @@ public class AS400Text implements AS400DataType
         {
             serverValue[i + index] = padding_[i % padding_.length];
         }
-        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "AS400Text.toBytes(): Converted javaValue (" + toConvert + ") to:", serverValue, offset, length_);
+        if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "AS400Text.toBytes(): Converted javaValue (" + cbuf.toString() + ") to:", serverValue, offset, length_);
 
         return length_;
     }

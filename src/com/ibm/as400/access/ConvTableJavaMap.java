@@ -85,7 +85,8 @@ public class ConvTableJavaMap extends ConvTable
     // Let Java perform a Unicode to Encoding conversion.
     final byte[] stringToByteArray(String source, BidiConversionProperties properties)
     {
-        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for encoding: " + encoding_, ConvTable.dumpCharArray(source.toCharArray()));
+    	return charArrayToByteArray(source.toCharArray(), properties); //@AI5C
+        /*if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for encoding: " + encoding_, ConvTable.dumpCharArray(source.toCharArray()));
         byte[] ret = null;
         synchronized (outBuffer_)
         {
@@ -107,10 +108,10 @@ public class ConvTableJavaMap extends ConvTable
             ret = outBuffer_.toByteArray();
         }
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for encoding: " + encoding_, ret);
-        return ret;
+        return ret;*/
     }
     
-    //TODO
+    //@AI5A
     // Let Java perform an Encoding to Unicode conversion.
     final char[] byteArrayToCharArray(byte[] buf, int offset, int length, BidiConversionProperties properties)
     {

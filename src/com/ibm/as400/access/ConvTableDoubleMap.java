@@ -507,7 +507,8 @@ public class ConvTableDoubleMap extends ConvTable
     // Perform a Unicode to AS/400 CCSID conversion.
     final byte[] stringToByteArray(String source, BidiConversionProperties properties)
     {
-        char[] src = source.toCharArray();
+    	return charArrayToByteArray(source.toCharArray(),properties);
+        /*char[] src = source.toCharArray();
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
         byte[] dest;
         // Note.. with surrogates, the output array can be shorter @KDA
@@ -529,13 +530,12 @@ public class ConvTableDoubleMap extends ConvTable
           dest = newDest; 
         }
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, dest);
-        return dest;
+        return dest;*/
     }
     
     // Perform a Unicode to AS/400 CCSID conversion. @AI5A
     final byte[] charArrayToByteArray(char[] src, BidiConversionProperties properties)
     {
-        //char[] src = source.toCharArray();
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
         byte[] dest;
         // Note.. with surrogates, the output array can be shorter @KDA

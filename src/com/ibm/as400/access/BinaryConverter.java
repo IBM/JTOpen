@@ -377,7 +377,6 @@ public class BinaryConverter
     return((long)firstPart << 32) + (secondPart & 0xFFFFFFFFL);
   }
 
-  //@AI5A
   public static byte[] charArrayToByteArray(char[] charValue) 
   {
     if (charValue == null) return null;
@@ -392,7 +391,6 @@ public class BinaryConverter
     return byteValue;
   }
 
-  //@AI5A
   public static char[] byteArrayToCharArray(byte[] byteValue)
   {
     if (byteValue == null) return null;

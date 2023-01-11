@@ -114,7 +114,8 @@ public abstract class ConvTableMixedMap extends ConvTable
     // Perform a Unicode to OS/400 CCSID conversion.
     final byte[] stringToByteArray(String source, BidiConversionProperties properties)
     {
-        char[] src = source.toCharArray();
+    	return charArrayToByteArray(source.toCharArray(),properties); //@AI5C
+        /*char[] src = source.toCharArray();
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
         // Max possible length for mixed-byte byte array.
         byte[] dest = new byte[(src.length * 5 + 3) / 2];
@@ -123,8 +124,8 @@ public abstract class ConvTableMixedMap extends ConvTable
 
         byte sbLookup = 0x00;
         char dbLookup = '\u0000';
-        int[] increment = new int[1];   /*@KDA*/
-        int destPos = 0;                /*@KDA*/
+        int[] increment = new int[1];   
+        int destPos = 0;                
         for (int srcPos = 0; srcPos < src.length; ++srcPos)
         {
             char curChar = src[srcPos];
@@ -236,7 +237,7 @@ public abstract class ConvTableMixedMap extends ConvTable
         System.arraycopy(dest, 0, ret, 0, destPos);
 
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
-        return ret;
+        return ret;*/
     }
     
     //@AI5A
@@ -316,7 +317,6 @@ public abstract class ConvTableMixedMap extends ConvTable
     // Perform a Unicode to OS/400 CCSID conversion.
     final byte[] charArrayToByteArray(char[] src, BidiConversionProperties properties)
     {
-        //char[] src = source.toCharArray();
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src));
         // Max possible length for mixed-byte byte array.
         byte[] dest = new byte[(src.length * 5 + 3) / 2];
