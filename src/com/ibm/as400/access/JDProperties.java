@@ -2153,7 +2153,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     {
         // If no property was provided, then set the choice
         // to the default if not USER or PASSWORD 
-        if((value == null) || ((value.length() == 0) && (index != USER)&& (index != PASSWORD)))  // @E5C //@pw1
+        if((index != USER)&& (index != PASSWORD)&&((value == null) || ((value.length() == 0))))  // @E5C //@pw1
             values_[index] = defaults_[index];
         else
             values_[index] = value;
