@@ -1144,7 +1144,7 @@ endif */
 		{
 			if (serverName.length() == 0)
 				as400 = new AS400 ();
-			else if (userName.length() == 0)
+			else if ((userName == null) || (userName.length() == 0))
 				as400 = new AS400 (serverName);
 			else if (clearPassword == null )
 				as400 = new AS400 (serverName, userName);
