@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+
+<Form version="1.0" type="com.netbeans.developer.modules.loaders.form.forminfo.JPanelFormInfo">
+  <SyntheticProperties>
+    <SyntheticProperty name="encoding" type="java.lang.String" value="ISO-8859-1"/>
+  </SyntheticProperties>
+
+  <Events>
+    <EventHandler event="focusGained" handler="formFocusGained"/>
+  </Events>
+
+  <Layout class="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout"/>
+  <SubComponents>
+    <Component class="javax.swing.JButton" name="refreshButton">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Refreshes view of connection manager service sessions."/>
+        <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Refresh"/>
+      </Properties>
+
+      <Events>
+        <EventHandler event="actionPerformed" handler="refreshButtonActionPerformed"/>
+      </Events>
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="South"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JTextArea" name="connectionViewerTextArea">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Shows the managed connections currently active when you press the Refresh button."/>
+        <Property name="enabled" type="boolean" editor="sun.beans.editors.BoolEditor" value="false"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="Center"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+    <Component class="javax.swing.JLabel" name="connectionViewerLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Connection manager service session active in  this notebook."/>
+        <Property name="toolTipText" type="java.lang.String" editor="com.netbeans.developer.editors.StringEditor" value="Connections in this notebook are pooled by a simple connection manager."/>
+        <Property name="horizontalAlignment" type="int" editor="org.openide.util.SwingEditors$HorizontalPropertyEditor" value="0"/>
+      </Properties>
+      <Constraints>
+        <Constraint layoutClass="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout" value="com.netbeans.developerx.loaders.form.formeditor.layouts.DesignBorderLayout$BorderConstraintsDescription">
+          <BorderConstraints direction="North"/>
+        </Constraint>
+      </Constraints>
+    </Component>
+  </SubComponents>
+</Form>
