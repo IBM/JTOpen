@@ -1,0 +1,52 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<HTML>
+<HEAD>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
+<TITLE>IBM Toolbox for Java: JDBC SQL Types</TITLE>
+
+</head>
+
+<BODY>
+
+<H1>JDBC SQL Types</H1>
+
+<H2><A NAME="unsupported">Unsupported SQL Types</A></H2>
+
+<P>Not all of the SQL types described by the JDBC specification
+are supported by DB2 for i5/OS.  In the cases where a SQL type
+is not supported, the JDBC driver substitutes a similar SQL type.</P>
+
+<P>The following table lists the SQL types that are not supported
+and the SQL type that JDBC driver substitutes for each.</P>
+
+<TABLE BORDER="1">
+<TR VALIGN="bottom" CLASS="hilightbar">
+  <TH ID="t1">Unsupported SQL type</TH>
+  <TH ID="t2">Substituted SQL type</TH>
+</TR>
+<TR>
+  <TD HEADERS="t1">BIT</TD>
+  <TD HEADERS="t2">SMALLINT</TD>
+</TR>
+<TR>
+  <TD HEADERS="t1">TINYINT</TD>
+  <TD HEADERS="t2">SMALLINT</TD>
+</TR>
+<TR>
+  <TD HEADERS="t1">BIGINT (on OS/400 Version 4 Release 4 and previous)</TD>
+  <TD HEADERS="t2">INTEGER</TD>
+</TR>
+<TR>
+  <TD HEADERS="t1">LONGVARCHAR</TD>
+  <TD HEADERS="t2">VARCHAR</TD>
+</TR>
+<TR>
+  <TD HEADERS="t1">LONGVARBINARY</TD>
+  <TD HEADERS="t2">VARBINARY</TD>
+</TR>
+</TABLE>
+
+<P><STRONG>Note:</STRONG> BIGINT is supported on OS/400 V4R5 and later.</P>
+
+</BODY>
+</HTML>
