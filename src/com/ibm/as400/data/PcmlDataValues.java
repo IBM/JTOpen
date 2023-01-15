@@ -183,7 +183,12 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         if (getDataType() == PcmlData.STRUCT) {                    // @D0A
             throw new PcmlException(DAMRI.STRUCT_VALUE, new Object[] {getNameForException()} );   // @D0A
         }
-        if ( v.getClass().equals(getValueClass()) ) 
+        
+        if (getDataType() == PcmlData.CHAR && 
+            (v instanceof String || v instanceof char[])) {  //@AI6A
+        	m_value = v;
+        } 
+        else if ( v.getClass().equals(getValueClass())) 
         {
             if (v instanceof BigDecimal) {
               m_value = ((BigDecimal)v).setScale(getPrecision(), BigDecimal.ROUND_HALF_EVEN);       // @D0A
@@ -452,7 +457,8 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
     
                 case PcmlData.CHAR:
                     return java.lang.String.class;// @O6C Class.forName("java.lang.String");
-    
+                case PcmlData.VARCHAR:
+                	return java.lang.String.class;
                 case PcmlData.INT:
                     if (dataLength == 2) 
                     {
