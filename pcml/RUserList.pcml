@@ -1,0 +1,82 @@
+<!--///////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: RUserList.pcml
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+////////////////////////////////////////////////////////////////////////////-->
+
+<pcml version="1.0">
+
+
+
+<program name="qgyolaus" path="/QSYS.LIB/QGY.LIB/QGYOLAUS.PGM" parseorder="listInformation receiverVariable">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="autu0150"
+                                                                                count="listInformation.recordsReturned"
+                                                                                outputsize="receiverVariableLength"/>
+        <data name="receiverVariableLength"             usage="input"           type="int" length="4" init="620"/>
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="numberOfRecordsToReturn"            usage="input"           type="int" length="4" init="10"/> 
+        <data name="formatName"                         usage="input"           type="char" length="8" init="AUTU0150"/>
+        <data name="selectionCriteria"                  usage="input"           type="char" length="10"/>
+        <data name="groupProfileName"                   usage="input"           type="char" length="10"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+        <data name="profileName"                        usage="input"           type="char" length="10" minvrm="V5R1M0"/>
+</program>
+
+
+
+
+<struct name="autu0150">
+        <data name="profileName"                                type="char" length="10"/>
+        <data name="userOrGroupIndicator"                       type="char" length="1"/>
+        <data name="groupMembersIndicator"                      type="char" length="1"/>
+        <data name="textDescription"                            type="char" length="50"/>
+</struct>        
+
+
+
+<program name="qgygtle" path="/QSYS.LIB/QGY.LIB/QGYGTLE.PGM" parseorder="listInformation receiverVariable">        
+        <data name="receiverVariable"                   usage="output"          type="struct" struct="autu0150"
+                                                                                count="listInformation.recordsReturned"
+                                                                                outputsize="receiverVariableLength" />
+        <data name="receiverVariableLength"             usage="input"           type="int" length="4"/>
+        <data name="requestHandle"                      usage="input"           type="byte" length="4"/>
+        <data name="listInformation"                    usage="output"          type="struct" struct="listInformation"/>
+        <data name="numberOfRecordsToReturn"            usage="input"           type="int" length="4"/> 
+        <data name="startingRecord"                     usage="input"           type="int" length="4"/> 
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+
+
+<program name="qgyclst" path="/QSYS.LIB/QGY.LIB/QGYCLST.PGM">
+        <data name="requestHandle"                      usage="input"           type="byte" length="4"/>
+        <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
+</program>
+
+
+
+<struct name="listInformation">
+        <data name="totalRecords"                       type="int" length="4"/>
+        <data name="recordsReturned"                    type="int" length="4"/>
+        <data name="requestHandle"                      type="byte" length="4"/>
+        <data name="recordLength"                       type="int" length="4"/>
+        <data name="informationCompleteIndicator"       type="char" length="1"/>
+        <data name="dateAndTimeCreated"                 type="char" length="13"/>
+        <data name="listStatusIndicator"                type="char" length="1"/>
+        <data                                           type="byte" length="1"/>
+        <data name="lengthOfInformationReturned"        type="int" length="4"/>
+        <data name="firstRecordInReceiverVariable"      type="int" length="4"/>
+        <data                                           type="byte" length="40"/>
+</struct>
+
+
+
+</pcml>        
+
