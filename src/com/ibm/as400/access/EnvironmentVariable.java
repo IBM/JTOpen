@@ -148,6 +148,8 @@ public class EnvironmentVariable implements Serializable
 
     // List of property change event bean listeners.
     private transient PropertyChangeSupport propertyChangeListeners_ = null;  // Set on first add.
+    
+    private char[] nameInCharArray_ = {}; //@AI5A
 
     /**
      Constructs an EnvironmentVariable object.
@@ -196,6 +198,39 @@ public class EnvironmentVariable implements Serializable
         }
         name_ = name;
     }
+    
+    //@AI5A
+    /** 
+    Constructs an EnvironmentVariable object.
+    <p>Environment variable names are case sensitive and cannot contain spaces or equals signs (=).
+    @param  system  The system on which the environment variable exists.
+    @param  nameInCharArray  The environment variable name in char array.
+    **/
+   public EnvironmentVariable(AS400 system, char[] nameInCharArray)
+   {
+       this(system);
+       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, " name: '" + nameInCharArray + "'");
+       if (nameInCharArray.length == 0)
+       {
+           Trace.log(Trace.ERROR, "Parameter 'name' is null.");
+           throw new NullPointerException("name");
+       }
+       for (int i=0;i<nameInCharArray.length;i++) {
+    	   if (nameInCharArray[i] == ' ' || nameInCharArray[i] == '=') {
+    		   Trace.log(Trace.ERROR, "Value of parameter 'name' is not valid: " + nameInCharArray);
+               throw new ExtendedIllegalArgumentException("name (" + nameInCharArray + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+    	   }
+       }
+       nameInCharArray_ = nameInCharArray;
+   }
+   
+   // Implementation note:
+   // *  This package scope constructor is intended for use when populating EnvironmentVariableList.
+   EnvironmentVariable(AS400 system, ServiceProgramCall spc, char[] nameInCharArray) throws IOException
+   {
+       this(system, nameInCharArray);
+       spc_ = spc;
+   }
 
     // Implementation note:
     // *  This package scope constructor is intended for use when populating EnvironmentVariableList.
@@ -681,6 +716,119 @@ public class EnvironmentVariable implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Name bytes:", nameBytes_);
 
         byte[] tempBytes = converter_.stringToByteArray(value, stringType_);
+        valueBytes_ = new byte[tempBytes.length + 1];
+        System.arraycopy(tempBytes, 0, valueBytes_, 0, tempBytes.length);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Value bytes:", valueBytes_);
+
+        // Build the byte array for the environment variable.
+        // Length is name length - one byte for null + one byte for equal sign + value length (including the null).
+        byte[] parameterBytes = new byte[nameBytes_.length + valueBytes_.length];
+
+        // Copy each part into the parameter byte array.
+        System.arraycopy(nameBytes_, 0, parameterBytes, 0, nameBytes_.length - 1);
+        parameterBytes[nameBytes_.length - 1] = 0x7E;  // EBCCIC equal (=).
+        System.arraycopy(valueBytes_, 0, parameterBytes, nameBytes_.length, valueBytes_.length);
+
+        // Initialize the program parameters.
+        ProgramParameter[] parameters = new ProgramParameter[]
+        {
+            new ProgramParameter(ProgramParameter.PASS_BY_REFERENCE, parameterBytes),
+            new ProgramParameter(ProgramParameter.PASS_BY_VALUE, BinaryConverter.intToByteArray(ccsid)),
+            EnvironmentVariable.nullParameter
+        };
+        runServiceProgram(spc_, "Qp0zPutSysEnv", parameters, 0, 0);
+    }
+    
+    
+    /**
+    Sets the value of the environment variable.  The CCSID will be set to the job CCSID.  You must have *JOBCTL special authority to add or change system-level environment variables.
+    @param  value  The value (char array) .
+    @exception  AS400SecurityException  If a security or authority error occurs.
+    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+    @exception  InterruptedException  If this thread is interrupted.
+    @exception  IOException  If an error occurs while communicating with the system.
+    @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+    **/
+   public void setValue(char[] value) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+   {
+       setValue(value, 0, 0);
+   }
+
+   /**
+    Sets the value of the environment variable.  You must have *JOBCTL special authority to add or change system-level environment variables.
+    @param  value  The value (char array).
+    @param  ccsid  The CCSID.  Possible values are:
+    <ul>
+    <li>0 - Use the job CCSID.
+    <li>65535 - Do not translate.
+    <li>Any valid CCSID
+    </ul>
+    @exception  AS400SecurityException  If a security or authority error occurs.
+    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+    @exception  InterruptedException  If this thread is interrupted.
+    @exception  IOException  If an error occurs while communicating with the system.
+    @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+    **/
+   public void setValue(char[] value, int ccsid) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+   {
+       setValue(value, ccsid, AS400BidiTransform.getStringType(ccsid));
+   }
+    
+    /**
+    Sets the value of the environment variable.  You must have *JOBCTL special authority to add or change system-level environment variables.
+    @param  value  The value (char array).
+    @param  ccsid  The CCSID.  Possible values are:
+    <ul>
+    <li>0 - Use the job CCSID.
+    <li>65535 - Do not translate.
+    <li>Any valid CCSID
+    </ul>
+    @param  stringType  The environment variable bidi string type, as defined by the CDRA (Character Data Representation Architecture). See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+    @exception  AS400SecurityException  If a security or authority error occurs.
+    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+    @exception  InterruptedException  If this thread is interrupted.
+    @exception  IOException  If an error occurs while communicating with the system.
+    @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+    **/
+    public void setValue(char[] value, int ccsid, int stringType) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting environment variable value: '" + value + "', ccsid: " + ccsid + ", string type: " + stringType);
+        if (value == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'value' is null.");
+            throw new NullPointerException("value");
+        }
+        if ((ccsid < 0) || (ccsid > 65535))
+        {
+            Trace.log(Trace.ERROR, "Value of parameter 'ccsid' is not valid:", ccsid);
+            throw new ExtendedIllegalArgumentException("ccsid (" + ccsid + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+
+        if (name_ == null && nameBytes_ == null && nameInCharArray_.length ==0)
+        {
+            Trace.log(Trace.ERROR, "Attempt to set value before setting name.");
+            throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+        if (spc_ == null)
+        {
+            spc_ = EnvironmentVariable.setupServiceProgramCall(system_);
+        }
+
+        if (ccsid == 0) ccsid = system_.getCcsid();
+        converter_ = new Converter(ccsid, system_);
+        ccsid_ = ccsid;
+        stringType_ = stringType;
+
+        if (nameBytes_ == null)
+        {
+            byte[] tempBytes = (name_==null)?converter_.charArrayToByteArray(nameInCharArray_, stringType_)
+            		:converter_.stringToByteArray(name_, stringType_);
+            nameBytes_ = new byte[tempBytes.length + 1];
+            System.arraycopy(tempBytes, 0, nameBytes_, 0, tempBytes.length);
+        }
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Name bytes:", nameBytes_);
+
+        byte[] tempBytes = converter_.charArrayToByteArray(value, stringType_);
         valueBytes_ = new byte[tempBytes.length + 1];
         System.arraycopy(tempBytes, 0, valueBytes_, 0, tempBytes.length);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Value bytes:", valueBytes_);

@@ -299,4 +299,149 @@ public class Converter implements Serializable
         }
         System.arraycopy(convertedBytes, 0, destination, offset, convertedBytes.length);
     }
+    
+    //@AI5A
+    // Converts the specified String into bytes.
+    // @param  source  The char array to convert.
+    // @return  The resultant byte array.
+    public byte[] charArrayToByteArray(char[] source)
+    {
+        return impl.charArrayToByteArray(source);
+    }
+
+    // Converts the specified String into bytes.
+    // @param  source  The char array to convert.
+    // @param  type  The output string type as defined by the CDRA (Character Data Respresentation Architecture).  One of the following constants defined in BidiStringType: ST5 (LTR), ST6 (RTL), ST10 (Contextual LTR), or ST11 (Contextual RTL).
+    // @return  The resultant byte array.
+    byte[] charArrayToByteArray(char[] source, int type)
+    {
+        return charArrayToByteArray(source, new BidiConversionProperties(type));
+    }
+
+    // Converts the specified String into bytes.
+    // @param  source  The String to convert.
+    // @param  properties  The bidi conversion properties.
+    // @return  The resultant byte array.
+    byte[] charArrayToByteArray(char[] source, BidiConversionProperties properties)
+    {
+        return impl.charArrayToByteArray(source, properties);
+    }
+    
+ // Converts the specified String into bytes.
+    // @param  source  The char array to convert.
+    // @param  destination  The destination byte array.
+    // @exception  CharConversionException  If destination is not large enough to hold the converted string.
+    public void charArrayToByteArray(char[] source, byte[] destination) throws CharConversionException
+    {
+        byte[] convertedBytes = impl.charArrayToByteArray(source);
+        if (convertedBytes.length > destination.length)
+        {
+            // Copy as much as will fit.
+            System.arraycopy(convertedBytes, 0, destination, 0, destination.length);
+            Trace.log(Trace.ERROR, BUFFER_OVERFLOWED);
+            throw new CharConversionException();
+        }
+        System.arraycopy(convertedBytes, 0, destination, 0, convertedBytes.length);
+    }
+
+    // Converts the specified String into bytes.
+    // @param  source  The char array to convert.
+    // @param  destination  The destination byte array.
+    // @param  offset  The offset into the destination array for the start of the data.
+    // @exception  CharConversionException  If destination is not large enough to hold the converted string.
+    public void charArrayToByteArray(char[] source, byte[] destination, int offset) throws CharConversionException
+    {
+        byte[] convertedBytes = impl.charArrayToByteArray(source);
+        if (convertedBytes.length > destination.length - offset)
+        {
+            // Copy as much as will fit.
+            System.arraycopy(convertedBytes, 0, destination, offset, destination.length - offset);
+            Trace.log(Trace.ERROR, BUFFER_OVERFLOWED);
+            throw new CharConversionException();
+        }
+        System.arraycopy(convertedBytes, 0, destination, offset, convertedBytes.length);
+    }
+
+    // Converts the specified String into bytes.
+    // @param  source  The char array to convert.
+    // @param  destination  The destination byte array.
+    // @param  offset  The offset into the destination array for the start of the data.
+    // @param  length  The number of bytes of data to write into the array.
+    // @exception  CharConversionException  If destination is not large enough to hold the converted string.
+    public void charArrayToByteArray(char[] source, byte[] destination, int offset, int length) throws CharConversionException
+    {
+        byte[] convertedBytes = impl.charArrayToByteArray(source);
+        if (convertedBytes.length > length)
+        {
+            // Copy as much as will fit.
+            System.arraycopy(convertedBytes, 0, destination, offset, length);
+            Trace.log(Trace.ERROR, BUFFER_OVERFLOWED);
+            throw new CharConversionException();
+        }
+        System.arraycopy(convertedBytes, 0, destination, offset, convertedBytes.length);
+    }
+
+    // Converts the specified String into bytes.
+    // @param  source  The char array to convert.
+    // @param  destination  The destination byte array.
+    // @param  offset  The offset into the destination array for the start of the data.
+    // @param  length  The number of bytes of data to write into the array.
+    // @param  type  The output string type as defined by the CDRA (Character Data Respresentation Architecture).  One of the following constants defined in BidiStringType: ST5 (LTR), ST6 (RTL), ST10 (Contextual LTR), or ST11 (Contextual RTL).
+    // @exception  CharConversionException  If destination is not large enough to hold the converted string.
+    void charArrayToByteArray(char[] source, byte[] destination, int offset, int length, int type) throws CharConversionException
+    {
+        charArrayToByteArray(source, destination, offset, length, new BidiConversionProperties(type));
+    }
+
+    // Converts the specified String into bytes.
+    // @param  source  The char array to convert.
+    // @param  destination  The destination byte array.
+    // @param  offset  The offset into the destination array for the start of the data.
+    // @param  length  The number of bytes of data to write into the array.
+    // @param  properties  The bidi conversion properties.
+    // @exception  CharConversionException  If destination is not large enough to hold the converted string.
+    void charArrayToByteArray(char[] source, byte[] destination, int offset, int length, BidiConversionProperties properties) throws CharConversionException
+    {
+        byte[] convertedBytes = impl.charArrayToByteArray(source, properties);
+        if (convertedBytes.length > length)
+        {
+            // Copy as much as will fit.
+            System.arraycopy(convertedBytes, 0, destination, offset, length);
+            Trace.log(Trace.ERROR, BUFFER_OVERFLOWED);
+            throw new CharConversionException();
+        }
+        System.arraycopy(convertedBytes, 0, destination, offset, convertedBytes.length);
+    }
+    
+ // Converts the specified bytes into a char array.
+    // @param  source  The bytes to convert.
+    // @param  offset  The offset into the source array for the start of the data.
+    // @param  length  The number of bytes of data to read from the array.
+    // @return  The resultant String.
+    public char[] byteArrayToCharArray(byte[] source, int offset, int length)
+    {
+        return impl.byteArrayToCharArray(source, offset, length);
+    }
+
+    // Converts the specified bytes into a char array.
+    // @param  source  The bytes to convert.
+    // @param  offset  The offset into the source array for the start of the data.
+    // @param  length  The number of bytes of data to read from the array.
+    // @param  type  The output string type as defined by the CDRA (Character Data Respresentation Architecture).  One of the following constants defined in BidiStringType: ST5 (LTR), ST6 (RTL), ST10 (Contextual LTR), or ST11 (Contextual RTL).
+    // @return  The resultant String.
+    char[] byteArrayToCharArray(byte[] source, int offset, int length, int type)
+    {
+        return byteArrayToCharArray(source, offset, length, new BidiConversionProperties(type));
+    }
+
+    // Converts the specified bytes into a char array.
+    // @param  source  The bytes to convert.
+    // @param  offset  The offset into the source array for the start of the data.
+    // @param  length  The number of bytes of data to read from the array.
+    // @param  properties  The bidi conversion properties.
+    // @return  The resultant String.
+    char[] byteArrayToCharArray(byte[] source, int offset, int length, BidiConversionProperties properties)
+    {
+        return impl.byteArrayToCharArray(source, offset, length, properties);
+    }
 }
