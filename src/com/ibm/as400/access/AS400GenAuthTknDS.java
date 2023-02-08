@@ -21,7 +21,7 @@ class AS400GenAuthTknDS extends ClientAccessDataStream
 {
     AS400GenAuthTknDS(byte[] userIDbytes, byte[] authenticationBytes, int byteType, int profileTokenType, int profileTokenTimeout, int serverLevel)
     {
-        super(new byte[45 + authenticationBytes.length + (userIDbytes == null ? 0 : 16) + (serverLevel < 5 ? 0 : 7)]);
+    	super(new byte[45 + authenticationBytes.length + ((userIDbytes == null || byteType == 1|| byteType ==2)?0:16) + (serverLevel < 5 ? 0 : 7)]); //@AI8C
 
         setLength(data_.length);
         // setHeaderID(0x0000);
@@ -79,7 +79,7 @@ class AS400GenAuthTknDS extends ClientAccessDataStream
         //   Data.
         System.arraycopy(authenticationBytes, 0, data_, 45, authenticationBytes.length);
 
-        if (userIDbytes != null)
+        if (userIDbytes != null && byteType != 1 && byteType != 2) //@AI8C
         {
             // Set user ID info.
             //   LL
@@ -91,7 +91,7 @@ class AS400GenAuthTknDS extends ClientAccessDataStream
         }
         if (serverLevel >= 5)
         {
-            int offset = 45 + authenticationBytes.length + (userIDbytes == null ? 0 : 16);
+            int offset = 45 + authenticationBytes.length + ((userIDbytes == null || byteType == 1|| byteType ==2) ? 0 : 16);  //@AI8C
             // Set return error messages.
             //   LL
             set32bit(7, offset);
