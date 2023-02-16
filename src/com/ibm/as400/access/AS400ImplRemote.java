@@ -301,12 +301,15 @@ public class AS400ImplRemote implements AS400Impl {
     userId_ = userId;
 
     // Decode passwords and discard seeds.
-    char[] oldPassword = BinaryConverter.byteArrayToCharArray(CredentialVault
-        .decode(proxySeed_, remoteSeed_, oldBytes)); // @mds
+    byte[] oldVault = CredentialVault.decode(proxySeed_, remoteSeed_, oldBytes); //@AI9A
+    char[] oldPassword = BinaryConverter.byteArrayToCharArray(oldVault); // @mds
 
-    char[] newPassword = BinaryConverter.byteArrayToCharArray(CredentialVault
-        .decode(proxySeed_, remoteSeed_, newBytes)); // @mds
+    byte[] newVault = CredentialVault.decode(proxySeed_, remoteSeed_, newBytes); //@AI9A
+    char[] newPassword = BinaryConverter.byteArrayToCharArray(newVault); // @mds
 
+    CredentialVault.clearArray(oldVault); //@AI9A
+    CredentialVault.clearArray(newVault); //@AI9A
+    
     proxySeed_ = null;
     remoteSeed_ = null;
 
@@ -422,7 +425,7 @@ public class AS400ImplRemote implements AS400Impl {
         if (oldPassword != trimmedOldPassword) { 
           CredentialVault.clearArray(oldPassword);
           oldPassword = trimmedOldPassword; 
-        }
+        } 
         byte[] oldPasswordBytes = BinaryConverter
             .charArrayToByteArray(oldPassword);
        
@@ -431,9 +434,8 @@ public class AS400ImplRemote implements AS400Impl {
         if (newPassword != trimmedNewPassword) {
           CredentialVault.clearArray(newPassword);
           newPassword = trimmedNewPassword;
-        }
-        
-        
+        } 
+
         byte[] newPasswordBytes = BinaryConverter
             .charArrayToByteArray(trimUnicodeSpace(newPassword));
         byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
@@ -545,10 +547,14 @@ public class AS400ImplRemote implements AS400Impl {
         byte[] tempSeed = new byte[9];
         CredentialVault.rng.nextBytes(tempSeed);
 
+        byte[] newPasswordByteArray = BinaryConverter.charArrayToByteArray(newPassword); //@AI9A
         SignonInfo returnInfo = signon2(systemName, systemNameLocal, userId,
             CredentialVault.encode(tempSeed, exchangeSeed(tempSeed),
-                BinaryConverter.charArrayToByteArray(newPassword)),
+            		newPasswordByteArray),
             AS400.AUTHENTICATION_SCHEME_PASSWORD); // @mds
+        
+        CredentialVault.clearArray(newPasswordByteArray); //@AI9A
+        
         if (needToDisconnect)
           signonDisconnect();
         return returnInfo;
@@ -572,6 +578,11 @@ public class AS400ImplRemote implements AS400Impl {
       signonServer_.forceDisconnect();
       signonServer_ = null;
       throw e;
+    } finally { //@AI9A
+    	if (newPassword != null && newPassword.length>0)
+    		CredentialVault.clearArray(newPassword);
+    	if (oldPassword != null && oldPassword.length>0)
+    		CredentialVault.clearArray(oldPassword);
     }
   }
 
@@ -996,6 +1007,9 @@ public class AS400ImplRemote implements AS400Impl {
           }
 
           byte[] token = generateShaToken(userIdBytes, passwordBytes);
+          /* Clear the password bytes */ 
+          CredentialVault.clearArray(passwordBytes);  //@AI9A
+          
           authenticationBytes = generateShaSubstitute(token, serverSeed_,
               clientSeed_, userIdBytes, sequence);
         } else { //@AF6A Start
@@ -1726,8 +1740,7 @@ public class AS400ImplRemote implements AS400Impl {
       }
     } else {
       byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId_);
-      byte[] clearCredential = credVault_
-          .getClearCredential();
+      byte[] clearCredential = credVault_.getClearCredential();
       char[] password = BinaryConverter.byteArrayToCharArray(clearCredential);
       CredentialVault.clearArray(clearCredential);
       if (PASSWORD_TRACE) {
@@ -1819,9 +1832,8 @@ public class AS400ImplRemote implements AS400Impl {
 
         byte[] token = generateShaToken(userIdBytes, passwordBytes);
         /* Clear the password bytes */ 
-        CredentialVault.clearArray(passwordBytes);
-        
-          
+        CredentialVault.clearArray(passwordBytes); //@AI9A
+         
         encryptedPassword = generateShaSubstitute(token, serverSeed,
             clientSeed, userIdBytes, sequence);
         //@AF2A Start
@@ -3264,7 +3276,6 @@ public class AS400ImplRemote implements AS400Impl {
       // and populate it with the raw decoded credential bytes.
       //
       byte[] newBytes = CredentialVault.decode(proxySeed_, remoteSeed_, bytes);
-
       switch (byteType) {
       case AS400.AUTHENTICATION_SCHEME_PASSWORD:
         tempVault = new PasswordVault(newBytes);
@@ -3280,6 +3291,7 @@ public class AS400ImplRemote implements AS400Impl {
         throw new InternalErrorException(InternalErrorException.UNKNOWN,
             byteType);
       }
+      CredentialVault.clearArray(newBytes); //@AI9A
       // This code is a bit strange, but necessary.
       // We decoded the raw bytes above and created a new credential vault using
       // the decoded bytes.
@@ -3692,8 +3704,9 @@ public class AS400ImplRemote implements AS400Impl {
       Trace.log(Trace.ERROR, "Password is null.");
       throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
     }
+    
+    byte[] temp = credVault_.getClearCredential();
     try {
-      byte[] temp = credVault_.getClearCredential();
       // Screen out passwords that start with a star.
       if (temp[0] == 0x00 && temp[1] == 0x2A) {
         Trace.log(Trace.ERROR,
@@ -3706,6 +3719,8 @@ public class AS400ImplRemote implements AS400Impl {
     } catch (NativeException e) {
       // Map native exception to AS400SecurityException.
       throw mapNativeSecurityException(e);
+    } finally {
+    	CredentialVault.clearArray(temp); //@AI9A
     }
     return true;
   }

@@ -193,7 +193,9 @@ abstract class CredentialVault implements Cloneable, Serializable
     }
 
     if (!isEmpty()) {
-      encodedCredential_ = CredentialVault.encode(firstSeed, secondSeed, getClearCredential());
+    	byte[] clearCredential = getClearCredential(); //@AI9A
+      encodedCredential_ = CredentialVault.encode(firstSeed, secondSeed, clearCredential);
+      clearArray(clearCredential);  //@AI9A
     }
   }
 

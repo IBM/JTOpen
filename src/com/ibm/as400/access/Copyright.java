@@ -329,6 +329,8 @@ package com.ibm.as400.access;
 //@AI5   20221213  AS400Text support char array
 //@AI6   20230103  ProgramCallDocument setCharArrayValue
 //@AI7   20230111  JDBC:Internal password changes
+//@AI8   20230208  Fix generate profile token issue
+//@AI9   20230216  Clear char array and byte array
 // NOTE:  When adding a line above, adjust the "String version" with the flag value.
 //--------------------------------------------------------------------
 

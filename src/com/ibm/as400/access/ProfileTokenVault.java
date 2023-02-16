@@ -190,7 +190,8 @@ class ProfileTokenVault extends CredentialVault implements Cloneable, Serializab
     if (profileTokenCredential_ != null ) {
       if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "ProfileTokenVault decode called");
       byte[] encodedCredential = store(profileTokenCredential_.getToken());
-      return CredentialVault.decode(adder, mask, encodedCredential);
+      //CredentialVault.decode(adder, mask, resolve(encodedCredential)); //@AI8D
+      return resolve(encodedCredential); //@AI8A
     } else {
       return super.decode(adder, mask); 
     }
