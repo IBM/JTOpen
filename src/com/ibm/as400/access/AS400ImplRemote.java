@@ -226,7 +226,12 @@ public class AS400ImplRemote implements AS400Impl {
       md.update(userIdBytes);
       md.update(bytes);
       byte[] token = md.digest();
-
+      
+      //@AI9A Clear bytes
+      byte[] empty = new byte[bytes.length];
+      Arrays.fill(empty, (byte)0);
+      md.update(empty);
+      
       if (PASSWORD_TRACE) {
         Trace.log(Trace.DIAGNOSTIC, "SHA-1 token:", token);
       }
@@ -4780,6 +4785,12 @@ public class AS400ImplRemote implements AS400Impl {
   	    MessageDigest md = MessageDigest.getInstance(algorithmType);
   	    md.update(data);
   	    byte[] result = md.digest();
+  	    
+  	    //@AI9A Clear data
+  	    byte[] empty = new byte[data.length];
+        Arrays.fill(empty, (byte)0);
+        md.update(empty);
+  	    
   	    return result;
   	} catch (NoSuchAlgorithmException e) {
   	    Trace.log(Trace.ERROR, "Error getting instance of " + algorithmType + " algorithm:", e);
