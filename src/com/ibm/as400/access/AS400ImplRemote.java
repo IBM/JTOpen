@@ -465,6 +465,9 @@ public class AS400ImplRemote implements AS400Impl {
 
         oldProtected = generateShaProtected(oldPasswordBytes, newToken,
             serverSeed_, clientSeed_, userIdBytes, sequence);
+        //@AI9A
+        CredentialVault.clearArray(newPasswordBytes);
+        CredentialVault.clearArray(oldPasswordBytes);
       } //@AF2 password level >= 4 QPWDLVL4
       else {
     	  if (oldPassword.length == 0) {
@@ -495,22 +498,19 @@ public class AS400ImplRemote implements AS400Impl {
        * uses a sequence number of 1.
       */
 	      byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
-	      
-	      
-	              char[] trimmedOldPassword = trimUnicodeSpace(oldPassword);
+	      	     
+	     char[] trimmedOldPassword = trimUnicodeSpace(oldPassword);
         if (oldPassword != trimmedOldPassword) { 
           CredentialVault.clearArray(oldPassword);
           oldPassword = trimmedOldPassword; 
         }
-      
-        
+              
         char[] trimmedNewPassword = trimUnicodeSpace(newPassword);
         if (newPassword != trimmedNewPassword) {
           CredentialVault.clearArray(newPassword);
           newPassword = trimmedNewPassword;
         }
         
-
 	      byte[] oldPasswordBytes = BinaryConverter
 	              .charArrayToByteArray(oldPassword);
 	      byte[] newPasswordBytes = BinaryConverter
@@ -524,6 +524,10 @@ public class AS400ImplRemote implements AS400Impl {
 		  byte[] newToken = generatePwdTokenForPasswordLevel4(userId, newPassword);
 		  
 		  oldProtected = generateSha512Protected(oldPasswordBytes, newToken, serverSeed_, clientSeed_, userId, sequence);
+		  
+		  //@AI9A
+	      CredentialVault.clearArray(newPasswordBytes);
+	      CredentialVault.clearArray(oldPasswordBytes);
   }
   //@AF2 End
 
@@ -936,8 +940,9 @@ public class AS400ImplRemote implements AS400Impl {
         // @mds should we null out the seeds here
         break;
       default: // Password.
-        char[] password = BinaryConverter.byteArrayToCharArray(vault.decode(
-            proxySeed_, remoteSeed_)); // @mds
+    	byte[] passwordByte = vault.decode(proxySeed_, remoteSeed_); //@AI9A
+        char[] password = BinaryConverter.byteArrayToCharArray(passwordByte); // @mds
+        CredentialVault.clearArray(passwordByte);  //@AI9A
         proxySeed_ = null;
         remoteSeed_ = null;
 
@@ -1053,6 +1058,7 @@ public class AS400ImplRemote implements AS400Impl {
              *    Initialization vector (salt) = value generated in Step #4.
              */
   	      byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
+  	      CredentialVault.clearArray(password); //@AI9A
   	      authenticationBytes = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
         }//@AF6A End
       }
@@ -1092,7 +1098,7 @@ public class AS400ImplRemote implements AS400Impl {
       signonServer_.forceDisconnect();
       signonServer_ = null;
       throw e;
-    }
+    } 
   }
 
   // Get either the user's CCSID, the signon server CCSID, or our best guess.
