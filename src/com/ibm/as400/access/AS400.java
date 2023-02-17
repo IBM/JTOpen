@@ -1443,17 +1443,20 @@ public class AS400 implements Serializable
             // to the impl.  After the password has been changed, we will update
             // our own credential vault with the new password, and create ourselves
             // the appropriate type of credential vault to store the password in.
-            
-            byte[] oldbytes = BinaryConverter.charArrayToByteArray(oldPassword); //@AI9A
-            byte[] newbytes = BinaryConverter.charArrayToByteArray(newPassword); //@AI9A
+            //@AI9A
+            byte[] oldbytes = BinaryConverter.charArrayToByteArray(oldPassword); 
+            byte[] newbytes = BinaryConverter.charArrayToByteArray(newPassword); 
+            //In case exception when change password, clear old, new bytes.
+            byte[] encodeOldBytes = CredentialVault.encode(proxySeed, remoteSeed, oldbytes);
+            byte[] encodeNewBytes = CredentialVault.encode(proxySeed, remoteSeed, newbytes);
+            CredentialVault.clearArray(oldbytes); 
+            CredentialVault.clearArray(newbytes);
+            //@AI9A End
 
             signonInfo_ = impl_.changePassword(systemName_, 
                 systemNameLocal_, userId_, 
-                CredentialVault.encode(proxySeed, remoteSeed, oldbytes), 
-                CredentialVault.encode(proxySeed, remoteSeed, newbytes));  //@AI9C
-            
-            CredentialVault.clearArray(oldbytes); //@AI9A
-            CredentialVault.clearArray(newbytes); //@AI9A
+                encodeOldBytes, 
+                encodeNewBytes);  //@AI9C
 
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Password changed successfully.");
 
