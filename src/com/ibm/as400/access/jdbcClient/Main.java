@@ -2880,6 +2880,14 @@ public class Main implements Runnable {
                           } else if (parameterTypeName.equals("java.lang.String") ||
                               parameterTypeName.equals("java.lang.Object") ) {
                             parameters[p] = arg;
+                          } else if (parameterTypeName.equals("char") ) {
+                            if (arg.length() == 1) {
+                              parameters[p] = new Character(arg.charAt(0));
+                            } else {
+                              possibleErrors.append("Could not parse " + arg
+                                  + " as char\n");
+                              methodFound = false; 
+                            }
                           } else if (parameterTypeName.equals("boolean")) {
                             try {
                               parameters[p] = new Boolean(arg);
