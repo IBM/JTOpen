@@ -19,20 +19,14 @@ The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program Product 
 
 ### Contents
 
-[What is the Toolbox?]()
-
-[Why Open Source?]()
-
-[Differences between JTOpen and the Toolbox LPP]()
-
-[Download and installation of JTOpen]()
-  [Requirements]()
-  [Files]()
-  [Building and Using JTOpen]()
-  [Using the Toolbox LPP]()
-
-[Support information]()
-
+* [What is the Toolbox?](#what-is-the-toolbox)
+* [Why Open Source?](#why-open-source)
+* [Differences between JTOpen and the Toolbox LPP](#differences-between-jtopen-and-the-toolbox-lpp)
+* [Download and installation of JTOpen](#download-and-installation-of-jtopen)
+  * [Requirements](#requirements)
+  * [Files](#files)
+  * [Building and Using JTOpen](#building-and-using-jtopen)  <!-- * [Using the Toolbox LPP](#using-the-toolbox-lpp) -->
+* [Support information](#support-information)
 
 ### What is the Toolbox?
 
@@ -47,19 +41,16 @@ The Toolbox is available as an installable licensed program for the iSeries
 as of OS/400 V5R1. Here is a breakdown of the supported
 Toolbox releases versus operating system versions:
 
-Toolbox                         Installs on     Connects to
-release         LPP release     OS/400 version  OS/400 version
--------         --------------  --------------  --------------
-JTOpen 6.1+     5761JC1 V6R1M0  V5R3 and up     V5R3 and up
-JTOpen 7.0+     5770SS1 V7R1M0  V5R4 and up     V5R4 and up
-JTOpen 8.0+     5770SS1 V7R2M0  V6R1 and up     V6R1 and up
-JTOpen 9.0+     5770SS1 V7R3M0  V7R1 and up     V7R1 and up
-JTOpen 10.0+    5770SS1 V7R4M0  V7R2 and up     V7R2 and up
-JTOpen 11.0+    5770SS1 V7R5M0  V7R3 and up     V7R3 and up
+| Toolbox release | LPP release | Installs on OS/400 version | Connects to  OS/400 version |
+| -------  |  -------------- | -------------- |  -------------- |
+| JTOpen 6.1+ | 5761JC1 V6R1M0 | V5R3 and up | V5R3 and up
+| JTOpen 7.0+ | 5770SS1 V7R1M0 | V5R4 and up | V5R4 and up
+| JTOpen 8.0+ | 5770SS1 V7R2M0 | V6R1 and up | V6R1 and up
+| JTOpen 9.0+ | 5770SS1 V7R3M0 | V7R1 and up | V7R1 and up
+| JTOpen 10.0+ | 5770SS1 V7R4M0 | V7R2 and up | V7R2 and up
+| JTOpen 11.0+ | 5770SS1 V7R5M0 | V7R3 and up | V7R3 and up
 
-
-     Note: As of IBM i 7.1 (V7R1), the "JC1" product is no longer shipped.
-           The Toolbox LPP is available under product 5770SS1 Option 3.
+_Note: As of IBM i 7.1 (V7R1), the "JC1" product is no longer shipped. The Toolbox LPP is available under product 5770SS1 Option 3._
 
 Newer versions of the Toolbox are backwards-compatible with earlier
 versions. Upgrading to a newer version is usually recommended, with the one
@@ -141,72 +132,29 @@ Briefly, the requirements for using the JTOpen code are as follows:
 
 JTOpen is comprised of the following files:
 
-Jar file          Contents
---------          --------
+|Jar file | Contents |
+| ------- | -------- |
+| jtopen_x_x_source.zip | This is a zip file of all the source files in the repository. It is not a Java jar file. |
+| jtopen_x_x_javadoc.zip | This is a zip file of the javadoc (in HTML format) for the JTOpen source files. It is not a Java jar file. |
+| jt400.jar\(\*\) | This is the main JTOpen jar file. It contains almost all open source code (except for the few Toolbox classes that could  not be open-sourced), including the utilities package and the JDBC driver (JDBC 3.0).|
+| jt400android.jar\(\*\) | This is the main JTOpen jar file, compiled for use on android.  Some Java features that are not supported on android are disabled. |
+| java6/jt400.jar\(\*\) | This is the main JTOpen jar file compiled for Java 6. A Java 6 JVM is required to use this class. |
+| java8/jt400.jar\(\*\) | This is the main JTOpen jar file compiled for Java 8. A Java 8 JVM is required to use this class. |
+| java9/jt400.jar\(\*\) | This is the main JTOpen jar file compiled for Java 9.  A Java 9 JVM is required to use this class. |                  
+| jtopenlite.jar\(\*\) | This contains the JTOpenLite classes, optimized for small devices. |
+| jt400Micro.jar\(\*\) | This contains the deprecated ToolboxME (Micro Edition) classes for use on a handheld device. This will be removed in a future JTOpen release. |
+| jt400Native.jar |  Previously known as jt400Access.zip, this jar does not contain the vaccess package. It does contain the native optimization classes necessary for running performance-enhanced applications on IBM i, i5/OS, or OS/400 JVM.  This is shipped via PTF on the IBM i. |
+| jt400Proxy.jar\(\*\) | This jar contains just the classes needed to run a client application using the Toolbox proxy server. It is especially useful in environments where a smaller jar is needed. |
+| jt400Servlet.jar\(\*\) | This jar contains the html and servlet packages. |
+| jui400.jar\(\*\) | Contains the PDML runtime packages as provided by the Graphical Toolbox. |
+| uitools.jar\(\*\) | Contains the GUI Builder packages as provided by the Graphical Toolbox. |
+| util400.jar\(\*\) | Contains various utilities. |
+| composer.jar\(\*\) | Contains XSL stylesheet composer classes. |
+| reportwriter.jar\(\*\) | Contains XSL report processor classes. |
+| outputwriters.jar\(\*\) | Contains PDF, PCL, and font classes. |
+| tes.jar\(\*\) | Contains the IBM i Graphical Debugger. |
 
-jtopen_x_x_source.zip  This is a zip file of all the source files in the repository.
-                       It is not a Java jar file.
-
-jtopen_x_x_javadoc.zip This is a zip file of the javadoc (in HTML format) for
-                       the JTOpen source files. It is not a Java jar file.
-
-jt400.jar(*)         This is the main JTOpen jar file. It contains almost all open
-                     source code (except for the few Toolbox classes that could
-                     not be open-sourced), including the utilities package,
-                     and the JDBC driver (JDBC 3.0).
-                     
-jt400android.jar(*)  This is the main JTOpen jar file, compiled for use on 
-                     android.  Some Java features that are not supported
-                     on android are disabled. 
-                                          
-java6/jt400.jar(*)   This is the main JTOpen jar file compiled for Java 6. 
-                     A Java 6 JVM is required to use this class.
-                      
-java8/jt400.jar(*)   This is the main JTOpen jar file compiled for Java 8. 
-                     A Java 8 JVM is required to use this class. 
-                     
-java9/jt400.jar(*)   This is the main JTOpen jar file compiled for Java 9. 
-                     A Java 9 JVM is required to use this class.                   
-
-jtopenlite.jar(*)    This contains the JTOpenLite classes, optimized for 
-                     small devices. 
-                     
-jt400Micro.jar(*)    This contains the deprecated ToolboxME (Micro Edition) 
-                     classes for use on a handheld device. This will be
-                     removed in a future JTOpen release. 
-
-jt400Native.jar      Previously known as jt400Access.zip, this jar does not
-                     contain the vaccess package. It does contain the native
-                     optimization classes necessary for running performance-enhanced
-                     applications on IBM i, i5/OS, or OS/400 JVM.  This is shipped
-                     via PTF on the IBM i. 
-
-jt400Proxy.jar(*)    This jar contains just the classes needed to run a client
-                     application using the Toolbox proxy server. It is
-                     especially useful in environments where a smaller jar
-                     is needed.
-
-jt400Servlet.jar(*)  This jar contains the html and servlet packages.
-
-jui400.jar(*)        Contains the PDML runtime packages as provided by
-                     the Graphical Toolbox.
-
-uitools.jar(*)       Contains the GUI Builder packages as provided by the
-                     Graphical Toolbox.
-
-util400.jar(*)       Contains various utilities.
-
-composer.jar(*)      Contains XSL stylesheet composer classes.
-
-reportwriter.jar(*)  Contains XSL report processor classes.
-
-outputwriters.jar(*) Contains PDF, PCL, and font classes.
-
-tes.jar(*)           Contains the IBM i Graphical Debugger.
-
-
-
-(*) Files contained in file jtopen_x_x.zip.
+\(\*\) Files contained in file jtopen_x_x.zip.
 
 There are additional jar files shipped in the download for JTOpen off of the Toolbox
 downloads page. Those jar files do not contain JTOpen code. They are
