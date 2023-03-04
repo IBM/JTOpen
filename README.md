@@ -37,9 +37,7 @@ with data on your IBM i, i5/OS, or OS/400 system. You can also run Java
 applications that use the IBM Toolbox for Java on the IBM i, i5/OS, or
 OS/400 Java Virtual Machine.
 
-The Toolbox is available as an installable licensed program for the iSeries 
-as of OS/400 V5R1. Here is a breakdown of the supported
-Toolbox releases versus operating system versions:
+The Toolbox is available as an installable licensed program for IBM i as of OS/400 V5R1. Here is a breakdown of the supported Toolbox releases versus operating system versions:
 
 | Toolbox release | LPP release | Installs on OS/400 version | Connects to  OS/400 version |
 | -------  |  -------------- | -------------- |  -------------- |
@@ -56,7 +54,6 @@ Newer versions of the Toolbox are backwards-compatible with earlier
 versions. Upgrading to a newer version is usually recommended, with the one
 main exception being that the Toolbox is only supported for connection
 to servers running an in-service release of i5/OS or OS/400.
-
 
 ### Why Open Source?
 
@@ -96,9 +93,9 @@ We have chosen to make the Toolbox code open source for the following reasons:
 4. In general, the Toolbox LPP is supported directly by IBM. JTOpen
    is supported by the JTOpen user community, in which IBM participates
    and contributes, specifically through developer email, the JTOpen
-   mailing list, and the <A HREF="https://www.ibm.com/mysupport/s/forumsquestion?language=en_US&id=0D50z000060GKjGCAW">JTOpen Web forum</A>
+   mailing list, and the[JTOpen Web forum](https://www.ibm.com/mysupport/s/forumsquestion?language=en_US&id=0D50z000060GKjGCAW)
 
-5. Pursuant to the <A HREF="http://www.opensource.org/licenses/ibmpl.php">IBM Public License</A>, programmers are free to alter the
+5. Pursuant to the [IBM Public License](http://www.opensource.org/licenses/ibmpl.php), programmers are free to alter the
    JTOpen source code and to distribute it with their own applications.
 
 ### Download and installation of JTOpen
@@ -140,7 +137,7 @@ JTOpen is comprised of the following files:
 | jt400android.jar\(\*\) | This is the main JTOpen jar file, compiled for use on android.  Some Java features that are not supported on android are disabled. |
 | java6/jt400.jar\(\*\) | This is the main JTOpen jar file compiled for Java 6. A Java 6 JVM is required to use this class. |
 | java8/jt400.jar\(\*\) | This is the main JTOpen jar file compiled for Java 8. A Java 8 JVM is required to use this class. |
-| java9/jt400.jar\(\*\) | This is the main JTOpen jar file compiled for Java 9.  A Java 9 JVM is required to use this class. |                  
+| java9/jt400.jar\(\*\) | This is the main JTOpen jar file compiled for Java 9.  A Java 9 JVM is required to use this class. |
 | jtopenlite.jar\(\*\) | This contains the JTOpenLite classes, optimized for small devices. |
 | jt400Micro.jar\(\*\) | This contains the deprecated ToolboxME (Micro Edition) classes for use on a handheld device. This will be removed in a future JTOpen release. |
 | jt400Native.jar |  Previously known as jt400Access.zip, this jar does not contain the vaccess package. It does contain the native optimization classes necessary for running performance-enhanced applications on IBM i, i5/OS, or OS/400 JVM.  This is shipped via PTF on the IBM i. |
@@ -191,20 +188,17 @@ __Note: Complete build instructions are specified in the commentary in file /bui
 
 ### Support information
 
-Documentation for JTOpen can be found on the Toolbox
-web site at <A HREF="https://www.ibm.com/support/pages/node/1118781">https://www.ibm.com/support/pages/node/1118781</A>
+Documentation for JTOpen can be found on the [Toolbox web site](https://www.ibm.com/support/pages/node/1118781).
 
-The <A HREF="https://www.ibm.com/mysupport/s/forumsquestion?language=en_US&id=0D50z000060GKjGCAW">JTOpen Web forum</A> is available off in the community - IBM Toolbox for Java and JTOpen.
+The [JTOpen Web forum](https://www.ibm.com/mysupport/s/forumsquestion?language=en_US&id=0D50z000060GKjGCAW) is available in the community IBM Toolbox for Java and JTOpen.
 
-To subscribe/unsubscribe or view information about the JTOpen mailing list,
-see <A HREF="https://lists.sourceforge.net/lists/listinfo/jt400-news">https://lists.sourceforge.net/lists/listinfo/jt400-news</A>
+Subscribe/unsubscribe or view information about the [JTOpen mailing list](https://lists.sourceforge.net/lists/listinfo/jt400-news).
 Please do not send messages to the JTOpen mailing list, as they will be bounced.
-Instead, post your comments and questions to the <A HREF="https://www.ibm.com/mysupport/s/forumsquestion?language=en_US&id=0D50z000060GKjGCAW">JTOpen Web forum</A>.
+Instead, post your comments and questions to the [JTOpen Web forum](https://www.ibm.com/mysupport/s/forumsquestion?language=en_US&id=0D50z000060GKjGCAW) .
 
-For bug reports, please use the JTOpen bug database located at
-<A HREF="http://sourceforge.net/tracker/?group_id=128806&atid=712772">http://sourceforge.net/tracker/?group_id=128806&atid=712772</A>
-Other enhancements or fixes can be sent to <A HREF="mailto:rchjt400@us.ibm.com">rchjt400@us.ibm.com</A> (monitored weekly)
-or posted to the <A HREF="https://www.ibm.com/mysupport/s/forumsquestion?language=en_US&id=0D50z000060GKjGCAW">JTOpen Web forum</A> (monitored daily).
+For bug reports, please use the [JTOpen bug database](https://sourceforge.net/tracker/?group_id=128806&atid=712772);
+Other enhancements or fixes can be sent to[rchjt400@us.ibm.com](mailto:rchjt400@us.ibm.com) (monitored weekly),
+or posted to the [JTOpen Web forum](https://www.ibm.com/mysupport/s/forumsquestion?language=en_US&id=0D50z000060GKjGCAW) (monitored daily).
 
 <!--
 The preferred channel for questions and comments is the Web forum.
