@@ -93,7 +93,7 @@ We have chosen to make the Toolbox code open source for the following reasons:
 4. In general, the Toolbox LPP is supported directly by IBM. JTOpen
    is supported by the JTOpen user community, in which IBM participates
    and contributes, specifically through developer email, the JTOpen
-   mailing list, and the[JTOpen Web forum](https://www.ibm.com/mysupport/s/forumsquestion?language=en_US&id=0D50z000060GKjGCAW)
+   mailing list, and the [JTOpen Web forum](https://www.ibm.com/mysupport/s/forumsquestion?language=en_US&id=0D50z000060GKjGCAW)
 
 5. Pursuant to the [IBM Public License](http://www.opensource.org/licenses/ibmpl.php), programmers are free to alter the
    JTOpen source code and to distribute it with their own applications.
