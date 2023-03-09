@@ -4110,9 +4110,9 @@ throws SQLException
                 // 
                 // Error Return Code:             1301 - At least one library not added to the library list.
                 // Server CCSID:               277
-                // Default SQL Library:        XLØKODTA              -- E7 D3 80 D2 D6 C4 E3 C1  
+                // Default SQL Library:        XLÃ˜KODTA              -- E7 D3 80 D2 D6 C4 E3 C1  
                 // Default SQL Collection:     (ll=8) XL@KODTA       -- E7 D3 7C D2 D6 C4 E3 C1
-                // In CCSID 277 7C is Ø
+                // In CCSID 277 7C is Ã˜
                 //
                 // @AB3A 
                 
