@@ -851,11 +851,11 @@ class JDUtilities {
       { "SMALLINT", "5" }, { "STRUCT", "2002" }, { "TIME", "92" },
       { "TIMESTAMP", "93" }, { "TINYINT", "-6" }, { "VARBINARY", "-3" },
       { "VARCHAR", "12" },
-      /* ifndef JDBC40 */
+/* ifndef JDBC40 
       { "NCHAR", "1" }, { "GRAPHIC", "1" }, { "NCLOB", "2005" },
       { "NVARCHAR", "12" }, { "SQLXML", "2005" }, { "VARGRAPHIC", "12" },
-  /* endif */
-  /* ifdef JDBC40 
+ endif */ 
+/* ifdef JDBC40 */
    
       {"NCHAR","-15"}, 
       {"GRAPHIC", "-15"}, 
@@ -864,7 +864,7 @@ class JDUtilities {
       {"SQLXML","2009"}, 
       {"VARGRAPHIC", "-9"}, 
       
-  endif */
+/* endif */ 
 
   };
 

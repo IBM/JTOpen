@@ -14,16 +14,16 @@
 package com.ibm.as400.access;
 
 import java.sql.Connection;
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 import java.sql.DatabaseMetaData;
-endif */
+/* endif */ 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 import java.sql.Statement;
-endif */
+/* endif */ 
 
 
 /**
@@ -42,9 +42,9 @@ columns in a result set.
 //   before executing a query (via PreparedStatement.getMetaData()).
 //
 public class AS400JDBCResultSetMetaData
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 extends ToolboxWrapper
-endif */
+/* endif */ 
 implements ResultSetMetaData
 {
     static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";

@@ -63,9 +63,9 @@ explicitly close statements rather than counting on garbage collection.
 //    hierarchy.
 //
 public class AS400JDBCStatement
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 extends ToolboxWrapper
-endif */
+/* endif */ 
 implements Statement
 {
     static final String copyright = "Copyright (C) 1997-2018 International Business Machines Corporation and others.";

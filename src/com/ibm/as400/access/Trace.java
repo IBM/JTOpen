@@ -1629,14 +1629,14 @@ private static final void log(int category, Object source, String message, byte[
       }
       // Set the permissions on the file .. only possible for JDK 1.6.
       // Note:  this does not work on some platforms (i.e. Windows)
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
       boolean publicSet; 
       boolean ownerSet; 
       publicSet = file.setReadable(false, // readable
                        false); // owner only 
       ownerSet = file.setReadable(true, // readable
                        true); // owner only
-    endif */                        
+/* endif */ 
       
       FileOutputStream os = new FileOutputStream(fileName, file.exists());
       destination_ = new PrintWriter(os, true); // note: leave the stream open

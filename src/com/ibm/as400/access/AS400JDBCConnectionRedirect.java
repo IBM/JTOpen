@@ -21,11 +21,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Vector;
 
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.Executor;
 
-endif */ 
+/* endif */ 
 
 /**
  * <p>
@@ -659,28 +659,28 @@ extends AS400JDBCConnection {
    */
   
   boolean handleSQLClientInfoException(
-      /* ifdef JDBC40
+/* ifdef JDBC40 */
       SQLClientInfoException
-    endif */
-      /* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
       SQLException
-      /* endif  */
+ endif */ 
       
       
       e ) throws 
-  /* ifdef JDBC40
+/* ifdef JDBC40 */
   SQLClientInfoException
-endif */
-  /* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
   SQLException
-  /* endif  */
+ endif */ 
 
   {
 
     try { 
       return handleException(e); 
     } catch ( SQLException e2 ) {         
-/* ifdef JDBC40
+/* ifdef JDBC40 */
       if (e2 instanceof SQLClientInfoException) {
          throw (SQLClientInfoException) e2; 
       } else {
@@ -691,10 +691,10 @@ endif */
          e.getFailedProperties());
          throw e; 
       }
-endif */
-  /* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
     throw e2;
-  /* endif  */
+ endif */ 
     }
     
   }
@@ -2103,12 +2103,12 @@ endif */
   }
 
   public synchronized void setClientInfo(String name, String value) 
-  /* ifdef JDBC40
+/* ifdef JDBC40 */
   throws SQLClientInfoException
-endif */
-  /* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
   throws SQLException
-  /* endif  */
+ endif */ 
       {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -2124,12 +2124,12 @@ endif */
         retryOperation = false;
       } catch (
           
-          /* ifdef JDBC40
+/* ifdef JDBC40 */
            SQLClientInfoException
-        endif */
-          /* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
           SQLException
-          /* endif  */
+ endif */ 
           
           e) {
         retryOperation = handleSQLClientInfoException(e);
@@ -2139,12 +2139,12 @@ endif */
   }
 
   public synchronized void setClientInfo(Properties properties) 
-  /* ifdef JDBC40
+/* ifdef JDBC40 */
   throws SQLClientInfoException
-endif */
-  /* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
   throws SQLException
-  /* endif  */
+ endif */ 
 
   {
     boolean retryOperation = true;
@@ -2175,12 +2175,12 @@ endif */
         retryOperation = false;
         
       } catch (
-          /* ifdef JDBC40
+/* ifdef JDBC40 */
           SQLClientInfoException
-       endif */
-         /* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
          SQLException
-         /* endif  */
+ endif */ 
           
           e) {
         retryOperation = handleSQLClientInfoException(e);
@@ -2466,7 +2466,7 @@ endif */
   
   
   
-  /* ifdef JDBC40
+/* ifdef JDBC40 */
   public synchronized boolean isValid(int timeout) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
@@ -2480,9 +2480,9 @@ endif */
     return false;
   
   }
-  endif */
+/* endif */ 
 
-   /*ifdef JDBC40
+/* ifdef JDBC40 */
   public synchronized NClob createNClob() throws SQLException {
       boolean retryOperation = true;
       while (retryOperation) {
@@ -2496,9 +2496,9 @@ endif */
     return null;
 
   }
-endif */
+/* endif */ 
 
-/*ifdef JDBC40
+/* ifdef JDBC40 */
   public synchronized SQLXML createSQLXML() throws SQLException {
         boolean retryOperation = true;
       while (retryOperation) {
@@ -2511,10 +2511,10 @@ endif */
     JDError.throwSQLException(JDError.EXC_INTERNAL); 
     return null;
   }
-  endif */
+/* endif */ 
 
   
-  /* ifdef JDBC40
+/* ifdef JDBC40 */
   public synchronized void abort(Executor executor) throws SQLException  {
           boolean retryOperation = true;
       while (retryOperation) {
@@ -2527,9 +2527,9 @@ endif */
     }
 }
     
-endif */
+/* endif */ 
 
-/* ifdef JDBC40
+/* ifdef JDBC40 */
   public synchronized void setNetworkTimeout(Executor executor, int milliseconds)
       throws SQLException  {
                 boolean retryOperation = true;
@@ -2546,7 +2546,7 @@ endif */
 }
 
       
-endif */
+/* endif */ 
 
   
 }

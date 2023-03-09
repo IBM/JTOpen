@@ -1814,7 +1814,7 @@ Object
     
 
     
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 
 
     public void setNClob(int parameterIndex, NClob clob) throws SQLException {
@@ -1886,6 +1886,6 @@ Object
      } 
 
  
-endif */
+/* endif */ 
 
 }

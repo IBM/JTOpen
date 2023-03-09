@@ -15,9 +15,9 @@ package com.ibm.as400.access;
 
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.RowIdLifetime;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
 
 
@@ -1524,14 +1524,14 @@ implements java.sql.DatabaseMetaData
         return callMethodRtnRSet("getClientInfoProperties");
     }
 
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
 
     //@PDA jdbc40
     public RowIdLifetime getRowIdLifetime() throws SQLException
     {
         return (RowIdLifetime) callMethodRtnObj("getRowIdLifetime");
     }
-    endif */ 
+/* endif */ 
 
     //@PDA jdbc40
     public ResultSet getSchemas(String catalog, String schemaPattern) throws SQLException

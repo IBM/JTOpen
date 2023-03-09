@@ -506,7 +506,7 @@ public class AS400JDBCArray implements Array, Serializable {
       return;
     }
 
-    /* ifndef JDBC40 */
+/* ifndef JDBC40 
     // If not JDBC 40, switch the type code
     switch (typeCode_) {
     case JDTypes.NCHAR:
@@ -520,7 +520,7 @@ public class AS400JDBCArray implements Array, Serializable {
       typeCode_ = Types.CLOB;
       break;
     }
-    /* endif */
+ endif */ 
 
     /* Make sure the type is valid and matches the type of the array */
     /* TODO: What if object is not array type */
@@ -2025,7 +2025,7 @@ public class AS400JDBCArray implements Array, Serializable {
       }
       break;
 
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
       case 2009: // Types.SQLXML 
       { 
         boolean allValid = true; 
@@ -2059,7 +2059,7 @@ public class AS400JDBCArray implements Array, Serializable {
      } 
      break;
       
-     endif */
+/* endif */ 
     case Types.TIME:
       if (JDUtilities.classIsInstanceOf(arrayComponentClass, "java.sql.Time")) {
         Time[] inTimeArray = (Time[]) inArray;

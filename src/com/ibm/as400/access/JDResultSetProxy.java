@@ -23,20 +23,20 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 import java.sql.NClob;
-endif */ 
+/* endif */ 
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-endif */ 
+/* endif */ 
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -1855,19 +1855,19 @@ implements ResultSet
     
     
     //@pda jdbc40
-  //JDBC40DOC     /**
-  //JDBC40DOC      * Retrieves the value of the designated column in the current row
-  //JDBC40DOC      * of this <code>ResultSet</code> object as a <code>NClob</code> object
-  //JDBC40DOC      * in the Java programming language.
-  //JDBC40DOC      *
-  //JDBC40DOC      * @param columnIndex the first column is 1, the second is 2, ...
-  //JDBC40DOC      * @return a <code>NClob</code> object representing the SQL 
-  //JDBC40DOC      *         <code>NCLOB</code> value in the specified column
-  //JDBC40DOC      * @exception SQLException if the driver does not support national
-  //JDBC40DOC      *         character sets;  if the driver can detect that a data conversion
-  //JDBC40DOC      *  error could occur; or if a database access error occurss
-  //JDBC40DOC      */
-    /* ifdef JDBC40 
+     /**
+      * Retrieves the value of the designated column in the current row
+      * of this <code>ResultSet</code> object as a <code>NClob</code> object
+      * in the Java programming language.
+      *
+      * @param columnIndex the first column is 1, the second is 2, ...
+      * @return a <code>NClob</code> object representing the SQL 
+      *         <code>NCLOB</code> value in the specified column
+      * @exception SQLException if the driver does not support national
+      *         character sets;  if the driver can detect that a data conversion
+      *  error could occur; or if a database access error occurss
+      */
+/* ifdef JDBC40 */
     public NClob getNClob(int columnIndex) throws SQLException
     {
         try {
@@ -1882,28 +1882,28 @@ implements ResultSet
             throw JDConnectionProxy.rethrow1 (e);
         }
     }
-    endif */ 
+/* endif */ 
     
     
     //@pda jdbc40
-  //JDBC40DOC     /**
-  //JDBC40DOC      * Retrieves the value of the designated column in the current row
-  //JDBC40DOC      * of this <code>ResultSet</code> object as a <code>NClob</code> object
-  //JDBC40DOC      * in the Java programming language.
-  //JDBC40DOC      *
-  //JDBC40DOC      * @param columnName the name of the column from which to retrieve the value
-  //JDBC40DOC      * @return a <code>NClob</code> object representing the SQL <code>NCLOB</code>
-  //JDBC40DOC      * value in the specified column
-  //JDBC40DOC      * @exception SQLException if the driver does not support national
-  //JDBC40DOC      *         character sets;  if the driver can detect that a data conversion
-  //JDBC40DOC      *  error could occur; or if a database access error occurs
-  //JDBC40DOC      */
-    /* ifdef JDBC40 
+     /**
+      * Retrieves the value of the designated column in the current row
+      * of this <code>ResultSet</code> object as a <code>NClob</code> object
+      * in the Java programming language.
+      *
+      * @param columnName the name of the column from which to retrieve the value
+      * @return a <code>NClob</code> object representing the SQL <code>NCLOB</code>
+      * value in the specified column
+      * @exception SQLException if the driver does not support national
+      *         character sets;  if the driver can detect that a data conversion
+      *  error could occur; or if a database access error occurs
+      */
+/* ifdef JDBC40 */
     public NClob getNClob(String columnName) throws SQLException
     {
         return getNClob (findColumn (columnName));
     }
-    endif */ 
+/* endif */ 
     
     
     //@pda jdbc40
@@ -1949,7 +1949,7 @@ implements ResultSet
     
     
     //@pda jdbc40
-    /* ifdef JDBC40
+/* ifdef JDBC40 */
     public RowId getRowId(int columnIndex) throws SQLException
     {
         try {
@@ -1993,7 +1993,7 @@ implements ResultSet
     {
         return getSQLXML(findColumn (columnName));
     }
-    endif */ 
+/* endif */ 
      
     //@pda jdbc40
     public void updateNCharacterStream(int columnIndex, Reader x, long length) throws SQLException
@@ -2026,7 +2026,7 @@ implements ResultSet
     }
     
     //@PDA jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public void updateNClob(int columnIndex, NClob nClob) throws SQLException
     {
         callMethod ("updateNClob",
@@ -2040,7 +2040,7 @@ implements ResultSet
         updateNClob (findColumn (columnName), nClob);
         
     }
-    endif */ 
+/* endif */ 
     
     //@pda jdbc40
     public void updateNString(int columnIndex, String nString) throws SQLException
@@ -2057,7 +2057,7 @@ implements ResultSet
         updateNString (findColumn (columnName), nString);
     }
     
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     //@PDA jdbc40
     public void updateRowId(int columnIndex, RowId x) throws SQLException
     {
@@ -2089,7 +2089,7 @@ implements ResultSet
         updateSQLXML(findColumn(columnName), xmlObject);
     }
     
-    endif */ 
+/* endif */ 
     
     //@pda jdbc40
     protected String[] getValidWrappedList()
@@ -2532,7 +2532,7 @@ implements ResultSet
  
     
     
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 
     public <T> T getObject(int columnIndex, Class<T> type) throws SQLException {
       // TODO Auto-generated method stub
@@ -2546,7 +2546,7 @@ implements ResultSet
       return null;
     }
 
-endif */ 
+/* endif */ 
     
     
 }

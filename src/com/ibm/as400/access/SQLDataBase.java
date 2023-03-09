@@ -26,15 +26,15 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
 import java.sql.Types;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.Ref;
 import java.sql.RowId;
- endif */ 
+/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40  
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
- endif */ 
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -766,7 +766,7 @@ public abstract class SQLDataBase implements SQLData
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    /* ifdef JDBC40  
+/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false; 
@@ -776,7 +776,7 @@ public abstract class SQLDataBase implements SQLData
         String string = getNString();
         return new AS400JDBCNClob(string, string.length());
     }
-     endif */ 
+/* endif */ 
     //@PDA jdbc40
     /**
     Converts the data to String object.
@@ -795,10 +795,10 @@ public abstract class SQLDataBase implements SQLData
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    /* ifdef JDBC40  
+/* ifdef JDBC40 */
     public abstract SQLXML getSQLXML()
     throws SQLException;
-    endif */     
+/* endif */ 
     
     //@PDA jdbc40
     /**
@@ -807,11 +807,11 @@ public abstract class SQLDataBase implements SQLData
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     
     public abstract RowId getRowId()
     throws SQLException;
-     endif */ 
+/* endif */ 
     
     //@array
     /**

@@ -19,14 +19,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-endif */ 
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -155,9 +155,9 @@ final class SQLDBClobLocator implements SQLLocator
         else if( !(object instanceof Reader) &&
            !(object instanceof InputStream) &&
            ( !(object instanceof Clob))
-  /* ifdef JDBC40          
+/* ifdef JDBC40 */
            &&   !(object instanceof SQLXML)
-    endif*/        
+/* endif */ 
            )
         {
           if (JDTrace.isTraceOn()) {
@@ -213,13 +213,13 @@ final class SQLDBClobLocator implements SQLLocator
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());
             }
-            /*ifdef JDBC40 
+/* ifdef JDBC40 */
             else if( object instanceof SQLXML ) 
             {
                 SQLXML xml = (SQLXML)object;
                 value_ = xml.getString();
             }
-            endif */ 
+/* endif */ 
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -465,7 +465,7 @@ final class SQLDBClobLocator implements SQLLocator
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             }
         }
-        /* ifdef JDBC40 
+/* ifdef JDBC40 */
         else if( object instanceof SQLXML ) //@PDA jdbc40
         {
             SQLXML xml = (SQLXML)object;
@@ -475,7 +475,7 @@ final class SQLDBClobLocator implements SQLLocator
             byte[] outByteArray = converter_.stringToByteArray(stringVal); 
             locator_.writeData(0L, outByteArray, 0, outByteArray.length, true); //@xml4           
         }
-        endif */ 
+/* endif */ 
         else
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -527,12 +527,12 @@ final class SQLDBClobLocator implements SQLLocator
 
     public String getLocalName()
     {
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
       // @P3A
       if (ccsid_ == 1200 ) {
         return "NCLOB"; 
       }
-  endif */       
+/* endif */ 
         return "DBCLOB"; 
     }
 
@@ -573,12 +573,12 @@ final class SQLDBClobLocator implements SQLLocator
 
     public int getType()
     {
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
       // @P3A
       if (ccsid_ == 1200 ) {
         return java.sql.Types.NCLOB;  
       }
-  endif */       
+/* endif */ 
         return java.sql.Types.CLOB;
     }
 
@@ -897,7 +897,7 @@ final class SQLDBClobLocator implements SQLLocator
     }
     
     //@pda jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
 
     public NClob getNClob() throws SQLException
     {
@@ -914,7 +914,7 @@ final class SQLDBClobLocator implements SQLLocator
         return new AS400JDBCNClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_);        
  
     }
-   endif */ 
+/* endif */ 
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -936,7 +936,7 @@ final class SQLDBClobLocator implements SQLLocator
     }
 
     //@pda jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public RowId getRowId() throws SQLException
     {
         //
@@ -955,9 +955,9 @@ final class SQLDBClobLocator implements SQLLocator
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-endif */ 
+/* endif */ 
     //@pda jdbc40
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
       public SQLXML getSQLXML() throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false; 
@@ -972,7 +972,7 @@ endif */
         //return new AS400JDBCSQLXML( getString().toCharArray() );  
         return new AS400JDBCSQLXMLLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_, false); //@xml3 //@xml4
     }
-endif */ 
+/* endif */ 
     // @array
     public Array getArray() throws SQLException
     {

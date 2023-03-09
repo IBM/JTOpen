@@ -14,9 +14,9 @@
 package com.ibm.as400.access;
 
 import java.lang.reflect.InvocationTargetException;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 
 //@PDA jdbc40 new class
 
@@ -27,9 +27,9 @@ transaction.
 **/
 class JDRowIdProxy
 extends AbstractProxyImpl
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 implements RowId
-endif */ 
+/* endif */ 
 
 {
  

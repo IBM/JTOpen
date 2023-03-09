@@ -19,14 +19,14 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-endif */ 
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -159,9 +159,9 @@ final class SQLClobLocator implements SQLLocator
         else if( !(object instanceof Reader) &&
            !(object instanceof InputStream) &&
            ( !(object instanceof Clob))
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
             && !(object instanceof SQLXML)  
-endif*/        
+/* endif */ 
            )
         {
           
@@ -247,13 +247,13 @@ endif*/
               }
               savedObject_ = value_; 
             }
-            /* ifdef JDBC40 
+/* ifdef JDBC40 */
             else if( object instanceof SQLXML ) 
             {
                 SQLXML xml = (SQLXML)object;
                 value_ = xml.getString();
             }
-           endif */ 
+/* endif */ 
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -477,7 +477,7 @@ endif*/
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
                 }
             }
-            /*ifdef JDBC40 
+/* ifdef JDBC40 */
             else if( object instanceof SQLXML ) //@PDA jdbc40 
             {
                 SQLXML xml = (SQLXML)object;
@@ -488,7 +488,7 @@ endif*/
                 byte[] outByteArray = converter_.stringToByteArray(stringVal);
                 locator_.writeData(0L, outByteArray, 0, outByteArray.length, true);           
             }
-            endif */ 
+/* endif */ 
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -914,7 +914,7 @@ endif*/
     }
     
     //@pda jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false; 
@@ -943,7 +943,7 @@ endif*/
  
  
     }
-   endif */ 
+/* endif */ 
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -965,7 +965,7 @@ endif*/
     }
 
     //@pda jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public RowId getRowId() throws SQLException
     {
         
@@ -984,10 +984,10 @@ endif*/
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-    endif */ 
+/* endif */ 
     
     //@pda jdbc40
-    /* ifdef JDBC40
+/* ifdef JDBC40 */
     public SQLXML getSQLXML() throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false; 
@@ -1003,7 +1003,7 @@ endif*/
         //return new AS400JDBCSQLXML( getString().toCharArray() );       
         return new AS400JDBCSQLXMLLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_, false); //@xml3 //@xml4
     }
-    endif */ 
+/* endif */ 
     // @array
     public Array getArray() throws SQLException
     {

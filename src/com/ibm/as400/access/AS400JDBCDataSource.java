@@ -24,10 +24,10 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
-endif */
+/* endif */ 
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Random;                          // @J3a
@@ -73,9 +73,9 @@ import javax.naming.StringRefAddr;                // JNDI
 *  </pre></blockquote>
 **/
 public class AS400JDBCDataSource 
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
 extends ToolboxWrapper
-endif */ 
+/* endif */ 
 
 implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 {
@@ -5581,12 +5581,12 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         return new String[] {  "com.ibm.as400.access.AS400JDBCDataSource", "javax.sql.DataSource" };
     } 
-/*ifdef JDBC40
+/* ifdef JDBC40 */
     public Logger getParentLogger() throws SQLFeatureNotSupportedException {
     throw new SQLFeatureNotSupportedException(); 
       
     } 
-endif */ 
+/* endif */ 
     
     
     /** Returns the enableClientAffinitiesList setting. */ 

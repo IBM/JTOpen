@@ -27,27 +27,27 @@ import java.sql.Clob;
 import java.sql.DataTruncation;
 import java.sql.Date;
 import java.sql.SQLWarning;
-/* ifdef JDBC40
+/* ifdef JDBC40 */
  import java.sql.NClob;
- endif */
+/* endif */ 
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-/* ifdef JDBC40
+/* ifdef JDBC40 */
  import java.sql.RowId;
- endif */
+/* endif */ 
 import java.sql.SQLException;
 /* ifdef JDBC42
 import java.sql.SQLType;
 import java.sql.JDBCType;
 
 endif */
-/* ifdef JDBC40
+/* ifdef JDBC40 */
  import java.sql.SQLXML;
  import java.sql.SQLFeatureNotSupportedException;
- endif */
+/* endif */ 
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -3220,11 +3220,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
     if (scale < 0)
       JDError.throwSQLException(this, JDError.EXC_SCALE_INVALID);
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
            if (parameterValue instanceof SQLXML) //@xmlspec
             setSQLXML(parameterIndex, (SQLXML)parameterValue);  //@xmlspec
         else
-endif */
+/* endif */ 
 
     setValue(parameterIndex, parameterValue, null, scale); // @P0C
   }
@@ -3775,18 +3775,18 @@ endif */
   }
 
   // @PDA jdbc40
-  // JDBC40DOC /**
- // JDBC40DOC     * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
- // JDBC40DOC     * driver converts this to a SQL <code>ROWID</code> value when it sends it
-  // JDBC40DOC * to the database
-  // JDBC40DOC *
-  // JDBC40DOC * @param parameterIndex  The parameter index (1-based).
+ /**
+     * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
+     * driver converts this to a SQL <code>ROWID</code> value when it sends it
+ * to the database
+ *
+ * @param parameterIndex  The parameter index (1-based).
 
-  // JDBC40DOC * @param x the parameter value
-  // JDBC40DOC * @throws SQLException if a database access error occurs
-  // JDBC40DOC *
-  // JDBC40DOC */
-/* ifdef JDBC40 
+ * @param x the parameter value
+ * @throws SQLException if a database access error occurs
+ *
+ */
+/* ifdef JDBC40 */
     public void setRowId(int parameterIndex, RowId x) throws SQLException
     {
         if(JDTrace.isTraceOn())
@@ -3799,7 +3799,7 @@ endif */
             }
             setValue (parameterIndex, x, null, -1); 
      } 
-endif */
+/* endif */ 
   // @PDA jdbc40
   /**
    * Sets the designated paramter to the given <code>String</code> object. The
@@ -3864,16 +3864,16 @@ endif */
   }
 
   // @PDA jdbc40
-  // JDBC40DOC /**
-  // JDBC40DOC     * Sets the designated parameter to a <code>java.sql.NClob</code> object. The driver converts this to a
-  // JDBC40DOC * SQL <code>NCLOB</code> value when it sends it to the database.
-  // JDBC40DOC * @param parameterIndex The parameter index (1-based).
-  // JDBC40DOC * @param value the parameter value
-  // JDBC40DOC * @throws SQLException if the driver does not support national
-  // JDBC40DOC * character sets; if the driver can detect that a data conversion
-  // JDBC40DOC * error could occur ; or if a database access error occurs
-  // JDBC40DOC */
-/* ifdef JDBC40 
+ /**
+     * Sets the designated parameter to a <code>java.sql.NClob</code> object. The driver converts this to a
+ * SQL <code>NCLOB</code> value when it sends it to the database.
+ * @param parameterIndex The parameter index (1-based).
+ * @param value the parameter value
+ * @throws SQLException if the driver does not support national
+ * character sets; if the driver can detect that a data conversion
+ * error could occur ; or if a database access error occurs
+ */
+/* ifdef JDBC40 */
      public void setNClob(int parameterIndex, NClob value) throws SQLException
      {
 
@@ -3888,7 +3888,7 @@ endif */
       } 
       setClob(parameterIndex, value); 
    } 
-endif */
+/* endif */ 
 
   // @PDA jdbc40
   /**
@@ -3991,13 +3991,13 @@ endif */
   }
 
   // @PDA jdbc40
-  // JDBC40DOC /**
-  // JDBC40DOC      * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object.
-  // JDBC40DOC * @param parameterIndex The parameter index (1-based).
-  // JDBC40DOC      * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
-  // JDBC40DOC * @throws SQLException if a database access error occurs
-  // JDBC40DOC */
-  /* ifdef JDBC40 
+ /**
+      * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object.
+ * @param parameterIndex The parameter index (1-based).
+      * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
+ * @throws SQLException if a database access error occurs
+ */
+/* ifdef JDBC40 */
      public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException
      {
          if(JDTrace.isTraceOn())
@@ -4036,7 +4036,7 @@ endif */
     setValue (parameterIndex, xmlObject, null, -1);
   }
      }
-endif */
+/* endif */ 
 
   // @pda jdbc40
   protected String[] getValidWrappedList() {

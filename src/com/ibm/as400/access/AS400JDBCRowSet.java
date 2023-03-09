@@ -34,22 +34,22 @@ import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.PreparedStatement;
-endif */ 
+/* endif */ 
 
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
 import java.sql.SQLWarning;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-endif */ 
+/* endif */ 
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -119,9 +119,9 @@ import java.util.Map;
 *  </ul>
 **/
 public class AS400JDBCRowSet 
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 extends ToolboxWrapper
-endif */ 
+/* endif */ 
 implements RowSet, Serializable             // @A3C
 {
   static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
@@ -4625,41 +4625,41 @@ implements RowSet, Serializable             // @A3C
     }
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Sets the designated parameter to a <code>java.sql.NClob</code> object. The driver converts this to a
- // JDBC40DOC     * SQL <code>NCLOB</code> value when it sends it to the database.
- // JDBC40DOC     * @param parameterIndex of the first parameter is 1, the second is 2, ...
- // JDBC40DOC     * @param value the parameter value
- // JDBC40DOC     * @throws SQLException if the driver does not support national
- // JDBC40DOC     *         character sets;  if the driver can detect that a data conversion
- // JDBC40DOC     *  error could occur ; or if a database access error occurs
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Sets the designated parameter to a <code>java.sql.NClob</code> object. The driver converts this to a
+     * SQL <code>NCLOB</code> value when it sends it to the database.
+     * @param parameterIndex of the first parameter is 1, the second is 2, ...
+     * @param value the parameter value
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur ; or if a database access error occurs
+     */
+/* ifdef JDBC40 */
     public void setNClob(int parameterIndex, NClob value) throws SQLException
     {
         validateStatement();
         statement_.setNClob(parameterIndex, value);
     } 
-    endif */ 
+/* endif */ 
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Sets the designated parameter to a <code>java.sql.NClob</code> object. The object
- // JDBC40DOC     * implements the <code>java.sql.NClob</code> interface. This <code>NClob</code>
- // JDBC40DOC     * object maps to a SQL <code>NCLOB</code>.
- // JDBC40DOC     * @param parameterName the name of the column to be set
- // JDBC40DOC     * @param value the parameter value
- // JDBC40DOC     * @throws SQLException if the driver does not support national
- // JDBC40DOC     *         character sets;  if the driver can detect that a data conversion
- // JDBC40DOC     *  error could occur; or if a database access error occurs
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Sets the designated parameter to a <code>java.sql.NClob</code> object. The object
+     * implements the <code>java.sql.NClob</code> interface. This <code>NClob</code>
+     * object maps to a SQL <code>NCLOB</code>.
+     * @param parameterName the name of the column to be set
+     * @param value the parameter value
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; or if a database access error occurs
+     */
+/* ifdef JDBC40 */
     public void setNClob(String parameterName, NClob value) throws SQLException
     {
         validateStatement();
         statement_.setNClob(statement_.findParameterIndex(parameterName), value);
     }
-    endif */ 
+/* endif */ 
     
     //@pda jdbc40
     /**
@@ -4700,110 +4700,110 @@ implements RowSet, Serializable             // @A3C
     }
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
- // JDBC40DOC     * driver converts this to a SQL <code>ROWID</code> value when it sends it
- // JDBC40DOC     * to the database
- // JDBC40DOC     *
- // JDBC40DOC     * @param parameterIndex the first parameter is 1, the second is 2, ...
- // JDBC40DOC     * @param x the parameter value
- // JDBC40DOC     * @throws SQLException if a database access error occurs
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
+     * driver converts this to a SQL <code>ROWID</code> value when it sends it
+     * to the database
+     *
+     * @param parameterIndex the first parameter is 1, the second is 2, ...
+     * @param x the parameter value
+     * @throws SQLException if a database access error occurs
+     */
+/* ifdef JDBC40 */
     public void setRowId(int parameterIndex, RowId x) throws SQLException
     {
         validateStatement();
         statement_.setRowId(parameterIndex, x);
     }
-    endif */ 
+/* endif */ 
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC    * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
- // JDBC40DOC    * driver converts this to a SQL <code>ROWID</code> when it sends it to the
- // JDBC40DOC    * database.
- // JDBC40DOC    *
- // JDBC40DOC    * @param parameterName the name of the parameter
- // JDBC40DOC    * @param x the parameter value
- // JDBC40DOC    * @throws SQLException if a database access error occurs
- // JDBC40DOC    */
-    /* ifdef JDBC40 
+    /**
+    * Sets the designated parameter to the given <code>java.sql.RowId</code> object. The
+    * driver converts this to a SQL <code>ROWID</code> when it sends it to the
+    * database.
+    *
+    * @param parameterName the name of the parameter
+    * @param x the parameter value
+    * @throws SQLException if a database access error occurs
+    */
+/* ifdef JDBC40 */
     public void setRowId(String parameterName, RowId x) throws SQLException
     {
         validateStatement();
         statement_.setRowId(statement_.findParameterIndex(parameterName), x);
     }
-   endif */ 
+/* endif */ 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC      * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. The driver converts this to an
- // JDBC40DOC      * SQL <code>XML</code> value when it sends it to the database.
- // JDBC40DOC      * @param parameterIndex index of the first parameter is 1, the second is 2, ...
- // JDBC40DOC      * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
- // JDBC40DOC      * @throws SQLException if a database access error occurs, this method
- // JDBC40DOC      *  is called on a closed result set,
- // JDBC40DOC      *  <code>Writer</code> or <code>OutputStream</code> has not been closed
- // JDBC40DOC      * for the <code>SQLXML</code> object  or
- // JDBC40DOC      *  if there is an error processing the XML value.  The <code>getCause</code> method 
- // JDBC40DOC      *  of the exception may provide a more detailed exception, for example, if the 
- // JDBC40DOC      *  stream does not contain valid XML.
- // JDBC40DOC      */
-    /* ifdef JDBC40 
+    /**
+      * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. The driver converts this to an
+      * SQL <code>XML</code> value when it sends it to the database.
+      * @param parameterIndex index of the first parameter is 1, the second is 2, ...
+      * @param xmlObject a <code>SQLXML</code> object that maps an SQL <code>XML</code> value
+      * @throws SQLException if a database access error occurs, this method
+      *  is called on a closed result set,
+      *  <code>Writer</code> or <code>OutputStream</code> has not been closed
+      * for the <code>SQLXML</code> object  or
+      *  if there is an error processing the XML value.  The <code>getCause</code> method 
+      *  of the exception may provide a more detailed exception, for example, if the 
+      *  stream does not contain valid XML.
+      */
+/* ifdef JDBC40 */
     public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException
     {
         validateStatement();
         statement_.setSQLXML(parameterIndex, xmlObject);
     }
-    endif */ 
+/* endif */ 
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. The driver converts this to an
- // JDBC40DOC     * <code>SQL XML</code> value when it sends it to the database.
- // JDBC40DOC     * @param parameterName the name of the parameter
- // JDBC40DOC     * @param xmlObject a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
- // JDBC40DOC     * @throws SQLException if a database access error occurs, this method
- // JDBC40DOC     *  is called on a closed result set,
- // JDBC40DOC     *  <code>Writer</code> or <code>OutputStream</code> has not been closed
- // JDBC40DOC     * for the <code>SQLXML</code> object  or
- // JDBC40DOC     *  if there is an error processing the XML value.  The <code>getCause</code> method 
- // JDBC40DOC     *  of the exception may provide a more detailed exception, for example, if the 
- // JDBC40DOC     *  stream does not contain valid XML.
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Sets the designated parameter to the given <code>java.sql.SQLXML</code> object. The driver converts this to an
+     * <code>SQL XML</code> value when it sends it to the database.
+     * @param parameterName the name of the parameter
+     * @param xmlObject a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+     * @throws SQLException if a database access error occurs, this method
+     *  is called on a closed result set,
+     *  <code>Writer</code> or <code>OutputStream</code> has not been closed
+     * for the <code>SQLXML</code> object  or
+     *  if there is an error processing the XML value.  The <code>getCause</code> method 
+     *  of the exception may provide a more detailed exception, for example, if the 
+     *  stream does not contain valid XML.
+     */
+/* ifdef JDBC40 */
     public void setSQLXML(String parameterName, SQLXML xmlObject) throws SQLException
     {
         validateStatement();
         statement_.setSQLXML(statement_.findParameterIndex(parameterName), xmlObject);
     }
-   endif */ 
+/* endif */ 
     
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Retrieves the holdability of this <code>RowSet</code> object
- // JDBC40DOC     * @return  either <code>ResultSet.HOLD_CURSORS_OVER_COMMIT</code> or <code>ResultSet.CLOSE_CURSORS_AT_COMMIT</code>
- // JDBC40DOC     * The holdability is derived in this order of precedence:
- // JDBC40DOC       <ul>
- // JDBC40DOC       <li>1.  The holdability, if any, that was specified on statement creation using
- // JDBC40DOC        the methods createStatement(), prepareCall(), or prepareStatement() on the 
- // JDBC40DOC        Connection object.
- // JDBC40DOC       <li>2.  The holdability specified using the method setHoldability(int)
- // JDBC40DOC        if this method was called on the Connection object.
- // JDBC40DOC       <li>3.  If neither of above methods were called, the value of the 
- // JDBC40DOC       <code> cursor hold </code> 
- // JDBC40DOC       <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>.</ul>   
- // JDBC40DOC       Full functionality of #1 and #2 requires OS/400 v5r2
- // JDBC40DOC       or IBM i.  If connecting to OS/400 V5R1 or earlier, 
- // JDBC40DOC       the value specified on these two methods will be ignored and the default holdability
- // JDBC40DOC       will be the value of #3.
- // JDBC40DOC     * @throws SQLException if a database error occurs
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Retrieves the holdability of this <code>RowSet</code> object
+     * @return  either <code>ResultSet.HOLD_CURSORS_OVER_COMMIT</code> or <code>ResultSet.CLOSE_CURSORS_AT_COMMIT</code>
+     * The holdability is derived in this order of precedence:
+       <ul>
+       <li>1.  The holdability, if any, that was specified on statement creation using
+        the methods createStatement(), prepareCall(), or prepareStatement() on the 
+        Connection object.
+       <li>2.  The holdability specified using the method setHoldability(int)
+        if this method was called on the Connection object.
+       <li>3.  If neither of above methods were called, the value of the 
+       <code> cursor hold </code> 
+       <a href="doc-files/JDBCProperties.html" target="_blank">driver property</a>.</ul>   
+       Full functionality of #1 and #2 requires OS/400 v5r2
+       or IBM i.  If connecting to OS/400 V5R1 or earlier, 
+       the value specified on these two methods will be ignored and the default holdability
+       will be the value of #3.
+     * @throws SQLException if a database error occurs
+     */
+/* ifdef JDBC40 */
     public int getHoldability() throws SQLException
     {
         return resultSet_.getHoldability();
     }
-    endif */ 
+/* endif */ 
     
     //@pda jdbc40
     /**
@@ -4850,48 +4850,48 @@ implements RowSet, Serializable             // @A3C
     }
     
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Retrieves the value of the designated column in the current row
- // JDBC40DOC     * of this <code>ResultSet</code> object as a <code>NClob</code> object
- // JDBC40DOC     * in the Java programming language.
- // JDBC40DOC     *
- // JDBC40DOC     * @param columnIndex the first column is 1, the second is 2, ...
- // JDBC40DOC     * @return a <code>NClob</code> object representing the SQL 
- // JDBC40DOC     *         <code>NCLOB</code> value in the specified column
- // JDBC40DOC     * @throws SQLException if the driver does not support national
- // JDBC40DOC     *         character sets;  if the driver can detect that a data conversion
- // JDBC40DOC     *  error could occur; this method is called on a closed result set 
- // JDBC40DOC     * or if a database access error occurs
- // JDBC40DOC     */
-    /* ifdef JDBC40
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as a <code>NClob</code> object
+     * in the Java programming language.
+     *
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return a <code>NClob</code> object representing the SQL 
+     *         <code>NCLOB</code> value in the specified column
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set 
+     * or if a database access error occurs
+     */
+/* ifdef JDBC40 */
     public NClob getNClob(int columnIndex) throws SQLException
     {
         validateResultSet();
         return resultSet_.getNClob(columnIndex);
     }
-    endif */ 
+/* endif */ 
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Retrieves the value of the designated column in the current row
- // JDBC40DOC     * of this <code>ResultSet</code> object as a <code>NClob</code> object
- // JDBC40DOC     * in the Java programming language.
- // JDBC40DOC     *
- // JDBC40DOC     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
- // JDBC40DOC     * @return a <code>NClob</code> object representing the SQL <code>NCLOB</code>
- // JDBC40DOC     * value in the specified column
- // JDBC40DOC     * @throws SQLException if the driver does not support national
- // JDBC40DOC     *         character sets;  if the driver can detect that a data conversion
- // JDBC40DOC     *  error could occur; this method is called on a closed result set 
- // JDBC40DOC     * or if a database access error occurs
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Retrieves the value of the designated column in the current row
+     * of this <code>ResultSet</code> object as a <code>NClob</code> object
+     * in the Java programming language.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @return a <code>NClob</code> object representing the SQL <code>NCLOB</code>
+     * value in the specified column
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set 
+     * or if a database access error occurs
+     */
+/* ifdef JDBC40 */
     public NClob getNClob(String columnLabel) throws SQLException
     {
         validateResultSet();
         return resultSet_.getNClob(columnLabel);
     }
-    endif */ 
+/* endif */ 
 
     //@pda jdbc40
     /**
@@ -4936,81 +4936,81 @@ implements RowSet, Serializable             // @A3C
     }
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Retrieves the value of the designated column in the current row of this 
- // JDBC40DOC     * <code>ResultSet</code> object as a <code>java.sql.RowId</code> object in the Java
- // JDBC40DOC     * programming language.
- // JDBC40DOC     *
- // JDBC40DOC     * @param columnIndex the first column is 1, the second 2, ...
- // JDBC40DOC     * @return the column value; if the value is a SQL <code>NULL</code> the
- // JDBC40DOC     *     value returned is <code>null</code>
- // JDBC40DOC     * @throws SQLException if a database access error occurs 
- // JDBC40DOC     * or this method is called on a closed result set
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Retrieves the value of the designated column in the current row of this 
+     * <code>ResultSet</code> object as a <code>java.sql.RowId</code> object in the Java
+     * programming language.
+     *
+     * @param columnIndex the first column is 1, the second 2, ...
+     * @return the column value; if the value is a SQL <code>NULL</code> the
+     *     value returned is <code>null</code>
+     * @throws SQLException if a database access error occurs 
+     * or this method is called on a closed result set
+     */
+/* ifdef JDBC40 */
     public RowId getRowId(int columnIndex) throws SQLException
     {
         validateResultSet();
         return resultSet_.getRowId(columnIndex);
     }
-    endif */ 
+/* endif */ 
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Retrieves the value of the designated column in the current row of this 
- // JDBC40DOC     * <code>ResultSet</code> object as a <code>java.sql.RowId</code> object in the Java
- // JDBC40DOC     * programming language.
- // JDBC40DOC     *
- // JDBC40DOC     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
- // JDBC40DOC     * @return the column value ; if the value is a SQL <code>NULL</code> the
- // JDBC40DOC     *     value returned is <code>null</code>
- // JDBC40DOC     * @throws SQLException if a database access error occurs 
- // JDBC40DOC     * or this method is called on a closed result set
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Retrieves the value of the designated column in the current row of this 
+     * <code>ResultSet</code> object as a <code>java.sql.RowId</code> object in the Java
+     * programming language.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @return the column value ; if the value is a SQL <code>NULL</code> the
+     *     value returned is <code>null</code>
+     * @throws SQLException if a database access error occurs 
+     * or this method is called on a closed result set
+     */
+/* ifdef JDBC40 */
     public RowId getRowId(String columnLabel) throws SQLException
     {
         validateResultSet();
         return resultSet_.getRowId(columnLabel);
     }
-   endif */ 
+/* endif */ 
     
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Retrieves the value of the designated column in  the current row of
- // JDBC40DOC     *  this <code>ResultSet</code> as a
- // JDBC40DOC     * <code>java.sql.SQLXML</code> object in the Java programming language.
- // JDBC40DOC     * @param columnIndex the first column is 1, the second is 2, ...
- // JDBC40DOC     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
- // JDBC40DOC     * @throws SQLException if a database access error occurs 
- // JDBC40DOC     * or this method is called on a closed result set
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Retrieves the value of the designated column in  the current row of
+     *  this <code>ResultSet</code> as a
+     * <code>java.sql.SQLXML</code> object in the Java programming language.
+     * @param columnIndex the first column is 1, the second is 2, ...
+     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+     * @throws SQLException if a database access error occurs 
+     * or this method is called on a closed result set
+     */
+/* ifdef JDBC40 */
     public SQLXML getSQLXML(int columnIndex) throws SQLException
     {
         validateResultSet();
         return resultSet_.getSQLXML(columnIndex);
     }
-    endif */ 
+/* endif */ 
 
     //@pda jdbc40
 
- // JDBC40DOC    /**
- // JDBC40DOC     * Retrieves the value of the designated column in  the current row of
- // JDBC40DOC     *  this <code>ResultSet</code> as a
- // JDBC40DOC * <code>java.sql.SQLXML</code> object in the Java programming language.
- // JDBC40DOC     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
- // JDBC40DOC     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
- // JDBC40DOC     * @throws SQLException if a database access error occurs 
- // JDBC40DOC     * or this method is called on a closed result set    
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Retrieves the value of the designated column in  the current row of
+     *  this <code>ResultSet</code> as a
+ * <code>java.sql.SQLXML</code> object in the Java programming language.
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @return a <code>SQLXML</code> object that maps an <code>SQL XML</code> value
+     * @throws SQLException if a database access error occurs 
+     * or this method is called on a closed result set    
+     */
+/* ifdef JDBC40 */
     public SQLXML getSQLXML(String columnLabel) throws SQLException
     {
         validateResultSet();
         return resultSet_.getSQLXML(columnLabel);
     }
-    endif */ 
+/* endif */ 
 
     //@pda jdbc40
     /**
@@ -5368,22 +5368,22 @@ implements RowSet, Serializable             // @A3C
     }
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Updates the designated column with a <code>java.sql.NClob</code> value.
- // JDBC40DOC     * The updater methods are used to update column values in the
- // JDBC40DOC     * current row or the insert row.  The updater methods do not 
- // JDBC40DOC     * update the underlying database; instead the <code>updateRow</code> or
- // JDBC40DOC     * <code>insertRow</code> methods are called to update the database.
- // JDBC40DOC     *
- // JDBC40DOC     * @param columnIndex the first column is 1, the second 2, ...
- // JDBC40DOC     * @param nClob the value for the column to be updated
- // JDBC40DOC     * @throws SQLException if the driver does not support national
- // JDBC40DOC     *         character sets;  if the driver can detect that a data conversion
- // JDBC40DOC     *  error could occur; this method is called on a closed result set,  
- // JDBC40DOC     * if a database access error occurs or
- // JDBC40DOC     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Updates the designated column with a <code>java.sql.NClob</code> value.
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnIndex the first column is 1, the second 2, ...
+     * @param nClob the value for the column to be updated
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set,  
+     * if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     */
+/* ifdef JDBC40 */
     public void updateNClob(int columnIndex, NClob nClob) throws SQLException
     {
         validateResultSet();
@@ -5391,25 +5391,25 @@ implements RowSet, Serializable             // @A3C
 
         eventSupport_.fireRowChanged(new RowSetEvent(this));  
     }
-    endif */ 
+/* endif */ 
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Updates the designated column with a <code>java.sql.NClob</code> value.
- // JDBC40DOC     * The updater methods are used to update column values in the
- // JDBC40DOC     * current row or the insert row.  The updater methods do not 
- // JDBC40DOC     * update the underlying database; instead the <code>updateRow</code> or
- // JDBC40DOC     * <code>insertRow</code> methods are called to update the database.
- // JDBC40DOC     *
- // JDBC40DOC     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
- // JDBC40DOC     * @param nClob the value for the column to be updated
- // JDBC40DOC     * @throws SQLException if the driver does not support national
- // JDBC40DOC     *         character sets;  if the driver can detect that a data conversion
- // JDBC40DOC     *  error could occur; this method is called on a closed result set;
- // JDBC40DOC     *  if a database access error occurs or
- // JDBC40DOC     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Updates the designated column with a <code>java.sql.NClob</code> value.
+     * The updater methods are used to update column values in the
+     * current row or the insert row.  The updater methods do not 
+     * update the underlying database; instead the <code>updateRow</code> or
+     * <code>insertRow</code> methods are called to update the database.
+     *
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param nClob the value for the column to be updated
+     * @throws SQLException if the driver does not support national
+     *         character sets;  if the driver can detect that a data conversion
+     *  error could occur; this method is called on a closed result set;
+     *  if a database access error occurs or
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     */
+/* ifdef JDBC40 */
     public void updateNClob(String columnLabel, NClob nClob) throws SQLException
     {
         validateResultSet();
@@ -5417,7 +5417,7 @@ implements RowSet, Serializable             // @A3C
 
         eventSupport_.fireRowChanged(new RowSetEvent(this));  
     }
-    endif */ 
+/* endif */ 
     
     
     //@pda jdbc40
@@ -5546,20 +5546,20 @@ implements RowSet, Serializable             // @A3C
     }
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Updates the designated column with a <code>RowId</code> value. The updater
- // JDBC40DOC     * methods are used to update column values in the current row or the insert
- // JDBC40DOC     * row. The updater methods do not update the underlying database; instead 
- // JDBC40DOC     * the <code>updateRow</code> or <code>insertRow</code> methods are called 
- // JDBC40DOC     * to update the database.
- // JDBC40DOC     * 
- // JDBC40DOC     * @param columnIndex the first column is 1, the second 2, ...
- // JDBC40DOC     * @param x the column value
- // JDBC40DOC     * @throws SQLException if a database access error occurs,
- // JDBC40DOC     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
- // JDBC40DOC     * or this method is called on a closed result set
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Updates the designated column with a <code>RowId</code> value. The updater
+     * methods are used to update column values in the current row or the insert
+     * row. The updater methods do not update the underlying database; instead 
+     * the <code>updateRow</code> or <code>insertRow</code> methods are called 
+     * to update the database.
+     * 
+     * @param columnIndex the first column is 1, the second 2, ...
+     * @param x the column value
+     * @throws SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+/* ifdef JDBC40 */
     public void updateRowId(int columnIndex, RowId x) throws SQLException
     {
         validateResultSet();
@@ -5567,24 +5567,24 @@ implements RowSet, Serializable             // @A3C
 
         eventSupport_.fireRowChanged(new RowSetEvent(this));  
     } 
-    endif */ 
+/* endif */ 
     
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Updates the designated column with a <code>RowId</code> value. The updater
- // JDBC40DOC     * methods are used to update column values in the current row or the insert
- // JDBC40DOC     * row. The updater methods do not update the underlying database; instead 
- // JDBC40DOC     * the <code>updateRow</code> or <code>insertRow</code> methods are called 
- // JDBC40DOC     * to update the database.
- // JDBC40DOC     * 
- // JDBC40DOC     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
- // JDBC40DOC     * @param x the column value
- // JDBC40DOC     * @throws SQLException if a database access error occurs,
- // JDBC40DOC     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
- // JDBC40DOC     * or this method is called on a closed result set
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Updates the designated column with a <code>RowId</code> value. The updater
+     * methods are used to update column values in the current row or the insert
+     * row. The updater methods do not update the underlying database; instead 
+     * the <code>updateRow</code> or <code>insertRow</code> methods are called 
+     * to update the database.
+     * 
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param x the column value
+     * @throws SQLException if a database access error occurs,
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code> 
+     * or this method is called on a closed result set
+     */
+/* ifdef JDBC40 */
     public void updateRowId(String columnLabel, RowId x) throws SQLException
     {
         validateResultSet();
@@ -5592,32 +5592,32 @@ implements RowSet, Serializable             // @A3C
 
         eventSupport_.fireRowChanged(new RowSetEvent(this));  
     }
-    endif */ 
+/* endif */ 
     
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Updates the designated column with a <code>java.sql.SQLXML</code> value.
- // JDBC40DOC     * The updater
- // JDBC40DOC     * methods are used to update column values in the current row or the insert
- // JDBC40DOC     * row. The updater methods do not update the underlying database; instead 
- // JDBC40DOC     * the <code>updateRow</code> or <code>insertRow</code> methods are called 
- // JDBC40DOC     * to update the database.
- // JDBC40DOC     * <p>
- // JDBC40DOC     *
- // JDBC40DOC     * @param columnIndex the first column is 1, the second 2, ...
- // JDBC40DOC     * @param xmlObject the value for the column to be updated
- // JDBC40DOC     * @throws SQLException if a database access error occurs, this method
- // JDBC40DOC     *  is called on a closed result set,
- // JDBC40DOC     * the <code>java.xml.transform.Result</code>,
- // JDBC40DOC     *  <code>Writer</code> or <code>OutputStream</code> has not been closed
- // JDBC40DOC     * for the <code>SQLXML</code> object, 
- // JDBC40DOC     *  if there is an error processing the XML value or   
- // JDBC40DOC     * the result set concurrency is <code>CONCUR_READ_ONLY</code>.  The <code>getCause</code> method 
- // JDBC40DOC     *  of the exception may provide a more detailed exception, for example, if the 
- // JDBC40DOC     *  stream does not contain valid XML.
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Updates the designated column with a <code>java.sql.SQLXML</code> value.
+     * The updater
+     * methods are used to update column values in the current row or the insert
+     * row. The updater methods do not update the underlying database; instead 
+     * the <code>updateRow</code> or <code>insertRow</code> methods are called 
+     * to update the database.
+     * <p>
+     *
+     * @param columnIndex the first column is 1, the second 2, ...
+     * @param xmlObject the value for the column to be updated
+     * @throws SQLException if a database access error occurs, this method
+     *  is called on a closed result set,
+     * the <code>java.xml.transform.Result</code>,
+     *  <code>Writer</code> or <code>OutputStream</code> has not been closed
+     * for the <code>SQLXML</code> object, 
+     *  if there is an error processing the XML value or   
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code>.  The <code>getCause</code> method 
+     *  of the exception may provide a more detailed exception, for example, if the 
+     *  stream does not contain valid XML.
+     */
+/* ifdef JDBC40 */
     public void updateSQLXML(int columnIndex, SQLXML xmlObject) throws SQLException
     {
         validateResultSet();
@@ -5625,32 +5625,32 @@ implements RowSet, Serializable             // @A3C
 
         eventSupport_.fireRowChanged(new RowSetEvent(this));  
     }
-    endif */ 
+/* endif */ 
     
 
     //@pda jdbc40
- // JDBC40DOC    /**
- // JDBC40DOC     * Updates the designated column with a <code>java.sql.SQLXML</code> value. 
- // JDBC40DOC     * The updater
- // JDBC40DOC     * methods are used to update column values in the current row or the insert
- // JDBC40DOC     * row. The updater methods do not update the underlying database; instead 
- // JDBC40DOC     * the <code>updateRow</code> or <code>insertRow</code> methods are called 
- // JDBC40DOC     * to update the database. 
- // JDBC40DOC     * <p>
- // JDBC40DOC     * 
- // JDBC40DOC     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
- // JDBC40DOC     * @param xmlObject the column value
- // JDBC40DOC     * @throws SQLException if a database access error occurs, this method
- // JDBC40DOC     *  is called on a closed result set,
- // JDBC40DOC     * the <code>java.xml.transform.Result</code>,
- // JDBC40DOC     *  <code>Writer</code> or <code>OutputStream</code> has not been closed
- // JDBC40DOC     * for the <code>SQLXML</code> object, 
- // JDBC40DOC     *  if there is an error processing the XML value or   
- // JDBC40DOC     * the result set concurrency is <code>CONCUR_READ_ONLY</code>.  The <code>getCause</code> method 
- // JDBC40DOC     *  of the exception may provide a more detailed exception, for example, if the 
- // JDBC40DOC     *  stream does not contain valid XML.
- // JDBC40DOC     */
-    /* ifdef JDBC40 
+    /**
+     * Updates the designated column with a <code>java.sql.SQLXML</code> value. 
+     * The updater
+     * methods are used to update column values in the current row or the insert
+     * row. The updater methods do not update the underlying database; instead 
+     * the <code>updateRow</code> or <code>insertRow</code> methods are called 
+     * to update the database. 
+     * <p>
+     * 
+     * @param columnLabel the label for the column specified with the SQL AS clause.  If the SQL AS clause was not specified, then the label is the name of the column
+     * @param xmlObject the column value
+     * @throws SQLException if a database access error occurs, this method
+     *  is called on a closed result set,
+     * the <code>java.xml.transform.Result</code>,
+     *  <code>Writer</code> or <code>OutputStream</code> has not been closed
+     * for the <code>SQLXML</code> object, 
+     *  if there is an error processing the XML value or   
+     * the result set concurrency is <code>CONCUR_READ_ONLY</code>.  The <code>getCause</code> method 
+     *  of the exception may provide a more detailed exception, for example, if the 
+     *  stream does not contain valid XML.
+     */
+/* ifdef JDBC40 */
     public void updateSQLXML(String columnLabel, SQLXML xmlObject) throws SQLException
     {
         validateResultSet();
@@ -5658,7 +5658,7 @@ implements RowSet, Serializable             // @A3C
 
         eventSupport_.fireRowChanged(new RowSetEvent(this));  
     }
-    endif */ 
+/* endif */ 
 
     //@pda jdbc40
     protected String[] getValidWrappedList()

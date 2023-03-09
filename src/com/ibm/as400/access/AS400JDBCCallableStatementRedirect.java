@@ -519,7 +519,7 @@ public class AS400JDBCCallableStatementRedirect extends
     return ((AS400JDBCCallableStatement) cstmt_).getObject(parameter, type); 
   }
 
-/* ifdef JDBC40
+/* ifdef JDBC40 */
       
   public void setNClob(String parameterName, NClob clob) throws SQLException {
     setNClob(findParameterIndex(parameterName), clob); 
@@ -570,7 +570,7 @@ public class AS400JDBCCallableStatementRedirect extends
 
 
 
-endif */ 
+/* endif */ 
   public void setObject(String parameterName,
                          Object x,
                          /* ifdef JDBC42        

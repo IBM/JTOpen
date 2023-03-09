@@ -470,10 +470,10 @@ class SQLDataFactory
                 if(ccsid == 65535)     //@bingra
                     return new SQLVargraphic((length-2)/2, settings, ccsid);  //@bingra
                 
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
                 if (ccsid == 1200)
                   return new SQLNVarchar(length - 2, settings); //@REA 
-endif */ 
+/* endif */ 
                 
                 return new SQLVargraphic(length - 2, settings, ccsid); // @C1C @C4C @cca1
 
@@ -483,10 +483,10 @@ endif */
             case SQLNativeType.GRAPHIC_468:                           // Graphic fix (pure DBCS).
                 if(ccsid == 65535)     //@bingra
                     return new SQLGraphic(length/2, settings, ccsid);  //@bingra
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
                 if (ccsid == 1200)
                     return new SQLNChar(length, settings);  //@REA
-endif */ 
+/* endif */ 
                 return new SQLGraphic(length, settings, ccsid); // @C1C @C4C @cca1
 
             case SQLNativeType.FLOAT_480:                           // Float.

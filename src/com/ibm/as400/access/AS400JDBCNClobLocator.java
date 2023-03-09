@@ -13,17 +13,17 @@
 
 package com.ibm.as400.access;
 
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
-endif */ 
+/* endif */ 
 
 //@PDA jdbc40 new class
 
 
 public class AS400JDBCNClobLocator extends AS400JDBCClobLocator 
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 implements NClob
-endif */ 
+/* endif */ 
 {
    
     /**

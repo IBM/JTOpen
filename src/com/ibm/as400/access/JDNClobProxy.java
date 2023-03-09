@@ -19,9 +19,9 @@ import java.io.Writer;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Clob;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
 
 
@@ -34,9 +34,9 @@ transaction.
 **/
 class JDNClobProxy
 extends AbstractProxyImpl
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 implements NClob
-endif */ 
+/* endif */ 
 {
   
 

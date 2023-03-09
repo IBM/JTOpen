@@ -24,17 +24,17 @@ import java.sql.Blob;
 import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
-endif */ 
+/* endif */ 
 import java.sql.Ref;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 import java.sql.*; 
-endif */ 
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
@@ -1350,7 +1350,7 @@ implements CallableStatement
     }
     
     //@PDA jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public NClob getNClob(int parameterIndex) throws SQLException
     {
         try {
@@ -1382,7 +1382,7 @@ implements CallableStatement
         }
     }
     
-    endif */ 
+/* endif */ 
     
     //@PDA jdbc40
     public String getNString(int parameterIndex) throws SQLException
@@ -1397,7 +1397,7 @@ implements CallableStatement
     }
     
     //@PDA jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public RowId getRowId(int parameterIndex) throws SQLException
     {
         try {
@@ -1428,10 +1428,10 @@ implements CallableStatement
             throw JDConnectionProxy.rethrow1 (e);
         }
     }
-    endif */ 
+/* endif */ 
     
     //@PDA jdbc40
-    /* ifdef JDBC40
+/* ifdef JDBC40 */
     public SQLXML getSQLXML(int parameterIndex) throws SQLException
     {
         try {
@@ -1463,7 +1463,7 @@ implements CallableStatement
         }
     }
      
-     endif */ 
+/* endif */ 
     //@PDA jdbc40
     public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException
     {
@@ -1653,7 +1653,7 @@ implements CallableStatement
     }
     
     //@PDA jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public void setNClob(String parameterName, NClob value) throws SQLException
     {
         if (value != null &&
@@ -1669,7 +1669,7 @@ implements CallableStatement
                 value });
     }
     
-    endif */ 
+/* endif */ 
     
     //@PDA jdbc40
     public void setNClob(String parameterName, Reader reader, long length) throws SQLException
@@ -1705,7 +1705,7 @@ implements CallableStatement
     }
     
     //@PDA jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public void setRowId(String parameterName, RowId x) throws SQLException
     {
         callMethod ("setRowId",
@@ -1729,7 +1729,7 @@ implements CallableStatement
                 xmlObject });
     }
 
-    endif */ 
+/* endif */ 
     
     public void setAsciiStream(String parameterName, InputStream x) throws SQLException
     {
@@ -1897,7 +1897,7 @@ implements CallableStatement
         }    
     }
     
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 
     // JDBC 4.1
     public <T> T getObject(int parameterIndex, Class<T> type)
@@ -1914,7 +1914,7 @@ implements CallableStatement
       return null;
     }
 
-endif */
+/* endif */ 
     
     public void setObject(String parameterName,
         Object x,

@@ -13,14 +13,14 @@
 
 package com.ibm.as400.access;
 
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,7 +36,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-endif */ 
+/* endif */ 
 
 //import com.sun.xml.internal.fastinfoset.stax.StAXDocumentParser;
 

@@ -15,9 +15,9 @@ package com.ibm.as400.access;
 
 import java.io.InputStream;
 import java.io.IOException;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.DriverManager;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
 
 
