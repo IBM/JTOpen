@@ -14,4 +14,8 @@
 *.#*
 .*.swp
 .DS_store
+.project
+bin/
+target/
 # Simulated Subversion default ignores end here
+.vscode/
