@@ -239,7 +239,7 @@ extends SQLDataBase
     public String getJavaClassName()
     { 
         /* smallints are Integers from jdbc 4.0 spec: 
-        Note – The JDBC 1.0 specification defined the Java object mapping for the
+        Note â€“ The JDBC 1.0 specification defined the Java object mapping for the
         SMALLINT and TINYINT JDBC types to be Integer. The Java language did not
         include the Byte and Short data types when the JDBC 1.0 specification was
         finalized. The mapping of SMALLINT and TINYINT to Integer is maintained to

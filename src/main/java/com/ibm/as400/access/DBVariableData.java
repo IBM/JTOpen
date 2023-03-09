@@ -382,9 +382,9 @@ implements DBData
     public void setHeaderColumnInfo (int columnIndex, short type, short indicatorValue, short elementDataType, int dataTypeSize, short arrayLength)
     {
         //3 possibilities:
-        //1 Array = �9911'x ,  data type 2 bytes, data length 4 bytes, # of data items 4 bytes
-        //2 Null Array = �9911'x , FFFF  (9911 + indicator)
-        //3 NonArray = �9912'x ,  data type 2 bytes, data length 4 bytes
+        //1 Array = '9911'x ,  data type 2 bytes, data length 4 bytes, # of data items 4 bytes
+        //2 Null Array = '9911'x , FFFF  (9911 + indicator)
+        //3 NonArray = '9912'x ,  data type 2 bytes, data length 4 bytes
         if(type == SQLData.NATIVE_ARRAY)
         {
             if(indicatorValue == 0)

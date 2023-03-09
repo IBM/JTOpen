@@ -7513,7 +7513,7 @@ protected void addSavedException(SQLException savedException) {
     
    Specifies the cursor sensitivity to request from the database. The behavior depends on the resultSetType:
 
-    ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE means that the value of this property controls what cursor sensitivity the Java™ program requests from the database.
+    ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE means that the value of this property controls what cursor sensitivity the Javaâ„¢ program requests from the database.
     ResultSet.TYPE_SCROLL_INSENSITIVE causes this property to be ignored.
     
     Code taken from JDCursor.java and used there and in AS400JDBCStatement.java
