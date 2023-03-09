@@ -23,16 +23,16 @@ import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLFeatureNotSupportedException;
-endif */ 
+/* endif */ 
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Properties;
 import java.util.Random;
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.util.logging.Logger;
-endif */
+/* endif */ 
 
 import javax.sql.DataSource;
 import javax.naming.NamingException;
@@ -73,9 +73,9 @@ import javax.naming.Context;
  @see AS400JDBCXADataSource
  **/
 public class AS400JDBCManagedDataSource 
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 extends ToolboxWrapper
-endif */ 
+/* endif */ 
 
 implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 {
@@ -5261,11 +5261,11 @@ public boolean isUseDrdaMetadataVersion()
       return new String[] {  "com.ibm.as400.access.AS400JDBCManagedDataSource", "javax.sql.DataSource" };
   } 
 
-  /*ifdef JDBC40 
+/* ifdef JDBC40 */
   public Logger getParentLogger() throws SQLFeatureNotSupportedException {
   throw new SQLFeatureNotSupportedException(); 
    
   } 
-endif */
+/* endif */ 
   
 }

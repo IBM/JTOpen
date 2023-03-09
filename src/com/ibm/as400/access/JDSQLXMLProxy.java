@@ -18,11 +18,11 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
 
 
@@ -36,9 +36,9 @@ import java.sql.SQLException;
  **/
 class JDSQLXMLProxy
 extends AbstractProxyImpl
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 implements SQLXML
-endif */ 
+/* endif */ 
 {
     
     
@@ -114,7 +114,7 @@ endif */
         }
     }
     
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public <T extends Source> T getSource(Class<T> sourceClass) throws SQLException
     {
         try
@@ -130,7 +130,7 @@ endif */
             throw JDConnectionProxy.rethrow1 (e);
         }
     }
-    endif */ 
+/* endif */ 
     
     public String getString() throws SQLException
     {
@@ -157,7 +157,7 @@ endif */
     }
     
     
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public <T extends Result> T setResult(Class<T> resultClass) throws SQLException
     {
         try
@@ -174,6 +174,6 @@ endif */
         }
     }
     
-    endif */ 
+/* endif */ 
     
 }

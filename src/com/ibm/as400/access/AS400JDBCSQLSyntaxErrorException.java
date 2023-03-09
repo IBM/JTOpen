@@ -23,12 +23,12 @@ syntax error occurred in the original SQL statement.  The exception also
 includes the original SQL statement that encountered the error. 
 **/
 public class AS400JDBCSQLSyntaxErrorException
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 extends SQLSyntaxErrorException
-endif */
-/* ifndef JDBC40 */ 
+/* endif */ 
+/* ifndef JDBC40 
 extends SQLException   
-/* endif */
+ endif */ 
 {
     static final String copyright = "Copyright (C) 2014-2014 International Business Machines Corporation and others.";
     private static final long serialVersionUID = -202038790097280171L;
@@ -112,12 +112,12 @@ extends SQLException
      */
     
     public AS400JDBCSQLSyntaxErrorException(String reason, String sqlState, int vendorCode, Throwable cause, int locationOfSyntaxError, String sqlStatementText) {
-/* ifdef JDBC40    
+/* ifdef JDBC40 */
       super(reason, sqlState, vendorCode, cause);
-   endif */ 
-/* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
       super(reason, sqlState, vendorCode);
-/* endif */       
+ endif */ 
       locationOfSyntaxError_ = locationOfSyntaxError; 
       sqlStatementText_ = sqlStatementText; 
       
@@ -133,12 +133,12 @@ extends SQLException
      */
     
     public AS400JDBCSQLSyntaxErrorException(String reason, String sqlState, Throwable cause, int locationOfSyntaxError, String sqlStatementText) {
-/* ifdef JDBC40    
+/* ifdef JDBC40 */
       super(reason, sqlState, cause); 
-   endif */ 
-/* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
       super(reason, sqlState); 
-/* endif */       
+ endif */ 
       locationOfSyntaxError_ = locationOfSyntaxError; 
       sqlStatementText_ = sqlStatementText; 
     }
@@ -152,12 +152,12 @@ extends SQLException
      */
     
     public AS400JDBCSQLSyntaxErrorException(String reason, Throwable cause, int locationOfSyntaxError, String sqlStatementText) {
-/* ifdef JDBC40    
+/* ifdef JDBC40 */
       super(reason, cause); 
-   endif */ 
-/* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
       super(reason); 
-/* endif */       
+ endif */ 
       locationOfSyntaxError_ = locationOfSyntaxError; 
       sqlStatementText_ = sqlStatementText; 
     }
@@ -170,12 +170,12 @@ extends SQLException
      */
     
     public AS400JDBCSQLSyntaxErrorException(Throwable cause, int locationOfSyntaxError, String sqlStatementText) {
-/* ifdef JDBC40    
+/* ifdef JDBC40 */
     super(cause); 
-   endif */ 
-/* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
       super(); 
-/* endif */       
+ endif */ 
       locationOfSyntaxError_ = locationOfSyntaxError; 
       sqlStatementText_ = sqlStatementText; 
     }

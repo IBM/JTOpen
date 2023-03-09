@@ -23,21 +23,21 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
-endif */ 
+/* endif */ 
 import java.sql.ParameterMetaData;
 import java.sql.PreparedStatement;
 import java.sql.Ref;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-endif */ 
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -647,7 +647,7 @@ implements PreparedStatement
     }
 
 
-    /* ifdef JDBC40
+/* ifdef JDBC40 */
     //@PDA jdbc40
     public void setRowId(int parameterIndex, RowId x) throws SQLException
     {
@@ -655,7 +655,7 @@ implements PreparedStatement
                 new Class[] { Integer.TYPE, RowId.class},
                 new Object[] { new Integer (parameterIndex), x });        
     }
-    endif */ 
+/* endif */ 
     
     //@PDA jdbc40
     public void setNString(int parameterIndex, String value) throws SQLException
@@ -691,7 +691,7 @@ implements PreparedStatement
     }
     
     //@PDA jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public void setNClob(int parameterIndex, NClob value) throws SQLException
     {
         if (value != null &&
@@ -707,7 +707,7 @@ implements PreparedStatement
                 new Object[] { new Integer (parameterIndex),
                 value });
     }
-    endif */ 
+/* endif */ 
     
     //@PDA jdbc40
     public void setClob(int parameterIndex, Reader reader, long length) throws SQLException
@@ -790,7 +790,7 @@ implements PreparedStatement
     }
     
     //@PDA jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public void setSQLXML(int parameterIndex, SQLXML xmlObject) throws SQLException
     {                                    
         if (xmlObject != null &&
@@ -806,7 +806,7 @@ implements PreparedStatement
                 new Object[] { new Integer (parameterIndex),
                 xmlObject });
     }
-    endif */ 
+/* endif */ 
     
     //@pda jdbc40
     protected String[] getValidWrappedList()

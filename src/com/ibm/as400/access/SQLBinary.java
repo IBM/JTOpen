@@ -24,14 +24,14 @@ import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-endif */ 
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -605,14 +605,14 @@ extends SQLDataBase
     }
 
     //@PDA jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     public NClob getNClob() throws SQLException
     {        
         // This is written in terms of getBytes(), since it will
         // handle truncating to the max field size if needed.
         return new AS400JDBCNClob(BinaryConverter.bytesToHexString(getBytes()), maxLength_);
     }
-    endif */ 
+/* endif */ 
 
     //@PDA jdbc40
     public String getNString() throws SQLException
@@ -623,7 +623,7 @@ extends SQLDataBase
     }
 
     //@PDA jdbc40
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
 
     public RowId getRowId() throws SQLException
     {
@@ -633,16 +633,16 @@ extends SQLDataBase
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-    endif */ 
+/* endif */ 
     //@PDA jdbc40
-     /* ifdef JDBC40 
+/* ifdef JDBC40 */
 
     public SQLXML getSQLXML() throws SQLException
     {
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-    endif */ 
+/* endif */ 
     
     public void saveValue() {
       savedValue_ = value_; 

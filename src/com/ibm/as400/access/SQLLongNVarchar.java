@@ -17,14 +17,14 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.sql.Blob;
 import java.sql.Clob;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-endif */ 
+/* endif */ 
 
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -85,26 +85,26 @@ extends SQLVarcharBase implements SQLVariableCompressible
 
     public int getType()
     {
-    	/* ifdef JDBC40 
+/* ifdef JDBC40 */
         return java.sql.Types.NVARCHAR;  //@P3C
-        endif */ 
-    	/* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
       
     	return java.sql.Types.VARCHAR;  //@P3C
     	
-    	/* endif */ 
+ endif */ 
     	
     	 
     }
 
     public String getTypeName()
     {
-    	/* ifdef JDBC40 
+/* ifdef JDBC40 */
         return "LONGNVARCHAR";    
-        endif */ 
-    	/* ifndef JDBC40 */ 
+/* endif */ 
+/* ifndef JDBC40 
     	return "LONGVARCHAR";
-    	/* endif */ 
+ endif */ 
     }
 
     //---------------------------------------------------------//
@@ -124,7 +124,7 @@ extends SQLVarcharBase implements SQLVariableCompressible
 
 
 
- /* ifdef JDBC40 
+/* ifdef JDBC40 */
 
     
     public SQLXML getSQLXML() throws SQLException
@@ -135,7 +135,7 @@ extends SQLVarcharBase implements SQLVariableCompressible
         return new AS400JDBCSQLXML(getString());     
     }
 
-  endif */ 
+/* endif */ 
  
 }
 

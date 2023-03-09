@@ -19,14 +19,14 @@ import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-endif */ 
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -502,7 +502,7 @@ extends SQLDataBase
 
     
 
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -516,7 +516,7 @@ extends SQLDataBase
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-    endif */ 
+/* endif */ 
     
     // @array
     

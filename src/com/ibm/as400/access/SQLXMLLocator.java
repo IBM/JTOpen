@@ -20,14 +20,14 @@ import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
 import java.sql.Types;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-endif */ 
+/* endif */ 
 
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -315,13 +315,13 @@ final class SQLXMLLocator extends SQLLocatorBase
                     JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
                 }
             }
-            /* ifdef JDBC40 
+/* ifdef JDBC40 */
             else if( savedObject_ instanceof SQLXML ) 
             {
                 SQLXML xml = (SQLXML)savedObject_;
                 valueClob_ = xml.getString();
             }
-            endif */
+/* endif */ 
             else
             {
                 JDError.throwSQLException(JDError.EXC_DATA_TYPE_MISMATCH);
@@ -519,7 +519,7 @@ final class SQLXMLLocator extends SQLLocatorBase
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
             }
         }
-/* ifdef JDBC40  
+/* ifdef JDBC40 */
         else if( savedObject_ instanceof SQLXML ) //@olddesc
         {
            SQLXML xml = (SQLXML)savedObject_;
@@ -568,7 +568,7 @@ final class SQLXMLLocator extends SQLLocatorBase
                locator_.writeData(0L, inputBytes, 0, inputBytes.length, true);  //@xmlutf8
            }
         }
-endif */ 
+/* endif */ 
         else
         {
             JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -620,12 +620,12 @@ endif */
 
     public int getMaximumPrecision()
     {
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
         return AS400JDBCSQLXML.MAX_XML_SIZE;  
-endif */ 
-/* ifndef JDBC40 */ 
+/* endif */ 
+/* ifndef JDBC40 
         return AS400JDBCDatabaseMetaData.MAX_LOB_LENGTH;
-/* endif */         
+ endif */ 
     }
 
     public int getMaximumScale()
@@ -660,12 +660,12 @@ endif */
 
     public int getType()
     {
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
         return Types.SQLXML;   
-endif */ 
-/* ifndef JDBC40 */ 
+/* endif */ 
+/* ifndef JDBC40 
         return Types.CLOB;
-/* endif */         
+ endif */ 
     }
 
     public String getTypeName()
@@ -899,15 +899,15 @@ endif */
         // the prepared statement is calling toObject() to store off the parameters,
         // but it's all we can do for now.
         truncated_ = 0; outOfBounds_ = false; 
-        /* ifdef JDBC40 
+/* ifdef JDBC40 */
         if(savedObject_ != null)//@xmlupdate //either return savedObject_ here, or add two iterations of getting savedObject_ in writeToServer if type is AS400JDBCSQLXML since it contains clob which contains savedObject_
             return savedObject_;    //@xmlupdate
         return new AS400JDBCSQLXMLLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_, true);  //@xml4   
 
-        endif */
-        /* ifndef JDBC40  */ 
+/* endif */ 
+/* ifndef JDBC40 
         return  getClob();  //@xml4   
-        /* endif */ 
+ endif */ 
     }
      
 
@@ -1006,7 +1006,7 @@ endif */
         }
     }
     
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     //@pda jdbc40
     public NClob getNClob() throws SQLException
     {
@@ -1023,7 +1023,7 @@ endif */
         return new AS400JDBCNClobLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_, true);   //@xml4    
  
     }
-    endif */ 
+/* endif */ 
     
     //@pda jdbc40
     public String getNString() throws SQLException
@@ -1046,7 +1046,7 @@ endif */
         return value;  
     }
 
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -1064,7 +1064,7 @@ endif */
         //@xml3 if xml column, remove xml declaration from within internal cloblocator inside of sqlxmllocator.
         return new AS400JDBCSQLXMLLocator(new JDLobLocator(locator_), converter_, savedObject_, scale_, true);   //@xml4   
     }
-endif */ 
+/* endif */ 
 
      
     // @array

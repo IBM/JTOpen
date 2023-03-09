@@ -22,14 +22,14 @@ import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-endif */
+/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-endif */
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -132,9 +132,9 @@ final class SQLDBClob extends SQLDataBase
         } else if( !(object instanceof Reader) &&
                 !(object instanceof InputStream) &&
                 ( !(object instanceof Clob))
-/*ifdef JDBC40
+/* ifdef JDBC40 */
                   && !(object instanceof SQLXML)
-endif */
+/* endif */ 
 
 
                 )
@@ -177,14 +177,14 @@ endif */
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());
             }
-            /* ifdef JDBC40
+/* ifdef JDBC40 */
 
             else if(object instanceof SQLXML)  //@PDA jdbc40
             {
                 SQLXML xml = (SQLXML)object;
                 value_ = xml.getString();
             }
-            endif */
+/* endif */ 
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -239,11 +239,11 @@ endif */
 
     public String getJavaClassName()
     {
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
       if (ccsid_ == 1200 ) {
         return "com.ibm.as400.access.AS400JDBCNClob";
       }
-endif */       
+/* endif */ 
       
       return "com.ibm.as400.access.AS400JDBCClob";
     }
@@ -300,12 +300,12 @@ endif */
 
     public int getType()
     {
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
       // @P3A
       if (ccsid_ == 1200 ) {
         return java.sql.Types.NCLOB;   
       }
-endif */       
+/* endif */ 
         return java.sql.Types.CLOB;
     }
 
@@ -469,11 +469,11 @@ endif */
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0; outOfBounds_ = false;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
         if (ccsid_ == 1200 ) {
            return new AS400JDBCNClob(value_, maxLength_);
         }
-  endif */       
+/* endif */ 
         
         
         return new AS400JDBCClob(value_, maxLength_);
@@ -534,7 +534,7 @@ endif */
     }
 
     //@pda jdbc40
-    /* ifdef JDBC40
+/* ifdef JDBC40 */
 
     public NClob getNClob() throws SQLException
     {
@@ -542,7 +542,7 @@ endif */
         truncated_ = 0; outOfBounds_ = false;
         return new AS400JDBCNClob(value_, maxLength_);
     }
-    endif */
+/* endif */ 
     //@pda jdbc40
     public String getNString() throws SQLException
     {
@@ -557,7 +557,7 @@ endif */
     }
 
     //@pda jdbc40
-    /* ifdef JDBC40
+/* ifdef JDBC40 */
 
     public RowId getRowId() throws SQLException
     {
@@ -578,17 +578,17 @@ endif */
         JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
         return null;
     }
-    endif */
+/* endif */ 
 
     //@pda jdbc40
-    /* ifdef JDBC40
+/* ifdef JDBC40 */
     public SQLXML getSQLXML() throws SQLException
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0; outOfBounds_ = false;
         return new AS400JDBCSQLXML(value_);
     }
-    endif */
+/* endif */ 
     // @array
     
     

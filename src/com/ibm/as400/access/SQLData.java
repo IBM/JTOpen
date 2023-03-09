@@ -20,15 +20,15 @@ import java.sql.Array;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.Ref;
 import java.sql.RowId;
- endif */ 
+/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40  
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
- endif */ 
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -572,10 +572,10 @@ extends Cloneable
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    /* ifdef JDBC40  
+/* ifdef JDBC40 */
     public abstract NClob getNClob()
     throws SQLException;
-     endif */ 
+/* endif */ 
     //@PDA jdbc40
     /**
     Converts the data to String object.
@@ -594,10 +594,10 @@ extends Cloneable
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    /* ifdef JDBC40  
+/* ifdef JDBC40 */
     public abstract SQLXML getSQLXML()
     throws SQLException;
-    endif */     
+/* endif */ 
     
     //@PDA jdbc40
     /**
@@ -606,11 +606,11 @@ extends Cloneable
     @exception  SQLException    If the conversion is not
                                 required or not possible.
     **/
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     
     public abstract RowId getRowId()
     throws SQLException;
-     endif */ 
+/* endif */ 
     
     //@array
     /**

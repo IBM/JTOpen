@@ -20,10 +20,10 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
 import java.sql.SQLException;
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.logging.Logger;
-endif */ 
+/* endif */ 
 import java.util.Properties;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
@@ -122,12 +122,12 @@ implements java.sql.Driver
 	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver"; // @D0C @C5C @C6C
 	static final String DRIVER_LEVEL_            = Copyright.DRIVER_LEVEL;
 
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
     public static final int JDBC_MAJOR_VERSION_ = 4; // JDBC spec version: 4.0
-endif */ 
-/* ifndef JDBC40 */ 
+/* endif */ 
+/* ifndef JDBC40 
     public static final int JDBC_MAJOR_VERSION_ = 3; // JDBC spec version: 3.0
-/* endif */
+ endif */ 
     
 /* ifdef JAVA9
     public static final int JDBC_MINOR_VERSION_ = 3; 
@@ -1497,10 +1497,10 @@ endif */
 		return DRIVER_NAME_;	// @D0C
 	}
 	
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
   public Logger getParentLogger() throws SQLFeatureNotSupportedException {
     throw new SQLFeatureNotSupportedException(); 
   }
-endif */
+/* endif */ 
 
 }

@@ -17,9 +17,9 @@ import java.lang.reflect.InvocationTargetException;
 
 // The AbstractProxyImpl class provides a default implementation for the ProxyImpl and ProxyFactoryImpl interfaces.
 abstract class AbstractProxyImpl
-/*ifdef JDBC40
+/* ifdef JDBC40 */
 extends ToolboxWrapper 
-endif */ 
+/* endif */ 
 implements ProxyImpl, ProxyFactoryImpl
 {
     static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";

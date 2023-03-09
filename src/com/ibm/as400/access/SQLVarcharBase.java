@@ -18,20 +18,20 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.sql.Blob;
 import java.sql.Clob;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-endif */ 
+/* endif */ 
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.util.GregorianCalendar; 
-endif */
+/* endif */ 
 
 /* ifdef JDBC42
 import java.time.LocalTime;
@@ -296,13 +296,13 @@ extends SQLDataBase  implements SQLVariableCompressible
           value = getStringFromReader((Reader) object, ALL_READER_BYTES, this);
         }
             
-        /* ifdef JDBC40 
+/* ifdef JDBC40 */
         else if(object instanceof SQLXML) //@PDA jdbc40 
         {    
             SQLXML xml = (SQLXML)object;
             value = xml.getString();
         }   
-        endif */         
+/* endif */ 
         /* ifdef JDBC42
 
         else if(object instanceof java.time.LocalDate) 
@@ -560,7 +560,7 @@ extends SQLDataBase  implements SQLVariableCompressible
         } 
     }
 
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
     //@pda jdbc40
     public RowId getRowId() throws SQLException
     {
@@ -576,7 +576,7 @@ extends SQLDataBase  implements SQLVariableCompressible
         truncated_ = 0; outOfBounds_ = false; 
         return new AS400JDBCSQLXML(getString());     
     }
-    endif */ 
+/* endif */ 
     
     public void saveValue() {
        savedValue_ = untruncatedValue_; 

@@ -17,24 +17,24 @@ import java.lang.reflect.InvocationTargetException;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.ClientInfoStatus;
-endif */ 
+/* endif */ 
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
-endif */ 
+/* endif */ 
 import java.sql.PreparedStatement;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLClientInfoException;
 import java.sql.SQLXML;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.concurrent.Executor;
-endif */ 
+/* endif */ 
 import java.sql.Savepoint;   
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -848,12 +848,12 @@ implements Connection
    * <p>
    */
   public void setClientInfo(String name, String value) 
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
     throws SQLClientInfoException
-endif */ 
-/* ifndef JDBC40 */ 
-   throws SQLException 
 /* endif */ 
+/* ifndef JDBC40 
+   throws SQLException 
+ endif */ 
     {
         try
         {
@@ -862,7 +862,7 @@ endif */
                     new Object[] { name, value });
         } catch (SQLException e)
         {
-        /* ifdef JDBC40 
+/* ifdef JDBC40 */
             //may be SQLException or SQLClientInfoException
             if(e instanceof SQLClientInfoException)
                 throw (SQLClientInfoException)e;
@@ -875,10 +875,10 @@ endif */
                 SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), m);
                 throw clientIE;
             }
-endif */ 
-/* ifndef JDBC40 */ 
-	throw e;
 /* endif */ 
+/* ifndef JDBC40 
+	throw e;
+ endif */ 
         }
     }
 
@@ -924,16 +924,16 @@ endif */
    *             if the database server returns an error while setting the
    *             clientInfo values on the database server
    *             <p>
-//JDBC40DOC   * @see java.sql.Connection#setClientInfo(String, String)
-//JDBC40DOC   *      setClientInfo(String, String)
+   * @see java.sql.Connection#setClientInfo(String, String)
+   *      setClientInfo(String, String)
    */
   public void setClientInfo(Properties properties) 
-  /* ifdef JDBC40 
+/* ifdef JDBC40 */
   throws SQLClientInfoException
-endif */ 
-/* ifndef JDBC40 */ 
-  throws SQLException
 /* endif */ 
+/* ifndef JDBC40 
+  throws SQLException
+ endif */ 
   {
       try
       {
@@ -942,7 +942,7 @@ endif */
                   new Object[] { properties });
       }catch(SQLException e)
       {
-      /* ifdef JDBC40 
+/* ifdef JDBC40 */
           //may be SQLException or SQLClientInfoException
           if(e instanceof SQLClientInfoException)
               throw (SQLClientInfoException)e;
@@ -961,10 +961,10 @@ endif */
               SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), m);
               throw clientIE;
           }
-          endif */ 
-          /* ifndef JDBC40 */ 
+/* endif */ 
+/* ifndef JDBC40 
           	throw e; 
-          /* endif */ 
+ endif */ 
       }
   }
 
@@ -1001,7 +1001,7 @@ endif */
    * @throws SQLException     if the database server returns an error when 
    *                          fetching the client info value from the database.
    * <p>
-//JDBC40DOC   * @see java.sql.DatabaseMetaData#getClientInfoProperties
+   * @see java.sql.DatabaseMetaData#getClientInfoProperties
    */
   public String getClientInfo(String name) throws SQLException
   {
@@ -1076,38 +1076,38 @@ endif */
   }
 
   //@PDA jdbc40
-//JDBC40DOC   /**
-//JDBC40DOC    * Constructs an object that implements the <code>NClob</code> interface. The object
-//JDBC40DOC    * returned initially contains no data.  The <code>setAsciiStream</code>,
-//JDBC40DOC    * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
-//JDBC40DOC    * be used to add data to the <code>NClob</code>.
-//JDBC40DOC    * @return An object that implements the <code>NClob</code> interface
-//JDBC40DOC    * @throws SQLException if an object that implements the
-//JDBC40DOC    * <code>NClob</code> interface can not be constructed.
-//JDBC40DOC    *
-//JDBC40DOC    */
-  /* ifdef JDBC40 
+   /**
+    * Constructs an object that implements the <code>NClob</code> interface. The object
+    * returned initially contains no data.  The <code>setAsciiStream</code>,
+    * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
+    * be used to add data to the <code>NClob</code>.
+    * @return An object that implements the <code>NClob</code> interface
+    * @throws SQLException if an object that implements the
+    * <code>NClob</code> interface can not be constructed.
+    *
+    */
+/* ifdef JDBC40 */
   public NClob createNClob() throws SQLException
   {
       return (NClob) callMethodRtnObj("createNClob");
   }
-endif */ 
+/* endif */ 
   //@PDA jdbc40
-//JDBC40DOC   /**
-//JDBC40DOC    * Constructs an object that implements the <code>SQLXML</code> interface. The object
-//JDBC40DOC    * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
-//JDBC40DOC    * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
-//JDBC40DOC    * object.
-//JDBC40DOC    * @return An object that implements the <code>SQLXML</code> interface
-//JDBC40DOC    * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
-//JDBC40DOC    * be constructed
-//JDBC40DOC    */
-  /* ifdef JDBC40 
+   /**
+    * Constructs an object that implements the <code>SQLXML</code> interface. The object
+    * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
+    * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
+    * object.
+    * @return An object that implements the <code>SQLXML</code> interface
+    * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
+    * be constructed
+    */
+/* ifdef JDBC40 */
   public SQLXML createSQLXML() throws SQLException
   {
       return (SQLXML) callMethodRtnObj("createSQLXML");
   }
-  endif */  
+/* endif */ 
   //@PDA jdbc40
   /**
    * Factory method for creating Array objects.
@@ -1171,7 +1171,7 @@ endif */
       return (String) callMethodRtnObj("getServerJobIdentifier");     // @pd2
   }                                                                   // @pd2
 
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
  
   // JDBC 4.1
   public void abort(Executor executor) throws SQLException {
@@ -1189,7 +1189,7 @@ endif */
     
   }
 
-endif */
+/* endif */ 
   
   // JDBC 4.1
   public int getNetworkTimeout() throws SQLException {

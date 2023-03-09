@@ -17,19 +17,19 @@ import javax.sql.ConnectionEvent;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.CallableStatement;
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLClientInfoException;
-endif */ 
+/* endif */ 
 import java.sql.Clob;
 import java.sql.Connection;        //@A5A
 import java.sql.DatabaseMetaData;
-/*ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.NClob;
-endif */ 
+/* endif */ 
 import java.sql.PreparedStatement;
-/*ifdef JDBC40
+/* ifdef JDBC40 */
 import java.sql.SQLXML;
-endif */ 
+/* endif */ 
 import java.sql.Savepoint;         //@A6A
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -37,9 +37,9 @@ import java.sql.Statement;
 import java.sql.Struct;
 import java.util.Map;
 import java.util.Properties; //@pda client info
-/*ifdef JDBC40
+/* ifdef JDBC40 */
 import java.util.concurrent.Executor;
-endif */ 
+/* endif */ 
 
 /**
 *  The AS400JDBCConnectionHandle class represents an AS400JDBCConnection object
@@ -70,9 +70,9 @@ endif */
 *
 **/
 public class AS400JDBCConnectionHandle 
-/* ifdef JDBC40
+/* ifdef JDBC40 */
 extends ToolboxWrapper
-endif */ 
+/* endif */ 
 implements Connection //@A5A
 //@A5D extends AS400JDBCConnection
 {
@@ -1648,33 +1648,33 @@ ResultSet.CONCUR_READ_ONLY.
   
   
   //@PDA jdbc40
-//JDBC40DOC  /**
-//JDBC40DOC   * Returns true if the connection has not been closed and is still valid.  
-//JDBC40DOC   * The driver shall submit a query on the connection or use some other 
-//JDBC40DOC   * mechanism that positively verifies the connection is still valid when 
-//JDBC40DOC   * this method is called.
-//JDBC40DOC   * <p>
-//JDBC40DOC   * The query submitted by the driver to validate the connection shall be 
-//JDBC40DOC   * executed in the context of the current transaction.
-//JDBC40DOC   * 
-//JDBC40DOC   * @param timeout -     The time in seconds to wait for the database operation 
-//JDBC40DOC   *                      used to validate the connection to complete.  If 
-//JDBC40DOC   *                      the timeout period expires before the operation 
-//JDBC40DOC   *                      completes, this method returns false.  A value of 
-//JDBC40DOC   *                      0 indicates a timeout is not applied to the 
-//JDBC40DOC   *                      database operation.  Note that currently the timeout
-//JDBC40DOC   *                      value is not used.
-//JDBC40DOC   * <p>
-//JDBC40DOC   * @return true if the connection is valid, false otherwise
-//JDBC40DOC   * @exception SQLException if a database access error occurs.
-//JDBC40DOC   */ 
-  /* ifdef JDBC40 
+  /**
+   * Returns true if the connection has not been closed and is still valid.  
+   * The driver shall submit a query on the connection or use some other 
+   * mechanism that positively verifies the connection is still valid when 
+   * this method is called.
+   * <p>
+   * The query submitted by the driver to validate the connection shall be 
+   * executed in the context of the current transaction.
+   * 
+   * @param timeout -     The time in seconds to wait for the database operation 
+   *                      used to validate the connection to complete.  If 
+   *                      the timeout period expires before the operation 
+   *                      completes, this method returns false.  A value of 
+   *                      0 indicates a timeout is not applied to the 
+   *                      database operation.  Note that currently the timeout
+   *                      value is not used.
+   * <p>
+   * @return true if the connection is valid, false otherwise
+   * @exception SQLException if a database access error occurs.
+   */ 
+/* ifdef JDBC40 */
   public boolean isValid(int timeout) throws SQLException 
   { 
       validateConnection();
       return connection_.isValid(timeout);
   }
-  endif */ 
+/* endif */ 
         
   //@PDA jdbc40
 
@@ -1720,24 +1720,24 @@ ResultSet.CONCUR_READ_ONLY.
      *      setClientInfo(String, String)
      */
     public void setClientInfo(Properties properties) 
-/*ifdef JDBC40
+/* ifdef JDBC40 */
      throws SQLClientInfoException
-endif */ 
-/* ifndef JDBC40 */     
-    throws SQLException
 /* endif */ 
+/* ifndef JDBC40 
+    throws SQLException
+ endif */ 
     {
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
     try { 
- endif */     
+/* endif */ 
         validateConnection();
-        /* ifdef JDBC40 
+/* ifdef JDBC40 */
           }catch(SQLException e)
       {
           SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), null);
           throw clientIE;
       }
-          endif */ 
+/* endif */ 
         
         
         connection_.setClientInfo(properties);
@@ -1857,41 +1857,41 @@ endif */
 
 
   //@PDA jdbc40
-//JDBC40DOC  /**
-//JDBC40DOC   * Constructs an object that implements the <code>NClob</code> interface. The object
-//JDBC40DOC   * returned initially contains no data.  The <code>setAsciiStream</code>,
-//JDBC40DOC   * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
-//JDBC40DOC   * be used to add data to the <code>NClob</code>.
-//JDBC40DOC   * @return An object that implements the <code>NClob</code> interface
-//JDBC40DOC   * @throws SQLException if an object that implements the
-//JDBC40DOC   * <code>NClob</code> interface can not be constructed.
-//JDBC40DOC   *
-//JDBC40DOC   */
-  /* ifdef JDBC40 
+  /**
+   * Constructs an object that implements the <code>NClob</code> interface. The object
+   * returned initially contains no data.  The <code>setAsciiStream</code>,
+   * <code>setCharacterStream</code> and <code>setString</code> methods of the <code>NClob</code> interface may
+   * be used to add data to the <code>NClob</code>.
+   * @return An object that implements the <code>NClob</code> interface
+   * @throws SQLException if an object that implements the
+   * <code>NClob</code> interface can not be constructed.
+   *
+   */
+/* ifdef JDBC40 */
   public NClob createNClob() throws SQLException
   {
       validateConnection();
       return connection_.createNClob();
   }
-  endif */ 
+/* endif */ 
 
   //@PDA jdbc40
-//JDBC40DOC  /**
-//JDBC40DOC   * Constructs an object that implements the <code>SQLXML</code> interface. The object
-//JDBC40DOC   * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
-//JDBC40DOC   * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
-//JDBC40DOC   * object.
-//JDBC40DOC   * @return An object that implements the <code>SQLXML</code> interface
-//JDBC40DOC   * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
-//JDBC40DOC   * be constructed
-//JDBC40DOC   */
-  /* ifdef JDBC40 
+  /**
+   * Constructs an object that implements the <code>SQLXML</code> interface. The object
+   * returned initially contains no data. The <code>createXmlStreamWriter</code> object and
+   * <code>setString</code> method of the <code>SQLXML</code> interface may be used to add data to the <code>SQLXML</code>
+   * object.
+   * @return An object that implements the <code>SQLXML</code> interface
+   * @throws SQLException if an object that implements the <code>SQLXML</code> interface can not
+   * be constructed
+   */
+/* ifdef JDBC40 */
   public SQLXML createSQLXML() throws SQLException
   {
       validateConnection();
       return connection_.createSQLXML();
   }
-  endif */
+/* endif */ 
 
   //@PDA jdbc40
   /**
@@ -1976,24 +1976,24 @@ endif */
      *                  property is cleared.
      */
     public void setClientInfo(String name, String value)
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
      throws SQLClientInfoException
-     endif */
-    /* ifndef JDBC40 */ 
+/* endif */ 
+/* ifndef JDBC40 
     throws SQLException
-    /* endif */ 
+ endif */ 
     {
-    /* ifdef JDBC40 	
+/* ifdef JDBC40 */
     	try {
-    endif */ 
+/* endif */ 
         validateConnection();
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
            }catch(SQLException e)
         {
             SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), null);
             throw clientIE;
         }
-     endif */ 
+/* endif */ 
         
         connection_.setClientInfo(name, value);
     }
@@ -2008,36 +2008,36 @@ endif */
      * @throws SQLException  If a database error occurs.
      */
     public void setDBHostServerTrace(boolean trace) throws SQLException { //@pdc
-        /* ifdef JDBC40 	
+/* ifdef JDBC40 */
     	try {
-    endif */ 
+/* endif */ 
         validateConnection();
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
            }catch(SQLException e)
         {
             SQLClientInfoException clientIE = new SQLClientInfoException(e.getMessage(), e.getSQLState(), null);
             throw clientIE;
         }
-     endif */ 
+/* endif */ 
         connection_.setDBHostServerTrace(trace);
     }
     
 
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
       public void abort(Executor executor) throws SQLException {
         validateConnection();
         connection_.abort(executor);         
       }
-    endif */
+/* endif */ 
       
 
 
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
       public int getNetworkTimeout() throws SQLException {
               validateConnection();
           return connection_.getNetworkTimeout(); 
       }
-    endif */
+/* endif */ 
 
 
 
@@ -2047,14 +2047,14 @@ endif */
       }
 
 
-    /* ifdef JDBC40 
+/* ifdef JDBC40 */
       public void setNetworkTimeout(Executor executor, int milliseconds)
           throws SQLException {
           validateConnection(); 
           connection_.setNetworkTimeout(executor, milliseconds); 
         
       }
-    endif */
+/* endif */ 
 
 
       public void setSchema(String schema) throws SQLException {

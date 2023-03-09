@@ -21,17 +21,17 @@ import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Clob;
 import java.sql.Date;
-/*ifdef JDBC40
+/* ifdef JDBC40 */
 import java.sql.NClob;
 import java.sql.RowId;
-endif */ 
+/* endif */ 
 import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 import java.sql.SQLXML;  
-endif */ 
+/* endif */ 
 
 //@PDA jdbc40 brand new class
 //This is almost the same as SQLClob, and I would have liked to extend it, but it is final, and so decided
@@ -133,9 +133,9 @@ final class SQLNClob extends SQLDataBase
         else if(!(object instanceof Clob) && //@PDC NClob extends Clob
                 !(object instanceof InputStream) && 
                 !(object instanceof Reader)  //@PDC jdbc40
-/* ifdef JDBC40                 
+/* ifdef JDBC40 */
                 && !(object instanceof SQLXML)
-   endif */ 
+/* endif */ 
                 ) //@PDC jdbc40
         {
           if (JDTrace.isTraceOn()) {
@@ -176,13 +176,13 @@ final class SQLNClob extends SQLDataBase
                 Clob clob = (Clob)object;
                 value_ = clob.getSubString(1, (int)clob.length());
             }
-            /* ifdef JDBC40 
+/* ifdef JDBC40 */
             else if( object instanceof SQLXML ) //@PDA jdbc40 
             {
                 SQLXML xml = (SQLXML)object;
                 value_ = xml.getString();
             }
-            endif */ 
+/* endif */ 
             else
             {
                 JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH);
@@ -287,12 +287,12 @@ final class SQLNClob extends SQLDataBase
 
     public int getType()
     {
-    	/* ifdef JDBC40 
+/* ifdef JDBC40 */
         return java.sql.Types.NCLOB;
-        endif */ 
-    	/* ifndef JDBC40  */ 
+/* endif */ 
+/* ifndef JDBC40 
     	return java.sql.Types.CLOB; 
-    	/* endif */ 
+ endif */ 
     	 
     	 
     }
@@ -437,12 +437,12 @@ final class SQLNClob extends SQLDataBase
     {
         if(savedObject_ != null) doConversion();
         truncated_ = 0; outOfBounds_ = false; 
-        /*ifdef JDBC40 
+/* ifdef JDBC40 */
         return new AS400JDBCNClob(value_, maxLength_);
-        endif */ 
-        /* ifndef JDBC40 */ 
+/* endif */ 
+/* ifndef JDBC40 
         return new AS400JDBCClob(value_, maxLength_);
-        /* endif */ 
+ endif */ 
     }
 
     public short getShort()
@@ -482,7 +482,7 @@ final class SQLNClob extends SQLDataBase
         return value_;     
     }
 
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
     public RowId getRowId() throws SQLException
     {
         //
@@ -513,7 +513,7 @@ final class SQLNClob extends SQLDataBase
         return new AS400JDBCSQLXML(value_);     
     }
 
-    endif */ 
+/* endif */ 
     
     public void saveValue() {
       savedValue_ = value_; 

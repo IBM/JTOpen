@@ -24,9 +24,9 @@ of a PreparedStatement.
 Use PreparedStatement.getParameterMetaData() to create new ParameterMetaData objects.
 **/
 public class AS400JDBCParameterMetaData
-/* ifdef JDBC40 
+/* ifdef JDBC40 */
 extends ToolboxWrapper
-endif */ 
+/* endif */ 
            implements ParameterMetaData                         
 {
   final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";

@@ -69,12 +69,12 @@ extends SQLVarcharBase implements SQLVariableCompressible
 
     public int getType()
     {
-    	/* ifdef JDBC40 
+/* ifdef JDBC40 */
         return java.sql.Types.NVARCHAR;
-        endif */ 
-    	/* ifndef JDBC40 */
+/* endif */ 
+/* ifndef JDBC40 
         return java.sql.Types.VARCHAR;
-    	/* endif */ 
+ endif */ 
     }
 
 
@@ -85,13 +85,13 @@ extends SQLVarcharBase implements SQLVariableCompressible
 
     public String getTypeName()
     {
-    	/* ifdef JDBC40 
+/* ifdef JDBC40 */
         return "NVARCHAR";
-        endif */ 
+/* endif */ 
     	
-    	/* ifndef JDBC40 */
+/* ifndef JDBC40 
         return "VARCHAR";
-    	/* endif */ 
+ endif */ 
     }
 
 
