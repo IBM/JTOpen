@@ -340,8 +340,8 @@ public interface Copyright
     public static String copyright = "Copyright (C) 1997-2020 International Business Machines Corporation and others.";
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 11.2"; 
-    //                                                                                                 built=20221010 automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R5M0.00 built=20221010 @AI9";  
+    //                                                                                                 built=20230219 automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R5M0.00 built=20230219 @AI9";  
 
 
     // Constants for reference by AS400JDBCDriver.
