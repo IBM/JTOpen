@@ -38,7 +38,7 @@
   </developers>
 
   <scm>
-    <url>https://sourceforge.net/p/jt400/svn/HEAD/tree/trunk/</url>
+    <url>https://github.com/IBM/JTOpen</url>
   </scm>
   <dependencies>
     <dependency>
