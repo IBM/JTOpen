@@ -6,7 +6,7 @@
 
   <groupId>net.sf.jt400</groupId>
   <artifactId>jt400</artifactId>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
   <version>20.0.0-SNAPSHOT</version>
   <name>JT400</name>
   <description>The Open Source version of the IBM Toolbox for Java</description>
@@ -357,7 +357,7 @@
             </configuration>
           </execution>
           <execution>
-            <id>JDK 7</id>
+            <id>default-compile</id>
             <phase>compile</phase>
             <goals>
               <goal>compile</goal>
@@ -397,7 +397,7 @@
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.2.2</version>
         <executions>
-          <execution>
+          <!-- <execution>
             <id>jt400</id>
             <phase>package</phase>
             <goals>
@@ -405,8 +405,9 @@
             </goals>
             <configuration>
               <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+              <classifier>dup</classifier>
             </configuration>
-          </execution>
+          </execution> -->
           <execution>
             <id>jt400-java8</id>
             <phase>package</phase>
@@ -449,6 +450,7 @@
         <configuration>
           <encoding>UTF-8</encoding>
           <sourcepath>${basedir}/target/sources_java8</sourcepath>
+          <additionalOptions>-html4 -Xmaxwarns 1</additionalOptions>
         </configuration>
         <executions>
           <execution>
