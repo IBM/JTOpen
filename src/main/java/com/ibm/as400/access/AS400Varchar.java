@@ -109,7 +109,6 @@ public class AS400Varchar implements AS400DataType {
    Constructs an AS400Varchar object.
    @param  varlensize  the size of the Varchar length, it must be 2 bytes or 4 bytes
    @param  length  The byte length of the IBM i text.  It must be greater than or equal to zero.
-   @param  ccsid  The CCSID of the IBM i text.  It must refer to a valid and available CCSID.  The value 65535 will cause the data type to use the most likely CCSID based on the default locale.
    @param  system  The system from which the conversion table may be downloaded.
    */
   public AS400Varchar(int varlensize, int length, AS400 system)

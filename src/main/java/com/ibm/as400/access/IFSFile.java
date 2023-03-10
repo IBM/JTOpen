@@ -1817,7 +1817,7 @@ public class IFSFile
   }
   
   /**Return the auxiliary storage pool (ASP)  that holds the object. Note only password authentication scheme is supported, otherwise returns -1.
-  @param retrieve more attributes at same time when set true.
+  @param retrieveAll more attributes at same time when set true.
   @return Return the auxiliary storage pool (ASP)  that holds the object.
   Possible values are:
    <ul>

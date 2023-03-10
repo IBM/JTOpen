@@ -311,7 +311,7 @@ public class ISeriesNetServerPrintShare extends ISeriesNetServerShare
   //@AE3A Start
   /**
   Gets the value of the "Encryption Required" attribute, only available on 7.4 and above
-  Possible values are {@link #ENABLED ENABLED}, {@link #NOT_ENABLED NOT_ENABLED}.
+  Possible values are {@link #NOT_REQUIRED NOT_REQUIRED}, {@link #REQUIRED REQUIRED}.
   @return The Encryption Required.
   **/
  public int getEncryptionRequired()
@@ -326,8 +326,8 @@ public class ISeriesNetServerPrintShare extends ISeriesNetServerShare
  
  /**
  Sets the value of the "Encryption Required" attribute. only available on 7.4 and above
- Valid values are {@link #ENABLED ENABLED}, {@link #NOT_ENABLED NOT_ENABLED}.
- @param Encryption Required, required
+ Valid values are {@link #NOT_REQUIRED NOT_REQUIRED}, {@link #REQUIRED REQUIRED}.
+ @param required Required, required
  **/
 public void setEncryptionRequired(int required)
 {
@@ -357,7 +357,7 @@ public String getAuthorizationList()
 
 /**
 Sets the value of the "Authorization List" attribute.
-@param Authorization List
+@param authorizationList
 **/
 public void setAuthorizationList(String authorizationList)
 {

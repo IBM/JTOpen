@@ -302,7 +302,7 @@ public class ISeriesNetServerFileShare extends ISeriesNetServerShare
  /**
  Sets the value of the "Encryption Required" attribute.
  Valid values are {@link #ENABLED ENABLED}, {@link #NOT_ENABLED NOT_ENABLED}.
- @param Encryption Required, required
+ @param required Required, required
  **/
 public void setEncryptionRequired(int required)
 {
@@ -332,7 +332,7 @@ public String getAuthorizationList()
 
 /**
 Sets the value of the "Authorization List" attribute.
-@param Authorization List
+@param authorizationList
 **/
 public void setAuthorizationList(String authorizationList)
 {
