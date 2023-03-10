@@ -54,6 +54,25 @@
   <build>
     <plugins>
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>add-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>${basedir}/archived/contrib</source>
+              </sources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.3.0</version>
         <executions>
@@ -162,16 +181,35 @@
         <version>3.1.0</version>
         <executions>
           <execution>
-            <id>source-pcml</id>
+            <id>source-pcml-NetServer</id>
             <phase>process-classes</phase>
             <configuration>
               <target name="source-pcml">
                 <echo> Processing PCML files...</echo>
                 <taskdef name="pcml" classname="PCMLTask" classpath="build" />
                 <pcml
-                  destdir="${project.build.outputDirectory}"
+                  destdir="${project.build.outputDirectory}/com/ibm/as400/access"
                   srcdir="${basedir}/pcml"
-                  includes="**/*.pcml"
+                  includes="**/NetServer.pcml"
+                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-resource</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml-resources">
+                <echo> Processing PCML files...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <pcml
+                  destdir="${project.build.outputDirectory}/com/ibm/as400/resource"
+                  srcdir="${basedir}/pcml"
+                  includes="**/R*.pcml"
                   classpath="${project.build.outputDirectory}:${basedir}/pcml"
                 />
               </target>
@@ -201,7 +239,6 @@
             <id>java9</id>
             <phase>process-sources</phase>
             <configuration>
-
               <target name="source-java11">
                 <echo> Processing jdbc4.2 files...</echo>
                 <taskdef name="java11src" classname="Java9Task" classpath="build" />
@@ -368,6 +405,7 @@
             </goals>
             <configuration>
               <classesDirectory>${project.build.outputDirectory}</classesDirectory>
+              <exclude
             </configuration>
           </execution>
           <execution>
