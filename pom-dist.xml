@@ -405,7 +405,6 @@
             </goals>
             <configuration>
               <classesDirectory>${project.build.outputDirectory}</classesDirectory>
-              <exclude
             </configuration>
           </execution>
           <execution>
