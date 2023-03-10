@@ -19,7 +19,7 @@ package com.ibm.as400.access;
  *      RoutingDataEntry routingDataEntry = routingDataList.getRoutingDataEntry();
  *      System.out.println("compareValue is " + routingDataEntry.getcompareValue);
  * </pre>
- * </br>
+ * <br>
  * @see SubsystemEntryList
  * @author zhangze
  *

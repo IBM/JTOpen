@@ -37,7 +37,7 @@ public interface ProfileTokenImpl extends AS400CredentialImpl {
     * the provided information.
     *
     * @deprecated As of V5R3, replaced 
-    * by {@link #generateTokenExtended(String,String,int,int)}
+    * by {@link #generateTokenExtended(String,char[],int,int)}
     * for password strings 
     * and {@link #generateToken(String,int,int,int)} for password
     * special values

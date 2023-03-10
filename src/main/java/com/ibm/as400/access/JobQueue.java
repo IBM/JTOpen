@@ -353,7 +353,7 @@ public class JobQueue implements Serializable {
 	   * Sets the job queue library.  Cannot be changed after the object
 	   * has established a connection to the system.
 	   *
-	   * @param name the job queue library
+	   * @param library the job queue library
 	   **/
 	  public void setLibraryName(String library)
 	  {

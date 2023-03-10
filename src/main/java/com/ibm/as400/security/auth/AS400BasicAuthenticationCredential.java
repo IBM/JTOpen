@@ -61,7 +61,7 @@ public String[] basicAuthenticationPrompt();
  * @exception Exception
  *		If an exception occurs.
  *
- *@deprecated.  Use initialize(AS400BasicAuthenticationPrincipal principal, char[] password,
+ * @deprecated  Use initialize(AS400BasicAuthenticationPrincipal principal, char[] password,
   boolean isPrivate, boolean isReusable, boolean isRenewable,
   int timeoutInterval) instead
  */
