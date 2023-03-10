@@ -48,4 +48,52 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
+  <build>
+    <plugins>
+    <plugin>
+      <artifactId>maven-antrun-plugin</artifactId>
+      <version>3.1.0</version>
+      <executions>
+        <execution>
+          <id>source-pcml-NetServer</id>
+          <phase>process-classes</phase>
+          <configuration>
+            <target name="source-pcml">
+              <echo> Processing PCML files...</echo>
+              <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+              <pcml
+                destdir="${project.build.outputDirectory}/com/ibm/as400/access"
+                srcdir="${basedir}/pcml"
+                includes="**/NetServer.pcml"
+                classpath="${project.build.outputDirectory}:${basedir}/pcml"
+              />
+            </target>
+          </configuration>
+          <goals>
+            <goal>run</goal>
+          </goals>
+        </execution>
+        <execution>
+          <id>source-pcml-resource</id>
+          <phase>process-classes</phase>
+          <configuration>
+            <target name="source-pcml-resources">
+              <echo> Processing PCML files...</echo>
+              <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+              <pcml
+                destdir="${project.build.outputDirectory}/com/ibm/as400/resource"
+                srcdir="${basedir}/pcml"
+                includes="**/R*.pcml"
+                classpath="${project.build.outputDirectory}:${basedir}/pcml"
+              />
+            </target>
+          </configuration>
+          <goals>
+            <goal>run</goal>
+          </goals>
+        </execution>
+        </executions>
+    </plugin>
+  </plugins>
+  </build>
 </project>
