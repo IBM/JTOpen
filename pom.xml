@@ -7,7 +7,7 @@
   <groupId>net.sf.jt400</groupId>
   <artifactId>jt400</artifactId>
   <packaging>jar</packaging>
-  <version>20.0.0-SNAPSHOT</version>
+  <version>dev</version>
   <name>JT400</name>
   <description>The Open Source version of the IBM Toolbox for Java</description>
   <url>http://github.com/IBM/JTOpen</url>
