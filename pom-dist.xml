@@ -469,13 +469,11 @@
 
         <configuration>
           <encoding>UTF-8</encoding>
-          <sourcepath>${basedir}/target/sources_java8</sourcepath>
-          <classifier>java8</classifier>
         </configuration>
         <executions>
           <execution>
             <id>attach-sources</id>
-            <phase>verify</phase>
+            <phase>package</phase>
             <goals>
               <goal>jar-no-fork</goal>
             </goals>
