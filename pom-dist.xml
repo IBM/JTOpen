@@ -219,6 +219,82 @@
             </goals>
           </execution>
           <execution>
+            <id>source-pcml-NetServer-java8</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml">
+                <echo> Processing PCML files...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <pcml
+                  destdir="${basedir}/target/sources_java8/com/ibm/as400/access"
+                  srcdir="${basedir}/pcml"
+                  includes="**/NetServer.pcml"
+                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-resource-java8</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml-resources">
+                <echo> Processing PCML files...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <pcml
+                  destdir="${basedir}/target/sources_java8/com/ibm/as400/resource"
+                  srcdir="${basedir}/pcml"
+                  includes="**/R*.pcml"
+                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-NetServer-java11</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml">
+                <echo> Processing PCML files...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <pcml
+                  destdir="${basedir}/target/sources_java11/com/ibm/as400/access"
+                  srcdir="${basedir}/pcml"
+                  includes="**/NetServer.pcml"
+                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-resource-java11</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml-resources">
+                <echo> Processing PCML files...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <pcml
+                  destdir="${basedir}/target/sources_java11/com/ibm/as400/resource"
+                  srcdir="${basedir}/pcml"
+                  includes="**/R*.pcml"
+                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
             <id>source-java8</id>
             <phase>process-sources</phase>
             <configuration>
@@ -236,7 +312,7 @@
             </goals>
           </execution>
           <execution>
-            <id>java9</id>
+            <id>source-java11</id>
             <phase>process-sources</phase>
             <configuration>
               <target name="source-java11">
@@ -262,7 +338,7 @@
         <version>3.10.0</version>
         <executions>
           <execution>
-            <id>JDK 8</id>
+            <id>Compile JDK 8</id>
             <phase>compile</phase>
             <goals>
               <goal>compile</goal>
@@ -300,7 +376,7 @@
           </execution>
 
           <execution>
-            <id>JDK 11</id>
+            <id>Compile JDK 11</id>
             <phase>compile</phase>
             <goals>
               <goal>compile</goal>
@@ -341,7 +417,7 @@
             </configuration>
           </execution>
           <execution>
-            <id>native</id>
+            <id>Compile Native</id>
             <phase>compile</phase>
             <goals>
               <goal>compile</goal>
