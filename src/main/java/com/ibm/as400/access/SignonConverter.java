@@ -13,6 +13,8 @@
 
 package com.ibm.as400.access;
 
+import java.io.UnsupportedEncodingException;
+
 // Sign-on converter maps only valid user ID and DES password characters between Unicode and EBCDIC CCSID 37.  Also maps so called "special characters" where an N with tilde becomes a # character.
 class SignonConverter
 {
@@ -88,7 +90,15 @@ class SignonConverter
         return returnChars;
     }
 
-   // Convert Unicode string to EBCID CCSID 37 byte array.
+   // Convert Unicode string to byte array using the given encoding.
+    static byte[] stringToByteArray(String source, String encoding) throws AS400SecurityException
+    {
+        char[] sourceChars = source.toCharArray();
+        byte[] answer = charArrayToByteArray(sourceChars, encoding); 
+        return answer; 
+    }
+
+    // Convert Unicode string to EBCID CCSID 37 byte array.
     static byte[] stringToByteArray(String source) throws AS400SecurityException
     {
            char[] sourceChars = source.toCharArray();
@@ -100,9 +110,24 @@ class SignonConverter
         return charArrayToByteArray(chars, true); 
     }
 
-        static byte[] charArrayToByteArray(char[] chars) throws AS400SecurityException
+    static byte[] charArrayToByteArray(char[] chars, String encoding) throws AS400SecurityException
     {
-    return charArrayToByteArray(chars, false); 
+        return charArrayToByteArray(chars, false, encoding); 
+    }
+    static byte[] charArrayToByteArray(char[] chars) throws AS400SecurityException
+    {
+        return charArrayToByteArray(chars, false); 
+    }
+    
+    static byte[] charArrayToByteArray(char[] sourceChars, boolean upperCase, String encoding) throws AS400SecurityException
+    {
+        String padded = (new String(sourceChars) + "          ").substring(0, 10);
+        if(upperCase) padded = padded.toUpperCase();
+        try {
+            return padded.getBytes(encoding);
+        } catch (UnsupportedEncodingException e) {
+            throw new AS400SecurityException(AS400SecurityException.SECURITY_GENERAL, e);
+        }
     }
     
     static byte[] charArrayToByteArray(char[] sourceChars, boolean upperCase) throws AS400SecurityException
@@ -124,6 +149,7 @@ class SignonConverter
             }
             switch (c)
             {
+                //TODO: stop using hex representations (readability)
                 case 0x0022: returnBytes[i] = (byte)0x7F; break;  // "
                 case 0x0023: returnBytes[i] = (byte)0x7B; break;  // #
                 case 0x0024: returnBytes[i] = (byte)0x5B; break;  // $
@@ -155,6 +181,7 @@ class SignonConverter
                 case 0x003D: returnBytes[i] = (byte)0x7e; break;  // =
                 case 0x003E: returnBytes[i] = (byte)0x6e; break;  // >
                 case 0x003F: returnBytes[i] = (byte)0x6f; break;  // ?
+                case '!':    returnBytes[i] = (byte)0x5a; break;
 
                 case 0x0040: returnBytes[i] = (byte)0x7C; break;  // @
 

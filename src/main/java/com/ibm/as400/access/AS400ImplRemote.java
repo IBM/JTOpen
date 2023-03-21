@@ -1536,7 +1536,7 @@ public class AS400ImplRemote implements AS400Impl {
           byteType = AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD;
 
           userIDbytes = getEncryptedUserid(sharedKeyBytes, serverSeed);
-          ddmSubstitutePassword = getEncryptedPassword(sharedKeyBytes,
+          ddmSubstitutePassword = getDdmEncryptedPassword(sharedKeyBytes,
               serverSeed);
         } else {
           userIDbytes = SignonConverter.stringToByteArray(userId_);
@@ -2121,7 +2121,7 @@ public class AS400ImplRemote implements AS400Impl {
    */
 
   // Get the encrypted password for EUSRIDPWD.
-  private byte[] getEncryptedPassword(byte[] sharedPrivateKey, byte[] serverSeed)
+  private byte[] getDdmEncryptedPassword(byte[] sharedPrivateKey, byte[] serverSeed)
       throws AS400SecurityException, IOException {
     int credType = credVault_.getType();
 
@@ -2189,8 +2189,10 @@ public class AS400ImplRemote implements AS400Impl {
           // }
         }
 
+        // Codepage 500 is a DRDA standard. Using 37 fails for certain invariant characters, such
+        // as the exclamation point ('!')
         byte[] passwordEbcdic = SignonConverter.charArrayToByteArray(
-            password);
+            password, "Cp500");
         CredentialVault.clearArray(password);
         if (PASSWORD_TRACE) {
           Trace.log(Trace.DIAGNOSTIC, "  password in ebcdic: ", passwordEbcdic);
