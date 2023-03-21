@@ -55,7 +55,7 @@ import com.ibm.as400.security.auth.ProfileTokenProvider;
  *    system.connectService(AS400.FILE);        // This does not cause a prompt.
  </pre>
  **/
-public class AS400 implements Serializable
+public class AS400 implements Serializable, AutoCloseable
 {
     private static final String CLASSNAME = "com.ibm.as400.access.AS400";
     static boolean jdk14 = false;
@@ -5079,5 +5079,9 @@ public class AS400 implements Serializable
 
         return pwdlvl;
     }
-    
+
+    @Override
+    public void close() throws Exception {
+        disconnectAllServices();
+    }
 }
