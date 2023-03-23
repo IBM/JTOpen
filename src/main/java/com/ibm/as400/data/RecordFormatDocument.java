@@ -14,6 +14,7 @@
 package com.ibm.as400.data;
 
 import com.ibm.as400.access.*;
+import com.ibm.as400.access.Record;
 
 import java.io.File;
 import java.io.FileOutputStream;
