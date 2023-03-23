@@ -26,6 +26,7 @@ import java.util.TimeZone;
 import java.util.Vector;
 
 import com.ibm.as400.access.*;
+import com.ibm.as400.access.Record;
 
 
 /**
