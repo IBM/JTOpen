@@ -27,7 +27,7 @@ jobs:
         java-version: '8'
         distribution: 'temurin'
         cache: maven
-    - name: Build with Maven
+    - name: Build with Maven (Java 8)
       run: mvn -B package --file pom.xml
     - name: Clean target
       run: rm -r target
@@ -42,3 +42,13 @@ jobs:
       run: mvn -B package --file pom-dist.xml
     - name: List target directory
       run: ls -l target
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    - name: Clean target
+      run: rm -r target
+    - name: Build with Maven (Java 17)
+      run: mvn -B package --file pom.xml
