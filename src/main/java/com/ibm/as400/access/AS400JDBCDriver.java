@@ -1105,8 +1105,9 @@ endif */
         
         if(clearPassword!= null)                                                  //@pw1
         {                                                                         //@pw1
-           /* check for *CURRENT */ 
-            if (clearPassword[0] == '*' &&
+           /* check for *CURRENT. Be sure to check the length */ 
+            if (clearPassword.length == 8 &&
+            	clearPassword[0] == '*' &&
                 (clearPassword[1] == 'C' || clearPassword[1] == 'c') &&
                 (clearPassword[2] == 'U' || clearPassword[2] == 'u') &&
                 (clearPassword[3] == 'R' || clearPassword[3] == 'r') &&
