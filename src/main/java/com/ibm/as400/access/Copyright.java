@@ -337,15 +337,15 @@ package com.ibm.as400.access;
 public interface Copyright
 {
     /** @deprecated  This field is reserved for use within the Toolbox product. **/
-    public static String copyright = "Copyright (C) 1997-2020 International Business Machines Corporation and others.";
+    public static String copyright = "Copyright (C) 1997-2023 International Business Machines Corporation and others.";
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen 11.2"; 
-    //                                                                                                 built=20230219 automatically set by the build (see build.xml)
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R5M0.00 built=20230219 @AI9";  
+    //                                                                                                 built=20230330 automatically set by the build (see build.xml)
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R5M0.00 built=20230330 @AI9";  
 
 
     // Constants for reference by AS400JDBCDriver.
-    static final int    MAJOR_VERSION = 13; // ex: "12" indicates V7R4, "10" indicates V7R2, while "9" indicates V7R1
+    static final int    MAJOR_VERSION = 13; // ex: "13" indicates V7R5 
     static final int    MINOR_VERSION = 3; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
                                            //Note: JTOpen 10.1 is synching with ptf 12.1
     static final String DRIVER_LEVEL  = "07050003"; //(ex: 07030008 -> V7R3M0 PTF#8) (needed for hidden clientInfo) (each # is 2 digits in length)
