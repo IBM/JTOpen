@@ -13,9 +13,11 @@
 *~
 *.#*
 .*.swp
+*.trace
 .DS_store
 .project
 bin/
 target/
 # Simulated Subversion default ignores end here
 .vscode/
+src/main/java/Test.java
