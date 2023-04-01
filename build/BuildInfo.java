@@ -33,7 +33,7 @@ public class BuildInfo {
     public static String getTimestampYear() {
         try {
             SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            return ""+ fmt.parse("@timestamp@").getYear();
+            return ""+ fmt.parse("@timestamp@").getYear() + 1900;
          } catch(Exception e) {
             return "<unknown>";
         }
