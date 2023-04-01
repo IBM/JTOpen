@@ -79,102 +79,88 @@
         <executions>
           <execution>
             <phase>generate-sources</phase>
+            <id>generate-build-info</id>
             <goals>
               <goal>replace</goal>
             </goals>
+            <configuration>
+              <file>build/BuildInfo.java</file>
+              <outputFile>src/main/java/com/ibm/as400/access/BuildInfo.java</outputFile>
+              <replacements>
+                <replacement>
+                  <token>@jtopenversion@</token>
+                  <value>${project.version}</value>
+                </replacement>
+                <replacement>
+                  <token>@prod.build@</token>
+                  <value>${prod.build}</value>
+                </replacement>
+                <replacement>
+                  <token>@timestamp@</token>
+                  <value>${maven.build.timestamp}</value>
+                </replacement>
+              </replacements>
+            </configuration>
           </execution>
-        </executions>
-        <configuration>
-          <file>build/BuildInfo.java</file>
-          <outputFile>src/main/java/com/ibm/as400/access/BuildInfo.java</outputFile>
-          <replacements>
-            <replacement>
-              <token>@jtopenversion@</token>
-              <value>${project.version}</value>
-            </replacement>
-
-            <replacement>
-              <token>@prod.build@</token>
-              <value>${prod.build}</value>
-            </replacement>
-            <replacement>
-              <token>@timestamp@</token>
-              <value>${maven.build.timestamp}</value>
-            </replacement>
-          </replacements>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.google.code.maven-replacer-plugin</groupId>
-        <artifactId>maven-replacer-plugin</artifactId>
-        <version>1.4.1</version>
-        <executions>
           <execution>
             <phase>prepare-package</phase>
+            <id>create-jt400-manifest</id>
             <goals>
               <goal>replace</goal>
             </goals>
+            <configuration>
+              <file>build/jt400_manifest.txt</file>
+              <outputFile>target/manifests/jt400_manifest.txt</outputFile>
+              <replacements>
+                <replacement>
+                  <token>@jtopenversion@</token>
+                  <value>${project.version}</value>
+                </replacement>
+                <replacement>
+                  <token>@jtopenspecversion@</token>
+                  <value>${jtopen.specversion}</value>
+                </replacement>
+                <replacement>
+                  <token>@prod.build@</token>
+                  <value>${prod.build}</value>
+                </replacement>
+                <replacement>
+                  <token>@timestamp@</token>
+                  <value>${maven.build.timestamp}</value>
+                </replacement>
+              </replacements>
+            </configuration>
           </execution>
-        </executions>
-        <configuration>
-          <file>build/jt400_manifest.txt</file>
-          <outputFile>target/manifests/jt400_manifest.txt</outputFile>
-          <replacements>
-            <replacement>
-              <token>@jtopenversion@</token>
-              <value>${project.version}</value>
-            </replacement>
-
-            <replacement>
-              <token>@jtopenspecversion@</token>
-              <value>${jtopen.specversion}</value>
-            </replacement>
-            <replacement>
-              <token>@prod.build@</token>
-              <value>${prod.build}</value>
-            </replacement>
-            <replacement>
-              <token>@timestamp@</token>
-              <value>${maven.build.timestamp}</value>
-            </replacement>
-          </replacements>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.google.code.maven-replacer-plugin</groupId>
-        <artifactId>maven-replacer-plugin</artifactId>
-        <version>1.4.1</version>
-        <executions>
           <execution>
             <phase>prepare-package</phase>
+            <id>create-jt400native-manifest</id>
             <goals>
               <goal>replace</goal>
             </goals>
+            <configuration>
+              <file>build/jt400Native_manifest.txt</file>
+              <outputFile>target/manifests/jt400Native_manifest.txt</outputFile>
+              <replacements>
+                <replacement>
+                  <token>@jtopenversion@</token>
+                  <value>${project.version}</value>
+                </replacement>
+                <replacement>
+                  <token>@jtopenspecversion@</token>
+                  <value>${jtopen.specversion}</value>
+                </replacement>
+                <replacement>
+                  <token>@prod.build@</token>
+                  <value>${prod.build}</value>
+                </replacement>
+                <replacement>
+                  <token>@timestamp@</token>
+                  <value>${maven.build.timestamp}</value>
+                </replacement>
+              </replacements>
+            </configuration>
           </execution>
         </executions>
-        <configuration>
-          <file>build/jt400Native_manifest.txt</file>
-          <outputFile>target/manifests/jt400Native_manifest.txt</outputFile>
-          <replacements>
-            <replacement>
-              <token>@jtopenversion@</token>
-              <value>${project.version}</value>
-            </replacement>
-
-            <replacement>
-              <token>@jtopenspecversion@</token>
-              <value>${jtopen.specversion}</value>
-            </replacement>
-            <replacement>
-              <token>@prod.build@</token>
-              <value>${prod.build}</value>
-            </replacement>
-            <replacement>
-              <token>@timestamp@</token>
-              <value>${maven.build.timestamp}</value>
-            </replacement>
-          </replacements>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
