@@ -29,6 +29,7 @@
     <maven.compiler.target>7</maven.compiler.target>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
     <prod.build>false</prod.build>
+    <jtopen.specversion>7.5.0.3</jtopen.specversion>
   </properties>
   <developers>
     <developer>
@@ -76,33 +77,105 @@
         <artifactId>maven-replacer-plugin</artifactId>
         <version>1.4.1</version>
         <executions>
-            <execution>
-                <phase>generate-sources</phase>
-                <goals>
-                    <goal>replace</goal>
-                </goals>
-            </execution>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+          </execution>
         </executions>
         <configuration>
-            <file>build/BuildInfo.java</file>
-            <outputFile>src/main/java/com/ibm/as400/access/BuildInfo.java</outputFile>
-            <replacements>
-                <replacement>
-                    <token>@jtopenversion@</token>
-                    <value>${project.version}</value>
-                </replacement>
+          <file>build/BuildInfo.java</file>
+          <outputFile>src/main/java/com/ibm/as400/access/BuildInfo.java</outputFile>
+          <replacements>
+            <replacement>
+              <token>@jtopenversion@</token>
+              <value>${project.version}</value>
+            </replacement>
 
-                <replacement>
-                  <token>@prod.build@</token>
-                  <value>${prod.build}</value>
-              </replacement>
-              <replacement>
-                  <token>@timestamp@</token>
-                  <value>${maven.build.timestamp}</value>
-              </replacement>
-            </replacements>
+            <replacement>
+              <token>@prod.build@</token>
+              <value>${prod.build}</value>
+            </replacement>
+            <replacement>
+              <token>@timestamp@</token>
+              <value>${maven.build.timestamp}</value>
+            </replacement>
+          </replacements>
         </configuration>
-    </plugin>
+      </plugin>
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>maven-replacer-plugin</artifactId>
+        <version>1.4.1</version>
+        <executions>
+          <execution>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <file>build/jt400_manifest.txt</file>
+          <outputFile>target/manifests/jt400_manifest.txt</outputFile>
+          <replacements>
+            <replacement>
+              <token>@jtopenversion@</token>
+              <value>${project.version}</value>
+            </replacement>
+
+            <replacement>
+              <token>@jtopenspecversion@</token>
+              <value>${jtopen.specversion}</value>
+            </replacement>
+            <replacement>
+              <token>@prod.build@</token>
+              <value>${prod.build}</value>
+            </replacement>
+            <replacement>
+              <token>@timestamp@</token>
+              <value>${maven.build.timestamp}</value>
+            </replacement>
+          </replacements>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>maven-replacer-plugin</artifactId>
+        <version>1.4.1</version>
+        <executions>
+          <execution>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <file>build/jt400Native_manifest.txt</file>
+          <outputFile>target/manifests/jt400Native_manifest.txt</outputFile>
+          <replacements>
+            <replacement>
+              <token>@jtopenversion@</token>
+              <value>${project.version}</value>
+            </replacement>
+
+            <replacement>
+              <token>@jtopenspecversion@</token>
+              <value>${jtopen.specversion}</value>
+            </replacement>
+            <replacement>
+              <token>@prod.build@</token>
+              <value>${prod.build}</value>
+            </replacement>
+            <replacement>
+              <token>@timestamp@</token>
+              <value>${maven.build.timestamp}</value>
+            </replacement>
+          </replacements>
+        </configuration>
+      </plugin>
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.3.0</version>
@@ -504,17 +577,19 @@
         <artifactId>maven-jar-plugin</artifactId>
         <version>3.2.2</version>
         <executions>
-          <!-- <execution>
-            <id>jt400</id>
+          <execution>
+            <id>default-jar</id>
             <phase>package</phase>
             <goals>
               <goal>jar</goal>
             </goals>
             <configuration>
               <classesDirectory>${project.build.outputDirectory}</classesDirectory>
-              <classifier>dup</classifier>
+              <archive>
+                <manifestFile>${project.build.outputDirectory}/../manifests/jt400_manifest.txt</manifestFile>
+              </archive>
             </configuration>
-          </execution> -->
+          </execution>
           <execution>
             <id>jt400-java8</id>
             <phase>package</phase>
@@ -524,6 +599,9 @@
             <configuration>
               <classesDirectory>${project.build.outputDirectory}_java8</classesDirectory>
               <classifier>java8</classifier>
+              <archive>
+                <manifestFile>${project.build.outputDirectory}/../manifests/jt400_manifest.txt</manifestFile>
+              </archive>
             </configuration>
           </execution>
           <execution>
@@ -535,6 +613,9 @@
             <configuration>
               <classesDirectory>${project.build.outputDirectory}_native</classesDirectory>
               <classifier>native</classifier>
+              <archive>
+                <manifestFile>${project.build.outputDirectory}/../manifests/jt400Native_manifest.txt</manifestFile>
+              </archive>
             </configuration>
           </execution>
           <execution>
@@ -546,6 +627,9 @@
             <configuration>
               <classesDirectory>${project.build.outputDirectory}_java11</classesDirectory>
               <classifier>java11</classifier>
+              <archive>
+                <manifestFile>${project.build.outputDirectory}/../manifests/jt400_manifest.txt</manifestFile>
+              </archive>
             </configuration>
           </execution>
         </executions>
