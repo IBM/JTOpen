@@ -21,3 +21,4 @@ target/
 # Simulated Subversion default ignores end here
 .vscode/
 src/main/java/Test.java
+src/main/java/com/ibm/as400/access/BuildInfo.java
