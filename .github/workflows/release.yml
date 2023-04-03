@@ -1,0 +1,161 @@
+
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      name: Check out
+
+    - name: Get Maven project version
+      run: |
+        echo "project_version=$(mvn -q -Dexec.executable="echo" -Dexec.args='${project.version}' --non-recursive exec:exec  --file pom-dist.xml)" >> $GITHUB_ENV
+        cat $GITHUB_ENV
+
+    - name: Install gpg secret key
+      id: install-secret-key
+      run: |
+        cat <(echo -e "${{ secrets.OSSRH_GPG_SECRET_KEY }}") | gpg --batch --import
+        gpg --list-secret-keys --keyid-format LONG
+
+    - name: Install gpg public key
+      id: install-pulic-key
+      run: |
+        cat <(echo -e "${{ secrets.OSSRH_GPG_PUBLIC_KEY }}") | gpg --batch --import
+        gpg --list-public-keys --keyid-format LONG
+
+    - name: Set up JDK 8
+      uses: actions/setup-java@v3
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven (Java 8)
+      run: mvn -B package --file pom.xml
+
+    - name: Clean target
+      run: rm -r target
+
+    - uses: actions/checkout@v3
+    - name: Set up JDK 11
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: maven
+        server-id: ossrh
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
+      env:
+        MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+
+    - name: Publish package
+      run: mvn --batch-mode "-Dprod.build=true" -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} clean deploy --file pom-dist.xml
+      env:
+        MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+
+    - name: List target directory
+      run: ls -l target
+
+    - name: Copy dist artifacts to staging directory
+      run: mkdir staging && cp target/*.jar staging
+
+    - name: create bundle .zip
+      run: cd staging && zip JTOpen-$project_version.zip *.jar && cd ..
+
+    - name: Create the tag and release
+      id: create_release
+      uses: actions/create-release@latest
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.project_version }}
+        release_name: Release ${{ env.project_version }}
+        draft: false
+        prerelease: false
+
+    - name: Upload jt400-x.x.x.jar file to release
+      id: upload-release-asset2
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./staging/jt400-${{ env.project_version }}.jar
+        asset_name: jt400-${{ env.project_version }}.jar
+        asset_content_type: application/zip
+
+    - name: Upload jt400-x.x.x-java11.jar file to release
+      id: upload-release-asset3
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./staging/jt400-${{ env.project_version }}-java11.jar
+        asset_name: jt400-${{ env.project_version }}-java11.jar
+        asset_content_type: application/zip
+
+    - name: Upload jt400-x.x.x-java8.jar file to release
+      id: upload-release-asset4
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./staging/jt400-${{ env.project_version }}-java8.jar
+        asset_name: jt400-${{ env.project_version }}-java8.jar
+        asset_content_type: application/zip
+
+    - name: Upload jt400-x.x.x-javadoc.jar file to release
+      id: upload-release-asset5
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./staging/jt400-${{ env.project_version }}-javadoc.jar
+        asset_name: jt400-${{ env.project_version }}-javadoc.jar
+        asset_content_type: application/zip
+
+    - name: Upload jt400-x.x.x-native.jar file to release
+      id: upload-release-asset6
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./staging/jt400-${{ env.project_version }}-native.jar
+        asset_name: jt400-${{ env.project_version }}-native.jar
+        asset_content_type: application/zip
+
+    - name: Upload jt400-x.x.x-sources.jar file to release
+      id: upload-release-asset7
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./staging/jt400-${{ env.project_version }}-sources.jar
+        asset_name: jt400-${{ env.project_version }}-sources.jar
+        asset_content_type: application/zip
+
+    - name: Upload bundle zip file to release
+      id: upload-release-asset8
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./staging/JTOpen-${{ env.project_version }}.zip
+        asset_name: JTOpen-${{ env.project_version }}.zip
+        asset_content_type: application/zip
