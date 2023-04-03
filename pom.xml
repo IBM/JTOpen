@@ -26,7 +26,7 @@
     <maven.compiler.source>7</maven.compiler.source>
     <maven.compiler.target>7</maven.compiler.target>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
-    <sc.version>Development Build (built with mvn)</sc.version>
+    <prod.build>false</prod.build>
   </properties>
   <developers>
     <developer>
@@ -67,6 +67,38 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>maven-replacer-plugin</artifactId>
+        <version>1.4.1</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <file>build/BuildInfo.java</file>
+          <outputFile>src/main/java/com/ibm/as400/access/BuildInfo.java</outputFile>
+          <replacements>
+            <replacement>
+              <token>@jtopenversion@</token>
+              <value>${project.version}</value>
+            </replacement>
+
+            <replacement>
+              <token>@prod.build@</token>
+              <value>${prod.build}</value>
+            </replacement>
+            <replacement>
+              <token>@timestamp@</token>
+              <value>${maven.build.timestamp}</value>
+            </replacement>
+          </replacements>
+        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-antrun-plugin</artifactId>
