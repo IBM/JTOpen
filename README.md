@@ -1,21 +1,15 @@
 # JTOpen - The IBM Toolbox for Java
 
----
+- [What is the Toolbox?](#what-is-the-toolbox)
+- [Changes in Version 20 and Newer](#changes-in-version-20-and-newer)
+- [Download/Installation](#downloadinstallation)
+  * [Maven](#maven)
+  * [Download Information](#download-information)
+- [Migration to GitHub](#migration-to-github)
+- [Support information](#support-information)
 
-### Contents
 
-* [What is the Toolbox?](#what-is-the-toolbox)
-* [Changes in Version 20 and Newer](#changes-in-version-20-and-newer)
-* [Differences between JTOpen and the Toolbox LPP](#differences-between-jtopen-and-the-toolbox-lpp)
-* [Download and installation of JTOpen](#download-and-installation-of-jtopen)
-  * [Requirements](#requirements)
-  * [Files](#files)
-  * [Building and Using JTOpen](#building-and-using-jtopen)  <!-- * [Using the Toolbox LPP](#using-the-toolbox-lpp) -->
-* [Migration to GitHub](#migration-to-github)
-* [Support information](#support-information)
-
-### What is the Toolbox?
-
+## What is the Toolbox?
 
 JTOpen is the open source software product known as the "IBM Toolbox for Java." It is also commonly
 referred to "jt400" or simply "the toolbox." 
@@ -45,19 +39,19 @@ earlier code streams. Key differences include:
    In summary, JTOpen versions now consist of three digits, `x.y.z`.
    This provides differentiation between bug fixes, new features, and breaking changes. 
 
-2. Java 7 or later is required (**breaking change**). 
+1. Java 7 or later is required (**breaking change**). 
 
-3. Breaking changes may be introduced on major version upgrades. Some examples of breaking changes
+1. Breaking changes may be introduced on major version upgrades. Some examples of breaking changes
    include:
    - Newer minimum Java version requirements
    - Changes in Java classes that require source modification or recompilation
    - Dropped support for older releases of IBM i
    Note that Version 20 contains some breaking changes as documented here.
 
-4. Changes to code hosting location and support processes (see [Migration to GitHub](#migration-to-github)
+1. Changes to code hosting location and support processes (see [Migration to GitHub](#migration-to-github)
    and [Support information](#support-information))
 
-5. **Immediate removal** of several antiquated components of JTOpen, including
+1. **Immediate removal** of several antiquated components of JTOpen, including
    - JTOpenLite
    - jt400Android
    - jt400Micro
@@ -65,15 +59,16 @@ earlier code streams. Key differences include:
    If you need these packages, please acquire older versions from the [archive site on sourceforge](http://jt400.sourceforge.net)
    (**breaking change**)
 
-6. Publication of "native" form to Maven Central (see [File Information](#file-information)). This allows Maven-based
+1. Publication of "native" form to Maven Central (see [File Information](#file-information)). This allows Maven-based
    applications running on IBM i to take advantage of extra optimizations present in the operating system
 
-### Download and installation of JTOpen
-
-#### Maven
+## Download/Installation
 
 The recommended way to build Java applications is to use Maven, Gradle, or some other system to manage
-dependencies. Manually maintaining a Java classpath is not desired. 
+dependencies. Manually maintaining a Java classpath is not desired.
+
+### Maven
+ 
 JTOpen is published to Maven Central as artifact ID `jt400` in group `net.sf.jt400`.
 Visit specific versions on [the jtopen page on Maven Central](https://mvnrepository.com/artifact/net.sf.jt400/jt400)
 for example build declarations for Maven's `pom.xml` manifest file. Configuration
@@ -81,26 +76,26 @@ text is also available for other build systems, including Gradle, SBT, Ivy, Grap
 
 Several coordinates are published to Maven. See [File Information](#file-information) for information about Maven coordinates
 
-#### File Information
+### Download Information
 
 JTOpen [releases](https://github.com/IBM/JTOpen/releases) for versions 20 and newer include
 the following files:
 
-|Jar file | Maven Coordinate (v20)  | Contents |
-| ------- | -------- | -------- |
-| jtopen-x.y.z.jar         | <default>  | This is the main JTOpen jar file. It contains almost all open source code (except for the few Toolbox classes that could  not be open-sourced), including the utilities package and the JDBC driver (JDBC 3.0). This is analagous to the jar file classically named `jt400.jar`.|
+|Jar file                  | Maven Coordinate (v20)  | Contents  |
+| -----------------------  | ----------------------  | --------  |
+| jtopen-x.y.z.jar         | &lt;default&gt;  | This is the main JTOpen jar file. It contains almost all open source code (except for the few Toolbox classes that could  not be open-sourced), including the utilities package and the JDBC driver (JDBC 3.0). This is analagous to the jar file classically named `jt400.jar`.|
 | jtopen-x.y.z-native.jar  | `native`   | This is the main JTOpen jar file with support for "Native Optimizations" when running on IBM i. This is analagous to the file classically named `jt400Native.jar`.|
 | jtopen-x.y.z-java8.jar   | `java8`    | This is the main JTOpen jar file but built for Java 8 (or newer). Some components (most notably the JDBC driver) may have extra capabilities available in Java 8. |
 | jtopen-x.y.z-java11.jar  | `java11`   | This is the main JTOpen jar file but built for Java 8 (or newer). Some components (most notably the JDBC driver) may have extra capabilities available in Java 11. |
 | jtopen-x.y.z-sources.zip | N/A        | This is a zip file of all the source files in the repository. It is not a Java jar file. |
 | jtopen-x.y.z-javadoc.zip | N/A        | This is a zip file of the javadoc (in HTML format) for the JTOpen source files. It is not a Java jar file. |
 
-### Migration to GitHub
+## Migration to GitHub
 
 As of April 2023, the [JTOpen site on sourceforge.net](http://jt400.sourceforge.net) is considered a historical
 archive for older versions. GitHub is now used for issue tracking, release management, etc. 
 
-### Support information
+## Support information
 
 Please note the following regarding support/collaboration options:
 - Documentation for JTOpen can be found on the [Toolbox web site](https://www.ibm.com/support/pages/node/1118781).
