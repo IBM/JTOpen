@@ -73,89 +73,10 @@ jobs:
       run: cd staging && zip JTOpen-$project_version.zip *.jar && cd ..
 
     - name: Create the tag and release
-      id: create_release
-      uses: actions/create-release@latest
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
       with:
         tag_name: v${{ env.project_version }}
-        release_name: Release ${{ env.project_version }}
-        draft: false
-        prerelease: false
-
-    - name: Upload jt400-x.x.x.jar file to release
-      id: upload-release-asset2
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./staging/jt400-${{ env.project_version }}.jar
-        asset_name: jt400-${{ env.project_version }}.jar
-        asset_content_type: application/zip
-
-    - name: Upload jt400-x.x.x-java11.jar file to release
-      id: upload-release-asset3
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./staging/jt400-${{ env.project_version }}-java11.jar
-        asset_name: jt400-${{ env.project_version }}-java11.jar
-        asset_content_type: application/zip
-
-    - name: Upload jt400-x.x.x-java8.jar file to release
-      id: upload-release-asset4
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./staging/jt400-${{ env.project_version }}-java8.jar
-        asset_name: jt400-${{ env.project_version }}-java8.jar
-        asset_content_type: application/zip
-
-    - name: Upload jt400-x.x.x-javadoc.jar file to release
-      id: upload-release-asset5
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./staging/jt400-${{ env.project_version }}-javadoc.jar
-        asset_name: jt400-${{ env.project_version }}-javadoc.jar
-        asset_content_type: application/zip
-
-    - name: Upload jt400-x.x.x-native.jar file to release
-      id: upload-release-asset6
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./staging/jt400-${{ env.project_version }}-native.jar
-        asset_name: jt400-${{ env.project_version }}-native.jar
-        asset_content_type: application/zip
-
-    - name: Upload jt400-x.x.x-sources.jar file to release
-      id: upload-release-asset7
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./staging/jt400-${{ env.project_version }}-sources.jar
-        asset_name: jt400-${{ env.project_version }}-sources.jar
-        asset_content_type: application/zip
-
-    - name: Upload bundle zip file to release
-      id: upload-release-asset8
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./staging/JTOpen-${{ env.project_version }}.zip
-        asset_name: JTOpen-${{ env.project_version }}.zip
-        asset_content_type: application/zip
+        name: v${{ env.project_version }}
+        files: |
+         staging/jt400-*.jar 
+         staging/*.zip
