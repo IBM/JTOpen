@@ -77,10 +77,6 @@ jobs:
       with:
         tag_name: v${{ env.project_version }}
         name: v${{ env.project_version }}
-        files: ./staging/jt400-${{ env.project_version }}.jar |
-               ./staging/jt400-${{ env.project_version }}-java11.jar |
-               ./staging/jt400-${{ env.project_version }}-java8.jar |
-               ./staging/jt400-${{ env.project_version }}-javadoc.jar |
-               ./staging/jt400-${{ env.project_version }}-native.jar |
-               ./staging/jt400-${{ env.project_version }}-sources.jar |
-               ./staging/JTOpen-${{ env.project_version }}.zip
+        files: |
+         staging/jt400-*.jar 
+         staging/*.zip
