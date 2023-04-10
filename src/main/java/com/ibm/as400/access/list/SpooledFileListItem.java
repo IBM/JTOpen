@@ -267,13 +267,20 @@ public class SpooledFileListItem
         format_ = SpooledFileOpenList.FORMAT_0300;
     }
 
+    SpooledFileListItem(String jobName, String jobUser, String jobNumber, String name, int number, int status, String dateOpened, String timeOpened, String schedule, String jobSystemName, String userData, String formType, String outputQueueName, String outputQueueLibrary, int asp, int size, int sizeMultiplier, int totalPages, int copiesLeftToPrint, String priority, int ippJobIdentifier, boolean isOSPL400) {
+        this(jobName, jobUser, jobNumber, name, number, status, dateOpened, timeOpened, schedule, jobSystemName, userData, formType, outputQueueName, outputQueueLibrary, asp, size, sizeMultiplier, totalPages, copiesLeftToPrint, priority, ippJobIdentifier);
+        if (isOSPL400) {
+            format_ = SpooledFileOpenList.FORMAT_0400;
+        }
+    }
+
     /**
      Returns the auxiliary storage pool (ASP) in which the spooled file resides.  Possible values are:
      <ul>
      <li>1 - The system auxiliary storage pool (*SYSTEM).
      <li>2-255 - The number of the auxiliary storage pool.
      </ul>
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The auxiliary storage pool.
      **/
     public int getASP()
@@ -294,7 +301,7 @@ public class SpooledFileListItem
 
     /**
      Returns the date and time the spooled file was created.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (i5/OS V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (i5/OS V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @see  #getDateOpened
      @see  #getTimeOpened
      @return  The date and time formatted into a java.util.Date object.
@@ -325,7 +332,7 @@ public class SpooledFileListItem
 
     /**
      Returns the date the spooled file was created.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (i5/OS V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (i5/OS V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @see  #getCreationDate
      @return  The date in the format CYYMMDD.
      **/
@@ -363,7 +370,7 @@ public class SpooledFileListItem
 
     /**
      Returns the type of forms that should be loaded on the printer before this spooled file is printed.  This attribute applies to printer device type spooled files only.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The form type.
      @see  #getDeviceType
      **/
@@ -395,7 +402,7 @@ public class SpooledFileListItem
 
     /**
      Returns the Internet Print Protocol (IPP) job identifier assigned by the system based on the output queue to which the file was added or moved.  This value ranges from 1 to 2,147,483,647 and is not guaranteed to be unique for a given output queue.  This value will be 0 when retrieved from systems running i5/OS V5R2M0 and earlier.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300},
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400},
      @return  The IPP job identifier.
      **/
     public int getIPPJobIdentifier()
@@ -405,7 +412,7 @@ public class SpooledFileListItem
 
     /**
      Returns the name of the job that created the spooled file.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The job name.
      @see  #getJobNumber
      @see  #getJobUser
@@ -417,7 +424,7 @@ public class SpooledFileListItem
 
     /**
      Returns the number of the job that created the spooled file.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The job number.
      @see  #getJobName
      @see  #getJobUser
@@ -429,7 +436,7 @@ public class SpooledFileListItem
 
     /**
      Returns the name of the system where the job that created the spooled file ran.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (i5/OS V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200} (i5/OS V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (i5/OS V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200} (i5/OS V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The system name.
      **/
     public String getJobSystemName()
@@ -439,7 +446,7 @@ public class SpooledFileListItem
 
     /**
      Returns the user of the job that created the spooled file.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The user name.
      @see  #getJobName
      @see  #getJobNumber
@@ -451,7 +458,7 @@ public class SpooledFileListItem
 
     /**
      Returns the name of the spooled file.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The spooled file name.
      **/
     public String getName()
@@ -461,7 +468,7 @@ public class SpooledFileListItem
 
     /**
      Returns the number of the spooled file.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The spooled file number.
      **/
     public int getNumber()
@@ -471,7 +478,7 @@ public class SpooledFileListItem
 
     /**
      Returns the fully-qualified integrated file system path of the output queue in which the spooled file is located.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The output queue.
      @see  #getOutputQueueName
      @see  #getOutputQueueLibrary
@@ -483,7 +490,7 @@ public class SpooledFileListItem
 
     /**
      Returns the library of the output queue in which the spooled file is located.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The library.
      @see  #getOutputQueue
      **/
@@ -494,7 +501,7 @@ public class SpooledFileListItem
 
     /**
      Returns the name of the output queue in which the spooled file is located.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The output queue name.
      @see  #getOutputQueue
      **/
@@ -538,7 +545,7 @@ public class SpooledFileListItem
 
     /**
      Returns the priority of the spooled file.  The priority ranges from 1 (highest) to 9 (lowest).
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The priority.
      **/
     public String getPriority()
@@ -553,7 +560,7 @@ public class SpooledFileListItem
      <li>{@link #SCHEDULE_FILE_END SCHEDULE_FILE_END}
      <li>{@link #SCHEDULE_JOB_END SCHEDULE_JOB_END}
      </ul>
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The schedule.
      **/
     public String getSchedule()
@@ -567,7 +574,7 @@ public class SpooledFileListItem
 
     /**
      Returns the spooled file size in bytes.  The size of the spooled file is the data stream size, plus the spooled file's attributes, plus the overhead storage used to store the spooled file's data stream.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The size.
      **/
     public long getSize()
@@ -592,7 +599,7 @@ public class SpooledFileListItem
      <li>{@link #STATUS_SENDING STATUS_SENDING}
      <li>{@link #STATUS_DEFERRED STATUS_DEFERRED}
      </ul>
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The status.
      **/
     public String getStatus()
@@ -616,7 +623,7 @@ public class SpooledFileListItem
 
     /**
      Returns the time the spooled file was created.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (i5/OS V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100} (i5/OS V5R2M0 and higher), {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @see  #getCreationDate
      @return  The time in the format HHMMSS.
      **/
@@ -627,7 +634,7 @@ public class SpooledFileListItem
 
     /**
      Returns the total number of pages or number of records for this spooled file.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The number of pages.
      **/
     public int getTotalPages()
@@ -637,7 +644,7 @@ public class SpooledFileListItem
 
     /**
      Returns the 10 characters of user-specified data that describe the spooled file.
-     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}
+     <p>Available in format:  {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0100 FORMAT_0100}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0200 FORMAT_0200}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0300 FORMAT_0300}, {@link com.ibm.as400.access.list.SpooledFileOpenList#FORMAT_0400 FORMAT_0400}
      @return  The user data.
      **/
     public String getUserData()
@@ -646,7 +653,7 @@ public class SpooledFileListItem
     }
 
     // Helper method used to convert the integer status returned by one API format to the String status returned by the other API format.
-    private static final String mapStatus(int status)
+    private static String mapStatus(int status)
     {
         switch (status)
         {
