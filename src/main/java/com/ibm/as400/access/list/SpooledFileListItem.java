@@ -241,7 +241,7 @@ public class SpooledFileListItem
         format_ = SpooledFileOpenList.FORMAT_0200;
     }
 
-    SpooledFileListItem(String jobName, String jobUser, String jobNumber, String name, int number, int status, String dateOpened, String timeOpened, String schedule, String jobSystemName, String userData, String formType, String outputQueueName, String outputQueueLibrary, int asp, int size, int sizeMultiplier, int totalPages, int copiesLeftToPrint, String priority, int ippJobIdentifier)
+    SpooledFileListItem(String jobName, String jobUser, String jobNumber, String name, int number, int status, String dateOpened, String timeOpened, String schedule, String jobSystemName, String userData, String formType, String outputQueueName, String outputQueueLibrary, int asp, int size, int sizeMultiplier, int totalPages, int copiesLeftToPrint, String priority, int ippJobIdentifier, boolean isOSPL400)
     {
         jobName_ = jobName;
         jobUser_ = jobUser;
@@ -264,14 +264,11 @@ public class SpooledFileListItem
         copiesLeftToPrint_ = copiesLeftToPrint;
         priority_ = priority;
         ippJobIdentifier_ = ippJobIdentifier;
-        format_ = SpooledFileOpenList.FORMAT_0300;
+        format_ = isOSPL400 ? SpooledFileOpenList.FORMAT_0400 : SpooledFileOpenList.FORMAT_0300;
     }
 
-    SpooledFileListItem(String jobName, String jobUser, String jobNumber, String name, int number, int status, String dateOpened, String timeOpened, String schedule, String jobSystemName, String userData, String formType, String outputQueueName, String outputQueueLibrary, int asp, int size, int sizeMultiplier, int totalPages, int copiesLeftToPrint, String priority, int ippJobIdentifier, boolean isOSPL400) {
-        this(jobName, jobUser, jobNumber, name, number, status, dateOpened, timeOpened, schedule, jobSystemName, userData, formType, outputQueueName, outputQueueLibrary, asp, size, sizeMultiplier, totalPages, copiesLeftToPrint, priority, ippJobIdentifier);
-        if (isOSPL400) {
-            format_ = SpooledFileOpenList.FORMAT_0400;
-        }
+    SpooledFileListItem(String jobName, String jobUser, String jobNumber, String name, int number, int status, String dateOpened, String timeOpened, String schedule, String jobSystemName, String userData, String formType, String outputQueueName, String outputQueueLibrary, int asp, int size, int sizeMultiplier, int totalPages, int copiesLeftToPrint, String priority, int ippJobIdentifier) {
+        this(jobName, jobUser, jobNumber, name, number, status, dateOpened, timeOpened, schedule, jobSystemName, userData, formType, outputQueueName, outputQueueLibrary, asp, size, sizeMultiplier, totalPages, copiesLeftToPrint, priority, ippJobIdentifier, false);
     }
 
     /**
