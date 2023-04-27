@@ -766,6 +766,7 @@ public class SpooledFileOpenList extends OpenList
     {
         switch (field)
         {
+            //TODO: throughout this part, replace comparisons against numeric literals with something more sensible
             case JOB_NAME: return 10;
             case JOB_USER: return 10;
             case JOB_NUMBER: return 6;
