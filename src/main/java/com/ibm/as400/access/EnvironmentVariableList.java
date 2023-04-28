@@ -18,7 +18,10 @@ import java.beans.PropertyChangeSupport;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -113,7 +116,21 @@ public class EnvironmentVariableList implements Serializable
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
-    public Enumeration getEnvironmentVariables() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    public Enumeration<EnvironmentVariable> getEnvironmentVariables() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        return Collections.enumeration(getEnvironmentVariablesList());
+    }
+
+    /**
+     Returns an List that contains an EnvironmentVariable object for each environment variable on the system.
+     * @return List of environment variables
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+     @exception  InterruptedException  If this thread is interrupted.
+     @exception  IOException  If an error occurs while communicating with the system.
+     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     **/
+    public List<EnvironmentVariable> getEnvironmentVariablesList() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting environment variables.");
         if (spc_ == null)
@@ -155,11 +172,11 @@ public class EnvironmentVariableList implements Serializable
         // If ENOENT is returned, then there are no environment variables.
         else if (rv == EnvironmentVariable.RV_ENOENT)
         {
-            return new Vector().elements();
+            return new LinkedList<EnvironmentVariable>();
         }
 
-        // Build up a Vector of EnvironmentVariable objects.
-        Vector list = new Vector();
+        // Build up a List of EnvironmentVariable objects.
+        List<EnvironmentVariable> list = new LinkedList<EnvironmentVariable>();
         int offsetIntoListBuffer = 0;
         int offsetIntoCcsidBuffer = 0;
         byte[] listBufferBytes = parameters[0].getOutputData();
@@ -186,7 +203,7 @@ public class EnvironmentVariableList implements Serializable
             int ccsid = BinaryConverter.byteArrayToInt(ccsidBufferBytes, offsetIntoCcsidBuffer);
 
             // Create the EnvironmentVariable object, add it to vector.
-            list.addElement(new EnvironmentVariable(system_, spc_, nameBytes, valueBytes, ccsid));
+            list.add(new EnvironmentVariable(system_, spc_, nameBytes, valueBytes, ccsid));
 
             // Get ready for the next iteration.
             offsetIntoListBuffer = nullPosition + 1;
@@ -195,7 +212,7 @@ public class EnvironmentVariableList implements Serializable
             // Until ending null terminator.
         } while (listBufferBytes[offsetIntoListBuffer] != 0);
 
-        return list.elements();
+        return list;
     }
 
     /**
