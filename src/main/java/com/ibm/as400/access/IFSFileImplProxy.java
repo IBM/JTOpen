@@ -729,7 +729,7 @@ implements IFSFileImpl
   }
 
   @Override
-  public Hashtable getExtendedAttributes() {
+  public Hashtable<String,Object> getExtendedAttributes() {
     // TODO Auto-generated method stub
     throw new UnsupportedOperationException();
   }

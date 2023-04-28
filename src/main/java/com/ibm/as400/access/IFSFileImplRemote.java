@@ -1532,7 +1532,7 @@ class IFSFileImplRemote implements IFSFileImpl
                   replys.size() + ")");
       }
       IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
-      Hashtable extendedAttributes = reply.getExtendedAttributeValues();
+      Hashtable<String,Object> extendedAttributes = reply.getExtendedAttributeValues();
       byte[] subtypeAsBytes = (byte[])extendedAttributes.get(".TYPE");
       if (subtypeAsBytes != null)
       {
@@ -2994,8 +2994,8 @@ class IFSFileImplRemote implements IFSFileImpl
   }
   
   //TODO @ZZA
-  public Hashtable getExtendedAttributes() throws IOException, AS400SecurityException {
-	  Hashtable EAs = new Hashtable();
+  public Hashtable<String,Object> getExtendedAttributes() throws IOException, AS400SecurityException {
+	  Hashtable<String,Object> EAs = new Hashtable<String,Object>();
       fd_.connect();
 	  try {
 		  IFSGetEAsRep reply = null;

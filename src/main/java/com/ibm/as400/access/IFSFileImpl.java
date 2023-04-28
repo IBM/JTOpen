@@ -100,7 +100,7 @@ interface IFSFileImpl
   //@AC7 End
   String getText() throws IOException, AS400SecurityException;
   String getCodePage() throws IOException, AS400SecurityException;
-  Hashtable getExtendedAttributes() throws IOException, AS400SecurityException;
+  Hashtable<String,Object> getExtendedAttributes() throws IOException, AS400SecurityException;
 
 }
 
