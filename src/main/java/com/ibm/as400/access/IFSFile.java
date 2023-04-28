@@ -1497,8 +1497,8 @@ public class IFSFile
       return impl_.getOwnerNameByUserHandle(false);  //@AC7 
     }
     else 
-      //return impl_.getOwnerName(); //@AE8D
-      //@AE8A
+      //return impl_.getOwnerName();
+    	//TODO 
     {
     	String pathUpperCase = path_.toUpperCase(system_.getLocale());
     	if (pathUpperCase.startsWith("/QSYS.LIB") && !pathUpperCase.endsWith(".FILE")) {
@@ -1794,7 +1794,7 @@ public class IFSFile
   public boolean isSourcePhysicalFile()
     throws AS400Exception, AS400SecurityException, IOException
   {
-	String pathUpperCase = path_.toUpperCase(system_.getLocale()); //@AE8A
+	String pathUpperCase = path_.toUpperCase(system_.getLocale()); //TODO fix path lower case issue
     if (!pathUpperCase.endsWith(".FILE") ||
     		pathUpperCase.indexOf("/QSYS.LIB") == -1 ||
         !getSubtype().equals("PF"))
@@ -3741,6 +3741,30 @@ public int getASP(boolean retrieveAll) throws IOException, AS400SecurityExceptio
   {
     return path_;
   }
-
+  
+  //TODO get Text 'description' of file/directory
+  public String getText() throws IOException, AS400SecurityException {
+	  if (impl_ == null)
+	      chooseImpl();
+	  return impl_.getText();
+  }
+  
+  public String getCodePage() throws IOException, AS400SecurityException {
+	  if (impl_ == null)
+	      chooseImpl();
+	  return impl_.getCodePage();
+  }
+  
+  public Hashtable getEAs() throws IOException, AS400SecurityException {
+	  if (impl_ == null)
+	      chooseImpl();
+	  return impl_.getExtendedAttributes();
+  }
+  /*
+  public void setText(String fileText) {
+	  if (impl_ == null)
+		  impl_.setText(fileText);
+  }
+  */
 }
 

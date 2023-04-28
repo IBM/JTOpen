@@ -20,6 +20,7 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Hashtable;
 
 
 /**
@@ -713,6 +714,24 @@ implements IFSFileImpl
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
     }
+  }
+
+  @Override
+  public String getText() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getCodePage() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Hashtable getExtendedAttributes() {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException();
   }
 
 }
