@@ -67,7 +67,7 @@ import java.beans.PropertyVetoException;
  *@see AS400FileRecordDescription
  *@see MemberList
  **/
-abstract public class AS400File implements Serializable
+abstract public class AS400File implements Serializable, AutoCloseable
 {
     private static final String CLASSNAME = "com.ibm.as400.access.AS400File";
     static
@@ -462,6 +462,7 @@ abstract public class AS400File implements Serializable
      *@exception IOException If an error occurs while communicating with the
      *system.
      **/
+    @Override
     public synchronized void close()
       throws AS400Exception,
     AS400SecurityException,
