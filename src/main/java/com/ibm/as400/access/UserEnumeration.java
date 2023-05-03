@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
 
 // Helper class.  Used to wrap the User[] with an Enumeration.
 // This class is used by UserList.
-class UserEnumeration implements Enumeration
+class UserEnumeration implements Enumeration<User>
 {
     // The user list object from which to get the users.
     private UserList list_ = null;
@@ -48,7 +48,7 @@ class UserEnumeration implements Enumeration
         return counter_ < length_;
     }
 
-    public final Object nextElement()
+    public final User nextElement()
     {
         if (counter_ >= length_)
         {
