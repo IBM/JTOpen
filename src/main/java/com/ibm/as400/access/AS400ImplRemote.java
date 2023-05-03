@@ -382,7 +382,7 @@ public class AS400ImplRemote implements AS400Impl {
         }
         byte[] newPasswordEbcdic = SignonConverter
             .upperCharsToByteArray(newPassword);
-        CredentialVault.clearArray(newPassword);
+        // CredentialVault.clearArray(newPassword);   Cleared in finally. 
         
         // Setup output variables for encrypt new password.
         oldProtected = (oldPasswordEbcdic[8] == 0x40 && oldPasswordEbcdic[9] == 0x40) ? new byte[8]
@@ -579,12 +579,16 @@ public class AS400ImplRemote implements AS400Impl {
       }
     } catch (IOException e) {
       Trace.log(Trace.ERROR, "Change password failed:", e);
-      signonServer_.forceDisconnect();
+      if (signonServer_ != null) { 
+    	  signonServer_.forceDisconnect();
+      }
       signonServer_ = null;
       throw e;
     } catch (AS400SecurityException e) {
       Trace.log(Trace.ERROR, "Change password failed:", e);
-      signonServer_.forceDisconnect();
+      if (signonServer_ != null) {
+    	  signonServer_.forceDisconnect();
+      }
       signonServer_ = null;
       throw e;
     } finally { //@AI9A
