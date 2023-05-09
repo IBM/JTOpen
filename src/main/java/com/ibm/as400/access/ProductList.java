@@ -247,7 +247,15 @@ public class ProductList
       {
         text7.toBytes(productIDs_[i], inputList, offset);
         offset += 7;
-        text5.toBytes(productOptions_[i], inputList, offset);
+
+        // When using *LIST, "*ALL" isn't allowed, use "     ".
+        if (productOptions_[i].equals(PRODUCT_OPTION_ALL)) {
+          text5.toBytes("     ", inputList, offset);
+        }
+        else {
+          text5.toBytes(productOptions_[i], inputList, offset);
+        }
+
         offset += 5;
         text6.toBytes(releaseLevels_[i], inputList, offset);
         offset += 6;
