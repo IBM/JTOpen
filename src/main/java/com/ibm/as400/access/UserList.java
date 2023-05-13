@@ -20,7 +20,9 @@ import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 
 /**
  Represents a list of user profiles on the system.
@@ -372,7 +374,7 @@ public class UserList implements Serializable
      @see  #close
      @see  #load
      **/
-    public synchronized Enumeration getUsers() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, RequestNotSupportedException
+    public synchronized Enumeration<User> getUsers() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, RequestNotSupportedException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving user list.");
         // Need to get the length.

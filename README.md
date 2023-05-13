@@ -15,7 +15,7 @@ JTOpen is the open source software product known as the "IBM Toolbox for Java." 
 referred to "jt400" or simply "the toolbox." 
 In short, this package provides a set of Java classes that enable applications to integrate with IBM i
 
-JTOpen is governed by the [IBM Public License](https://www.opensource.org/licenses/ibmpl.php). 
+JTOpen is governed by the [IBM Public License](LICENSE.md). 
 
 JTOpen is the open source counterpart to a version of the
 IBM Toolbox for Java that is delivered as part of the 5770-SS1 Licensed Program Product (LPP). The
@@ -23,11 +23,12 @@ LPP version is supported by IBM and can be obtained from the
 [IBM Toolbox for Java web site](https://www.ibm.com/support/pages/node/1118781).
 The Toolbox is available as an installable licensed program for IBM i. Here is a breakdown of the supported Toolbox releases versus operating system versions:
 
-| JTOpen release  | LPP release     | Installs on IBM i version | Connects to IBM i version |
-| -------         |  -------------- | --------------            |  -------------- |
-| JTOpen 10.0+    | 5770SS1 V7R4M0  | 7.2 or later              | 7.2 or later
-| JTOpen 11.0+    | 5770SS1 V7R5M0  | 7.3 or later              | 7.3 or later
-| JTOpen 20.0.0+  | 5770SS1 V7R5M0  | 7.3 or later              | 7.3 or later
+| JTOpen release  | Min. Java Version  | Installs on IBM i version | Connects to IBM i version |
+| -------         | --------------     | --------------            |  -------------- |
+| JTOpen 10.x     |   1.1              | 7.2 or later              | 7.2 or later
+| JTOpen 11.x     |   1.1              | 7.3 or later              | 7.3 or later 
+| JTOpen 20.x.y   |    7               | 7.3 or later              | 7.3 or later
+| JTOpen 21.x.y   |    8               | 7.4 or later              | 7.3 or later
 
 ## Changes in Version 20 and Newer
 

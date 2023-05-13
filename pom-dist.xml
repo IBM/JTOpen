@@ -7,7 +7,7 @@
   <groupId>net.sf.jt400</groupId>
   <artifactId>jt400</artifactId>
   <packaging>jar</packaging>
-  <version>20.0.0-alpha-1</version>
+  <version>20.0.0-alpha-2</version>
   <name>JT400</name>
   <description>The Open Source version of the IBM Toolbox for Java</description>
   <url>http://github.com/IBM/JTOpen</url>
@@ -443,23 +443,6 @@
               </compileSourceRoots>
               <excludes>
                 <exclude>**/module-info.java</exclude>
-                <exclude>com/ibm/as400/access/AS400CertificateUsrPrfUtilImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/AS400CertificateUtilImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/AS400CertificateVldlUtilImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/AS400FileImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/AS400ImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/BaseDataQueueImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/BytesWithOffset.java</exclude>
-                <exclude>com/ibm/as400/access/LocalIOFB.java</exclude>
-                <exclude>com/ibm/as400/access/LocalOpenFeedback.java</exclude>
-                <exclude>com/ibm/as400/access/MessageFBDataFormat.java</exclude>
-                <exclude>com/ibm/as400/access/MessageFBFormat.java</exclude>
-                <exclude>com/ibm/as400/access/NativeVersion.java</exclude>
-                <exclude>com/ibm/as400/access/NLSImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/ProfileHandleImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/ProfileTokenImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/RemoteCommandImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/UserSpaceImplNative.java</exclude>
               </excludes>
               <outputDirectory>${project.build.outputDirectory}_java8</outputDirectory>
             </configuration>
@@ -482,23 +465,6 @@
               <excludes>
                 <exclude>jt400Native/module-info.java</exclude>
                 <exclude>jt400Servlet/module-info.java</exclude>
-                <exclude>com/ibm/as400/access/AS400CertificateUsrPrfUtilImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/AS400CertificateUtilImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/AS400CertificateVldlUtilImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/AS400FileImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/AS400ImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/BaseDataQueueImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/BytesWithOffset.java</exclude>
-                <exclude>com/ibm/as400/access/LocalIOFB.java</exclude>
-                <exclude>com/ibm/as400/access/LocalOpenFeedback.java</exclude>
-                <exclude>com/ibm/as400/access/MessageFBDataFormat.java</exclude>
-                <exclude>com/ibm/as400/access/MessageFBFormat.java</exclude>
-                <exclude>com/ibm/as400/access/NativeVersion.java</exclude>
-                <exclude>com/ibm/as400/access/NLSImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/ProfileHandleImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/ProfileTokenImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/RemoteCommandImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/UserSpaceImplNative.java</exclude>
                 <exclude>com/ibm/as400/util/html/**</exclude>
                 <exclude>com/ibm/as400/util/servlet/**</exclude>
                 <exclude>com/ibm/as400/access/TunnelProxyServer.java</exclude>
@@ -535,23 +501,6 @@
               <fork>true</fork>
               <excludes>
                 <exclude>**/module-info.java</exclude>
-                <exclude>com/ibm/as400/access/AS400CertificateUsrPrfUtilImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/AS400CertificateUtilImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/AS400CertificateVldlUtilImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/AS400FileImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/AS400ImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/BaseDataQueueImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/BytesWithOffset.java</exclude>
-                <exclude>com/ibm/as400/access/LocalIOFB.java</exclude>
-                <exclude>com/ibm/as400/access/LocalOpenFeedback.java</exclude>
-                <exclude>com/ibm/as400/access/MessageFBDataFormat.java</exclude>
-                <exclude>com/ibm/as400/access/MessageFBFormat.java</exclude>
-                <exclude>com/ibm/as400/access/NativeVersion.java</exclude>
-                <exclude>com/ibm/as400/access/NLSImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/ProfileHandleImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/ProfileTokenImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/RemoteCommandImplNative.java</exclude>
-                <exclude>com/ibm/as400/access/UserSpaceImplNative.java</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -574,6 +523,22 @@
               <archive>
                 <manifestFile>${project.build.outputDirectory}/../manifests/jt400_manifest.txt</manifestFile>
               </archive>
+              <excludes>
+                <exclude>**/com/ibm/as400/access/*ImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/BytesWithOffset.class</exclude>
+                <exclude>**/com/ibm/as400/access/LocalIOFB.class</exclude>
+                <exclude>**/com/ibm/as400/access/LocalOpenFeedback.class</exclude>
+                <exclude>**/com/ibm/as400/access/MessageFBDataFormat.class</exclude>
+                <exclude>**/com/ibm/as400/access/MessageFBFormat.class</exclude>
+                <exclude>**/com/ibm/as400/access/NativeVersion.class</exclude>
+                <exclude>**/com/ibm/as400/access/SocketContainerUnix.class</exclude>
+                <exclude>**/com/ibm/as400/access/SocketContainerUnix2*.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocket.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocketImpl.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocketInputStream.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocketOutputStream.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocketUser.class</exclude>
+              </excludes>
             </configuration>
           </execution>
           <execution>
@@ -588,6 +553,22 @@
               <archive>
                 <manifestFile>${project.build.outputDirectory}/../manifests/jt400_manifest.txt</manifestFile>
               </archive>
+              <excludes>
+                <exclude>**/com/ibm/as400/access/*ImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/BytesWithOffset.class</exclude>
+                <exclude>**/com/ibm/as400/access/LocalIOFB.class</exclude>
+                <exclude>**/com/ibm/as400/access/LocalOpenFeedback.class</exclude>
+                <exclude>**/com/ibm/as400/access/MessageFBDataFormat.class</exclude>
+                <exclude>**/com/ibm/as400/access/MessageFBFormat.class</exclude>
+                <exclude>**/com/ibm/as400/access/NativeVersion.class</exclude>
+                <exclude>**/com/ibm/as400/access/SocketContainerUnix.class</exclude>
+                <exclude>**/com/ibm/as400/access/SocketContainerUnix2*.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocket.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocketImpl.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocketInputStream.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocketOutputStream.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocketUser.class</exclude>
+              </excludes>
             </configuration>
           </execution>
           <execution>
@@ -616,6 +597,22 @@
               <archive>
                 <manifestFile>${project.build.outputDirectory}/../manifests/jt400_manifest.txt</manifestFile>
               </archive>
+              <excludes>
+                <exclude>**/com/ibm/as400/access/*ImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/BytesWithOffset.class</exclude>
+                <exclude>**/com/ibm/as400/access/LocalIOFB.class</exclude>
+                <exclude>**/com/ibm/as400/access/LocalOpenFeedback.class</exclude>
+                <exclude>**/com/ibm/as400/access/MessageFBDataFormat.class</exclude>
+                <exclude>**/com/ibm/as400/access/MessageFBFormat.class</exclude>
+                <exclude>**/com/ibm/as400/access/NativeVersion.class</exclude>
+                <exclude>**/com/ibm/as400/access/SocketContainerUnix.class</exclude>
+                <exclude>**/com/ibm/as400/access/SocketContainerUnix2*.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocket.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocketImpl.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocketInputStream.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocketOutputStream.class</exclude>
+                <exclude>**/com/ibm/as400/access/UnixSocketUser.class</exclude>
+              </excludes>
             </configuration>
           </execution>
         </executions>
