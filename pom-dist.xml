@@ -436,6 +436,7 @@
             <configuration>
               <source>8</source>
               <target>8</target>
+              <release>8</release>
               <fork>true</fork>
               <compileSourceRoots>
                 <compileSourceRoot>${basedir}/target/sources_java8
@@ -457,6 +458,7 @@
             <configuration>
               <source>11</source>
               <target>11</target>
+              <release>11</release>
               <fork>true</fork>
               <compileSourceRoots>
                 <compileSourceRoot>${basedir}/target/sources_java11
@@ -481,6 +483,7 @@
             <configuration>
               <source>7</source>
               <target>7</target>
+              <release>7</release>
               <fork>true</fork>
               <excludes>
                 <exclude>**/module-info.java</exclude>
@@ -498,6 +501,7 @@
               <!-- <executable>${jdk.11.executable.path}</executable> -->
               <source>7</source>
               <target>7</target>
+              <release>7</release>
               <fork>true</fork>
               <excludes>
                 <exclude>**/module-info.java</exclude>
