@@ -38,7 +38,6 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException; //@A6A
 import java.net.UnknownHostException;
 import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.Vector;
 import java.util.StringTokenizer;            //@D4A
 
@@ -933,7 +932,7 @@ public class IFSFile
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
-  public Enumeration enumerateFiles(IFSFileFilter filter, String pattern)
+  public Enumeration<IFSFile> enumerateFiles(IFSFileFilter filter, String pattern)
     throws IOException
   {
       // Validate arguments.  Note that we tolerate a null-valued 'filter'.
@@ -974,7 +973,7 @@ public class IFSFile
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
-  public Enumeration enumerateFiles(String pattern)
+  public Enumeration<IFSFile> enumerateFiles(String pattern)
     throws IOException
   {
       // Validate arguments.  Note that we tolerate a null-valued 'filter'.
@@ -1015,7 +1014,7 @@ public class IFSFile
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
-  public Enumeration enumerateFiles(IFSFileFilter filter)
+  public Enumeration<IFSFile> enumerateFiles(IFSFileFilter filter)
     throws IOException
   {
       try {
@@ -1049,7 +1048,7 @@ public class IFSFile
    @exception ServerStartupException If the host server cannot be started.
    @exception UnknownHostException If the system cannot be located.
    **/
-  public Enumeration enumerateFiles()
+  public Enumeration<IFSFile> enumerateFiles()
     throws IOException
   {
       try {

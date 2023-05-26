@@ -24,7 +24,7 @@ import java.util.NoSuchElementException;
 
 
 class IFSFileEnumeration
-implements Enumeration
+implements Enumeration<IFSFile>
 {
     // The block size is hardcoded based on the value chosen by OpNav.  
     // For now, it is not configurable.
@@ -80,7 +80,7 @@ implements Enumeration
         getNextBlock();
     }
 
-
+    @Override
     public boolean hasMoreElements()
     {
         return ((contents_ != null && index_ < contents_.length) ||
@@ -205,7 +205,8 @@ implements Enumeration
       return false;
     }
 
-    public Object nextElement()
+    @Override
+    public IFSFile nextElement()
     {
         if (index_ < contents_.length)
             return contents_[index_++];
