@@ -15,7 +15,7 @@ JTOpen is the open source software product known as the "IBM Toolbox for Java." 
 referred to "jt400" or simply "the toolbox." 
 In short, this package provides a set of Java classes that enable applications to integrate with IBM i
 
-JTOpen is governed by the [IBM Public License](https://www.opensource.org/licenses/ibmpl.php). 
+JTOpen is governed by the [IBM Public License](LICENSE.md). 
 
 JTOpen is the open source counterpart to a version of the
 IBM Toolbox for Java that is delivered as part of the 5770-SS1 Licensed Program Product (LPP). The
