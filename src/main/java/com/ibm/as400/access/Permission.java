@@ -707,12 +707,12 @@ public class Permission
      * @return An enumeration of authorized users.
      *
     **/
-    public Enumeration getAuthorizedUsers()
+    public Enumeration<String> getAuthorizedUsers()
     {
       synchronized (userPermissionsLock_)
       {
         int count = userPermissions_.size();
-        Vector names = new Vector();
+        Vector<String> names = new Vector<String>();
         for (int i=0;i<count;i++)
         {
           UserPermission userPermission = (UserPermission)userPermissions_.elementAt(i);
