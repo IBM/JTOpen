@@ -33,6 +33,8 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import org.ietf.jgss.GSSCredential;
+
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 import com.ibm.as400.security.auth.ProfileTokenProvider;
 
@@ -344,7 +346,7 @@ public class AS400 implements Serializable, AutoCloseable
     private transient CredentialVault credVault_;  // never null after construction
     
     // GSS Credential object, for Kerberos.  Type set to Object to prevent dependency on 1.4 JDK.
-    private transient Object gssCredential_ = null;
+    private transient GSSCredential gssCredential_ = null;
     // GSS name string, for Kerberos.
     private String gssName_ = "";
     // How to use the GSS framework.
@@ -3934,7 +3936,7 @@ public class AS400 implements Serializable, AutoCloseable
      Sets the GSS credential for this object.  Using this method will set the authentication scheme to {@link #AUTHENTICATION_SCHEME_GSS_TOKEN AUTHENTICATION_SCHEME_GSS_TOKEN}.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any previously set authentication information.
      @param  gssCredential  The GSS credential object.  The object's type must be org.ietf.jgss.GSSCredential, the object is set to type Object only to avoid a JDK release dependency.
      **/
-    public void setGSSCredential(Object gssCredential)
+    public void setGSSCredential(GSSCredential gssCredential)
     {
         if (gssCredential == null)
         {

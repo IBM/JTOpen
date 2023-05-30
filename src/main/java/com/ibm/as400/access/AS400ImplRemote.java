@@ -51,6 +51,8 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.ietf.jgss.GSSCredential;
+
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 /**
@@ -80,7 +82,7 @@ public class AS400ImplRemote implements AS400Impl {
 
   // GSS Credential object, for Kerberos. Type set to Object to prevent
   // dependency on 1.4 JDK.
-  private Object gssCredential_ = null;
+  private GSSCredential gssCredential_ = null;
   // GSS name string, for Kerberos.
   private String gssName_ = "";
   // How to use the GSS framework.
@@ -3198,7 +3200,7 @@ public class AS400ImplRemote implements AS400Impl {
     return message;
   }
 
-  public void setGSSCredential(Object gssCredential) {
+  public void setGSSCredential(GSSCredential gssCredential) {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC, "Setting GSS credential into impl: '"
           + gssCredential + "'");
