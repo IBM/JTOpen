@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
+
+import org.ietf.jgss.GSSCredential;
+
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 import java.beans.PropertyVetoException;
 
@@ -274,7 +277,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     }
 
     // Set the GSS credential.
-    public void setGSSCredential(Object gssCredential)
+    public void setGSSCredential(GSSCredential gssCredential)
     {
         try
         {
