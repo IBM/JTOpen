@@ -133,7 +133,7 @@ public class Permission
     private int type_;
 
     private transient Vector userPermissionsBuffer_;
-    private transient Vector userPermissions_;
+    private transient Vector<UserPermission> userPermissions_;
     private transient Object userPermissionsLock_ = new Object();
 
     private transient PermissionAccess access_;
@@ -433,7 +433,7 @@ public class Permission
             //sensitivityChanged_ = false;                   // @B2d
 
             userPermissionsBuffer_ = new Vector ();
-            userPermissions_ = new Vector();
+            userPermissions_ = new Vector<UserPermission>();
             int count = perms.size();
             for (int i=4;i<count;i++)
             {
@@ -877,7 +877,7 @@ public class Permission
      * @return An enumeration of UserPermission objects.
      *
     **/
-    public Enumeration getUserPermissions()
+    public Enumeration<UserPermission> getUserPermissions()
     {
       synchronized (userPermissionsLock_)
       {
@@ -1052,7 +1052,7 @@ public class Permission
         size = ((Integer)s.readObject()).intValue();
         for (int i=0;i<size;i++)
         {
-            userPermissions_.addElement(s.readObject());
+            userPermissions_.addElement((UserPermission) s.readObject());
         }
         changes_ = new PropertyChangeSupport(this);
         s.readObject();
