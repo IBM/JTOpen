@@ -30,16 +30,11 @@
 
 package com.ibm.as400.access;
 
-import java.beans.PropertyVetoException;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.io.UnsupportedEncodingException;
-import java.util.Vector;
-import java.util.Enumeration;
+import java.beans.PropertyVetoException;
+import java.io.*;
+import java.util.*;
 
 
 /**
@@ -722,6 +717,23 @@ public class Permission
       }
     }
 
+    /**
+     * Returns a List of authorized users.
+     * @return A list of authorized users.
+     *
+     **/
+    public List<String> getAuthorizedUsersList() {
+        synchronized (userPermissionsLock_) {
+            int count = userPermissions_.size();
+            List<String> names = new ArrayList<>();
+            for (int i = 0; i < count; i++) {
+                UserPermission userPermission = (UserPermission) userPermissions_.elementAt(i);
+                names.add(userPermission.getUserID());
+            }
+            return names;
+        }
+    }
+
     
     /** 
      * Returns the path of the integrated file system object whose permission is represented by this object.
@@ -883,6 +895,18 @@ public class Permission
       {
         return userPermissions_.elements();
       }
+    }
+
+    /**
+     * Returns a list of UserPermission objects.
+     * @return A list of UserPermission objects.
+     *
+     **/
+    public List<UserPermission> getUserPermissionsList() {
+        synchronized (userPermissionsLock_)
+        {
+            return Collections.list(userPermissions_.elements());
+        }
     }
 
     
