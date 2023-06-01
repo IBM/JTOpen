@@ -708,17 +708,7 @@ public class Permission
     **/
     public Enumeration<String> getAuthorizedUsers()
     {
-      synchronized (userPermissionsLock_)
-      {
-        int count = userPermissions_.size();
-        Vector<String> names = new Vector<String>();
-        for (int i=0;i<count;i++)
-        {
-          UserPermission userPermission = (UserPermission)userPermissions_.elementAt(i);
-          names.addElement(userPermission.getUserID());
-        }
-        return names.elements();
-      }
+      return Collections.enumeration(getAuthorizedUsersList());
     }
 
     /**
@@ -728,10 +718,8 @@ public class Permission
      **/
     public List<String> getAuthorizedUsersList() {
         synchronized (userPermissionsLock_) {
-            int count = userPermissions_.size();
             List<String> names = new ArrayList<>();
-            for (int i = 0; i < count; i++) {
-                UserPermission userPermission = (UserPermission) userPermissions_.elementAt(i);
+            for (UserPermission userPermission : userPermissions_) {
                 names.add(userPermission.getUserID());
             }
             return names;
@@ -907,9 +895,8 @@ public class Permission
      *
      **/
     public List<UserPermission> getUserPermissionsList() {
-        synchronized (userPermissionsLock_)
-        {
-            return Collections.list(userPermissions_.elements());
+        synchronized (userPermissionsLock_) {
+            return userPermissions_;
         }
     }
 
