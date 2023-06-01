@@ -6258,9 +6258,7 @@ throws SQLException
    * @param newConnection
    */
   void transferObjects(AS400JDBCConnectionImpl newConnection) {
-    for (int i =0; i< MAX_STATEMENTS_; i++) {
-      newConnection.assigned_[i] = assigned_[i]; 
-    }
+    System.arraycopy(assigned_, 0, newConnection.assigned_, 0, MAX_STATEMENTS_);
     newConnection.statements_ = statements_; 
     statements_ = new Vector(); 
     

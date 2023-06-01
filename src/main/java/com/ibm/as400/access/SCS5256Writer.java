@@ -451,10 +451,7 @@ public class SCS5256Writer extends OutputStreamWriter
         }
         horizontalFormat_ = NumOfChars;
 
-        for(int i=0; i< (cmd.length-1); i++)
-        {
-            cmd[i] = SHF[i];
-        }
+        System.arraycopy(SHF, 0, cmd, 0, cmd.length-1);
         cmd[cmd.length-1] = (byte)NumOfChars;
         addToBuffer(cmd);
     }
@@ -484,10 +481,7 @@ public class SCS5256Writer extends OutputStreamWriter
         }
         verticalFormat_ = NumOfLines;
 
-        for(int i=0; i< (cmd.length-1); i++)
-        {
-            cmd[i] = SVF[i];
-        }
+        System.arraycopy(SVF, 0, cmd, 0, cmd.length-1);
         cmd[cmd.length-1] = (byte)NumOfLines;
         addToBuffer(cmd);
     }

@@ -1841,9 +1841,7 @@ public class GenerateConverterTable {
     byte[] outBytes = new byte[65536];
 
     // Just copy the control characters
-    for (int i = 0; i < 0x20; i++) {
-      outBytes[i] = inBytes[i];
-    }
+    System.arraycopy(inBytes, 0, outBytes, 0, 0x20);
     int toIndex = 0x20;
     boolean singleByte = true;
     for (int i = 0x20; i < inBytes.length; i++) {
