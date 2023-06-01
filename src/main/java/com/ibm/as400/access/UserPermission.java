@@ -180,9 +180,7 @@ public class UserPermission
 
       // Avoid sharing the same authorities array.
       boolean[] cloneAuths = new boolean[authorities_.length];
-      for (int i=0; i<authorities_.length; i++) {
-        cloneAuths[i] = authorities_[i];
-      }
+      System.arraycopy(authorities_, 0, cloneAuths, 0, authorities_.length);
       cloneObj.authorities_ = cloneAuths;
 
       return cloneObj;

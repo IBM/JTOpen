@@ -573,31 +573,19 @@ public class QSYSPermission extends UserPermission
             return;
         if (aut.equals("*ALL"))
         {
-            for (int i=0;i<10;i++)
-            {
-                authorities_[i] = basicAutMapping[BASIC_ALL][i];
-            }
+            System.arraycopy(basicAutMapping[BASIC_ALL], 0, authorities_, 0, 10);
             objectAuthority_ = BASIC_ALL;
         } else if (aut.equals("*EXCLUDE"))
         {
-            for (int i=0;i<10;i++)
-            {
-                authorities_[i] = basicAutMapping[BASIC_EXCLUDE][i];
-            }
+            System.arraycopy(basicAutMapping[BASIC_EXCLUDE], 0, authorities_, 0, 10);
             objectAuthority_ = BASIC_EXCLUDE;
         } else if (aut.equals("*USE"))
         {
-            for (int i=0;i<10;i++)
-            {
-                authorities_[i] = basicAutMapping[BASIC_USE][i];
-            }
+            System.arraycopy(basicAutMapping[BASIC_USE], 0, authorities_, 0, 10);
             objectAuthority_ = BASIC_USE;
         } else if (aut.equals("*CHANGE"))
         {
-            for (int i=0;i<10;i++)
-            {
-                authorities_[i] = basicAutMapping[BASIC_CHANGE][i];
-            }
+            System.arraycopy(basicAutMapping[BASIC_CHANGE], 0, authorities_, 0, 10);
             objectAuthority_ = BASIC_CHANGE;
         } else if (aut.equals("*AUTL"))          // @A4a
         {

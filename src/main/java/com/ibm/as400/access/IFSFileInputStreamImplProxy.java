@@ -111,9 +111,7 @@ implements IFSFileInputStreamImpl
                                            new Integer (length) },
                             ARGS_TO_RETURN, false );
       byte [] returnDataBuffer = (byte[])rv.getArgument(0);
-      for (int i=0; i<data.length; i++) {
-        data[i] = returnDataBuffer[i];
-      }
+      System.arraycopy(returnDataBuffer, 0, data, 0, data.length);
       return rv.getReturnValueInt();
     }
     catch (InvocationTargetException e) {
