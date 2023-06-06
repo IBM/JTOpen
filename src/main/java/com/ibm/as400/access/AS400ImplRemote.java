@@ -699,9 +699,10 @@ public class AS400ImplRemote implements AS400Impl {
         rc = ((IFSCreateUserHandleRep) ds).getReturnCode();
         if (rc != IFSReturnCodeRep.SUCCESS) {
           Trace.log(Trace.ERROR, "IFSCreateUserHandleRep return code", rc);
+          throw new ExtendedIOException(rc);
         }
         UserHandle = ((IFSCreateUserHandleRep) ds).getHandle();
-
+        
       } else if (ds instanceof IFSReturnCodeRep) {
         rc = ((IFSReturnCodeRep) ds).getReturnCode();
         if (rc != IFSReturnCodeRep.SUCCESS) {
