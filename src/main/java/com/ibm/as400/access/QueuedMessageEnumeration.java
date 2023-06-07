@@ -17,7 +17,7 @@ import java.util.Enumeration;
 import java.util.NoSuchElementException;
 
 // Helper class.  Used to wrap the QueuedMessage[] with an Enumeration.  This class is used by MessageQueue and JobLog.
-class QueuedMessageEnumeration implements Enumeration
+class QueuedMessageEnumeration implements Enumeration<Message>
 {
     private QueuedMessage[] messageCache_;
 
@@ -56,7 +56,7 @@ class QueuedMessageEnumeration implements Enumeration
         return counter_ < numMessages_;
     }
 
-    public final Object nextElement()
+    public final Message nextElement()
     {
         if (counter_ >= numMessages_)
         {

@@ -66,7 +66,7 @@ import java.util.Enumeration;
 
  @see  com.ibm.as400.access.QueuedMessage
  **/
-public class MessageQueue implements Serializable
+public class MessageQueue<T> implements Serializable
 {
     static final long serialVersionUID = 5L;
 
@@ -449,7 +449,7 @@ public class MessageQueue implements Serializable
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
-    public Enumeration getMessages() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    public Enumeration<Message> getMessages() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving message queue message list.");
         // Need to get the length.
