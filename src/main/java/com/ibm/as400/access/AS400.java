@@ -3934,7 +3934,7 @@ public class AS400 implements Serializable, AutoCloseable
 
     /**
      Sets the GSS credential for this object.  Using this method will set the authentication scheme to {@link #AUTHENTICATION_SCHEME_GSS_TOKEN AUTHENTICATION_SCHEME_GSS_TOKEN}.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any previously set authentication information.
-     @param  gssCredential  The GSS credential object.  The object's type must be org.ietf.jgss.GSSCredential, the object is set to type Object only to avoid a JDK release dependency.
+     @param  gssCredential  The GSS credential object.
      **/
     public void setGSSCredential(GSSCredential gssCredential)
     {
