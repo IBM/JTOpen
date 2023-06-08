@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 
+import org.ietf.jgss.GSSCredential;
+
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 // AS400Impl defines the implementation interface for the AS400 object.
@@ -61,7 +63,7 @@ interface AS400Impl
     // Remove the connection event dispatcher.
     void removeConnectionListener(ConnectionListener listener);
     // Set the GSS credential.
-    void setGSSCredential(Object gssCredential);
+    void setGSSCredential(GSSCredential gssCredential);
     // Set the port for a service.
     void setServicePort(String systemName, int service, int port);
     // Set the service ports to their default values.

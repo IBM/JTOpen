@@ -116,9 +116,7 @@ implements ProxyFactoryImpl
                                            new Integer (len) },
                             ARGS_TO_RETURN, false );
       char[] returnDataBuffer = (char[])rv.getArgument(0);
-      for (int i=0; i<cbuf.length; i++) {
-        cbuf[i] = returnDataBuffer[i];
-      }
+      System.arraycopy(returnDataBuffer, 0, cbuf, 0, cbuf.length);
       return rv.getReturnValueInt();
     }
     catch (InvocationTargetException e) {

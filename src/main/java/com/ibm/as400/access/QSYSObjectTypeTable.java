@@ -334,9 +334,7 @@ Returns a list of the supported object types.
       {
         // Create a copy, so as not to expose internal representation.
         types = new String[types_.length];
-        for (int i=0; i<types_.length; i++) {
-          types[i] = types_[i];
-        }
+        System.arraycopy(types_, 0, types, 0, types_.length);
       }
       return types;
     }

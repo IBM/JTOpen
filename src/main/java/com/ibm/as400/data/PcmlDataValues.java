@@ -264,10 +264,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             // modify the value without repercussions
             byte[] srcArray = (byte[]) m_value;
             byte[] cloneArray = new byte[srcArray.length];
-            for (int b = 0; b<srcArray.length; b++)
-            {
-                cloneArray[b] = srcArray[b];
-            }
+            System.arraycopy(srcArray, 0, cloneArray, 0, srcArray.length);
             return cloneArray;
         }
         else

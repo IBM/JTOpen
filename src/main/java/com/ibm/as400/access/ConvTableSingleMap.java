@@ -155,9 +155,7 @@ public abstract class ConvTableSingleMap extends ConvTable
       char[] oldToUnicode = toUnicode_; 
       
       toUnicode_ = new char[oldToUnicode.length];
-      for (int i = 0; i < oldToUnicode.length; i++) { 
-        toUnicode_[i] = oldToUnicode[i]; 
-      }
+      System.arraycopy(oldToUnicode, 0, toUnicode_, 0, oldToUnicode.length);
       toUnicode_[ebcdic] = unicode; 
     }
     

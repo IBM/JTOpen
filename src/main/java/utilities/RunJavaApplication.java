@@ -384,8 +384,7 @@ public class RunJavaApplication
                         if (!alreadyExist)
                         {
                             String[] newOpt = new String[curOption.length + 1];
-                            for (int optidx = 0 ; optidx < curOption.length ; optidx++)
-                                newOpt[optidx] = curOption[optidx];
+                            System.arraycopy(curOption, 0, newOpt, 0, curOption.length);
                             newOpt[newOpt.length-1] = "*VERBOSE";
                             jac.setOptions(newOpt);
                             verboseExist = true;

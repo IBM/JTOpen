@@ -38,8 +38,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.Vector;
-import java.util.Enumeration;
+import java.util.*;
 
 
 /**
@@ -709,17 +708,22 @@ public class Permission
     **/
     public Enumeration<String> getAuthorizedUsers()
     {
-      synchronized (userPermissionsLock_)
-      {
-        int count = userPermissions_.size();
-        Vector<String> names = new Vector<String>();
-        for (int i=0;i<count;i++)
-        {
-          UserPermission userPermission = (UserPermission)userPermissions_.elementAt(i);
-          names.addElement(userPermission.getUserID());
+      return Collections.enumeration(getAuthorizedUsersList());
+    }
+
+    /**
+     * Returns a List of authorized users.
+     * @return A list of authorized users.
+     *
+     **/
+    public List<String> getAuthorizedUsersList() {
+        synchronized (userPermissionsLock_) {
+            List<String> names = new ArrayList<>();
+            for (UserPermission userPermission : userPermissions_) {
+                names.add(userPermission.getUserID());
+            }
+            return names;
         }
-        return names.elements();
-      }
     }
 
     
@@ -883,6 +887,17 @@ public class Permission
       {
         return userPermissions_.elements();
       }
+    }
+
+    /**
+     * Returns a list of UserPermission objects.
+     * @return A list of UserPermission objects.
+     *
+     **/
+    public List<UserPermission> getUserPermissionsList() {
+        synchronized (userPermissionsLock_) {
+            return userPermissions_;
+        }
     }
 
     

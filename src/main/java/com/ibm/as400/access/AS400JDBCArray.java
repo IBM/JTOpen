@@ -539,9 +539,7 @@ public class AS400JDBCArray implements Array, Serializable {
       if ("java.lang.String".equals(arrayType)) {
         String[] inStringArray = (String[]) inArray;
         String[] stringArray = new String[inStringArray.length];
-        for (int i = 0; i < inStringArray.length; i++) {
-          stringArray[i] = inStringArray[i];
-        }
+        System.arraycopy(inStringArray, 0, stringArray, 0, inStringArray.length);
         data_ = stringArray;
       } else if ("java.math.BigDecimal".equals(arrayType)
           || "java.lang.Boolean".equals(arrayType)
@@ -629,9 +627,7 @@ public class AS400JDBCArray implements Array, Serializable {
       } else if ("java.lang.Integer".equals(arrayType)) {
         Integer[] inIntegerArray = (Integer[]) inArray;
         Integer[] shortArray = new Integer[inIntegerArray.length];
-        for (int i = 0; i < inIntegerArray.length; i++) {
-          shortArray[i] = inIntegerArray[i];
-        } /* for i */
+        System.arraycopy(inIntegerArray, 0, shortArray, 0, inIntegerArray.length);
         data_ = shortArray;
       } else if ("int".equals(arrayType)) {
         int[] inIntArray = (int[]) inArray;
@@ -821,9 +817,7 @@ public class AS400JDBCArray implements Array, Serializable {
       if ("java.lang.Integer".equals(arrayType)) {
         Integer[] inIntegerArray = (Integer[]) inArray;
         Integer[] integerArray = new Integer[inIntegerArray.length];
-        for (int i = 0; i < inIntegerArray.length; i++) {
-          integerArray[i] = inIntegerArray[i];
-        }
+        System.arraycopy(inIntegerArray, 0, integerArray, 0, inIntegerArray.length);
         data_ = integerArray;
 
       } else if ("int".equals(arrayType)) {
@@ -1007,9 +1001,7 @@ public class AS400JDBCArray implements Array, Serializable {
       if ("java.lang.Long".equals(arrayType)) {
         Long[] inLongArray = (Long[]) inArray;
         Long[] longArray = new Long[inLongArray.length];
-        for (int i = 0; i < inLongArray.length; i++) {
-          longArray[i] = inLongArray[i];
-        }
+        System.arraycopy(inLongArray, 0, longArray, 0, inLongArray.length);
         data_ = longArray;
 
       } else if ("long".equals(arrayType)) {
@@ -1187,9 +1179,7 @@ public class AS400JDBCArray implements Array, Serializable {
       if ("java.lang.Float".equals(arrayType)) {
         Float[] inFloatArray = (Float[]) inArray;
         Float[] floatArray = new Float[inFloatArray.length];
-        for (int i = 0; i < inFloatArray.length; i++) {
-          floatArray[i] = inFloatArray[i];
-        }
+        System.arraycopy(inFloatArray, 0, floatArray, 0, inFloatArray.length);
         data_ = floatArray;
 
       } else if ("float".equals(arrayType)) {
@@ -1406,9 +1396,7 @@ public class AS400JDBCArray implements Array, Serializable {
       if ("java.lang.Double".equals(arrayType)) {
         Double[] inDoubleArray = (Double[]) inArray;
         Double[] doubleArray = new Double[inDoubleArray.length];
-        for (int i = 0; i < inDoubleArray.length; i++) {
-          doubleArray[i] = inDoubleArray[i];
-        }
+        System.arraycopy(inDoubleArray, 0, doubleArray, 0, inDoubleArray.length);
         data_ = doubleArray;
 
       } else if ("double".equals(arrayType)) {
@@ -1591,9 +1579,7 @@ public class AS400JDBCArray implements Array, Serializable {
       if ("java.lang.Double".equals(arrayType)) {
         Double[] inDoubleArray = (Double[]) inArray;
         Double[] doubleArray = new Double[inDoubleArray.length];
-        for (int i = 0; i < inDoubleArray.length; i++) {
-          doubleArray[i] = inDoubleArray[i];
-        }
+        System.arraycopy(inDoubleArray, 0, doubleArray, 0, inDoubleArray.length);
         data_ = doubleArray;
 
       } else if ("double".equals(arrayType)) {
@@ -1777,9 +1763,7 @@ public class AS400JDBCArray implements Array, Serializable {
           "java.math.BigDecimal")) {
         BigDecimal[] inBdArray = (BigDecimal[]) inArray;
         BigDecimal[] bdArray = new BigDecimal[inBdArray.length];
-        for (int i = 0; i < inBdArray.length; i++) {
-          bdArray[i] = inBdArray[i];
-        }
+        System.arraycopy(inBdArray, 0, bdArray, 0, inBdArray.length);
         data_ = bdArray;
 
       } else if ("java.lang.Double".equals(arrayType)) {
@@ -1949,9 +1933,7 @@ public class AS400JDBCArray implements Array, Serializable {
       if ("[B".equals(arrayType)) {
         byte[][] inByteArray = (byte[][]) inArray;
         byte[][] byteArray = new byte[inByteArray.length][];
-        for (int i = 0; i < inByteArray.length; i++) {
-          byteArray[i] = inByteArray[i];
-        }
+        System.arraycopy(inByteArray, 0, byteArray, 0, inByteArray.length);
         data_ = byteArray;
 
       } else {
@@ -1969,9 +1951,7 @@ public class AS400JDBCArray implements Array, Serializable {
 
         Blob[] inBlobArray = (Blob[]) inArray;
         Blob[] blobArray = new Blob[inBlobArray.length];
-        for (int i = 0; i < inBlobArray.length; i++) {
-          blobArray[i] = inBlobArray[i];
-        }
+        System.arraycopy(inBlobArray, 0, blobArray, 0, inBlobArray.length);
         data_ = blobArray;
 
       } else {
@@ -1991,9 +1971,7 @@ public class AS400JDBCArray implements Array, Serializable {
 
         Clob[] inClobArray = (Clob[]) inArray;
         Clob[] clobArray = new Clob[inClobArray.length];
-        for (int i = 0; i < inClobArray.length; i++) {
-          clobArray[i] = inClobArray[i];
-        }
+        System.arraycopy(inClobArray, 0, clobArray, 0, inClobArray.length);
         data_ = clobArray;
 
       } else {
@@ -2010,9 +1988,7 @@ public class AS400JDBCArray implements Array, Serializable {
       if (JDUtilities.classIsInstanceOf(arrayComponentClass, "java.sql.Date")) {
         Date[] inDateArray = (Date[]) inArray;
         Date[] dateArray = new Date[inDateArray.length];
-        for (int i = 0; i < inDateArray.length; i++) {
-          dateArray[i] = inDateArray[i];
-        }
+        System.arraycopy(inDateArray, 0, dateArray, 0, inDateArray.length);
         data_ = dateArray;
 
       } else {
@@ -2064,9 +2040,7 @@ public class AS400JDBCArray implements Array, Serializable {
       if (JDUtilities.classIsInstanceOf(arrayComponentClass, "java.sql.Time")) {
         Time[] inTimeArray = (Time[]) inArray;
         Time[] timeArray = new Time[inTimeArray.length];
-        for (int i = 0; i < inTimeArray.length; i++) {
-          timeArray[i] = inTimeArray[i];
-        }
+        System.arraycopy(inTimeArray, 0, timeArray, 0, inTimeArray.length);
         data_ = timeArray;
 
       } else {
@@ -2084,9 +2058,7 @@ public class AS400JDBCArray implements Array, Serializable {
           "java.sql.Timestamp")) {
         Timestamp[] inTimestampArray = (Timestamp[]) inArray;
         Timestamp[] timestampArray = new Timestamp[inTimestampArray.length];
-        for (int i = 0; i < inTimestampArray.length; i++) {
-          timestampArray[i] = inTimestampArray[i];
-        }
+        System.arraycopy(inTimestampArray, 0, timestampArray, 0, inTimestampArray.length);
         data_ = timestampArray;
 
       } else {
@@ -2103,9 +2075,7 @@ public class AS400JDBCArray implements Array, Serializable {
         if ("java.lang.Boolean".equals(arrayType)) {
         Boolean[] inBooleanArray = (Boolean[]) inArray;
         Boolean[] booleanArray = new Boolean[inBooleanArray.length];
-        for (int i = 0; i < inBooleanArray.length; i++) {
-            booleanArray[i] = inBooleanArray[i]; 
-        }
+        System.arraycopy(inBooleanArray, 0, booleanArray, 0, inBooleanArray.length);
         data_ = booleanArray;
       } else if ("boolean".equals(arrayType)) {
         boolean[] inBooleanArray = (boolean[]) inArray;
