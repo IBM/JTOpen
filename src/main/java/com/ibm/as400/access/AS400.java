@@ -34,6 +34,7 @@ import java.util.TimeZone;
 import java.util.Vector;
 
 import org.ietf.jgss.GSSCredential;
+import org.ietf.jgss.GSSManager;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 import com.ibm.as400.security.auth.ProfileTokenProvider;
@@ -325,8 +326,8 @@ public class AS400 implements Serializable, AutoCloseable
     private static int alreadyCheckedForMultipleVersions_ = 0;
     
     
-    // GSS Manager object, for Kerberos.  Type set to Object to prevent dependency on 1.4 JDK.
-    private static Object gssManager_ = null;
+    // GSS Manager object, for Kerberos.
+    private static GSSManager gssManager_ = null;
 
     // System name.
     private String systemName_ = "";
@@ -3920,14 +3921,14 @@ public class AS400 implements Serializable, AutoCloseable
     
     /**
      * Sets the GSS manager to be used for all GSS operations. 
-     * @param  gssMgr  The GSS manager object.  The object's type must be org.ietf.jgss.GSSManager, the object is set to type Object only to avoid a JDK release dependency.
+     * @param  gssMgr  The GSS manager object.
      **/
-    public static void setGSSManager(Object gssMgr)
+    public static void setGSSManager(GSSManager gssMgr)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS manager: '" + gssMgr + "'");
         gssManager_ = gssMgr;
     }
-    static Object getGSSManager()
+    static GSSManager getGSSManager()
     {
         return gssManager_;
     }
