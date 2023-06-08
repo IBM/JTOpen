@@ -76,6 +76,12 @@ public class SpooledFileOpenList extends OpenList
      **/
     public static final String FORMAT_0300 = "OSPL0300";
 
+    /**
+     Constant indicating that this list will accept parameters for, and, generate SpooledFileListItem objects in accordance with, the OSPL0400 format of the underlying API.
+     @see  #setFormat
+     **/
+    public static final String FORMAT_0400 = "OSPL0400";
+
 
     // Sorting constants... in no particular order...
 
@@ -128,7 +134,7 @@ public class SpooledFileOpenList extends OpenList
     public static final int TIME_OPENED = 7;
 
     /**
-     Sorting constant used to sort the list of spooled files by schedule.  This value is only valid for FORMAT_0300.
+     Sorting constant used to sort the list of spooled files by schedule.  This value is only valid for FORMAT_0300 and FORMAT_0400.
      @see  #addSortField
      **/
     public static final int SCHEDULE = 8;
@@ -164,18 +170,18 @@ public class SpooledFileOpenList extends OpenList
     public static final int OUTPUT_QUEUE_LIBRARY = 13;
 
     /**
-     Sorting constant used to sort the list of spooled files by auxiliary storage pool (ASP).  This value is only valid for FORMAT_0300.
+     Sorting constant used to sort the list of spooled files by auxiliary storage pool (ASP).  This value is only valid for FORMAT_0300 and FORMAT_0400.
      @see  #addSortField
      **/
     public static final int ASP = 14;
 
     /**
-     Sorting constant used to sort the list of spooled files by size.  This value is only valid for FORMAT_0300.
+     Sorting constant used to sort the list of spooled files by size.  This value is only valid for FORMAT_0300 and FORMAT_0400.
      @see  #addSortField
      **/
     public static final int SIZE = 15;
 
-    // Sorting constant.  Used internally.  When the user specifies SIZE, we automatically assume SIZE_MULTIPLIER as well.  This value is only valid for FORMAT_0300.
+    // Sorting constant.  Used internally.  When the user specifies SIZE, we automatically assume SIZE_MULTIPLIER as well.  This value is only valid for FORMAT_0300 and FORMAT_0400.
     private static final int SIZE_MULTIPLIER = 16;
 
     /**
@@ -669,7 +675,7 @@ public class SpooledFileOpenList extends OpenList
         conv.stringToByteArray(filterJobUser_, qualifiedJobName, 10, 10);
         conv.stringToByteArray(filterJobNumber_, qualifiedJobName, 20, 6);
 
-        // Format bytes is EBCDIC 'OSPL0X00' where X is 1, 2, or 3.
+        // Format bytes is EBCDIC 'OSPL0X00' where X is 1, 2, 3, or 4.
         byte[] formatBytes = new byte[] { (byte)0xD6, (byte)0xE2, (byte)0xD7, (byte)0xD3, (byte)0xF0, (byte)(0xF0 | format_), (byte)0xF0, (byte)0xF0 };
 
         // Setup program parameters.
@@ -731,7 +737,7 @@ public class SpooledFileOpenList extends OpenList
             case JOB_NUMBER: return 4;
             case NAME: return 4;
             case NUMBER: return 0;
-            case STATUS: return format_ == 3 ? (short)0 : (short)4;
+            case STATUS: return (format_ == 3 || format_ == 4) ? (short)0 : (short)4;
             case DATE_OPENED: return 4;
             case TIME_OPENED: return 4;
             case SCHEDULE: return 4;
@@ -760,30 +766,31 @@ public class SpooledFileOpenList extends OpenList
     {
         switch (field)
         {
+            //TODO: throughout this part, replace comparisons against numeric literals with something more sensible
             case JOB_NAME: return 10;
             case JOB_USER: return 10;
             case JOB_NUMBER: return 6;
             case NAME: return 10;
             case NUMBER: return 4;
-            case STATUS: return format_ == 3 ? 4 : 10;
+            case STATUS: return (format_ == 3 || format_ == 4) ? 4 : 10;
             case DATE_OPENED: return format_ != 1 || vrm >= 0x00050200 ? 7 : 0;
             case TIME_OPENED: return format_ != 1 || vrm >= 0x00050200 ? 6 : 0;
-            case SCHEDULE: return format_ == 3 ? 1 : 0;
-            case JOB_SYSTEM: return format_ == 3 ? 10 : vrm >= 0x00050200 ? 8 : 0;
+            case SCHEDULE: return (format_ == 3 || format_ == 4) ? 1 : 0;
+            case JOB_SYSTEM: return (format_ == 3 || format_ == 4) ? 10 : vrm >= 0x00050200 ? 8 : 0;
             case USER_DATA: return 10;
             case FORM_TYPE: return 10;
             case OUTPUT_QUEUE_NAME: return 10;
             case OUTPUT_QUEUE_LIBRARY: return 10;
-            case ASP: return format_ == 3 ? 4 : 0;
-            case SIZE: return format_ == 3 ? 4 : 0;
-            case SIZE_MULTIPLIER: return format_ == 3 ? 4 : 0;
+            case ASP: return (format_ == 3 || format_ == 4) ? 4 : 0;
+            case SIZE: return (format_ == 3 || format_ == 4) ? 4 : 0;
+            case SIZE_MULTIPLIER: return (format_ == 3 || format_ == 4) ? 4 : 0;
             case TOTAL_PAGES: return 4;
             case COPIES_LEFT_TO_PRINT: return 4;
-            case PRIORITY: return format_ == 3 ? 1 : 2;
+            case PRIORITY: return (format_ == 3 || format_ == 4) ? 1 : 2;
             case PRINTER_NAME: return format_ == 2 ? 10 : 0;
             case PRINTER_ASSIGNED: return format_ == 2 ? 1 : 0;
-            case CURRENT_PAGE: return format_ == 3 ? 0 : 4;
-            case DEVICE_TYPE: return format_ == 3 ? 0 : 10;
+            case CURRENT_PAGE: return (format_ == 3 || format_ == 4) ? 0 : 4;
+            case DEVICE_TYPE: return (format_ == 3 || format_ == 4) ? 0 : 10;
             default:
                 return 0;
         }
@@ -795,26 +802,26 @@ public class SpooledFileOpenList extends OpenList
         // This is 1-based for whatever reason.
         switch (field)
         {
-            case JOB_NAME: return format_ == 3 ? 1 : 11;
-            case JOB_USER: return format_ == 3 ? 11 : 21;
-            case JOB_NUMBER: return format_ == 3 ? 21 : 31;
-            case NAME: return format_ == 3 ? 27 : 1;
+            case JOB_NAME: return (format_ == 3 || format_ == 4) ? 1 : 11;
+            case JOB_USER: return (format_ == 3 || format_ == 4) ? 11 : 21;
+            case JOB_NUMBER: return (format_ == 3 || format_ == 4) ? 21 : 31;
+            case NAME: return (format_ == 3 || format_ == 4) ? 27 : 1;
             case NUMBER: return 37;
-            case STATUS: return format_ == 3 ? 41 : 83;
-            case DATE_OPENED: return format_ == 3 ? 45 : format_ == 2 ? 161 : 169;
-            case TIME_OPENED: return format_ == 3 ? 52 : format_ == 2 ? 168 : 176;
+            case STATUS: return (format_ == 3 || format_ == 4) ? 41 : 83;
+            case DATE_OPENED: return (format_ == 3 || format_ == 4) ? 45 : format_ == 2 ? 161 : 169;
+            case TIME_OPENED: return (format_ == 3 || format_ == 4) ? 52 : format_ == 2 ? 168 : 176;
             case SCHEDULE: return 58;
-            case JOB_SYSTEM: return format_ == 3 ? 59 : format_ == 2 ? 193 : 161;
-            case USER_DATA: return format_ == 3 ? 69 : 73;
-            case FORM_TYPE: return format_ == 3 ? 79 : 93;
-            case OUTPUT_QUEUE_NAME: return format_ == 3 ? 89 : 53;
-            case OUTPUT_QUEUE_LIBRARY: return format_ == 3 ? 99 : 63;
+            case JOB_SYSTEM: return (format_ == 3 || format_ == 4) ? 59 : format_ == 2 ? 193 : 161;
+            case USER_DATA: return (format_ == 3 || format_ == 4) ? 69 : 73;
+            case FORM_TYPE: return (format_ == 3 || format_ == 4) ? 79 : 93;
+            case OUTPUT_QUEUE_NAME: return (format_ == 3 || format_ == 4) ? 89 : 53;
+            case OUTPUT_QUEUE_LIBRARY: return (format_ == 3 || format_ == 4) ? 99 : 63;
             case ASP: return 109;
             case SIZE: return 113;
             case SIZE_MULTIPLIER: return 117;
-            case TOTAL_PAGES: return format_ == 3 ? 121 : 41;
-            case COPIES_LEFT_TO_PRINT: return format_ == 3 ? 125 : 49;
-            case PRIORITY: return format_ == 3 ? 129 : 103;
+            case TOTAL_PAGES: return (format_ == 3 || format_ == 4) ? 121 : 41;
+            case COPIES_LEFT_TO_PRINT: return (format_ == 3 || format_ == 4) ? 125 : 49;
+            case PRIORITY: return (format_ == 3 || format_ == 4) ? 129 : 103;
             case PRINTER_NAME: return 175;
             case PRINTER_ASSIGNED: return 174;
             case CURRENT_PAGE: return 45;
@@ -874,7 +881,7 @@ public class SpooledFileOpenList extends OpenList
         int offset = 0;
         for (int i = 0; i < recordsReturned; ++i)
         {
-            if (format_ != 3)
+            if (format_ != 3 && format_ != 4)
             {
                 // Format OSPL0100 or OSPL0200.
                 String spooledFileName = conv.byteArrayToString(data, offset, 10).trim();
@@ -883,24 +890,24 @@ public class SpooledFileOpenList extends OpenList
                 String jobNumber = conv.byteArrayToString(data, offset + 30, 6);
                 int spooledFileNumber = BinaryConverter.byteArrayToInt(data, offset + 36);
                 int totalPages = BinaryConverter.byteArrayToInt(data, offset + 40);
-                // Not in 0300 format.
+                // Not in 0300/0400 formats.
                 int currentPage = BinaryConverter.byteArrayToInt(data, offset + 44);
                 int copiesLeftToPrint = BinaryConverter.byteArrayToInt(data, offset + 48);
                 String outputQueueName = conv.byteArrayToString(data, offset + 52, 10).trim();
                 String outputQueueLibraryName = conv.byteArrayToString(data, offset + 62, 10).trim();
                 String userData = conv.byteArrayToString(data, offset + 72, 10);
-                // This is a BIN(4) in 0300 format.
+                // This is a BIN(4) in 0300/0400 formats.
                 String status = conv.byteArrayToString(data, offset + 82, 10).trim();
                 String formType = conv.byteArrayToString(data, offset + 92, 10).trim();
-                // This is a CHAR(1) in 0300 format.
+                // This is a CHAR(1) in 0300/0400 formats.
                 String priority = conv.byteArrayToString(data, offset + 102, 2).trim();
-                // Not in 0300 format.
+                // Not in 0300/0400 formats.
                 byte[] internalJobIdentifier = new byte[16];
                 System.arraycopy(data, offset + 104, internalJobIdentifier, 0, 16);
-                // Not in 0300 format.
+                // Not in 0300/0400 formats.
                 byte[] internalSpooledFileIdentifier = new byte[16];
                 System.arraycopy(data, offset + 120, internalSpooledFileIdentifier, 0, 16);
-                // Not in 0300 format.
+                // Not in 0300/0400 formats.
                 String deviceType = conv.byteArrayToString(data, offset + 136, 10).trim();
                 int offsetToExtension = BinaryConverter.byteArrayToInt(data, offset + 148);
                 String jobSystemName = null;
@@ -909,7 +916,7 @@ public class SpooledFileOpenList extends OpenList
                 // If there is an extension.
                 if (offsetToExtension > 0)
                 {
-                    // This is a CHAR(10) in 0300 format.
+                    // This is a CHAR(10) in 0300/0400 formats.
                     jobSystemName = conv.byteArrayToString(data, offset + offsetToExtension, 8).trim();
                     dateSpooledFileWasOpened = conv.byteArrayToString(data, offset + offsetToExtension + 8, 7); 
                     timeSpooledFileWasOpened = conv.byteArrayToString(data, offset + offsetToExtension + 15, 6);
@@ -924,9 +931,9 @@ public class SpooledFileOpenList extends OpenList
                     // Format OSPL0200 only.
                     dateSpooledFileWasOpened = conv.byteArrayToString(data, offset + 160, 7);
                     timeSpooledFileWasOpened = conv.byteArrayToString(data, offset + 167, 6);
-                    // Not in 0300 format.
+                    // Not in 0300/0400 formats.
                     String printerAssigned = conv.byteArrayToString(data, offset + 173, 1);
-                    // Not in 0300 format.
+                    // Not in 0300/0400 formats.
                     String printerName = conv.byteArrayToString(data, offset + 174, 10).trim();
 
                     sp[i] = new SpooledFileListItem(spooledFileName, jobName, userName, jobNumber, spooledFileNumber, totalPages, currentPage, copiesLeftToPrint, outputQueueName, outputQueueLibraryName, userData, status, formType, priority, internalJobIdentifier, internalSpooledFileIdentifier, deviceType, jobSystemName, dateSpooledFileWasOpened, timeSpooledFileWasOpened, printerAssigned, printerName);
@@ -934,7 +941,7 @@ public class SpooledFileOpenList extends OpenList
             }
             else
             {
-                // Format OSPL0300.
+                // Formats OSPL0300/OSPL0400.
                 String jobName = conv.byteArrayToString(data, offset, 10).trim();
                 String userName = conv.byteArrayToString(data, offset + 10, 10).trim();
                 String jobNumber = conv.byteArrayToString(data, offset + 20, 6);
@@ -967,7 +974,7 @@ public class SpooledFileOpenList extends OpenList
                 {
                     internetPrintProtocolJobIdentifier = BinaryConverter.byteArrayToInt(data, offset + 132);
                 }
-                sp[i] = new SpooledFileListItem(jobName, userName, jobNumber, spooledFileName, spooledFileNumber, fileStatus, dateSpooledFileWasOpened, timeSpooledFileWasOpened, spooledFileSchedule, jobSystemName, userData, spooledFileFormType, outputQueueName, outputQueueLibraryName, auxiliaryStoragePool, sizeOfSpooledFile, spooledFileSizeMultiplier, totalPages, copiesLeftToPrint, priority, internetPrintProtocolJobIdentifier);
+                sp[i] = new SpooledFileListItem(jobName, userName, jobNumber, spooledFileName, spooledFileNumber, fileStatus, dateSpooledFileWasOpened, timeSpooledFileWasOpened, spooledFileSchedule, jobSystemName, userData, spooledFileFormType, outputQueueName, outputQueueLibraryName, auxiliaryStoragePool, sizeOfSpooledFile, spooledFileSizeMultiplier, totalPages, copiesLeftToPrint, priority, internetPrintProtocolJobIdentifier, format_ == 4);
             }
             offset += recordLength;
         }
@@ -1113,6 +1120,7 @@ public class SpooledFileOpenList extends OpenList
      <li>{@link #FORMAT_0100 FORMAT_0100}
      <li>{@link #FORMAT_0200 FORMAT_0200}
      <li>{@link #FORMAT_0300 FORMAT_0300}
+     <li>{@link #FORMAT_0400 FORMAT_0400}
      </ul>
      @return  The format.  The default format is FORMAT_0300.
      **/
@@ -1122,6 +1130,7 @@ public class SpooledFileOpenList extends OpenList
         {
             case 1:  return FORMAT_0100;
             case 2:  return FORMAT_0200;
+            case 4:  return FORMAT_0400;
         }
         return FORMAT_0300;
     }
@@ -1271,6 +1280,7 @@ public class SpooledFileOpenList extends OpenList
      <li>{@link #FORMAT_0100 FORMAT_0100} - This is faster than FORMAT_0200.
      <li>{@link #FORMAT_0200 FORMAT_0200} - Contains more information than FORMAT_0100.
      <li>{@link #FORMAT_0300 FORMAT_0300} - This is faster than FORMAT_0100.
+     <li>{@link #FORMAT_0400 FORMAT_0400} - Like FORMAT_0300 but using UTC time.
      </ul>
      **/
     public void setFormat(String format)
@@ -1292,6 +1302,10 @@ public class SpooledFileOpenList extends OpenList
         else if (format.equals(FORMAT_0300))
         {
             format_ = 3;
+        }
+        else if (format.equals(FORMAT_0400))
+        {
+            format_ = 4;
         }
         else
         {
