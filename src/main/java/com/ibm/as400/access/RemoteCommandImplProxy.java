@@ -202,7 +202,7 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     {
         try
         {
-            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, String.class, Integer.TYPE, ProgramParameter[].class, Boolean.class, Integer.TYPE, Integer.TYPE, Boolean.TYPE }, new Object[] { library,  name, procedureName, new Integer(returnValueFormat), parameterList, threadSafety, new Integer(procedureNameCCSID), new Integer(messageCount), new Boolean(alignOn16Bytes) }, new boolean[] { false, false, false, false, true, false, false, false, false }, true);
+            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, String.class, Integer.TYPE, ProgramParameter[].class, Boolean.class, Integer.TYPE, Integer.TYPE, Boolean.TYPE }, new Object[] { library,  name, procedureName, new Integer(returnValueFormat), parameterList, threadSafety, new Integer(procedureNameCCSID), new Integer(messageCount), Boolean.valueOf(alignOn16Bytes) }, new boolean[] { false, false, false, false, true, false, false, false, false }, true);
             ProgramParameter[] returnParmL = (ProgramParameter[])rv.getArgument(4);
             for (int i = 0; i < parameterList.length; ++i)
             {

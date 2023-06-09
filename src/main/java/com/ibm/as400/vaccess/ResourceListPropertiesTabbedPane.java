@@ -465,7 +465,7 @@ which makes up the sort tab.
 
         public void actionPerformed(ActionEvent event)
         {
-            registerChange(new Boolean(((JCheckBox)event.getSource()).isSelected()));
+            registerChange(Boolean.valueOf(((JCheckBox)event.getSource()).isSelected()));
         }
 
         public void itemStateChanged(ItemEvent event)

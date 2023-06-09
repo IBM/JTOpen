@@ -437,9 +437,9 @@ abstract public class AS400File implements Serializable, AutoCloseable
                                    new Object[] { system_.getImpl(), //@B5C
                                    name_,
                                    recordFormat_,
-                                   new Boolean(readNoUpdate_), //@B5A
-                                   new Boolean(this instanceof KeyedFile),
-                                   new Boolean(ssp_) });
+                                   Boolean.valueOf(readNoUpdate_), //@B5A
+                                   Boolean.valueOf(this instanceof KeyedFile),
+                                   Boolean.valueOf(ssp_) });
 
             //      impl_.doItNoExceptions("setSystem", new Class[] { AS400.class }, new Object[] { system_ }); //@B0A
             //      impl_.doItNoExceptions("setPath", new Class[] { String.class }, new Object[] { name_ }); //@B0A
@@ -447,7 +447,7 @@ abstract public class AS400File implements Serializable, AutoCloseable
 
             // The following line is provided so the remote class knows
             // if it is a keyed file or a sequential file.
-            //      impl_.doItNoExceptions("setIsKeyed", new Class[] { Boolean.TYPE }, new Object[] { new Boolean(this instanceof KeyedFile) }); //@B0A
+            //      impl_.doItNoExceptions("setIsKeyed", new Class[] { Boolean.TYPE }, new Object[] { Boolean.valueOf(this instanceof KeyedFile) }); //@B0A
         }
     }
 
@@ -867,7 +867,7 @@ abstract public class AS400File implements Serializable, AutoCloseable
                    RecordFormat.class, String.class, String.class,
                    String.class, String.class, Boolean.TYPE,
                    String.class, String.class },
-                   new Object[] { recordFormat, altSeq, ccsid, order, ref, new Boolean(unique), //@B0C
+                   new Object[] { recordFormat, altSeq, ccsid, order, ref, Boolean.valueOf(unique), //@B0C
                    format, text });
 
         // Create the file based on the newly create DDS source file
@@ -2256,7 +2256,7 @@ abstract public class AS400File implements Serializable, AutoCloseable
         if (impl_ != null) //@B5A
         {
             impl_.doItNoExceptions("setReadNoUpdate", new Class[] { Boolean.TYPE },
-            new Object[] { new Boolean(readNoUpdate) }); //@B0C
+            new Object[] { Boolean.valueOf(readNoUpdate) }); //@B0C
         }
     }
 
@@ -2397,7 +2397,7 @@ abstract public class AS400File implements Serializable, AutoCloseable
       if (impl_ != null)
       {
         impl_.doItNoExceptions("setSSPFile", new Class[] { Boolean.TYPE },
-        new Object[] { new Boolean(treatAsSSP) });
+        new Object[] { Boolean.valueOf(treatAsSSP) });
       }
     }
 

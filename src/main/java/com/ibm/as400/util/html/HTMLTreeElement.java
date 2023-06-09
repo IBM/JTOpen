@@ -607,7 +607,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 
                 expanded_ = !expanded_;
 
-                if (changes_ != null) changes_.firePropertyChange("selected", new Boolean(old), new Boolean(expanded_)); //@P2C
+                if (changes_ != null) changes_.firePropertyChange("selected", Boolean.valueOf(old), Boolean.valueOf(expanded_)); //@P2C
             }
             else
             {
@@ -683,7 +683,7 @@ public class HTMLTreeElement implements HTMLTagElement, java.io.Serializable
 
         expanded_ = expanded;
 
-        if (changes_ != null) changes_.firePropertyChange("expanded", new Boolean(old), new Boolean(expanded_)); //@P2C
+        if (changes_ != null) changes_.firePropertyChange("expanded", Boolean.valueOf(old), Boolean.valueOf(expanded_)); //@P2C
     }
 
 

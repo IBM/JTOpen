@@ -1318,8 +1318,8 @@ in order to load the spooled file and properly initialize the viewer.
 
             // warn of pagesEstimated property change
             vetoableChangeSupport_.fireVetoableChange("numberOfPagesEstimated",
-                                        new Boolean(numberOfPagesEst_),
-                                        new Boolean(newEstimated));
+                                        Boolean.valueOf(numberOfPagesEst_),
+                                        Boolean.valueOf(newEstimated));
 
             // we know the number of pages is estimated
             boolean oldEstimated = numberOfPagesEst_;
@@ -1327,8 +1327,8 @@ in order to load the spooled file and properly initialize the viewer.
 
             // fire numberOfPagesEstimated property change
             propertyChangeSupport_.firePropertyChange("numberOfPagesEstimated",
-                                        new Boolean(oldEstimated),
-                                        new Boolean(numberOfPagesEst_));
+                                        Boolean.valueOf(oldEstimated),
+                                        Boolean.valueOf(numberOfPagesEst_));
 
             // display '*' if the number of pages is estimated
             if (numberOfPagesEst_ == true) {
@@ -1534,8 +1534,8 @@ an error event is fired.
 
                     // warn of property change, only from true to false
                     vetoableChangeSupport_.fireVetoableChange("numberOfPagesEstimated",
-                                        new Boolean(true),
-                                        new Boolean(false));
+                                        Boolean.TRUE,
+                                        Boolean.FALSE);
 
                     // we know the number of pages is valid
                     numberOfPagesEst_ = false;
@@ -1543,8 +1543,8 @@ an error event is fired.
 
                     // fire numberOfPagesEstimated property change, only from true to false
                     propertyChangeSupport_.firePropertyChange("numberOfPagesEstimated",
-                                        new Boolean(true),
-                                        new Boolean(false));
+                                        Boolean.TRUE,
+                                        Boolean.FALSE);
 
                  }
                  // warn of property change

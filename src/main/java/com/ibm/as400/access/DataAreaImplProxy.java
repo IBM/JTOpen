@@ -183,7 +183,7 @@ implements DataAreaImpl
        connection_.callMethod (pxId_, "create",
                          new Class[] { Boolean.TYPE,
                                        String.class, String.class},
-                         new Object[] { new Boolean(initialValue),
+                         new Object[] { Boolean.valueOf(initialValue),
                                         textDescription, authority});
      }
      catch (InvocationTargetException e) {
@@ -627,7 +627,7 @@ implements DataAreaImpl
      try {
        connection_.callMethod (pxId_, "write",
                          new Class[] { Boolean.TYPE },
-                         new Object[] { new Boolean(data) });
+                         new Object[] { Boolean.valueOf(data) });
      }
      catch (InvocationTargetException e) {
        throw ProxyClientConnection.rethrow5 (e);

@@ -1374,7 +1374,7 @@ implements ResultSet
       callMethod ("updateBoolean",
                   new Class[] { Integer.TYPE, Boolean.TYPE },
                   new Object[] { new Integer (columnIndex),
-                                 new Boolean (columnValue) });
+                                 Boolean.valueOf(columnValue) });
     }
 
 

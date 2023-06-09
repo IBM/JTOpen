@@ -105,7 +105,7 @@ implements IFSFileOutputStreamImpl
     try {
       connection_.callMethod (pxId_, "setAppend",
                               new Class[] { Boolean.TYPE },
-                              new Object[] { new Boolean(append) });
+                              new Object[] { Boolean.valueOf(append) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);

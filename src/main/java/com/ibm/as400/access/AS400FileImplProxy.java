@@ -179,7 +179,7 @@ class AS400FileImplProxy extends AbstractProxyImpl implements AS400FileImpl
     {
       return (String[])connection_.callMethod(pxId_, "openFile2",
                                                     new Class[] { Integer.TYPE, Integer.TYPE, Integer.TYPE, Boolean.TYPE },
-                                                    new Object[] { new Integer(openType), new Integer(bf), new Integer(level), new Boolean(access) }).getReturnValue();
+                                                    new Object[] { new Integer(openType), new Integer(bf), new Integer(level), Boolean.valueOf(access) }).getReturnValue();
     }      
     catch(InvocationTargetException e)
     {

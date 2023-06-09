@@ -324,8 +324,8 @@ Sets the enabled state of the action.
 **/
     public void setEnabled (boolean enabled)
     {
-        Boolean oldValue = new Boolean (enabled_);
-        Boolean newValue = new Boolean (enabled);
+        Boolean oldValue = Boolean.valueOf(enabled_);
+        Boolean newValue = Boolean.valueOf(enabled);
 
         enabled_ = enabled;
         if (action_ != null)

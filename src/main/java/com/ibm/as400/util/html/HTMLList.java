@@ -405,7 +405,7 @@ public abstract class HTMLList extends HTMLTagAttributes implements java.io.Seri
 
         compact_ = compact;
 
-        if (changes_ != null) changes_.firePropertyChange("compact", new Boolean(old), new Boolean(compact) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("compact", Boolean.valueOf(old), Boolean.valueOf(compact) ); //@CRS
     }
 
 

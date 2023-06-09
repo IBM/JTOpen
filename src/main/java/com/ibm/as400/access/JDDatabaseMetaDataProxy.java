@@ -236,7 +236,7 @@ implements java.sql.DatabaseMetaData
                                               Integer.TYPE, Boolean.TYPE },
                                 new Object[] { catalog, schema, table,
                                                new Integer (scope),
-                                               new Boolean (nullable) });
+                                               Boolean.valueOf(nullable) });
     }
 
 
@@ -437,8 +437,8 @@ implements java.sql.DatabaseMetaData
                                               String.class, Boolean.TYPE,
                                               Boolean.TYPE },
                                 new Object[] { catalog, schema,
-                                               table, new Boolean (unique),
-                                               new Boolean (approximate) });
+                                               table, Boolean.valueOf(unique),
+                                               Boolean.valueOf(approximate) });
     }
 
 

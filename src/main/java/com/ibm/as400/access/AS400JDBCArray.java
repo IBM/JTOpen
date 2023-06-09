@@ -2081,7 +2081,7 @@ public class AS400JDBCArray implements Array, Serializable {
         boolean[] inBooleanArray = (boolean[]) inArray;
         Boolean[] booleanArray = new Boolean[inBooleanArray.length];
         for (int i = 0; i < inBooleanArray.length; i++) {
-            booleanArray[i] = new Boolean(inBooleanArray[i]); 
+            booleanArray[i] = Boolean.valueOf(inBooleanArray[i]); 
         }
         data_ = booleanArray;
 
@@ -2097,7 +2097,7 @@ public class AS400JDBCArray implements Array, Serializable {
         int[] inIntegerArray = (int[]) inArray;
         Boolean[] booleanArray = new Boolean[inIntegerArray.length];
         for (int i = 0; i < inIntegerArray.length; i++) {
-            booleanArray[i] = new Boolean(SQLBoolean.getBoolean(this, inIntegerArray[i])); 
+            booleanArray[i] = Boolean.valueOf(SQLBoolean.getBoolean(this, inIntegerArray[i])); 
         }
         data_ = booleanArray;
       } else if ("java.math.BigDecimal".equals(arrayType)) {

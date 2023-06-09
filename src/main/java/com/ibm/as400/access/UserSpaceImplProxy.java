@@ -42,7 +42,7 @@ class UserSpaceImplProxy extends AbstractProxyImpl implements UserSpaceImpl
     {
         try
         {
-            connection_.callMethod(pxId_, "create", new Class[] { byte[].class, Integer.TYPE, Boolean.TYPE, String.class, Byte.TYPE, String.class, String.class }, new Object[] { domainBytes, new Integer(length), new Boolean(replace), extendedAttribute, new Byte(initialValue), textDescription, authority } );
+            connection_.callMethod(pxId_, "create", new Class[] { byte[].class, Integer.TYPE, Boolean.TYPE, String.class, Byte.TYPE, String.class, String.class }, new Object[] { domainBytes, new Integer(length), Boolean.valueOf(replace), extendedAttribute, new Byte(initialValue), textDescription, authority } );
         }
         catch (InvocationTargetException e)
         {
@@ -120,7 +120,7 @@ class UserSpaceImplProxy extends AbstractProxyImpl implements UserSpaceImpl
     {
         try
         {
-            connection_.callMethod(pxId_, "setAutoExtendible", new Class[] { Boolean.TYPE }, new Object[] { new Boolean(autoExtendibility) } );
+            connection_.callMethod(pxId_, "setAutoExtendible", new Class[] { Boolean.TYPE }, new Object[] { Boolean.valueOf(autoExtendibility) } );
         }
         catch (InvocationTargetException e)
         {
@@ -156,7 +156,7 @@ class UserSpaceImplProxy extends AbstractProxyImpl implements UserSpaceImpl
     {
         try
         {
-            connection_.callMethod(pxId_, "setProperties", new Class[] { AS400Impl.class, String.class, String.class, String.class, Boolean.TYPE, Boolean.TYPE }, new Object[] { system, path, name, library, new Boolean(mustUseProgramCall), new Boolean(mustUseSockets) } );
+            connection_.callMethod(pxId_, "setProperties", new Class[] { AS400Impl.class, String.class, String.class, String.class, Boolean.TYPE, Boolean.TYPE }, new Object[] { system, path, name, library, Boolean.valueOf(mustUseProgramCall), Boolean.valueOf(mustUseSockets) } );
         }
         catch (InvocationTargetException e)
         {

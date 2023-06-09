@@ -5429,11 +5429,11 @@ implements DatabaseMetaData
                 data[i][5] = createParameters;
 
             data[i][6]  = new Short ((short) typeNullable);
-            data[i][7]  = new Boolean (typeSample.isText ());                   // @D0C
+            data[i][7]  = Boolean.valueOf(typeSample.isText ());                   // @D0C
             data[i][8]  = new Short ((short) typeSearchable);
-            data[i][9]  = new Boolean (! typeSample.isSigned ());               // @D0C
-            data[i][10] = new Boolean (false);
-            data[i][11] = new Boolean (false);
+            data[i][9]  = Boolean.valueOf(! typeSample.isSigned ());               // @D0C
+            data[i][10] = Boolean.FALSE;
+            data[i][11] = Boolean.FALSE;
 
             String localName = typeSample.getLocalName ();                      // @D0C
             if (localName == null)

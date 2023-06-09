@@ -296,7 +296,7 @@ Logs a property trace message.
   {
     if (isTraceOn())
     {
-      Boolean b = new Boolean(propertyValue);
+      Boolean b = Boolean.valueOf(propertyValue);
       logProperty(object, callingMethod, propertyName, b.toString());
     }
   }

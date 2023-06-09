@@ -2015,7 +2015,7 @@ public class Main implements Runnable {
             java.lang.reflect.Method method = traceClass.getMethod(
                 "setCliTrace", argClasses);
             Object[] args = new Object[1];
-            args[0] = new Boolean(b);
+            args[0] = Boolean.valueOf(b);
             method.invoke(null, args);
 
           } catch (Exception e) {
@@ -2890,7 +2890,7 @@ public class Main implements Runnable {
                             }
                           } else if (parameterTypeName.equals("boolean")) {
                             try {
-                              parameters[p] = new Boolean(arg);
+                              parameters[p] = Boolean.valueOf(arg);
                             } catch (Exception e) {
                               possibleErrors.append("Could not parse " + arg
                                   + " as integer\n");
@@ -3250,7 +3250,7 @@ public class Main implements Runnable {
                       }
                     } else if (parameterTypeName.equals("boolean")) {
                       try {
-                        parameters[p] = new Boolean(arg);
+                        parameters[p] = Boolean.valueOf(arg);
                       } catch (Exception e) {
                         possibleErrors.append("Could not parse " + arg
                             + " as integer\n");
@@ -4730,7 +4730,7 @@ public class Main implements Runnable {
               // Toolbox does not handle native types on convert
               Boolean[] newParameter = new Boolean[arrayCardinality];
               for (int i = 0; i < arrayCardinality; i++) {
-                newParameter[i] = new Boolean(parameter[i]);
+                newParameter[i] = Boolean.valueOf(parameter[i]);
               }
 
               cstmt.setArray(parm, makeArray(newParameter, "BOOLEAN"));

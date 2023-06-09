@@ -702,15 +702,15 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     **/
     public void setHeightInPercent(boolean heightInPercent) throws PropertyVetoException
     {
-        //@CRS Boolean oldHeight = new Boolean(heightPercent_);
-        //@CRS Boolean newHeight = new Boolean(heightInPercent);
+        //@CRS Boolean oldHeight = Boolean.valueOf(heightPercent_);
+        //@CRS Boolean newHeight = Boolean.valueOf(heightInPercent);
       boolean oldHeight = heightPercent_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("heightInPercent", new Boolean(oldHeight), new Boolean(heightInPercent)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("heightInPercent", Boolean.valueOf(oldHeight), Boolean.valueOf(heightInPercent)); //@CRS
 
         heightPercent_ = heightInPercent;
 
-        if (changes_ != null) changes_.firePropertyChange("heightInPercent", new Boolean(oldHeight), new Boolean(heightInPercent)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("heightInPercent", Boolean.valueOf(oldHeight), Boolean.valueOf(heightInPercent)); //@CRS
     }
 
     /**
@@ -918,15 +918,15 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     **/
     public void setWidthInPercent(boolean widthInPercent) throws PropertyVetoException
     {
-        //@CRS Boolean oldWidth = new Boolean(widthPercent_);
-        //@CRS Boolean newWidth = new Boolean(widthInPercent);
+        //@CRS Boolean oldWidth = Boolean.valueOf(widthPercent_);
+        //@CRS Boolean newWidth = Boolean.valueOf(widthInPercent);
       boolean oldWidth = widthPercent_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("widthInPercent", new Boolean(oldWidth), new Boolean(widthInPercent)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("widthInPercent", Boolean.valueOf(oldWidth), Boolean.valueOf(widthInPercent)); //@CRS
 
         widthPercent_ = widthInPercent;
 
-        if (changes_ != null) changes_.firePropertyChange("widthInPercent", new Boolean(oldWidth), new Boolean(widthInPercent)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("widthInPercent", Boolean.valueOf(oldWidth), Boolean.valueOf(widthInPercent)); //@CRS
     }
 
     /**
@@ -937,15 +937,15 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     **/
     public void setWrap(boolean wrap) throws PropertyVetoException
     {
-        //@CRS Boolean oldWrap = new Boolean(wrap_);
-        //@CRS Boolean newWrap = new Boolean(wrap);
+        //@CRS Boolean oldWrap = Boolean.valueOf(wrap_);
+        //@CRS Boolean newWrap = Boolean.valueOf(wrap);
         boolean oldWrap = wrap_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("wrap", new Boolean(oldWrap), new Boolean(wrap)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("wrap", Boolean.valueOf(oldWrap), Boolean.valueOf(wrap)); //@CRS
 
         wrap_ = wrap;
 
-        if (changes_ != null) changes_.firePropertyChange("wrap", new Boolean(oldWrap), new Boolean(wrap)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("wrap", Boolean.valueOf(oldWrap), Boolean.valueOf(wrap)); //@CRS
     }
 
     /**

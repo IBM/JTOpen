@@ -963,7 +963,7 @@ implements CallableStatement
         callMethod ("setBoolean",
                     new Class[] { String.class, Boolean.TYPE},
                     new Object[] { parameterName,
-                        new Boolean(parameterValue)});
+                        Boolean.valueOf(parameterValue)});
     }
 
 

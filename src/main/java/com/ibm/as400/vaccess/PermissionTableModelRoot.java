@@ -196,29 +196,29 @@ class PermissionTableModelRoot extends DefaultTableModel
                    value = new PermissionNameCellObject(user.getUserID(),user.getGroupIndicator());
                    break;
             case 1 :
-                   value = new Boolean(authorityValue.indexOf("R") > -1);
+                   value = Boolean.valueOf(authorityValue.indexOf("R") > -1);
                    break;
             case 2 :
-                   value = new Boolean(authorityValue.indexOf("W") > -1);
+                   value = Boolean.valueOf(authorityValue.indexOf("W") > -1);
                    break;
             case 3 :
-                   value = new Boolean((authorityValue.indexOf("X") > -1) &&
+                   value = Boolean.valueOf((authorityValue.indexOf("X") > -1) &&
                                        (authorityValue.indexOf("E") == -1));
                    break;
             case 4 :
-                   value = new Boolean(user.isManagement());
+                   value = Boolean.valueOf(user.isManagement());
                    break;
             case 5 :
-                   value = new Boolean(user.isExistence());
+                   value = Boolean.valueOf(user.isExistence());
                    break;
             case 6 :
-                   value = new Boolean(user.isAlter());
+                   value = Boolean.valueOf(user.isAlter());
                    break;
             case 7 :
-                   value = new Boolean(user.isReference());
+                   value = Boolean.valueOf(user.isReference());
                    break;
             case 8 :
-                   value = new Boolean(user.isFromAuthorizationList());
+                   value = Boolean.valueOf(user.isFromAuthorizationList());
                    break;
         }
         return value;
@@ -300,7 +300,7 @@ class PermissionTableModelRoot extends DefaultTableModel
         int row = userPermissions_.indexOf(up);
         if (row >= 0)
         {
-          setValueAt(new Boolean(false), row, 8);
+          setValueAt(Boolean.FALSE, row, 8);
         }
     }
 

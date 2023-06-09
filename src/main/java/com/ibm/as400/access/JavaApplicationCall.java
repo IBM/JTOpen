@@ -1170,10 +1170,10 @@ public class JavaApplicationCall implements Serializable
     **/
     public void setFindPort(boolean search)  throws PropertyVetoException
     {
-        Boolean old = new Boolean(findPort_);
-        vetoableChange_.fireVetoableChange("findPort",old,new Boolean(search));
+        Boolean old = Boolean.valueOf(findPort_);
+        vetoableChange_.fireVetoableChange("findPort",old,Boolean.valueOf(search));
         findPort_ = search;
-        propertyChange_.firePropertyChange("findPort",old,new Boolean(search));
+        propertyChange_.firePropertyChange("findPort",old,Boolean.valueOf(search));
     }
 
     /**
