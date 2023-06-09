@@ -75,7 +75,7 @@ implements PrintObjectListImpl, ProxyImpl
     {
       try
       {
-        connection_.callMethod(pxId_, "setCache", new Class[] { Boolean.TYPE }, new Object[] { new Boolean(b) });
+        connection_.callMethod(pxId_, "setCache", new Class[] { Boolean.TYPE }, new Object[] { Boolean.valueOf(b) });
       }
       catch(InvocationTargetException e)
       {

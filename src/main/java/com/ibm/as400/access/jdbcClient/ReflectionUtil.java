@@ -1301,7 +1301,7 @@ public class ReflectionUtil {
     method = thisClass.getMethod(methodName, argTypes);
     method.setAccessible(true); // allow toolbox proxy methods to be invoked
     Object[] args = new Object[1];
-    args[0] = new Boolean(parm1);
+    args[0] = Boolean.valueOf(parm1);
     try {
       method.invoke(o, args);
     } catch (java.lang.reflect.InvocationTargetException ite) {
@@ -1623,7 +1623,7 @@ public class ReflectionUtil {
     }
     Object[] args = new Object[2];
     args[0] = parm1;
-    args[1] = new Boolean(b);
+    args[1] = Boolean.valueOf(b);
     try {
       method.invoke(o, args);
     } catch (java.lang.reflect.InvocationTargetException ite) {

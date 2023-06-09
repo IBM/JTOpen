@@ -884,8 +884,8 @@ public class IFSFileOutputStream extends OutputStream
                          ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
     }
 
-    Boolean oldAppend = new Boolean(append_);
-    Boolean newAppend = new Boolean(append);
+    Boolean oldAppend = Boolean.valueOf(append_);
+    Boolean newAppend = Boolean.valueOf(append);
 
     // Fire a vetoable change event for append.
     vetos_.fireVetoableChange("append", oldAppend, newAppend);

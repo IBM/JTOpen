@@ -400,7 +400,7 @@ in the properties pane.  It enables the Apply button and records any changes.
 
         public void actionPerformed(ActionEvent event)
         {
-            registerChange(new Boolean(((JCheckBox)event.getSource()).isSelected()));
+            registerChange(Boolean.valueOf(((JCheckBox)event.getSource()).isSelected()));
         }
 
         public void itemStateChanged(ItemEvent event)

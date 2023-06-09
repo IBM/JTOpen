@@ -338,7 +338,7 @@ class ConnectionPoolProperties implements Serializable
     boolean oldValue = pretestConnections_;
 
     pretestConnections_ = pretest;
-    if (changes_ != null) changes_.firePropertyChange(property, new Boolean(oldValue), new Boolean(pretest));
+    if (changes_ != null) changes_.firePropertyChange(property, Boolean.valueOf(oldValue), Boolean.valueOf(pretest));
 
   }
 
@@ -365,12 +365,12 @@ class ConnectionPoolProperties implements Serializable
     if (isInUse)
       throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
 
-//    Boolean oldValue = new Boolean(isThreadUsed());
-//    Boolean newValue = new Boolean(useThreads);
+//    Boolean oldValue = Boolean.valueOf(isThreadUsed());
+//    Boolean newValue = Boolean.valueOf(useThreads);
     boolean oldValue = useThreads_;
 
     useThreads_ = useThreads;
-    if (changes_ != null) changes_.firePropertyChange(property, new Boolean(oldValue), new Boolean(useThreads));
+    if (changes_ != null) changes_.firePropertyChange(property, Boolean.valueOf(oldValue), Boolean.valueOf(useThreads));
 
   }
 

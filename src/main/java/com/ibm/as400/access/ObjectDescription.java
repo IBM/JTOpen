@@ -1409,11 +1409,11 @@ public class ObjectDescription
       case DIGITALLY_SIGNED:
       case DIGITALLY_SIGNED_TRUSTED:
       case DIGITALLY_SIGNED_MULTIPLE:
-        return new Boolean (((String)o).charAt(0) == '1');
+        return Boolean.valueOf(((String)o).charAt(0) == '1');
       case USAGE_INFO_UPDATED:
-        return new Boolean (((String)o).charAt(0) == 'Y');
+        return Boolean.valueOf(((String)o).charAt(0) == 'Y');
       case JOURNAL_OMITTED_ENTRIES:
-        return new Boolean(((String)o).charAt(0) == '0');
+        return Boolean.valueOf(((String)o).charAt(0) == '0');
 
       default:
         return o;
@@ -1958,7 +1958,7 @@ public class ObjectDescription
 
   void set(int attribute, boolean value)
   {
-    values_.put(attribute, new Boolean(value));
+    values_.put(attribute, Boolean.valueOf(value));
   }
 
   void set(int attribute, Object value)

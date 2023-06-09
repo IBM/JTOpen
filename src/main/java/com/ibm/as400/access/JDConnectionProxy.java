@@ -557,7 +557,7 @@ implements Connection
   {
     callMethod ("setAutoCommit",
                 new Class[] { Boolean.TYPE },
-                new Object[] { new Boolean(autoCommit) });
+                new Object[] { Boolean.valueOf(autoCommit) });
   }
 
 
@@ -690,7 +690,7 @@ implements Connection
   {
     callMethod ("setReadOnly",
                 new Class[] { Boolean.TYPE },
-                new Object[] { new Boolean(readOnly) });
+                new Object[] { Boolean.valueOf(readOnly) });
   }
 
 

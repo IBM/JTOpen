@@ -2191,8 +2191,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
       public void setAutoCommit(boolean value)
       {
           String property = "autoCommit";
-          Boolean oldValue = new Boolean(isAutoCommit());
-          Boolean newValue = new Boolean(value);
+          Boolean oldValue = Boolean.valueOf(isAutoCommit());
+          Boolean newValue = Boolean.valueOf(value);
 
           if (value)
               properties_.setString(JDProperties.AUTO_COMMIT, TRUE_);
@@ -2214,8 +2214,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
      public void setAutocommitException(boolean value)
      {
          String property = "autocommitException";
-         Boolean oldValue = new Boolean(isAutocommitException());
-         Boolean newValue = new Boolean(value);
+         Boolean oldValue = Boolean.valueOf(isAutocommitException());
+         Boolean newValue = Boolean.valueOf(value);
 
          if (value)
              properties_.setString(JDProperties.AUTOCOMMIT_EXCEPTION, TRUE_);
@@ -2237,8 +2237,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public void setTrueAutoCommit(boolean value)
     {
         String property = "trueAutoCommit";
-        Boolean oldValue = new Boolean(isTrueAutoCommit());
-        Boolean newValue = new Boolean(value);
+        Boolean oldValue = Boolean.valueOf(isTrueAutoCommit());
+        Boolean newValue = Boolean.valueOf(value);
 
         if (value)
             properties_.setString(JDProperties.TRUE_AUTO_COMMIT, TRUE_); //@true
@@ -2338,8 +2338,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public void setBidiImplicitReordering(boolean value)
     {
         String property = "bidiImplicitReordering";
-        Boolean oldValue = new Boolean(isBidiImplicitReordering());
-        Boolean newValue = new Boolean(value);
+        Boolean oldValue = Boolean.valueOf(isBidiImplicitReordering());
+        Boolean newValue = Boolean.valueOf(value);
 
         if (value)
             properties_.setString(JDProperties.BIDI_IMPLICIT_REORDERING, TRUE_);
@@ -2361,8 +2361,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public void setBidiNumericOrdering(boolean value)
     {
         String property = "bidiNumericOrdering";
-        Boolean oldValue = new Boolean(isBidiNumericOrdering());
-        Boolean newValue = new Boolean(value);
+        Boolean oldValue = Boolean.valueOf(isBidiNumericOrdering());
+        Boolean newValue = Boolean.valueOf(value);
 
         if (value)
             properties_.setString(JDProperties.BIDI_NUMERIC_ORDERING, TRUE_);
@@ -2383,8 +2383,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public void setBigDecimal(boolean value)
     {
         String property = "bigDecimal";
-        Boolean oldValue = new Boolean(isBigDecimal());
-        Boolean newValue = new Boolean(value);
+        Boolean oldValue = Boolean.valueOf(isBigDecimal());
+        Boolean newValue = Boolean.valueOf(value);
 
         if (value)
             properties_.setString(JDProperties.BIG_DECIMAL, TRUE_);
@@ -2585,8 +2585,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public void setCursorHold(boolean cursorHold)
     {
         String property = "cursorHold";
-        Boolean oldHold = new Boolean(isCursorHold());
-        Boolean newHold = new Boolean(cursorHold);
+        Boolean oldHold = Boolean.valueOf(isCursorHold());
+        Boolean newHold = Boolean.valueOf(cursorHold);
 
         if (cursorHold)
             properties_.setString(JDProperties.CURSOR_HOLD, TRUE_);
@@ -2646,8 +2646,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setDataCompression(boolean compression)
     {
-        Boolean oldCompression = new Boolean(isDataCompression());
-        Boolean newCompression = new Boolean(compression);
+        Boolean oldCompression = Boolean.valueOf(isDataCompression());
+        Boolean newCompression = Boolean.valueOf(compression);
 
         if (compression)
             properties_.setString(JDProperties.DATA_COMPRESSION, TRUE_);
@@ -2687,8 +2687,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setDataTruncation(boolean truncation)
     {
-        Boolean oldTruncation = new Boolean(isDataTruncation());
-        Boolean newTruncation = new Boolean(truncation);
+        Boolean oldTruncation = Boolean.valueOf(isDataTruncation());
+        Boolean newTruncation = Boolean.valueOf(truncation);
 
         if (truncation)
             properties_.setString(JDProperties.DATA_TRUNCATION, TRUE_);
@@ -2968,8 +2968,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setExtendedDynamic(boolean extendedDynamic)
     {
-        Boolean oldValue = new Boolean(isExtendedDynamic());
-        Boolean newValue = new Boolean(extendedDynamic);
+        Boolean oldValue = Boolean.valueOf(isExtendedDynamic());
+        Boolean newValue = Boolean.valueOf(extendedDynamic);
 
         if (extendedDynamic)
             properties_.setString(JDProperties.EXTENDED_DYNAMIC, TRUE_);
@@ -3006,8 +3006,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setExtendedMetaData(boolean extendedMetaData)
     {
-        Boolean oldValue = new Boolean(isExtendedMetaData());
-        Boolean newValue = new Boolean(extendedMetaData);
+        Boolean oldValue = Boolean.valueOf(isExtendedMetaData());
+        Boolean newValue = Boolean.valueOf(extendedMetaData);
 
         if (extendedMetaData)
             properties_.setString(JDProperties.EXTENDED_METADATA, TRUE_);
@@ -3066,8 +3066,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setFullOpen(boolean fullOpen)
     {
-        Boolean oldValue = new Boolean(isFullOpen());
-        Boolean newValue = new Boolean(fullOpen);
+        Boolean oldValue = Boolean.valueOf(isFullOpen());
+        Boolean newValue = Boolean.valueOf(fullOpen);
 
         if (fullOpen)
             properties_.setString(JDProperties.FULL_OPEN, TRUE_);
@@ -3089,8 +3089,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public void setHoldInputLocators(boolean value)
     {
         String property = "holdInputLocators";
-        Boolean oldValue = new Boolean(isHoldInputLocators());
-        Boolean newValue = new Boolean(value);
+        Boolean oldValue = Boolean.valueOf(isHoldInputLocators());
+        Boolean newValue = Boolean.valueOf(value);
 
         if (value)
             properties_.setString(JDProperties.HOLD_LOCATORS, TRUE_);
@@ -3113,8 +3113,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public void setHoldStatements(boolean value)
     {
         String property = "holdStatements";
-        Boolean oldValue = new Boolean(isHoldStatements());
-        Boolean newValue = new Boolean(value);
+        Boolean oldValue = Boolean.valueOf(isHoldStatements());
+        Boolean newValue = Boolean.valueOf(value);
 
         if (value)
             properties_.setString(JDProperties.HOLD_STATEMENTS, TRUE_);
@@ -3136,8 +3136,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public void setJvm16Synchronize(boolean value)
     {
         String property = "jvm16 synchronize";
-        Boolean oldValue = new Boolean(isJvm16Synchronize());
-        Boolean newValue = new Boolean(value);
+        Boolean oldValue = Boolean.valueOf(isJvm16Synchronize());
+        Boolean newValue = Boolean.valueOf(value);
 
         if (value)
             properties_.setString(JDProperties.JVM16_SYNCHRONIZE, TRUE_);
@@ -3158,8 +3158,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setLazyClose(boolean lazyClose)
     {
-        Boolean oldValue = new Boolean(isLazyClose());
-        Boolean newValue = new Boolean(lazyClose);
+        Boolean oldValue = Boolean.valueOf(isLazyClose());
+        Boolean newValue = Boolean.valueOf(lazyClose);
 
         if (lazyClose)
             properties_.setString(JDProperties.LAZY_CLOSE, TRUE_);
@@ -3376,8 +3376,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setPackageAdd(boolean add)
     {
-        Boolean oldValue = new Boolean(isPackageAdd());
-        Boolean newValue = new Boolean(add);
+        Boolean oldValue = Boolean.valueOf(isPackageAdd());
+        Boolean newValue = Boolean.valueOf(add);
 
         if (add)
             properties_.setString(JDProperties.PACKAGE_ADD, TRUE_);
@@ -3399,8 +3399,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setPackageCache(boolean cache)
     {
-        Boolean oldValue = new Boolean(isPackageCache());
-        Boolean newValue = new Boolean(cache);
+        Boolean oldValue = Boolean.valueOf(isPackageCache());
+        Boolean newValue = Boolean.valueOf(cache);
 
         if (cache)
             properties_.setString(JDProperties.PACKAGE_CACHE, TRUE_);
@@ -3430,8 +3430,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         //@C6D threshold where package clearing is needed is now handled
         //@C6D automatically by the database.
 
-        //@C6D Boolean oldValue = new Boolean(isPackageClear());
-        //@C6D Boolean newValue = new Boolean(clear);
+        //@C6D Boolean oldValue = Boolean.valueOf(isPackageClear());
+        //@C6D Boolean newValue = Boolean.valueOf(clear);
 
         //@C6D String value = null;
         //@C6D if (clear)
@@ -3547,8 +3547,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setPrefetch(boolean prefetch)
     {
-        Boolean oldValue = new Boolean(isPrefetch());
-        Boolean newValue = new Boolean(prefetch);
+        Boolean oldValue = Boolean.valueOf(isPrefetch());
+        Boolean newValue = Boolean.valueOf(prefetch);
 
         if (prefetch)
             properties_.setString(JDProperties.PREFETCH, TRUE_);
@@ -3571,8 +3571,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setPrompt(boolean prompt)
     {
-        Boolean oldValue = new Boolean(isPrompt());
-        Boolean newValue = new Boolean(prompt);
+        Boolean oldValue = Boolean.valueOf(isPrompt());
+        Boolean newValue = Boolean.valueOf(prompt);
 
         if (prompt)
             properties_.setString(JDProperties.PROMPT, TRUE_);
@@ -3846,8 +3846,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public void setRollbackCursorHold(boolean cursorHold)
     {
         String property = "rollbackCursorHold";
-        Boolean oldHold = new Boolean(isRollbackCursorHold());
-        Boolean newHold = new Boolean(cursorHold);
+        Boolean oldHold = Boolean.valueOf(isRollbackCursorHold());
+        Boolean newHold = Boolean.valueOf(cursorHold);
 
         if (cursorHold)
             properties_.setString(JDProperties.ROLLBACK_CURSOR_HOLD, TRUE_);
@@ -3906,8 +3906,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setSecure(boolean secure)
     {
-        Boolean oldValue = new Boolean(isSecure());
-        Boolean newValue = new Boolean(secure);
+        Boolean oldValue = Boolean.valueOf(isSecure());
+        Boolean newValue = Boolean.valueOf(secure);
 
         //Do not allow user to change to not secure if already secure
         if (!secure && isSecure_)                //@C2A
@@ -3939,8 +3939,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public void setSecureCurrentUser(boolean secureCurrentUser)
     {
         String property = "secureCurrentUser";
-        Boolean oldVal = new Boolean(isSecureCurrentUser());
-        Boolean newVal = new Boolean(secureCurrentUser);
+        Boolean oldVal = Boolean.valueOf(isSecureCurrentUser());
+        Boolean newVal = Boolean.valueOf(secureCurrentUser);
 
         if (secureCurrentUser)
             properties_.setString(JDProperties.SECURE_CURRENT_USER, TRUE_);
@@ -4241,8 +4241,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setThreadUsed(boolean threadUsed)
     {
-        Boolean oldValue = new Boolean(isThreadUsed());
-        Boolean newValue = new Boolean(threadUsed);
+        Boolean oldValue = Boolean.valueOf(isThreadUsed());
+        Boolean newValue = Boolean.valueOf(threadUsed);
 
         if (threadUsed)
             properties_.setString(JDProperties.THREAD_USED, TRUE_);
@@ -4362,8 +4362,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public void setTrace(boolean trace)
     {
-        Boolean oldValue = new Boolean(isTrace());
-        Boolean newValue = new Boolean(trace);
+        Boolean oldValue = Boolean.valueOf(isTrace());
+        Boolean newValue = Boolean.valueOf(trace);
 
         if (trace)
             properties_.setString(JDProperties.TRACE, TRUE_);
@@ -4426,8 +4426,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "translateBinary";
 
-        Boolean oldValue = new Boolean(isTranslateBinary());
-        Boolean newValue = new Boolean(translate);
+        Boolean oldValue = Boolean.valueOf(isTranslateBinary());
+        Boolean newValue = Boolean.valueOf(translate);
 
         if (translate)
             properties_.setString(JDProperties.TRANSLATE_BINARY, TRUE_);
@@ -4455,8 +4455,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "translateBoolean";
 
-        Boolean oldValue = new Boolean(isTranslateBoolean());
-        Boolean newValue = new Boolean(translate);
+        Boolean oldValue = Boolean.valueOf(isTranslateBoolean());
+        Boolean newValue = Boolean.valueOf(translate);
 
         if (translate)
             properties_.setString(JDProperties.TRANSLATE_BOOLEAN, TRUE_);
@@ -4478,8 +4478,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
      public void setUseBlockUpdate(boolean value)
      {
          String property = JDProperties.USE_BLOCK_UPDATE_  ;
-         Boolean oldValue = new Boolean(isUseBlockUpdate());
-         Boolean newValue = new Boolean(value);
+         Boolean oldValue = Boolean.valueOf(isUseBlockUpdate());
+         Boolean newValue = Boolean.valueOf(value);
 
          if (value)
              properties_.setString(JDProperties.USE_BLOCK_UPDATE, TRUE_);
@@ -4501,8 +4501,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
       public void setUseDrdaMetadataVersion(boolean value)
       {
           String property = JDProperties.USE_DRDA_METADATA_VERSION_  ;
-          Boolean oldValue = new Boolean(isUseDrdaMetadataVersion());
-          Boolean newValue = new Boolean(value);
+          Boolean oldValue = Boolean.valueOf(isUseDrdaMetadataVersion());
+          Boolean newValue = Boolean.valueOf(value);
 
           if (value)
               properties_.setString(JDProperties.USE_DRDA_METADATA_VERSION, TRUE_);
@@ -4552,8 +4552,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "variableFieldCompression";
 
-        Boolean oldValue = new Boolean(isVariableFieldCompression());
-        Boolean newValue = new Boolean(compress);
+        Boolean oldValue = Boolean.valueOf(isVariableFieldCompression());
+        Boolean newValue = Boolean.valueOf(compress);
 
         if (compress)
             properties_.setString(JDProperties.VARIABLE_FIELD_COMPRESSION, TRUE_);

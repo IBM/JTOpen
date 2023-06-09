@@ -4018,8 +4018,8 @@ public class AS400 implements Serializable, AutoCloseable
         }
         else
         {
-            Boolean oldValue = new Boolean(guiAvailable_);
-            Boolean newValue = new Boolean(guiAvailable);
+            Boolean oldValue = Boolean.valueOf(guiAvailable_);
+            Boolean newValue = Boolean.valueOf(guiAvailable);
 
             if (vetoableChangeListeners_ != null)
             {
@@ -4465,8 +4465,8 @@ public class AS400 implements Serializable, AutoCloseable
         }
         else
         {
-            Boolean oldValue = new Boolean(threadUsed_);
-            Boolean newValue = new Boolean(useThreads);
+            Boolean oldValue = Boolean.valueOf(threadUsed_);
+            Boolean newValue = Boolean.valueOf(useThreads);
 
             if (vetoableChangeListeners_ != null)
             {
@@ -4495,8 +4495,8 @@ public class AS400 implements Serializable, AutoCloseable
         }
         else
         {
-            Boolean oldValue = new Boolean(useDefaultUser_);
-            Boolean newValue = new Boolean(useDefaultUser);
+            Boolean oldValue = Boolean.valueOf(useDefaultUser_);
+            Boolean newValue = Boolean.valueOf(useDefaultUser);
 
             if (vetoableChangeListeners_ != null)
             {
@@ -4526,8 +4526,8 @@ public class AS400 implements Serializable, AutoCloseable
         }
         else
         {
-            Boolean oldValue = new Boolean(usePasswordCache_);
-            Boolean newValue = new Boolean(usePasswordCache);
+            Boolean oldValue = Boolean.valueOf(usePasswordCache_);
+            Boolean newValue = Boolean.valueOf(usePasswordCache);
 
             if (vetoableChangeListeners_ != null)
             {

@@ -446,12 +446,12 @@ public abstract class ConnectionPool implements Serializable
   {
     String property = "runMaintenance";
 
-//    Boolean oldValue = new Boolean(isRunMaintenance_);
-//    Boolean newValue = new Boolean(cleanup);
+//    Boolean oldValue = Boolean.valueOf(isRunMaintenance_);
+//    Boolean newValue = Boolean.valueOf(cleanup);
     boolean oldValue = isRunMaintenance_;
 
     isRunMaintenance_ = cleanup;
-    if (changes_ != null) changes_.firePropertyChange(property, new Boolean(oldValue), new Boolean(cleanup));
+    if (changes_ != null) changes_.firePropertyChange(property, Boolean.valueOf(oldValue), Boolean.valueOf(cleanup));
   
     if (maintenance_ != null)
     {
@@ -485,8 +485,8 @@ public abstract class ConnectionPool implements Serializable
     //@A4D if (isInUse())
     //@A4D    throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
 
-    //@A4D Boolean oldValue = new Boolean(isThreadUsed());
-    //@A4D Boolean newValue = new Boolean(useThreads);
+    //@A4D Boolean oldValue = Boolean.valueOf(isThreadUsed());
+    //@A4D Boolean newValue = Boolean.valueOf(useThreads);
 
     //@A4D useThreads_ = useThreads;
     //@A4D changes_.firePropertyChange(property, oldValue, newValue);

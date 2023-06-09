@@ -63,7 +63,7 @@ class BaseDataQueueImplProxy extends AbstractProxyImpl implements BaseDataQueueI
     {
         try
         {
-            connection_.callMethod(pxId_, "create", new Class[] { Integer.TYPE, String.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, Boolean.TYPE, String.class }, new Object[] { new Integer(maxEntryLength), authority, new Boolean(saveSenderInformation), new Boolean(FIFO), new Integer(keyLength), new Boolean(forceToAuxiliaryStorage), description });
+            connection_.callMethod(pxId_, "create", new Class[] { Integer.TYPE, String.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, Boolean.TYPE, String.class }, new Object[] { new Integer(maxEntryLength), authority, Boolean.valueOf(saveSenderInformation), Boolean.valueOf(FIFO), new Integer(keyLength), Boolean.valueOf(forceToAuxiliaryStorage), description });
         }
         catch (InvocationTargetException e)
         {
@@ -90,7 +90,7 @@ class BaseDataQueueImplProxy extends AbstractProxyImpl implements BaseDataQueueI
     {
         try
         {
-            return (DQReceiveRecord)connection_.callMethod(pxId_, "read", new Class[] { String.class, Integer.TYPE, Boolean.TYPE, byte[].class }, new Object[] { search, new Integer(wait), new Boolean(peek), key }, true).getReturnValue();
+            return (DQReceiveRecord)connection_.callMethod(pxId_, "read", new Class[] { String.class, Integer.TYPE, Boolean.TYPE, byte[].class }, new Object[] { search, new Integer(wait), Boolean.valueOf(peek), key }, true).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
@@ -109,7 +109,7 @@ class BaseDataQueueImplProxy extends AbstractProxyImpl implements BaseDataQueueI
     {
         try
         {
-            return (DQQueryRecord)connection_.callMethod(pxId_, "retrieveAttributes", new Class[] { Boolean.TYPE }, new Object[] { new Boolean(keyed) }).getReturnValue();
+            return (DQQueryRecord)connection_.callMethod(pxId_, "retrieveAttributes", new Class[] { Boolean.TYPE }, new Object[] { Boolean.valueOf(keyed) }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {

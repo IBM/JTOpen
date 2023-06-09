@@ -274,7 +274,7 @@ implements PreparedStatement
       callMethod ("setBoolean",
                   new Class[] { Integer.TYPE, Boolean.TYPE },
                   new Object[] { new Integer (parameterIndex),
-                                 new Boolean (parameterValue) });
+                                 Boolean.valueOf(parameterValue) });
     }
 
 

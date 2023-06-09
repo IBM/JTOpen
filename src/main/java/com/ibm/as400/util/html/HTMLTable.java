@@ -1344,15 +1344,15 @@ public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Seria
     **/
     public void setHeaderInUse(boolean headerInUse) throws PropertyVetoException
     {
-        //@CRS Boolean oldUse = new Boolean(headerInUse_);
-        //@CRS Boolean newUse = new Boolean(headerInUse);
+        //@CRS Boolean oldUse = Boolean.valueOf(headerInUse_);
+        //@CRS Boolean newUse = Boolean.valueOf(headerInUse);
         boolean oldUse = headerInUse_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("useHeader", new Boolean(oldUse), new Boolean(headerInUse)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("useHeader", Boolean.valueOf(oldUse), Boolean.valueOf(headerInUse)); //@CRS
 
         headerInUse_ = headerInUse;
 
-        if (changes_ != null) changes_.firePropertyChange("useHeader", new Boolean(oldUse), new Boolean(headerInUse)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("useHeader", Boolean.valueOf(oldUse), Boolean.valueOf(headerInUse)); //@CRS
     }
 
     /**
@@ -1462,15 +1462,15 @@ public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Seria
     **/
     public void setWidthInPercent(boolean widthInPercent) throws PropertyVetoException
     {
-        //@CRS Boolean oldValue = new Boolean(widthPercent_);
-        //@CRS Boolean newValue = new Boolean(widthInPercent);
+        //@CRS Boolean oldValue = Boolean.valueOf(widthPercent_);
+        //@CRS Boolean newValue = Boolean.valueOf(widthInPercent);
         boolean oldValue = widthPercent_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("widthInPercent", new Boolean(oldValue), new Boolean(widthInPercent)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("widthInPercent", Boolean.valueOf(oldValue), Boolean.valueOf(widthInPercent)); //@CRS
 
         widthPercent_ = widthInPercent;
 
-        if (changes_ != null) changes_.firePropertyChange("widthInPercent", new Boolean(oldValue), new Boolean(widthInPercent)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("widthInPercent", Boolean.valueOf(oldValue), Boolean.valueOf(widthInPercent)); //@CRS
     }
 
     /** 

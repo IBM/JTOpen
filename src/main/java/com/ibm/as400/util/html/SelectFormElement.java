@@ -523,11 +523,11 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
         //@C1D
 
         boolean old = multiple_;
-        if (vetos_ != null) vetos_.fireVetoableChange("multiple", new Boolean(old), new Boolean(multiple) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("multiple", Boolean.valueOf(old), Boolean.valueOf(multiple) ); //@CRS
 
         multiple_ = multiple;
 
-        if (changes_ != null) changes_.firePropertyChange("multiple", new Boolean(old), new Boolean(multiple) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("multiple", Boolean.valueOf(old), Boolean.valueOf(multiple) ); //@CRS
     }
 
     /**

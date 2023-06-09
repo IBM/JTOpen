@@ -7420,7 +7420,7 @@ implements ResultSet
         if (b == false && wasNull()) { 
           return null;  
         } else { 
-          return new Boolean (b);
+          return Boolean.valueOf(b);
         }
         
       } else if (type == java.sql.Date.class){
