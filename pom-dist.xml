@@ -50,6 +50,12 @@
       <version>4.0.1</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-antrun-plugin</artifactId>
+      <version>3.1.0</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 
   <build>
@@ -276,7 +282,7 @@
             <configuration>
               <target name="source-pcml">
                 <echo> Processing PCML files...</echo>
-                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${project.build.outputDirectory}/com/ibm/as400/access"
                   srcdir="${basedir}/pcml"
@@ -295,7 +301,7 @@
             <configuration>
               <target name="source-pcml-resources">
                 <echo> Processing PCML files...</echo>
-                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${project.build.outputDirectory}/com/ibm/as400/resource"
                   srcdir="${basedir}/pcml"
@@ -314,7 +320,7 @@
             <configuration>
               <target name="source-pcml">
                 <echo> Processing PCML files...</echo>
-                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${basedir}/target/sources_java8/com/ibm/as400/access"
                   srcdir="${basedir}/pcml"
@@ -333,7 +339,7 @@
             <configuration>
               <target name="source-pcml-resources">
                 <echo> Processing PCML files...</echo>
-                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${basedir}/target/sources_java8/com/ibm/as400/resource"
                   srcdir="${basedir}/pcml"
@@ -352,7 +358,7 @@
             <configuration>
               <target name="source-pcml">
                 <echo> Processing PCML files...</echo>
-                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${basedir}/target/sources_java11/com/ibm/as400/access"
                   srcdir="${basedir}/pcml"
@@ -371,7 +377,7 @@
             <configuration>
               <target name="source-pcml-resources">
                 <echo> Processing PCML files...</echo>
-                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${basedir}/target/sources_java11/com/ibm/as400/resource"
                   srcdir="${basedir}/pcml"
@@ -390,7 +396,7 @@
             <configuration>
               <target name="source-java8">
                 <echo> Processing jdbc4.2 files...</echo>
-                <taskdef name="java8src" classname="Jdbc42Task" classpath="build" />
+                <taskdef name="java8src" classname="Jdbc42Task" classpath="${project.build.outputDirectory}_ant" />
                 <java8src sourcelist="src/jdbc42list.txt"
                   destdir="${basedir}/target/sources_java8"
                   srcdir="src/main/java"
@@ -407,7 +413,7 @@
             <configuration>
               <target name="source-java11">
                 <echo> Processing jdbc4.2 files...</echo>
-                <taskdef name="java11src" classname="Java9Task" classpath="build" />
+                <taskdef name="java11src" classname="Java9Task" classpath="${project.build.outputDirectory}_ant" />
                 <java11src sourcelist="src/jdbc429list.txt"
                   destdir="${basedir}/target/sources_java11"
                   srcdir="src/main/java"
@@ -506,6 +512,24 @@
               <excludes>
                 <exclude>**/module-info.java</exclude>
               </excludes>
+            </configuration>
+          </execution>
+          
+          <execution>
+            <id>ant-compile</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <source>7</source>
+              <target>7</target>
+              <release>7</release>
+              <compileSourceRoots>
+                <compileSourceRoot>${basedir}/build
+                </compileSourceRoot>
+              </compileSourceRoots>
+              <outputDirectory>${project.build.outputDirectory}_ant</outputDirectory>
             </configuration>
           </execution>
         </executions>

@@ -47,6 +47,12 @@
       <version>4.0.1</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-antrun-plugin</artifactId>
+      <version>3.1.0</version>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
   <build>
     <plugins>
@@ -110,7 +116,7 @@
             <configuration>
               <target name="source-pcml">
                 <echo> Processing PCML files...</echo>
-                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${project.build.outputDirectory}/com/ibm/as400/access"
                   srcdir="${basedir}/pcml"
@@ -129,7 +135,7 @@
             <configuration>
               <target name="source-pcml-resources">
                 <echo> Processing PCML files...</echo>
-                <taskdef name="pcml" classname="PCMLTask" classpath="build" />
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${project.build.outputDirectory}/com/ibm/as400/resource"
                   srcdir="${basedir}/pcml"
@@ -149,6 +155,21 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.10.0</version>
         <executions>
+          <execution>
+            <id>ant-compile</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <source>7</source>
+              <target>7</target>
+              <compileSourceRoots>
+                <compileSourceRoot>${basedir}/build</compileSourceRoot>
+              </compileSourceRoots>
+              <outputDirectory>${project.build.outputDirectory}_ant</outputDirectory>
+            </configuration>
+          </execution>
           <execution>
             <id>default-compile</id>
             <phase>compile</phase>
