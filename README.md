@@ -40,7 +40,10 @@ earlier code streams. Key differences include:
    In summary, JTOpen versions now consist of three digits, `x.y.z`.
    This provides differentiation between bug fixes, new features, and breaking changes. 
 
-1. Java 7 or later is required (**breaking change**). 
+1. Java 7 or later is required (**breaking change**).
+
+1. Function signatures may be changed from previous versions, in an effort to add typesafety. Version
+   20 will remain source-compatible, but may have binary incompatibility (**breaking change**).
 
 1. Breaking changes may be introduced on major version upgrades. Some examples of breaking changes
    include:
