@@ -186,19 +186,19 @@ extends NetServerShare
   /**
    {@link #SPOOLED_FILE_TYPE SPOOLED_FILE_TYPE} attribute value indicating spooled file type "User ASCII".
    **/
-  public static final Integer SPOOLED_FILE_TYPE_USER_ASCII = new Integer(1);
+  public static final Integer SPOOLED_FILE_TYPE_USER_ASCII = Integer.valueOf(1);
   /**
    {@link #SPOOLED_FILE_TYPE SPOOLED_FILE_TYPE} attribute value indicating spooled file type "Advanced Function Printing".
    **/
-  public static final Integer SPOOLED_FILE_TYPE_AFP = new Integer(2);
+  public static final Integer SPOOLED_FILE_TYPE_AFP = Integer.valueOf(2);
   /**
    {@link #SPOOLED_FILE_TYPE SPOOLED_FILE_TYPE} attribute value indicating spooled file type "SNA character string".
    **/
-  public static final Integer SPOOLED_FILE_TYPE_SCS = new Integer(3);
+  public static final Integer SPOOLED_FILE_TYPE_SCS = Integer.valueOf(3);
   /**
    {@link #SPOOLED_FILE_TYPE SPOOLED_FILE_TYPE} attribute value indicating "Automatic type sensing".
    **/
-  public static final Integer SPOOLED_FILE_TYPE_AUTO_DETECT = new Integer(4);
+  public static final Integer SPOOLED_FILE_TYPE_AUTO_DETECT = Integer.valueOf(4);
 
   static {
     attributes_.add(SPOOLED_FILE_TYPE, Integer.class, false,

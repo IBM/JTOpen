@@ -1149,8 +1149,8 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
     }
 
     // Remember the current existenceOption.
-    Integer oldExistenceOption = new Integer(existenceOption_);
-    Integer newExistenceOption = new Integer(existenceOption);
+    Integer oldExistenceOption = Integer.valueOf(existenceOption_);
+    Integer newExistenceOption = Integer.valueOf(existenceOption);
 
     // Fire the vetoable change event.
     vetos_.fireVetoableChange("existenceOption", oldExistenceOption,
@@ -1316,8 +1316,8 @@ implements java.io.DataInput, java.io.DataOutput, java.io.Serializable
                             ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
     }
 
-    Integer oldShareOption = new Integer(fd_.getShareOption());
-    Integer newShareOption = new Integer(shareOption);
+    Integer oldShareOption = Integer.valueOf(fd_.getShareOption());
+    Integer newShareOption = Integer.valueOf(shareOption);
 
     // Fire a vetoable change event for shareOption.
     vetos_.fireVetoableChange("shareOption", oldShareOption,

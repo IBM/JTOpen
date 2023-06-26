@@ -1090,7 +1090,7 @@ implements ConnectionEventListener
     }
 
     // Prepare to add a new connection to the pool.  Pre-create a new connection, outside of the sync block.
-    if (JDTrace.isTraceOn()) logInformation(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_FILLING"), new String[] { (new Integer(1)).toString(), 
+    if (JDTrace.isTraceOn()) logInformation(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_FILLING"), new String[] { (Integer.valueOf(1)).toString(), 
     cpds_.getServerName(), poolKey.getUser()} ));
     AS400JDBCPooledConnection newConn = null;
     boolean addedConnectionToPool = false;
@@ -1226,7 +1226,7 @@ implements ConnectionEventListener
         }
       }
 
-      if (JDTrace.isTraceOn()) logInformation(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_FILLING"), new String[] { (new Integer(numConnectionsToAdd)).toString(), 
+      if (JDTrace.isTraceOn()) logInformation(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_FILLING"), new String[] { (Integer.valueOf(numConnectionsToAdd)).toString(), 
       cpds_.getServerName(), poolKey.getUser()} ));
 
       synchronized (availableConnections_[side])

@@ -178,11 +178,11 @@ extends Resource
   /**
    {@link #TYPE TYPE} attribute value indicating a connection type of "disk drive".
    **/
-  public static final Integer TYPE_DISK_DRIVE = new Integer(0);
+  public static final Integer TYPE_DISK_DRIVE = Integer.valueOf(0);
   /**
    {@link #TYPE TYPE} attribute value indicating a connection type of "spooled output queue".
    **/
-  public static final Integer TYPE_SPOOLED_OUTPUT_QUEUE = new Integer(1);
+  public static final Integer TYPE_SPOOLED_OUTPUT_QUEUE = Integer.valueOf(1);
   static {
     attributes_.add(TYPE, Integer.class, true,
                     new Object[] {TYPE_DISK_DRIVE, TYPE_SPOOLED_OUTPUT_QUEUE }, null, true);

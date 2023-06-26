@@ -246,7 +246,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     {
       ConnectionList connections = as400ConnectionPool_.get(key);
       if (log_ != null || Trace.traceOn_)
-        log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_FILLING"), new String[] { (new Integer(numberOfConnections)).toString(), 
+        log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_FILLING"), new String[] { (Integer.valueOf(numberOfConnections)).toString(), 
                                systemName, userID} ));
       // create the specified number of connections
       for (int i = 0; i < numberOfConnections; i++)
@@ -390,7 +390,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     {
       ConnectionList connections = as400ConnectionPool_.get(key);
       if (log_ != null || Trace.traceOn_)
-        log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_FILLING"), new String[] { (new Integer(numberOfConnections)).toString(), 
+        log(ResourceBundleLoader.substitute(ResourceBundleLoader.getText("AS400CP_FILLING"), new String[] { (Integer.valueOf(numberOfConnections)).toString(), 
                                systemName, userID} ));
       // create the specified number of connections
       //@B4D AS400.addPasswordCacheEntry(systemName, userID, password);

@@ -151,7 +151,7 @@ public class KeyedFile extends AS400File implements Serializable
   {
     checkParameter(key); //@C0A
     // Find the record to delete
-    impl_.doIt("positionCursorToKey", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[KEY_EQ]) });
+    impl_.doIt("positionCursorToKey", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(TYPE_TABLE[KEY_EQ]) });
     deleteCurrentRecord();
   }
 
@@ -182,9 +182,9 @@ public class KeyedFile extends AS400File implements Serializable
     checkParameters(key, numberOfKeyFields); //@C0A
     // Find the record to delete
     if(longRecordNumber)//@RBA
-      impl_.doIt("positionCursorToKeyLong", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[KEY_EQ]), new Integer(numberOfKeyFields) });
+      impl_.doIt("positionCursorToKeyLong", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE }, new Object[] { key, Integer.valueOf(TYPE_TABLE[KEY_EQ]), Integer.valueOf(numberOfKeyFields) });
     else
-      impl_.doIt("positionCursorToKey", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[KEY_EQ]), new Integer(numberOfKeyFields) });
+      impl_.doIt("positionCursorToKey", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE }, new Object[] { key, Integer.valueOf(TYPE_TABLE[KEY_EQ]), Integer.valueOf(numberOfKeyFields) });
     deleteCurrentRecord();
   }
 
@@ -373,9 +373,9 @@ public class KeyedFile extends AS400File implements Serializable
       throw new ExtendedIllegalArgumentException("searchType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
     if(longRecordNumber)//@RBA
-      impl_.doIt("positionCursorLong", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[searchType]) });
+      impl_.doIt("positionCursorLong", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(TYPE_TABLE[searchType]) });
     else
-      impl_.doIt("positionCursor", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[searchType]) });
+      impl_.doIt("positionCursor", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(TYPE_TABLE[searchType]) });
   }
 
   // @A2A
@@ -421,9 +421,9 @@ public class KeyedFile extends AS400File implements Serializable
       throw new ExtendedIllegalArgumentException("searchType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
     if(longRecordNumber)//@RBA
-      impl_.doIt("positionCursorLong", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[searchType]), new Integer(numberOfKeyFields) });
+      impl_.doIt("positionCursorLong", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE }, new Object[] { key, Integer.valueOf(TYPE_TABLE[searchType]), Integer.valueOf(numberOfKeyFields) });
     else
-      impl_.doIt("positionCursor", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[searchType]), new Integer(numberOfKeyFields) });
+      impl_.doIt("positionCursor", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE }, new Object[] { key, Integer.valueOf(TYPE_TABLE[searchType]), Integer.valueOf(numberOfKeyFields) });
   }
 
 
@@ -479,9 +479,9 @@ public class KeyedFile extends AS400File implements Serializable
   {
     checkParameters(key, numberOfKeyFields); //@C0A
     if(longRecordNumber)//@RBA
-      impl_.doIt("positionCursorAfterLong", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, new Integer(numberOfKeyFields) });
+      impl_.doIt("positionCursorAfterLong", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(numberOfKeyFields) });
     else
-    impl_.doIt("positionCursorAfter", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, new Integer(numberOfKeyFields) });
+    impl_.doIt("positionCursorAfter", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(numberOfKeyFields) });
   }
 
 
@@ -537,9 +537,9 @@ public class KeyedFile extends AS400File implements Serializable
   {
     checkParameters(key, numberOfKeyFields); //@C0A
     if(longRecordNumber)//@RBA
-      impl_.doIt("positionCursorBeforeLong", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, new Integer(numberOfKeyFields) });
+      impl_.doIt("positionCursorBeforeLong", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(numberOfKeyFields) });
     else
-      impl_.doIt("positionCursorBefore", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, new Integer(numberOfKeyFields) });
+      impl_.doIt("positionCursorBefore", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(numberOfKeyFields) });
   }
 
 
@@ -639,9 +639,9 @@ public class KeyedFile extends AS400File implements Serializable
       throw new ExtendedIllegalArgumentException("searchType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
     if(longRecordNumber)//@RBA
-      return fillInRecord(impl_.doItRecord("readLong", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[searchType]) })); //@D0C
+      return fillInRecord(impl_.doItRecord("readLong", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(TYPE_TABLE[searchType]) })); //@D0C
     
-    return fillInRecord(impl_.doItRecord("read", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[searchType]) })); //@D0C
+    return fillInRecord(impl_.doItRecord("read", new Class[] { Object[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(TYPE_TABLE[searchType]) })); //@D0C
   }
 
   // @A2A
@@ -688,9 +688,9 @@ public class KeyedFile extends AS400File implements Serializable
       throw new ExtendedIllegalArgumentException("searchType", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
     if(longRecordNumber)//@RBA
-      return fillInRecord(impl_.doItRecord("readLong", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[searchType]), new Integer(numberOfKeyFields) })); //@D0C
+      return fillInRecord(impl_.doItRecord("readLong", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE }, new Object[] { key, Integer.valueOf(TYPE_TABLE[searchType]), Integer.valueOf(numberOfKeyFields) })); //@D0C
     else
-      return fillInRecord(impl_.doItRecord("read", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE }, new Object[] { key, new Integer(TYPE_TABLE[searchType]), new Integer(numberOfKeyFields) })); //@D0C
+      return fillInRecord(impl_.doItRecord("read", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE }, new Object[] { key, Integer.valueOf(TYPE_TABLE[searchType]), Integer.valueOf(numberOfKeyFields) })); //@D0C
   }
 
 
@@ -748,9 +748,9 @@ public class KeyedFile extends AS400File implements Serializable
   {
     checkParameters(key, numberOfKeyFields); //@C0A
     if(longRecordNumber)//@RBA
-      return fillInRecord(impl_.doItRecord("readAfterLong", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, new Integer(numberOfKeyFields) })); //@D0C
+      return fillInRecord(impl_.doItRecord("readAfterLong", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(numberOfKeyFields) })); //@D0C
     else
-      return fillInRecord(impl_.doItRecord("readAfter", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, new Integer(numberOfKeyFields) })); //@D0C
+      return fillInRecord(impl_.doItRecord("readAfter", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(numberOfKeyFields) })); //@D0C
   }
 
 
@@ -801,9 +801,9 @@ public class KeyedFile extends AS400File implements Serializable
     if (bf <= 1) bf = 100; //@D0M
     Record[] recs=null;
     if(longRecordNumber)//@RBA
-      recs = impl_.doItRecordArray("readAllLong", new Class[] { String.class, Integer.TYPE }, new Object[] { "key", new Integer(bf) }); //@D0C
+      recs = impl_.doItRecordArray("readAllLong", new Class[] { String.class, Integer.TYPE }, new Object[] { "key", Integer.valueOf(bf) }); //@D0C
     else
-      recs = impl_.doItRecordArray("readAll", new Class[] { String.class, Integer.TYPE }, new Object[] { "key", new Integer(bf) }); //@D0C
+      recs = impl_.doItRecordArray("readAll", new Class[] { String.class, Integer.TYPE }, new Object[] { "key", Integer.valueOf(bf) }); //@D0C
     //@D0A
     if (recs != null)
     {
@@ -871,9 +871,9 @@ public class KeyedFile extends AS400File implements Serializable
   {
     checkParameters(key, numberOfKeyFields); //@C0A
     if(longRecordNumber)//@RBA
-      return fillInRecord(impl_.doItRecord("readBeforeLong", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, new Integer(numberOfKeyFields) })); //@D0C
+      return fillInRecord(impl_.doItRecord("readBeforeLong", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(numberOfKeyFields) })); //@D0C
     else
-      return fillInRecord(impl_.doItRecord("readBefore", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, new Integer(numberOfKeyFields) })); //@D0C
+      return fillInRecord(impl_.doItRecord("readBefore", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(numberOfKeyFields) })); //@D0C
   }
 
 
@@ -981,9 +981,9 @@ public class KeyedFile extends AS400File implements Serializable
   {
     checkParameters(key, numberOfKeyFields); //@C0A
     if(longRecordNumber)//@RBA
-      return fillInRecord(impl_.doItRecord("readNextEqualLong", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, new Integer(numberOfKeyFields) })); //@D0C
+      return fillInRecord(impl_.doItRecord("readNextEqualLong", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(numberOfKeyFields) })); //@D0C
     else
-      return fillInRecord(impl_.doItRecord("readNextEqual", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, new Integer(numberOfKeyFields) })); //@D0C
+      return fillInRecord(impl_.doItRecord("readNextEqual", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(numberOfKeyFields) })); //@D0C
   }
 
 
@@ -1086,9 +1086,9 @@ public class KeyedFile extends AS400File implements Serializable
   {
     checkParameters(key, numberOfKeyFields); //@C0A
     if(longRecordNumber)//@RBA
-      return fillInRecord(impl_.doItRecord("readPreviousEqualLong", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, new Integer(numberOfKeyFields) })); //@D0C
+      return fillInRecord(impl_.doItRecord("readPreviousEqualLong", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(numberOfKeyFields) })); //@D0C
     else
-      return fillInRecord(impl_.doItRecord("readPreviousEqual", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, new Integer(numberOfKeyFields) })); //@D0C
+      return fillInRecord(impl_.doItRecord("readPreviousEqual", new Class[] { byte[].class, Integer.TYPE }, new Object[] { key, Integer.valueOf(numberOfKeyFields) })); //@D0C
   }
 
 

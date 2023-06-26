@@ -765,8 +765,8 @@ public class MessageFile implements Serializable
         }
         else
         {
-            Integer oldValue = new Integer(helpTextFormatting_);
-            Integer newValue = new Integer(helpTextFormatting);
+            Integer oldValue = Integer.valueOf(helpTextFormatting_);
+            Integer newValue = Integer.valueOf(helpTextFormatting);
 
             if (vetoableChangeListeners_ != null)
             {

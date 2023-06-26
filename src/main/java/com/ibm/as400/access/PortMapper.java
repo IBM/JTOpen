@@ -267,7 +267,7 @@ class PortMapper
             //method.setAccessible(true);                   //@CRS (applet gets exception when calling setAccessible())
             Object args[] = new Object[2];
             args[0] = hostAddr;
-            args[1] = new Integer(loginTimeout);
+            args[1] = Integer.valueOf(loginTimeout);
 
             method.invoke(pmSocket, args);
             done = true;  // if no exception thrown, then no need to try again

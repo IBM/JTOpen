@@ -139,7 +139,7 @@ class JdbcMeService implements Service
 
                 // Put the object into our map.
                 int objectId = getNextObjectId();
-                map_.put(new Integer(objectId), new Integer(c.hashCode()));
+                map_.put(Integer.valueOf(objectId), Integer.valueOf(c.hashCode()));
                 out_.writeInt(objectId);
                 out_.flush();
             }
@@ -209,7 +209,7 @@ class JdbcMeService implements Service
     public Object  processJdbcObject(int handle) throws IOException 
     {
         // Get the object hashcode based off of the user input handle.
-        Integer oObjectHash = (Integer) map_.get(new Integer(handle));
+        Integer oObjectHash = (Integer) map_.get(Integer.valueOf(handle));
         int iObjectHash = oObjectHash.intValue();
 
         Integer mapValue = null;
@@ -422,7 +422,7 @@ class JdbcMeService implements Service
     public int mapObject(Object object)
     {
         int objectId = getNextObjectId();
-        map_.put(new Integer(objectId), new Integer(object.hashCode()));
+        map_.put(Integer.valueOf(objectId), Integer.valueOf(object.hashCode()));
         
         return objectId;
     }

@@ -86,7 +86,7 @@ class PcmlDimensions extends Object implements Serializable
 
     void add(int value)
     {
-        add(new Integer(value));
+        add(Integer.valueOf(value));
     }
 
     void add(int[] values)
@@ -94,7 +94,7 @@ class PcmlDimensions extends Object implements Serializable
         v.ensureCapacity(v.size() + values.length);
         for (int i=0; i < values.length; i++)
         {
-            v.addElement(new Integer(values[i]));
+            v.addElement(Integer.valueOf(values[i]));
         }
     }
 
@@ -115,7 +115,7 @@ class PcmlDimensions extends Object implements Serializable
      // @D1A -- Added for XPCML
     void set(int index, int value)
     {
-        v.set(index, new Integer(value));
+        v.set(index, Integer.valueOf(value));
     }
 
     int size()

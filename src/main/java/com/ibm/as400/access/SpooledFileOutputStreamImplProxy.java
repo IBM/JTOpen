@@ -118,7 +118,7 @@ implements SpooledFileOutputStreamImpl, ProxyImpl
         try {
             connection_.callMethod(pxId_, "write",
                                    new Class[] { byte[].class , Integer.TYPE, Integer.TYPE },
-                                   new Object[] { data, new Integer(offset), new Integer(length) });
+                                   new Object[] { data, Integer.valueOf(offset), Integer.valueOf(length) });
         }
         catch (InvocationTargetException e) {
             Throwable error = e.getTargetException();

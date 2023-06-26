@@ -563,11 +563,11 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
             throw new ExtendedIllegalArgumentException("size", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = size_;
-        if (vetos_ != null) vetos_.fireVetoableChange("size", new Integer(old), new Integer(size) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("size", Integer.valueOf(old), Integer.valueOf(size) ); //@CRS
 
         size_ = size;
 
-        if (changes_ != null) changes_.firePropertyChange("size", new Integer(old), new Integer(size) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("size", Integer.valueOf(old), Integer.valueOf(size) ); //@CRS
     }
 
     /**

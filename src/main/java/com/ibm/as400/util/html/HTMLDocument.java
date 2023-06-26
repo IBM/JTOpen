@@ -497,7 +497,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         height_ = height;
 
-        if (changes_ != null) changes_.firePropertyChange("height", new Double(old), new Double(height) );
+        if (changes_ != null) changes_.firePropertyChange("height", Double.valueOf(old), Double.valueOf(height) );
     }
 
     /**
@@ -514,7 +514,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         width_ = width;
 
-        if (changes_ != null) changes_.firePropertyChange("width", new Double(old), new Double(width) );
+        if (changes_ != null) changes_.firePropertyChange("width", Double.valueOf(old), Double.valueOf(width) );
     }
 
     /**
@@ -531,7 +531,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         margin_top_ = top;
 
-        if (changes_ != null) changes_.firePropertyChange("top", new Double(old), new Double(top) );
+        if (changes_ != null) changes_.firePropertyChange("top", Double.valueOf(old), Double.valueOf(top) );
     }
 
     /**
@@ -548,7 +548,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         margin_bottom_ = bottom;
 
-        if (changes_ != null) changes_.firePropertyChange("bottom", new Double(old), new Double(bottom) );
+        if (changes_ != null) changes_.firePropertyChange("bottom", Double.valueOf(old), Double.valueOf(bottom) );
     }
 
     /**
@@ -565,7 +565,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         margin_right_ = right;
 
-        if (changes_ != null) changes_.firePropertyChange("right", new Double(old), new Double(right) );
+        if (changes_ != null) changes_.firePropertyChange("right", Double.valueOf(old), Double.valueOf(right) );
     }
 
     /**
@@ -582,7 +582,7 @@ public class HTMLDocument extends HTMLTagAttributes implements java.io.Serializa
 
         margin_left_ = left;
 
-        if (changes_ != null) changes_.firePropertyChange("left", new Double(old), new Double(left) );
+        if (changes_ != null) changes_.firePropertyChange("left", Double.valueOf(old), Double.valueOf(left) );
     }
 
     /**

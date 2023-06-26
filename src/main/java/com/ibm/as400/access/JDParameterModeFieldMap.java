@@ -58,13 +58,13 @@ implements JDFieldMap
         String serverDataAsString = serverData.toString ();
 
         if(serverDataAsString.equalsIgnoreCase("IN"))
-            return new Short ((short) DatabaseMetaData.procedureColumnIn);
+            return Short.valueOf((short) DatabaseMetaData.procedureColumnIn);
         else if(serverDataAsString.equalsIgnoreCase("OUT"))
-            return new Short ((short) DatabaseMetaData.procedureColumnOut);
+            return Short.valueOf((short) DatabaseMetaData.procedureColumnOut);
         else if(serverDataAsString.equalsIgnoreCase("INOUT"))
-            return new Short ((short) DatabaseMetaData.procedureColumnInOut);
+            return Short.valueOf((short) DatabaseMetaData.procedureColumnInOut);
         else
-            return new Short ((short) DatabaseMetaData.procedureColumnUnknown);
+            return Short.valueOf((short) DatabaseMetaData.procedureColumnUnknown);
     }
 
     /**

@@ -1101,7 +1101,7 @@ public class ObjectList implements Serializable
           Object value = null;
           if (type == BINARY)
           {
-            value = new Integer(BinaryConverter.byteArrayToInt(keyData, 0));
+            value = Integer.valueOf(BinaryConverter.byteArrayToInt(keyData, 0));
             objects[i].set(key, value);
           }
           else if (type == CHAR)

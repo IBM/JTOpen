@@ -894,7 +894,7 @@ class PcmlSAXParser extends DefaultHandler
           if (xmlAttrs.getQName(attr).equals("index"))
           {
             // Set current dimension to index value
-            Integer indexInt = new Integer(xmlAttrs.getValue(attr));
+            Integer indexInt = Integer.valueOf(xmlAttrs.getValue(attr));
             dimensions.set(curDim,indexInt.intValue());
           }
         }

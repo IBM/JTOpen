@@ -513,13 +513,13 @@ public class QueuedMessage extends AS400Message implements Serializable
     // Helper method called by MessageQueue.
     void setAsInt(int fieldID, int value)
     {
-        setValueInternal(fieldID, new Integer(value));
+        setValueInternal(fieldID, Integer.valueOf(value));
     }
 
     // Helper method called by MessageQueue.
     void setAsLong(int fieldID, long value)
     {
-        setValueInternal(fieldID, new Long(value));
+        setValueInternal(fieldID, Long.valueOf(value));
     }
 
     // Helper method called by MessageQueue.

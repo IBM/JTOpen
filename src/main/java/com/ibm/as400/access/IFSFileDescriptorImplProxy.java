@@ -70,7 +70,7 @@ implements IFSFileDescriptorImpl
     try {
       connection_.callMethod (pxId_, "incrementFileOffset",
                               new Class[] { Long.TYPE },
-                              new Object[] { new Long(fileOffsetIncrement) });
+                              new Object[] { Long.valueOf(fileOffsetIncrement)});
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
@@ -88,10 +88,10 @@ implements IFSFileDescriptorImpl
                                             Integer.TYPE,
                                             AS400Impl.class
                                           },
-                              new Object[] { new Long(fileOffset),
+                              new Object[] { Long.valueOf(fileOffset),
                                             parentImpl,
                                              path,
-                                             new Integer(shareOption),
+                                             Integer.valueOf(shareOption),
                                              system
                                            });
     }
@@ -116,7 +116,7 @@ implements IFSFileDescriptorImpl
     try {
       connection_.callMethod (pxId_, "setFileOffset",
                               new Class[] { Long.TYPE },
-                              new Object[] { new Long(fileOffset) });
+                              new Object[] { Long.valueOf(fileOffset)});
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);

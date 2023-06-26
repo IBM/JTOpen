@@ -64,7 +64,7 @@ public class AS400UnsignedBin4 implements AS400DataType
      **/
     public Object getDefaultValue()
     {
-     return new Long(defaultValue);
+     return Long.valueOf(defaultValue);
     }
 
     /**
@@ -221,7 +221,7 @@ public class AS400UnsignedBin4 implements AS400DataType
     public Object toObject(byte[] as400Value)
     {
      // BinaryConverter will throw the ArrayIndexException's
-     return new Long(BinaryConverter.byteArrayToUnsignedInt(as400Value, 0));
+     return Long.valueOf(BinaryConverter.byteArrayToUnsignedInt(as400Value, 0));
     }
 
     /**
@@ -233,6 +233,6 @@ public class AS400UnsignedBin4 implements AS400DataType
     public Object toObject(byte[] as400Value, int offset)
     {
      // BinaryConverter will throw the ArrayIndexException's
-     return new Long(BinaryConverter.byteArrayToUnsignedInt(as400Value, offset));
+     return Long.valueOf(BinaryConverter.byteArrayToUnsignedInt(as400Value, offset));
     }
 }

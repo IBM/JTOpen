@@ -1878,7 +1878,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   InterruptedException,
   IOException
   {
-    Integer l = new Integer(lockToObtain);
+    Integer l = Integer.valueOf(lockToObtain);
     if (!explicitLocksObtained_.contains(l))
     {
       // Lock the file using the ALCOBJ command.

@@ -875,7 +875,7 @@ class JDUtilities {
       if (typeNameHashtable == null) {
         typeNameHashtable = new Hashtable();
         for (int i = 0; i < typeNameToTypeCode.length; i++) {
-          typeNameHashtable.put(typeNameToTypeCode[i][0], new Integer(
+          typeNameHashtable.put(typeNameToTypeCode[i][0], Integer.valueOf(
               typeNameToTypeCode[i][1]));
         }
       }

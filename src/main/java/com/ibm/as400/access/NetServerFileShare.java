@@ -134,7 +134,7 @@ extends NetServerShare
    **/
   public static final String MAXIMUM_USERS = "MAXIMUM_USERS";
   static {
-    attributes_.add(MAXIMUM_USERS, Integer.class, new Integer(-1));
+    attributes_.add(MAXIMUM_USERS, Integer.class, Integer.valueOf(-1));
     getterMap_.add (MAXIMUM_USERS, OLST0100_, "receiverVariable.maximumUsers", INDICES_);
     setterMap_.add (MAXIMUM_USERS, CHFS_, "maximumUsers");
     openListAttributeMap_.add (MAXIMUM_USERS, OLST0100_, "receiverVariable.maximumUsers");
@@ -176,11 +176,11 @@ extends NetServerShare
   /**
    {@link #PERMISSION PERMISSION} attribute value indicating "read only" permission to a share.
    **/
-  public static final Integer PERMISSION_READ_ONLY = new Integer(1);
+  public static final Integer PERMISSION_READ_ONLY = Integer.valueOf(1);
   /**
    {@link #PERMISSION PERMISSION} attribute value indicating "read/write" permission to a share.
    **/
-  public static final Integer PERMISSION_READ_WRITE = new Integer(2);
+  public static final Integer PERMISSION_READ_WRITE = Integer.valueOf(2);
   static {
     attributes_.add(PERMISSION, Integer.class, false,
                     new Object[] {PERMISSION_READ_ONLY, PERMISSION_READ_WRITE }, PERMISSION_READ_WRITE, true);
@@ -247,7 +247,7 @@ extends NetServerShare
       if (hasUncommittedAttributeChanges(PATH)) {  // @A1a
         String path = (String)getAttributeValue(PATH);
         // Note: There are 2 bytes per Unicode character.  By default the PCML document specifies Unicode for the pathname CCSID.
-        Integer pathLength = new Integer(path.length()*2);
+        Integer pathLength = Integer.valueOf(path.length()*2);
         document_.setValue(ADFS_+".lengthOfPathName", pathLength);
         document_.setValue(ADFS_+".pathName", path);
         document_.setValue(CHFS_+".lengthOfPathName", pathLength);
@@ -302,7 +302,7 @@ extends NetServerShare
       {
         String path = (String)values[i];
         int pathLength = path.length() * 2;  // 2 bytes per Unicode character.
-        setAttributeValue(PATH_LENGTH, new Integer(pathLength));
+        setAttributeValue(PATH_LENGTH, Integer.valueOf(pathLength));
 
         int numIDs = attributeIDs.length;
         // Implementation note: Assume that attributeIDs[] and values[] have same length.
@@ -313,7 +313,7 @@ extends NetServerShare
 
         Object[] vals = new Object[numIDs+1];
         System.arraycopy(values, 0, vals, 0, numIDs);
-        vals[numIDs] = new Integer(pathLength);
+        vals[numIDs] = Integer.valueOf(pathLength);
 
         attributeIDs = ids;
         values = vals;

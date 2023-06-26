@@ -602,7 +602,7 @@ Adds a library list parameter.
     {
       for (int i = 0; i < libraries.length; ++i)
       {
-        Character ch = new Character(indicators[i]);
+        Character ch = Character.valueOf(indicators[i]);
         converter.stringToByteArray(ch.toString(), data_, currentOffset_ + offset);
         set16bit(libraries[i].length(), currentOffset_ + offset + 1);
         converter.stringToByteArray(libraries[i], data_, currentOffset_ + offset + 3);

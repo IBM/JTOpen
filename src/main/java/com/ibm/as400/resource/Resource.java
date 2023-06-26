@@ -190,7 +190,7 @@ Constructs a Resource object.
         presentation_               = new Presentation();
 
         synchronized(counterLock_) {
-            resourceKey_            = new Long(counter_++);
+            resourceKey_            = Long.valueOf(counter_++);
         }
 
         attributes_                 = new ResourceMetaDataTable();

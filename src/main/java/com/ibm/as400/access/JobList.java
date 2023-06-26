@@ -275,7 +275,7 @@ public class JobList implements Serializable
      @see  com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_BATCH_MRT
      @see  com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_BATCH_ALTERNATE_SPOOL_USER
      **/
-    public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_BATCH = new Integer(200);
+    public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_BATCH = Integer.valueOf(200);
 
     /**
      Selection value indicating all the interactive job types will be selected.
@@ -285,7 +285,7 @@ public class JobList implements Serializable
      @see  com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ
      @see  com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ_AND_GROUP
      **/
-    public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_INTERACTIVE = new Integer(900);
+    public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_INTERACTIVE = Integer.valueOf(900);
 
     /**
      Selection value indicating all the prestart job types will be selected.
@@ -294,7 +294,7 @@ public class JobList implements Serializable
      @see  com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_PRESTART_BATCH
      @see  com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_PRESTART_COMM
      **/
-    public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_PRESTART = new Integer(1600);
+    public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_PRESTART = Integer.valueOf(1600);
 
     // Holds the lengths for all of the valid sort keys.
     static final IntegerHashtable sortableKeys_ = new IntegerHashtable();

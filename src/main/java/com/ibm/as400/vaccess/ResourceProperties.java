@@ -105,7 +105,7 @@ implements Serializable
 
 
     // Private data.
-    private static final Object FIRST_TAB_KEY_              = new Integer(0);
+    private static final Object FIRST_TAB_KEY_              = Integer.valueOf(0);
 
     private boolean   editable_         = false;
     private int       tabCounter_       = 0;
@@ -205,7 +205,7 @@ is placed after all existing properties on the tab.
             throw new NullPointerException("propertyID");
 
         synchronized(this) {
-            Object key = new Integer(tab);
+            Object key = Integer.valueOf(tab);
             if (!tabPropertyIDs_.containsKey(key))
                 throw new ExtendedIllegalArgumentException("tab", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
             ((Vector)tabPropertyIDs_.get(key)).addElement(propertyID);
@@ -254,7 +254,7 @@ are placed after all existing properties on the tab.
             throw new NullPointerException("propertyIDs");
 
         synchronized(this) {
-            Object key = new Integer(tab);
+            Object key = Integer.valueOf(tab);
             if (!tabPropertyIDs_.containsKey(key))
                 throw new ExtendedIllegalArgumentException("tab", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
             Vector v = (Vector)tabPropertyIDs_.get(key);
@@ -282,7 +282,7 @@ Adds a tab.  The new tab is placed after all existing tabs.
 
         synchronized(this) {
             ++tabCounter_;
-            Object key = new Integer(tabCounter_);
+            Object key = Integer.valueOf(tabCounter_);
             tabPropertyIDs_.put(key, new Vector());
             tabLabels_.put(key, label);
             return tabCounter_;
@@ -314,7 +314,7 @@ Adds a tab.  The new tab is placed after all existing tabs.
             }
 
             ++tabCounter_;
-            Object key = new Integer(tabCounter_);
+            Object key = Integer.valueOf(tabCounter_);
             tabPropertyIDs_.put(key, v);
             tabLabels_.put(key, label);
             return tabCounter_;
@@ -336,7 +336,7 @@ Returns the label for the specified tab.
     public String getLabel(int tab)
     {
         synchronized(this) {
-            Object key = new Integer(tab);
+            Object key = Integer.valueOf(tab);
             if (!tabLabels_.containsKey(key))
                 throw new ExtendedIllegalArgumentException("tab", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
             else
@@ -359,7 +359,7 @@ Returns the property IDs that have been added to the specified tab.
     public Object[] getProperties(int tab)
     {
         synchronized(this) {
-            Object key = new Integer(tab);
+            Object key = Integer.valueOf(tab);
             if (!tabPropertyIDs_.containsKey(key))
                 throw new ExtendedIllegalArgumentException("tab", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
             else {

@@ -71,7 +71,7 @@ class IPAddressConversion {
 	 * Converts a hexadecimal string into an integer string. 
 	 */
 	private String toDec(String hex) {
-		return (new Integer(Integer.parseInt(hex, 16))).toString();
+		return (Integer.valueOf(Integer.parseInt(hex, 16))).toString();
 	}
 
 	/**
@@ -135,7 +135,7 @@ class IPAddressConversion {
 			if (type == IPv4Hex || type == IPvMixedHex) {
 				seg[i]= toDec(seg[i]);
 			} else {
-				seg[i]= (new Integer(Integer.parseInt(seg[i]))).toString();
+				seg[i]= (Integer.valueOf(Integer.parseInt(seg[i]))).toString();
 			}
 			ret.append(seg[i] + ".");
 		}

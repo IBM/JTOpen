@@ -958,14 +958,14 @@ public void setSearchType (int searchType)
 
     // Fire a vetoable change event.
     fireVetoableChange("searchType",
-        new Integer(old), new Integer(searchType));
+        Integer.valueOf(old), Integer.valueOf(searchType));
 
     // Make property change.
     tableData_.setSearchType(searchType);
 
     // Fire the property change event.
     firePropertyChange("searchType",
-        new Integer(old), new Integer(searchType));
+        Integer.valueOf(old), Integer.valueOf(searchType));
 }
 
 

@@ -613,7 +613,7 @@ public class AS400JDBCArray implements Array, Serializable {
           if (inShortArray[i] == null) {
             shortArray[i] = null;
           } else { /* not null */
-            shortArray[i] = new Integer(inShortArray[i].shortValue());
+            shortArray[i] = Integer.valueOf(inShortArray[i].shortValue());
           } /* not null */
         } /* for i */
         data_ = shortArray;
@@ -621,7 +621,7 @@ public class AS400JDBCArray implements Array, Serializable {
         short[] inShortArray = (short[]) inArray;
         Integer[] shortArray = new Integer[inShortArray.length];
         for (int i = 0; i < inShortArray.length; i++) {
-          shortArray[i] = new Integer(inShortArray[i]);
+          shortArray[i] = Integer.valueOf(inShortArray[i]);
         } /* for i */
         data_ = shortArray;
       } else if ("java.lang.Integer".equals(arrayType)) {
@@ -633,7 +633,7 @@ public class AS400JDBCArray implements Array, Serializable {
         int[] inIntArray = (int[]) inArray;
         Integer[] shortArray = new Integer[inIntArray.length];
         for (int i = 0; i < inIntArray.length; i++) {
-          shortArray[i] = new Integer(inIntArray[i]);
+          shortArray[i] = Integer.valueOf(inIntArray[i]);
         } /* for i */
         data_ = shortArray;
       } else if ("java.lang.Long".equals(arrayType)) {
@@ -645,7 +645,7 @@ public class AS400JDBCArray implements Array, Serializable {
           } else { /* not null */
             long lv = inLongArray[i].longValue();
             if (lv >= Short.MIN_VALUE && lv <= Short.MAX_VALUE) {
-              shortArray[i] = new Integer((int) lv);
+              shortArray[i] = Integer.valueOf((int) lv);
             } else { /* not in range */
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -666,7 +666,7 @@ public class AS400JDBCArray implements Array, Serializable {
           } else { /* not null */
             float lv = inFloatArray[i].floatValue();
             if (lv >= Short.MIN_VALUE && lv <= Short.MAX_VALUE) {
-              shortArray[i] = new Integer((int) lv);
+              shortArray[i] = Integer.valueOf((int) lv);
             } else { /* not in range */
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -688,7 +688,7 @@ public class AS400JDBCArray implements Array, Serializable {
           } else { /* not null */
             double lv = inDoubleArray[i].doubleValue();
             if (lv >= Short.MIN_VALUE && lv <= Short.MAX_VALUE) {
-              shortArray[i] = new Integer((int) lv);
+              shortArray[i] = Integer.valueOf((int) lv);
             } else { /* not in range */
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -711,7 +711,7 @@ public class AS400JDBCArray implements Array, Serializable {
             BigInteger bi = inBigDecimalArray[i].toBigInteger();
             long lv = bi.longValue();
             if (lv >= Short.MIN_VALUE && lv <= Short.MAX_VALUE) {
-              shortArray[i] = new Integer((int) lv);
+              shortArray[i] = Integer.valueOf((int) lv);
             } else { /* not in range */
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -733,9 +733,9 @@ public class AS400JDBCArray implements Array, Serializable {
           } else { /* not null */
             boolean b = inBooleanArray[i].booleanValue();
             if (b) {
-              shortArray[i] = new Integer(1);
+              shortArray[i] = Integer.valueOf(1);
             } else { /* false */
-              shortArray[i] = new Integer(0);
+              shortArray[i] = Integer.valueOf(0);
             } /* false */
           } /* not null */
         } /* for i */
@@ -748,7 +748,7 @@ public class AS400JDBCArray implements Array, Serializable {
             shortArray[i] = null;
           } else { /* not null */
             byte b = inByteArray[i].byteValue();
-            shortArray[i] = new Integer(b);
+            shortArray[i] = Integer.valueOf(b);
           } /* not null */
         } /* for i */
         data_ = shortArray;
@@ -760,7 +760,7 @@ public class AS400JDBCArray implements Array, Serializable {
             shortArray[i] = null;
           } else { /* not null */
             try {
-              shortArray[i] = new Integer(Short.parseShort(inStringArray[i]));
+              shortArray[i] = Integer.valueOf(Short.parseShort(inStringArray[i]));
             } catch (NumberFormatException nfe) {
               if (JDTrace.isTraceOn()) {
                 JDTrace
@@ -786,7 +786,7 @@ public class AS400JDBCArray implements Array, Serializable {
               shortArray[i] = null;
             } else { /* not null */
               try {
-                shortArray[i] = new Integer(Short.parseShort(inObjectArray[i].toString()));
+                shortArray[i] = Integer.valueOf(Short.parseShort(inObjectArray[i].toString()));
               } catch (NumberFormatException nfe) {
                 if (JDTrace.isTraceOn()) {
                   JDTrace
@@ -824,7 +824,7 @@ public class AS400JDBCArray implements Array, Serializable {
         int[] inIntegerArray = (int[]) inArray;
         Integer[] integerArray = new Integer[inIntegerArray.length];
         for (int i = 0; i < inIntegerArray.length; i++) {
-          integerArray[i] = new Integer(inIntegerArray[i]);
+          integerArray[i] = Integer.valueOf(inIntegerArray[i]);
         }
         data_ = integerArray;
       } else if ("java.math.BigDecimal".equals(arrayType)) {
@@ -837,7 +837,7 @@ public class AS400JDBCArray implements Array, Serializable {
             BigInteger bi = inBigDecimalArray[i].toBigInteger();
             long lv = bi.longValue();
             if (lv >= Integer.MIN_VALUE && lv <= Integer.MAX_VALUE) {
-              integerArray[i] = new Integer((int) lv);
+              integerArray[i] = Integer.valueOf((int) lv);
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -859,7 +859,7 @@ public class AS400JDBCArray implements Array, Serializable {
           } else {
             long lv = inLongArray[i].longValue();
             if (lv >= Integer.MIN_VALUE && lv <= Integer.MAX_VALUE) {
-              integerArray[i] = new Integer((int) lv);
+              integerArray[i] = Integer.valueOf((int) lv);
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -881,7 +881,7 @@ public class AS400JDBCArray implements Array, Serializable {
           } else {
             float lv = inFloatArray[i].floatValue();
             if (lv >= Integer.MIN_VALUE && lv <= Integer.MAX_VALUE) {
-              integerArray[i] = new Integer((int) lv);
+              integerArray[i] = Integer.valueOf((int) lv);
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -904,7 +904,7 @@ public class AS400JDBCArray implements Array, Serializable {
           } else {
             double lv = inDoubleArray[i].doubleValue();
             if (lv >= Integer.MIN_VALUE && lv <= Integer.MAX_VALUE) {
-              integerArray[i] = new Integer((int) lv);
+              integerArray[i] = Integer.valueOf((int) lv);
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -927,9 +927,9 @@ public class AS400JDBCArray implements Array, Serializable {
           } else {
             boolean b = inBooleanArray[i].booleanValue();
             if (b) {
-              integerArray[i] = new Integer(1);
+              integerArray[i] = Integer.valueOf(1);
             } else {
-              integerArray[i] = new Integer(0);
+              integerArray[i] = Integer.valueOf(0);
             }
           }
         }
@@ -943,7 +943,7 @@ public class AS400JDBCArray implements Array, Serializable {
             integerArray[i] = null;
           } else {
             byte b = inByteArray[i].byteValue();
-            integerArray[i] = new Integer(b);
+            integerArray[i] = Integer.valueOf(b);
           }
         }
         data_ = integerArray;
@@ -956,7 +956,7 @@ public class AS400JDBCArray implements Array, Serializable {
             integerArray[i] = null;
           } else {
             short b = inShortArray[i].shortValue();
-            integerArray[i] = new Integer(b);
+            integerArray[i] = Integer.valueOf(b);
           }
         }
         data_ = integerArray;
@@ -969,7 +969,7 @@ public class AS400JDBCArray implements Array, Serializable {
             intArray[i] = null;
           } else {
             try {
-              intArray[i] = new Integer(Integer.parseInt(inStringArray[i]));
+              intArray[i] = Integer.valueOf(inStringArray[i]);
             } catch (NumberFormatException nfe) {
 
               if (JDTrace.isTraceOn()) {
@@ -1008,7 +1008,7 @@ public class AS400JDBCArray implements Array, Serializable {
         long[] inLongArray = (long[]) inArray;
         Long[] longArray = new Long[inLongArray.length];
         for (int i = 0; i < inLongArray.length; i++) {
-          longArray[i] = new Long(inLongArray[i]);
+          longArray[i] = Long.valueOf(inLongArray[i]);
         }
         data_ = longArray;
 
@@ -1022,7 +1022,7 @@ public class AS400JDBCArray implements Array, Serializable {
             BigInteger bi = inBigDecimalArray[i].toBigInteger();
             long lv = bi.longValue();
             if (lv >= Long.MIN_VALUE && lv <= Long.MAX_VALUE) {
-              longArray[i] = new Long((int) lv);
+              longArray[i] = Long.valueOf((int) lv);
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -1045,9 +1045,9 @@ public class AS400JDBCArray implements Array, Serializable {
           } else {
             boolean b = inBooleanArray[i].booleanValue();
             if (b) {
-              longArray[i] = new Long(1);
+              longArray[i] = Long.valueOf(1);
             } else {
-              longArray[i] = new Long(0);
+              longArray[i] = Long.valueOf(0);
             }
           }
         }
@@ -1062,7 +1062,7 @@ public class AS400JDBCArray implements Array, Serializable {
           } else {
             float lv = inFloatArray[i].floatValue();
             if (lv >= Long.MIN_VALUE && lv <= Long.MAX_VALUE) {
-              longArray[i] = new Long((int) lv);
+              longArray[i] = Long.valueOf((int) lv);
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -1085,7 +1085,7 @@ public class AS400JDBCArray implements Array, Serializable {
           } else {
             double lv = inDoubleArray[i].doubleValue();
             if (lv >= Long.MIN_VALUE && lv <= Long.MAX_VALUE) {
-              longArray[i] = new Long((int) lv);
+              longArray[i] = Long.valueOf((int) lv);
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -1107,7 +1107,7 @@ public class AS400JDBCArray implements Array, Serializable {
             longArray[i] = null;
           } else {
             byte b = inByteArray[i].byteValue();
-            longArray[i] = new Long(b);
+            longArray[i] = Long.valueOf(b);
           }
         }
         data_ = longArray;
@@ -1120,7 +1120,7 @@ public class AS400JDBCArray implements Array, Serializable {
             longArray[i] = null;
           } else {
             short b = inShortArray[i].shortValue();
-            longArray[i] = new Long(b);
+            longArray[i] = Long.valueOf(b);
           }
         }
         data_ = longArray;
@@ -1133,7 +1133,7 @@ public class AS400JDBCArray implements Array, Serializable {
             longArray[i] = null;
           } else {
             int b = inIntegerArray[i].intValue();
-            longArray[i] = new Long(b);
+            longArray[i] = Long.valueOf(b);
           }
         }
         data_ = longArray;
@@ -1146,7 +1146,7 @@ public class AS400JDBCArray implements Array, Serializable {
             longArray[i] = null;
           } else {
             try {
-              longArray[i] = new Long(Long.parseLong(inStringArray[i]));
+              longArray[i] = Long.valueOf(inStringArray[i]);
             } catch (NumberFormatException nfe) {
 
               if (JDTrace.isTraceOn()) {
@@ -1186,7 +1186,7 @@ public class AS400JDBCArray implements Array, Serializable {
         float[] inFloatArray = (float[]) inArray;
         Float[] floatArray = new Float[inFloatArray.length];
         for (int i = 0; i < inFloatArray.length; i++) {
-          floatArray[i] = new Float(inFloatArray[i]);
+          floatArray[i] = Float.valueOf(inFloatArray[i]);
         }
         data_ = floatArray;
 
@@ -1198,7 +1198,7 @@ public class AS400JDBCArray implements Array, Serializable {
           if (inShortArray[i] == null) {
             floatArray[i] = null;
           } else {
-            floatArray[i] = new Float(inShortArray[i].shortValue());
+            floatArray[i] = Float.valueOf(inShortArray[i].shortValue());
           }
         }
         data_ = floatArray;
@@ -1207,7 +1207,7 @@ public class AS400JDBCArray implements Array, Serializable {
         short[] inShortArray = (short[]) inArray;
         Float[] floatArray = new Float[inShortArray.length];
         for (int i = 0; i < inShortArray.length; i++) {
-          floatArray[i] = new Float(inShortArray[i]);
+          floatArray[i] = Float.valueOf(inShortArray[i]);
         } /* for i */
         data_ = floatArray;
 
@@ -1218,7 +1218,7 @@ public class AS400JDBCArray implements Array, Serializable {
           if (inIntegerArray[i] == null) {
             floatArray[i] = null;
           } else { /* not null */
-            floatArray[i] = new Float(inIntegerArray[i].floatValue());
+            floatArray[i] = Float.valueOf(inIntegerArray[i].floatValue());
           } /* not null */
         } /* for i */
         data_ = floatArray;
@@ -1227,7 +1227,7 @@ public class AS400JDBCArray implements Array, Serializable {
         int[] inIntArray = (int[]) inArray;
         Float[] floatArray = new Float[inIntArray.length];
         for (int i = 0; i < inIntArray.length; i++) {
-          floatArray[i] = new Float(inIntArray[i]);
+          floatArray[i] = Float.valueOf(inIntArray[i]);
         } /* for */
         data_ = floatArray;
 
@@ -1240,7 +1240,7 @@ public class AS400JDBCArray implements Array, Serializable {
           } else { /* not null */
             long lv = inLongArray[i].longValue();
             if (lv >= - Float.MAX_VALUE && lv <= Float.MAX_VALUE) {
-              floatArray[i] = new Float(lv);
+              floatArray[i] = Float.valueOf(lv);
             } else { /* in range */
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -1263,7 +1263,7 @@ public class AS400JDBCArray implements Array, Serializable {
           } else { /* not null */
             float lv = inFloatArray[i].floatValue();
             if (lv >= - Float.MAX_VALUE && lv <= Float.MAX_VALUE) {
-              floatArray[i] = new Float(lv);
+              floatArray[i] = Float.valueOf(lv);
             } else { /* in range */
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -1286,7 +1286,7 @@ public class AS400JDBCArray implements Array, Serializable {
           } else {
             double lv = inDoubleArray[i].doubleValue();
             if (lv >= - Float.MAX_VALUE && lv <= Float.MAX_VALUE) {
-              floatArray[i] = new Float(lv);
+              floatArray[i] = Float.valueOf((float) lv);
             } else {
               if (JDTrace.isTraceOn()) {
                 JDTrace.logInformation(this,
@@ -1318,7 +1318,7 @@ public class AS400JDBCArray implements Array, Serializable {
               return;
 
             } else {
-              floatArray[i] = new Float(f);
+              floatArray[i] = Float.valueOf(f);
 
             }
           }
@@ -1334,9 +1334,9 @@ public class AS400JDBCArray implements Array, Serializable {
           } else {
             boolean b = inBooleanArray[i].booleanValue();
             if (b) {
-              floatArray[i] = new Float(1);
+              floatArray[i] = Float.valueOf(1);
             } else {
-              floatArray[i] = new Float(0);
+              floatArray[i] = Float.valueOf(0);
             }
           }
         }
@@ -1350,7 +1350,7 @@ public class AS400JDBCArray implements Array, Serializable {
             floatArray[i] = null;
           } else {
             byte b = inByteArray[i].byteValue();
-            floatArray[i] = new Float(b);
+            floatArray[i] = Float.valueOf(b);
           }
         }
         data_ = floatArray;
@@ -1363,7 +1363,7 @@ public class AS400JDBCArray implements Array, Serializable {
             floatArray[i] = null;
           } else {
             try {
-              floatArray[i] = new Float(Float.parseFloat(inStringArray[i]));
+              floatArray[i] = Float.valueOf(inStringArray[i]);
             } catch (NumberFormatException nfe) {
 
               if (JDTrace.isTraceOn()) {
@@ -1403,7 +1403,7 @@ public class AS400JDBCArray implements Array, Serializable {
         double[] inDoubleArray = (double[]) inArray;
         Double[] doubleArray = new Double[inDoubleArray.length];
         for (int i = 0; i < inDoubleArray.length; i++) {
-          doubleArray[i] = new Double(inDoubleArray[i]);
+          doubleArray[i] = Double.valueOf(inDoubleArray[i]);
         }
         data_ = doubleArray;
 
@@ -1415,7 +1415,7 @@ public class AS400JDBCArray implements Array, Serializable {
           if (inFloatArray[i] == null) {
             floatArray[i] = null;
           } else {
-            floatArray[i] = new Double(inFloatArray[i].doubleValue());
+            floatArray[i] = Double.valueOf(inFloatArray[i].doubleValue());
           }
         }
         data_ = floatArray;
@@ -1424,7 +1424,7 @@ public class AS400JDBCArray implements Array, Serializable {
         float[] inFloatArray = (float[]) inArray;
         Double[] floatArray = new Double[inFloatArray.length];
         for (int i = 0; i < inFloatArray.length; i++) {
-          floatArray[i] = new Double(inFloatArray[i]);
+          floatArray[i] = Double.valueOf(inFloatArray[i]);
         }
         data_ = floatArray;
 
@@ -1436,7 +1436,7 @@ public class AS400JDBCArray implements Array, Serializable {
           if (inShortArray[i] == null) {
             doubleArray[i] = null;
           } else {
-            doubleArray[i] = new Double(inShortArray[i].shortValue());
+            doubleArray[i] = Double.valueOf(inShortArray[i].shortValue());
           }
         }
         data_ = doubleArray;
@@ -1445,7 +1445,7 @@ public class AS400JDBCArray implements Array, Serializable {
         short[] inShortArray = (short[]) inArray;
         Double[] doubleArray = new Double[inShortArray.length];
         for (int i = 0; i < inShortArray.length; i++) {
-          doubleArray[i] = new Double(inShortArray[i]);
+          doubleArray[i] = Double.valueOf(inShortArray[i]);
         }
         data_ = doubleArray;
 
@@ -1456,7 +1456,7 @@ public class AS400JDBCArray implements Array, Serializable {
           if (inIntegerArray[i] == null) {
             doubleArray[i] = null;
           } else {
-            doubleArray[i] = new Double(inIntegerArray[i].doubleValue());
+            doubleArray[i] = Double.valueOf(inIntegerArray[i].doubleValue());
           }
         }
         data_ = doubleArray;
@@ -1465,7 +1465,7 @@ public class AS400JDBCArray implements Array, Serializable {
         int[] inIntArray = (int[]) inArray;
         Double[] doubleArray = new Double[inIntArray.length];
         for (int i = 0; i < inIntArray.length; i++) {
-          doubleArray[i] = new Double(inIntArray[i]);
+          doubleArray[i] = Double.valueOf(inIntArray[i]);
         }
         data_ = doubleArray;
 
@@ -1477,7 +1477,7 @@ public class AS400JDBCArray implements Array, Serializable {
             doubleArray[i] = null;
           } else {
             long lv = inLongArray[i].longValue();
-            doubleArray[i] = new Double(lv);
+            doubleArray[i] = Double.valueOf(lv);
           }
         }
         data_ = doubleArray;
@@ -1500,7 +1500,7 @@ public class AS400JDBCArray implements Array, Serializable {
               return;
 
             } else {
-              doubleArray[i] = new Double(f);
+              doubleArray[i] = Double.valueOf(f);
 
             }
           }
@@ -1516,9 +1516,9 @@ public class AS400JDBCArray implements Array, Serializable {
           } else {
             boolean b = inBooleanArray[i].booleanValue();
             if (b) {
-              doubleArray[i] = new Double(1);
+              doubleArray[i] = Double.valueOf(1);
             } else {
-              doubleArray[i] = new Double(0);
+              doubleArray[i] = Double.valueOf(0);
             }
           }
         }
@@ -1532,7 +1532,7 @@ public class AS400JDBCArray implements Array, Serializable {
             doubleArray[i] = null;
           } else {
             byte b = inByteArray[i].byteValue();
-            doubleArray[i] = new Double(b);
+            doubleArray[i] = Double.valueOf(b);
           }
         }
         data_ = doubleArray;
@@ -1545,7 +1545,7 @@ public class AS400JDBCArray implements Array, Serializable {
             doubleArray[i] = null;
           } else {
             try {
-              doubleArray[i] = new Double(Double.parseDouble(inStringArray[i]));
+              doubleArray[i] = Double.valueOf(inStringArray[i]);
             } catch (NumberFormatException nfe) {
 
               if (JDTrace.isTraceOn()) {
@@ -1586,7 +1586,7 @@ public class AS400JDBCArray implements Array, Serializable {
         double[] inDoubleArray = (double[]) inArray;
         Double[] doubleArray = new Double[inDoubleArray.length];
         for (int i = 0; i < inDoubleArray.length; i++) {
-          doubleArray[i] = new Double(inDoubleArray[i]);
+          doubleArray[i] = Double.valueOf(inDoubleArray[i]);
         }
         data_ = doubleArray;
 
@@ -1598,7 +1598,7 @@ public class AS400JDBCArray implements Array, Serializable {
           if (inFloatArray[i] == null) {
             floatArray[i] = null;
           } else {
-            floatArray[i] = new Double(inFloatArray[i].doubleValue());
+            floatArray[i] = Double.valueOf(inFloatArray[i].doubleValue());
           }
         }
         data_ = floatArray;
@@ -1607,7 +1607,7 @@ public class AS400JDBCArray implements Array, Serializable {
         float[] inFloatArray = (float[]) inArray;
         Double[] floatArray = new Double[inFloatArray.length];
         for (int i = 0; i < inFloatArray.length; i++) {
-          floatArray[i] = new Double(inFloatArray[i]);
+          floatArray[i] = Double.valueOf(inFloatArray[i]);
         }
         data_ = floatArray;
 
@@ -1619,7 +1619,7 @@ public class AS400JDBCArray implements Array, Serializable {
           if (inShortArray[i] == null) {
             doubleArray[i] = null;
           } else {
-            doubleArray[i] = new Double(inShortArray[i].shortValue());
+            doubleArray[i] = Double.valueOf(inShortArray[i].shortValue());
           }
         }
         data_ = doubleArray;
@@ -1628,7 +1628,7 @@ public class AS400JDBCArray implements Array, Serializable {
         short[] inShortArray = (short[]) inArray;
         Double[] doubleArray = new Double[inShortArray.length];
         for (int i = 0; i < inShortArray.length; i++) {
-          doubleArray[i] = new Double(inShortArray[i]);
+          doubleArray[i] = Double.valueOf(inShortArray[i]);
         }
         data_ = doubleArray;
 
@@ -1639,7 +1639,7 @@ public class AS400JDBCArray implements Array, Serializable {
           if (inIntegerArray[i] == null) {
             doubleArray[i] = null;
           } else {
-            doubleArray[i] = new Double(inIntegerArray[i].doubleValue());
+            doubleArray[i] = Double.valueOf(inIntegerArray[i].doubleValue());
           }
         }
         data_ = doubleArray;
@@ -1648,7 +1648,7 @@ public class AS400JDBCArray implements Array, Serializable {
         int[] inIntArray = (int[]) inArray;
         Double[] doubleArray = new Double[inIntArray.length];
         for (int i = 0; i < inIntArray.length; i++) {
-          doubleArray[i] = new Double(inIntArray[i]);
+          doubleArray[i] = Double.valueOf(inIntArray[i]);
         }
         data_ = doubleArray;
 
@@ -1660,7 +1660,7 @@ public class AS400JDBCArray implements Array, Serializable {
             doubleArray[i] = null;
           } else {
             long lv = inLongArray[i].longValue();
-            doubleArray[i] = new Double(lv);
+            doubleArray[i] = Double.valueOf(lv);
           }
         }
         data_ = doubleArray;
@@ -1683,7 +1683,7 @@ public class AS400JDBCArray implements Array, Serializable {
               return;
 
             } else {
-              doubleArray[i] = new Double(f);
+              doubleArray[i] = Double.valueOf(f);
 
             }
           }
@@ -1699,9 +1699,9 @@ public class AS400JDBCArray implements Array, Serializable {
           } else {
             boolean b = inBooleanArray[i].booleanValue();
             if (b) {
-              doubleArray[i] = new Double(1);
+              doubleArray[i] = Double.valueOf(1);
             } else {
-              doubleArray[i] = new Double(0);
+              doubleArray[i] = Double.valueOf(0);
             }
           }
         }
@@ -1715,7 +1715,7 @@ public class AS400JDBCArray implements Array, Serializable {
             doubleArray[i] = null;
           } else {
             byte b = inByteArray[i].byteValue();
-            doubleArray[i] = new Double(b);
+            doubleArray[i] = Double.valueOf(b);
           }
         }
         data_ = doubleArray;
@@ -1728,7 +1728,7 @@ public class AS400JDBCArray implements Array, Serializable {
             doubleArray[i] = null;
           } else {
             try {
-              doubleArray[i] = new Double(Double.parseDouble(inStringArray[i]));
+              doubleArray[i] = Double.valueOf(inStringArray[i]);
             } catch (NumberFormatException nfe) {
 
               if (JDTrace.isTraceOn()) {

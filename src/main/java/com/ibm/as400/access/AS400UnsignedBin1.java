@@ -70,7 +70,7 @@ public class AS400UnsignedBin1 implements AS400DataType
    **/
   public Object getDefaultValue()
   {
-    return new Short(DEFAULT_VALUE);
+    return Short.valueOf(DEFAULT_VALUE);
   }
 
   // Implements method of interface AS400DataType.
@@ -182,7 +182,7 @@ public class AS400UnsignedBin1 implements AS400DataType
   public Object toObject(byte[] as400Value)
   {
     // Allow this line to throw NullPointerException and ArrayIndexOutOfBoundsException.
-    return new Short(toShort(as400Value, 0));
+    return Short.valueOf(toShort(as400Value, 0));
   }
 
   // Implements method of interface AS400DataType.
@@ -195,7 +195,7 @@ public class AS400UnsignedBin1 implements AS400DataType
   public Object toObject(byte[] as400Value, int offset)
   {
     // Allow this line to throw NullPointerException and ArrayIndexOutOfBoundsException.
-    return new Short(toShort(as400Value, offset));
+    return Short.valueOf(toShort(as400Value, offset));
   }
 
   /**

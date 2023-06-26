@@ -187,12 +187,12 @@ Sets the attribute values.  The system must be set before this is called.
                         // the value away until both parts have been specified.
                         switch(types[j]) {
                         case ProgramKeys.BINARY:
-                            actualValues.put(new Integer(keys[j]), value);
+                            actualValues.put(Integer.valueOf(keys[j]), value);
                             break;
                         case ProgramKeys.CHAR:
-                            Integer key = new Integer(keys[j]);
+                            Integer key = Integer.valueOf(keys[j]);
                             actualValues.put(key, pad((String)value, lengths[j]));
-                            stringTypes.put(key, new Integer(bidiStringTypes[i]));
+                            stringTypes.put(key, Integer.valueOf(bidiStringTypes[i]));
                             break;
                         default:
                             if (Trace.isTraceOn())

@@ -154,7 +154,7 @@ public class CharacterFieldDescription extends FieldDescription implements Varia
     {
       if (variableLength_ > 0)
       {
-        v.addElement("VARLEN(" + new Integer(variableLength_).toString() + ") ");
+        v.addElement("VARLEN(" + Integer.toString(variableLength_) + ") ");
       }
       else
       {

@@ -103,13 +103,13 @@ a unique proxy id.
 	// if object is tunneling object, add it to vector for its client Id
 	if (clientId > 0)	 
 	{
-	    Vector objectsForClientId = (Vector)clientIdToProxyId_.get(new Long(clientId));
+	    Vector objectsForClientId = (Vector)clientIdToProxyId_.get(Long.valueOf(clientId));
 	    if (objectsForClientId == null)
 	    {
 		objectsForClientId = new Vector();
 	    }
-	    objectsForClientId.addElement(new Long(proxyId));
-	    clientIdToProxyId_.put(new Long(clientId), objectsForClientId);
+	    objectsForClientId.addElement(Long.valueOf(proxyId));
+	    clientIdToProxyId_.put(Long.valueOf(clientId), objectsForClientId);
 	}
 	return proxyId;
     }
@@ -195,7 +195,7 @@ This is for use in the internal hashtables.
 **/
     private static Object toKey (long proxyId)
     {
-        return new Long (proxyId);
+        return Long.valueOf(proxyId);
     }
 
 
@@ -251,7 +251,7 @@ Removes objects associated with a clientId from the proxy table.
 **/
     public void removeClientId (long clientId)
     {
-       Vector objectsForClientId = (Vector)clientIdToProxyId_.get(new Long(clientId));
+       Vector objectsForClientId = (Vector)clientIdToProxyId_.get(Long.valueOf(clientId));
        // If no objects, return
        if (objectsForClientId == null)
 	   return;
@@ -261,7 +261,7 @@ Removes objects associated with a clientId from the proxy table.
 	   //Remove object by proxyId from PxTable
 	   remove(((Long)objectsForClientId.elementAt(i)).longValue());
        }
-       clientIdToProxyId_.remove(new Long(clientId));
+       clientIdToProxyId_.remove(Long.valueOf(clientId));
     }
     
 

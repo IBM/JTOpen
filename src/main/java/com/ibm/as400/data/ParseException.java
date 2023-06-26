@@ -71,7 +71,7 @@ class ParseException extends Exception
       if (count == 1)
         writer.println( SystemResourceFinder.format( DAMRI.ONE_PARSE_ERROR ) );
       else
-        writer.println( SystemResourceFinder.format( DAMRI.MANY_PARSE_ERRORS, new Object[] {new Integer(count)} ) );
+        writer.println( SystemResourceFinder.format( DAMRI.MANY_PARSE_ERRORS, new Object[] {Integer.valueOf(count)} ) );
       // Note: The previous 2 messages refer to "PCML".                     @A1A
       if (writer.checkError())   // See if writer had any trouble.          @A1A
       {

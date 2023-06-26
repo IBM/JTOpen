@@ -195,7 +195,7 @@ public class MemberList
    */
   public void addAttribute(int attribute)
   {
-    attributes_.add(new Integer(attribute));
+    attributes_.add(Integer.valueOf(attribute));
   }
 
   /**
@@ -415,7 +415,7 @@ public class MemberList
       memberDescription.setAttribute(MemberDescription.MEMBER_TEXT_DESCRIPTION,
                                      charConverter.byteArrayToString(entryBuf, OFFSET_MEMBER_TEXT_DESCRIPTION, 50).trim());
       memberDescription.setAttribute(MemberDescription.MEMBER_TEXT_DESCRIPTION_CCSID,
-                                     new Integer(intConverter_.toInt(entryBuf, OFFSET_MEMBER_TEXT_DESCRIPTION_CCSID)));
+                                     Integer.valueOf(intConverter_.toInt(entryBuf, OFFSET_MEMBER_TEXT_DESCRIPTION_CCSID)));
       memberDescription.setAttribute(MemberDescription.LAST_SOURCE_CHANGE_DATE,
                                      transformDate(charConverter.byteArrayToString(entryBuf, OFFSET_LAST_SOURCE_CHANGE_DATE, 13)));
       memberDescription.setAttribute(MemberDescription.CREATION_DATE_TIME,

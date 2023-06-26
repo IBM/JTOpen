@@ -185,7 +185,7 @@ import java.awt.LayoutManager;
             {
                 case SystemValueList.TYPE_INTEGER:
                     Integer intValue = null;
-                    intValue = new Integer(valueText_.getText());
+                    intValue = Integer.valueOf(valueText_.getText());
                     systemValue_.setValue(intValue);
                     break;
                 case SystemValueList.TYPE_DECIMAL:

@@ -1652,7 +1652,7 @@ private static Hashtable parseArgs(String[] args)
                 }
                 else
                 {
-                    arguments.put("isinstall",new Integer(INSTALL));
+                    arguments.put("isinstall",Integer.valueOf(INSTALL));
                 }
 
             }
@@ -1674,7 +1674,7 @@ private static Hashtable parseArgs(String[] args)
                 }
                 else
                 {
-                    arguments.put("isinstall",new Integer(UNINSTALL));
+                    arguments.put("isinstall",Integer.valueOf(UNINSTALL));
                 }
             }
             else
@@ -1695,7 +1695,7 @@ private static Hashtable parseArgs(String[] args)
                 }
                 else
                 {
-                    arguments.put("isinstall",new Integer(COMPARE));
+                    arguments.put("isinstall",Integer.valueOf(COMPARE));
                 }
             }
             else

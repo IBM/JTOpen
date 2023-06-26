@@ -74,7 +74,7 @@ implements IFSFileInputStreamImpl
     try {
       return (IFSKey) connection_.callMethod (pxId_, "lock",
                               new Class[] { Long.TYPE },
-                              new Object[] { new Long(length) })
+                              new Object[] { Long.valueOf(length)})
                         .getReturnValue();
     }
     catch (InvocationTargetException e) {
@@ -107,8 +107,8 @@ implements IFSFileInputStreamImpl
                                           Integer.TYPE,
                                           Integer.TYPE },
                             new Object[] { data,
-                                           new Integer (dataOffset),
-                                           new Integer (length) },
+                                           Integer.valueOf(dataOffset),
+                                           Integer.valueOf(length) },
                             ARGS_TO_RETURN, false );
       byte [] returnDataBuffer = (byte[])rv.getArgument(0);
       System.arraycopy(returnDataBuffer, 0, data, 0, data.length);
@@ -125,7 +125,7 @@ implements IFSFileInputStreamImpl
     try {
       return (String) connection_.callMethod (pxId_, "readText",
                               new Class[] { Integer.TYPE },
-                              new Object[] { new Integer(length) })
+                              new Object[] { Integer.valueOf(length) })
                         .getReturnValue();
     }
     catch (InvocationTargetException e) {
@@ -152,7 +152,7 @@ implements IFSFileInputStreamImpl
     try {
       return connection_.callMethod (pxId_, "skip",
                               new Class[] { Long.TYPE },
-                              new Object[] { new Long(bytesToSkip) })
+                              new Object[] { Long.valueOf(bytesToSkip)})
                         .getReturnValueLong();
     }
     catch (InvocationTargetException e) {

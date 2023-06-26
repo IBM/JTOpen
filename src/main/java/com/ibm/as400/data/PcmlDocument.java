@@ -440,7 +440,7 @@ class PcmlDocument extends PcmlDocRoot
               return new AS400Timestamp(getTimeZone()); 
 
             default:
-                throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {new Integer(dataType) , "*"} );
+                throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {Integer.valueOf(dataType) , "*"} );
 
         } // END: switch (getDataType())
     }
@@ -1540,7 +1540,7 @@ class PcmlDocument extends PcmlDocRoot
                   break;
 
                default:
-                  throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {new Integer(dataType) , "*"} );
+                  throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {Integer.valueOf(dataType) , "*"} );
             } // switch(dataType)
         }  // PcmlNodeType.DATA
         else if (node.getNodeType()== PcmlNodeType.STRUCT)
@@ -2215,7 +2215,7 @@ class PcmlDocument extends PcmlDocRoot
                   }
                   break;
                default:
-                  throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {new Integer(dataType) , "*"} );
+                  throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {Integer.valueOf(dataType) , "*"} );
             } // switch(dataType)
         } // PcmlNodeType.DATA
         else if (node.getNodeType() == PcmlNodeType.STRUCT)
@@ -2267,13 +2267,13 @@ class PcmlDocument extends PcmlDocRoot
         {
           // This node has a count greater than 0 so we need to process it again...
           // Calculate index
-          Integer countVal= new Integer(0);
+          Integer countVal= Integer.valueOf(0);
           if (node.getNodeType() == PcmlNodeType.DATA && ((PcmlData) node).getXPCMLCount(dim) != 0)
-             countVal = new Integer( ((PcmlData )node).getXPCMLCount(dim));
+             countVal = Integer.valueOf( ((PcmlData )node).getXPCMLCount(dim));
           if (node.getNodeType() == PcmlNodeType.STRUCT && ((PcmlStruct) node).getXPCMLCount(dim) != 0)
-             countVal = new Integer( ((PcmlStruct )node).getXPCMLCount(dim));
+             countVal = Integer.valueOf( ((PcmlStruct )node).getXPCMLCount(dim));
           if (node.getNodeType() != PcmlNodeType.DATA && node.getNodeType() != PcmlNodeType.STRUCT)
-             countVal = new Integer(0);
+             countVal = Integer.valueOf(0);
 
           dimensions.set(current_dimension, countVal.intValue() - node.getCountReps());
 
@@ -2698,13 +2698,13 @@ class PcmlDocument extends PcmlDocRoot
         {
           // This node has a count greater than 0 so we need to process it again...
           // Calculate index
-          Integer countVal= new Integer(0);
+          Integer countVal= Integer.valueOf(0);
           if (node.getNodeType() == PcmlNodeType.DATA && ((PcmlData) node).getXPCMLCount(dim) != 0)
-             countVal = new Integer( ((PcmlData )node).getXPCMLCount(dim));
+             countVal = Integer.valueOf( ((PcmlData )node).getXPCMLCount(dim));
           if (node.getNodeType() == PcmlNodeType.STRUCT && ((PcmlStruct) node).getXPCMLCount(dim) != 0)
-             countVal = new Integer( ((PcmlStruct )node).getXPCMLCount(dim));
+             countVal = Integer.valueOf( ((PcmlStruct )node).getXPCMLCount(dim));
           if (node.getNodeType() != PcmlNodeType.DATA && node.getNodeType() != PcmlNodeType.STRUCT)
-             countVal = new Integer(0);
+             countVal = Integer.valueOf(0);
 
           dimensions.set(current_dimension, (countVal.intValue() - node.getCountReps()));
 

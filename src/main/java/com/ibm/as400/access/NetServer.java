@@ -174,7 +174,7 @@ extends ChangeableResource
   private static final String OLST0201_ = "qzlsolst_zlsl0201";
 
   private static BooleanValueMap BV_MAP_0_1_ = new BooleanValueMap("0", "1");
-  private static BooleanValueMap BV_MAP_0_1_INT_ = new BooleanValueMap(new Integer(0), new Integer(1));
+  private static BooleanValueMap BV_MAP_0_1_INT_ = new BooleanValueMap(Integer.valueOf(0), Integer.valueOf(1));
   private static BooleanValueMap BV_MAP_NO_YES_ = new BooleanValueMap("*NO", "*YES");
   private static BooleanValueMap BV_MAP_NO_ERR_YES_ = new BooleanValueMap(new String[] {"*NO", "*ERR"}, new String[] { "*YES" });
 

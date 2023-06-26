@@ -1290,12 +1290,12 @@ public class Permission
 
         synchronized (userPermissionsLock_)
         {
-          s.writeObject(new Integer(userPermissionsBuffer_.size()));
+          s.writeObject(Integer.valueOf(userPermissionsBuffer_.size()));
           for (int i=0;i<userPermissionsBuffer_.size();i++)
           {
             s.writeObject(userPermissionsBuffer_.elementAt(i));
           }
-          s.writeObject(new Integer(userPermissions_.size()));
+          s.writeObject(Integer.valueOf(userPermissions_.size()));
           for (int i=0;i<userPermissions_.size();i++)
           {
             s.writeObject(userPermissions_.elementAt(i));

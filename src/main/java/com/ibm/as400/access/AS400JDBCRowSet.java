@@ -2637,8 +2637,8 @@ implements RowSet, Serializable             // @A3C
         default: throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
-        Integer oldValue = new Integer(concurrency_);
-        Integer newValue = new Integer(concurrency);
+        Integer oldValue = Integer.valueOf(concurrency_);
+        Integer newValue = Integer.valueOf(concurrency);
 
         concurrency_ = concurrency;
         changes_.firePropertyChange(property, oldValue, newValue);
@@ -2781,7 +2781,7 @@ implements RowSet, Serializable             // @A3C
     **/
     public void setFetchDirection(int fetchDirection) throws SQLException
     {
-        Integer old = new Integer(getFetchDirection());
+        Integer old = Integer.valueOf(getFetchDirection());
 
         if (resultSet_ != null)
             resultSet_.setFetchDirection(fetchDirection);
@@ -2789,7 +2789,7 @@ implements RowSet, Serializable             // @A3C
         validateStatement();
         statement_.setFetchDirection(fetchDirection);
 
-        changes_.firePropertyChange("fetchDirection", old, new Integer(fetchDirection));
+        changes_.firePropertyChange("fetchDirection", old, Integer.valueOf(fetchDirection));
     }
 
 
@@ -2813,7 +2813,7 @@ implements RowSet, Serializable             // @A3C
     **/
     public void setFetchSize (int fetchSize) throws SQLException
     {
-        Integer old = new Integer(getFetchSize());
+        Integer old = Integer.valueOf(getFetchSize());
 
         if (resultSet_ != null)
             resultSet_.setFetchSize(fetchSize);
@@ -2821,7 +2821,7 @@ implements RowSet, Serializable             // @A3C
         validateStatement();
         statement_.setFetchSize(fetchSize);
 
-        changes_.firePropertyChange("fetchSize", old, new Integer(fetchSize));
+        changes_.firePropertyChange("fetchSize", old, Integer.valueOf(fetchSize));
     }
 
     /**
@@ -2877,8 +2877,8 @@ implements RowSet, Serializable             // @A3C
         String property = "maxFieldSize";
         validateStatement();
 
-        Integer oldValue = new Integer(getMaxFieldSize());
-        Integer newValue = new Integer(maxFieldSize);
+        Integer oldValue = Integer.valueOf(getMaxFieldSize());
+        Integer newValue = Integer.valueOf(maxFieldSize);
 
         statement_.setMaxFieldSize(maxFieldSize);
         changes_.firePropertyChange(property, oldValue, newValue);
@@ -2894,8 +2894,8 @@ implements RowSet, Serializable             // @A3C
         String property = "maxRows";
         validateStatement();
 
-        Integer oldValue = new Integer(getMaxRows());
-        Integer newValue = new Integer(maxRows);
+        Integer oldValue = Integer.valueOf(getMaxRows());
+        Integer newValue = Integer.valueOf(maxRows);
 
         statement_.setMaxRows(maxRows);
         changes_.firePropertyChange(property, oldValue, newValue);
@@ -3014,8 +3014,8 @@ implements RowSet, Serializable             // @A3C
         String property = "timeout";
         validateStatement();
 
-        Integer oldValue = new Integer(getQueryTimeout());
-        Integer newValue = new Integer(timeout);
+        Integer oldValue = Integer.valueOf(getQueryTimeout());
+        Integer newValue = Integer.valueOf(timeout);
 
         statement_.setQueryTimeout(timeout);
         changes_.firePropertyChange(property, oldValue, newValue);
@@ -3147,8 +3147,8 @@ implements RowSet, Serializable             // @A3C
     {
         String property = "transactionIsolation";
 
-        Integer oldValue = new Integer(getTransactionIsolation());
-        Integer newValue = new Integer(level);
+        Integer oldValue = Integer.valueOf(getTransactionIsolation());
+        Integer newValue = Integer.valueOf(level);
 
         if (connection_ != null)
             connection_.setTransactionIsolation(level);
@@ -3177,8 +3177,8 @@ implements RowSet, Serializable             // @A3C
         default: throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
-        Integer oldValue = new Integer(getType());
-        Integer newValue = new Integer(type_);
+        Integer oldValue = Integer.valueOf(getType());
+        Integer newValue = Integer.valueOf(type_);
 
         type_ = type;
         changes_.firePropertyChange(property, oldValue, newValue);

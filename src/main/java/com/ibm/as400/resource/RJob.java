@@ -368,8 +368,8 @@ This identifies an Integer attribute.
 
     static {
         attributes_.add(CCSID, Integer.class, false,
-                        new Object[] {new Integer(CCSID_SYSTEM_VALUE),
-                                     new Integer(CCSID_INITIAL_USER)}, null, false);
+                        new Object[] {Integer.valueOf(CCSID_SYSTEM_VALUE),
+                                     Integer.valueOf(CCSID_INITIAL_USER)}, null, false);
         getterMap_.add(CCSID, JOBI0400_, "receiverVariable.codedCharacterSetID");
         setterKeys_.add(CCSID, 302, ProgramKeys.BINARY);
     }
@@ -542,7 +542,7 @@ exists.
 
     static {
         attributes_.add(CURRENT_LIBRARY_EXISTENCE, Boolean.class, true);
-        getterMap_.add(CURRENT_LIBRARY_EXISTENCE, JOBI0700_, "receiverVariable.currentLibraryExistence", new BooleanValueMap(new Integer(0), new Integer(1)));
+        getterMap_.add(CURRENT_LIBRARY_EXISTENCE, JOBI0700_, "receiverVariable.currentLibraryExistence", new BooleanValueMap(Integer.valueOf(0), Integer.valueOf(1)));
     }
 
 

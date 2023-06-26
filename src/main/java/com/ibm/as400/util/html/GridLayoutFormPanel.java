@@ -449,13 +449,13 @@ public class GridLayoutFormPanel extends LayoutFormPanel
             throw new ExtendedIllegalArgumentException("columns", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = columns_;
-        if (vetos_ != null) vetos_.fireVetoableChange("columns", new Integer(old), new Integer(columns) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("columns", Integer.valueOf(old), Integer.valueOf(columns) ); //@CRS
 
         columns_ = columns;
         columnDir_ = new String[columns_]; // Don't preserve the old direction info.
         columnAlign_ = new String[columns_]; // Don't preserve the old alignment info.
 
-        if (changes_ != null) changes_.firePropertyChange("columns", new Integer(old), new Integer(columns) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("columns", Integer.valueOf(old), Integer.valueOf(columns) ); //@CRS
     }
 
     /**

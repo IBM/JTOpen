@@ -644,11 +644,11 @@ public class HTMLTableConverter extends StringConverter implements Serializable
         //@CRS Integer newSize = new Integer(size);
         int oldSize = maxTableSize_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("size", new Integer(oldSize), new Integer(size)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("size", Integer.valueOf(oldSize), Integer.valueOf(size)); //@CRS
 
         maxTableSize_ = size;
 
-        if (changes_ != null) changes_.firePropertyChange("size", new Integer(oldSize), new Integer(size)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("size", Integer.valueOf(oldSize), Integer.valueOf(size)); //@CRS
     }
 
     /**

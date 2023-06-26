@@ -397,7 +397,7 @@ of the Java programs that are attached to the file.
         public Object ptol(Object physicalValue)
         {
             if (physicalValue instanceof Integer)
-                return new Long((long)((Integer)physicalValue).intValue());
+                return Long.valueOf((long)((Integer)physicalValue).intValue());
             else
                 return physicalValue;
         }
@@ -463,7 +463,7 @@ values are:
 
     @see #OPTIMIZATION
     **/
-    public static final Integer OPTIMIZATION_INTERPRET            = new Integer(-1);
+    public static final Integer OPTIMIZATION_INTERPRET            = Integer.valueOf(-1);
     private static final String OPTIMIZATION_INTERPRET_PHYSICAL   = "*INTERPRET";
 
     /**
@@ -473,7 +473,7 @@ values are:
 
     @see #OPTIMIZATION
     **/
-    public static final Integer OPTIMIZATION_10            = new Integer(10);
+    public static final Integer OPTIMIZATION_10            = Integer.valueOf(10);
 
     /**
     Attribute value indicating that the Java program contains a compiled version
@@ -482,7 +482,7 @@ values are:
 
     @see #OPTIMIZATION
     **/
-    public static final Integer OPTIMIZATION_20            = new Integer(20);
+    public static final Integer OPTIMIZATION_20            = Integer.valueOf(20);
 
     /**
     Attribute value indicating that the Java program contains a compiled version
@@ -492,7 +492,7 @@ values are:
 
     @see #OPTIMIZATION
     **/
-    public static final Integer OPTIMIZATION_30            = new Integer(30);
+    public static final Integer OPTIMIZATION_30            = Integer.valueOf(30);
 
     /**
     Attribute value indicating that the Java program contains a compiled version
@@ -501,7 +501,7 @@ values are:
 
     @see #OPTIMIZATION
     **/
-    public static final Integer OPTIMIZATION_40            = new Integer(40);
+    public static final Integer OPTIMIZATION_40            = Integer.valueOf(40);
 
     static {
         attributes_.add(OPTIMIZATION, Integer.class, false,

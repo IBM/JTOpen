@@ -1951,14 +1951,14 @@ public class FTP implements java.io.Serializable
 
        // Fire a vetoable change event.
        if (vetos_ != null) {
-         vetos_.fireVetoableChange("bufferSize", new Integer(oldValue), new Integer(bufferSize));
+         vetos_.fireVetoableChange("bufferSize", Integer.valueOf(oldValue), Integer.valueOf(bufferSize));
        }
 
        bufferSize_ = bufferSize;
 
        // Fire the property change event.
        if (changes_ != null) {
-         changes_.firePropertyChange("bufferSize", new Integer(oldValue), new Integer(bufferSize));
+         changes_.firePropertyChange("bufferSize", Integer.valueOf(oldValue), Integer.valueOf(bufferSize));
        }
     }
 
@@ -2124,14 +2124,14 @@ public class FTP implements java.io.Serializable
 
        // Fire a vetoable change event.
        if (vetos_ != null) {
-         vetos_.fireVetoableChange("port", new Integer(oldValue), new Integer(port));
+         vetos_.fireVetoableChange("port", Integer.valueOf(oldValue), Integer.valueOf(port));
        }
 
        port_ = port;
 
        // Fire the property change event.
        if (changes_ != null) {
-         changes_.firePropertyChange("port", new Integer(oldValue), new Integer(port));
+         changes_.firePropertyChange("port", Integer.valueOf(oldValue), Integer.valueOf(port));
        }
     }
 

@@ -122,7 +122,7 @@ private void buildTableList()
     while (clauses_.size() < numTables)
     {
         clauses_.addElement("");
-        locationInClause_.addElement(new Integer(1));
+        locationInClause_.addElement(Integer.valueOf(1));
     }
 }
 
@@ -182,7 +182,7 @@ to the clause.
     // disable other list, enable fields
     otherList_.setEnabled(false);
     fields_.setEnabled(true);
-    locationInClause_.setElementAt(new Integer(1), current_);
+    locationInClause_.setElementAt(Integer.valueOf(1), current_);
 }
 
 
@@ -200,7 +200,7 @@ protected void rowPicked(int index)
 
         // Enable the appropriate list box.
         testList_.setEnabled(true);
-        locationInClause_.setElementAt(new Integer(2), current_);
+        locationInClause_.setElementAt(Integer.valueOf(2), current_);
     }
     else  // second field
     {
@@ -209,7 +209,7 @@ protected void rowPicked(int index)
 
         // Enable the appropriate list box.
         otherList_.setEnabled(true);
-        locationInClause_.setElementAt(new Integer(4), current_);
+        locationInClause_.setElementAt(Integer.valueOf(4), current_);
     }
 
     // Disable the fields table
@@ -352,7 +352,7 @@ to the clause.
     // disable test list, enable fields
     testList_.setEnabled(false);
     fields_.setEnabled(true);
-    locationInClause_.setElementAt(new Integer(3), current_);
+    locationInClause_.setElementAt(Integer.valueOf(3), current_);
 }
 
 

@@ -114,7 +114,7 @@ class AS400NoThreadServer extends AS400Server
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and discard(): ..."); //@pdc
         int correlationID = send(requestStream);
-        discardList_.addElement(new Integer(correlationID));
+        discardList_.addElement(Integer.valueOf(correlationID));
     }
 
     //@M8a
@@ -122,7 +122,7 @@ class AS400NoThreadServer extends AS400Server
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and discard(): ...");
         send(requestStream,correlationID);
-        discardList_.addElement(new Integer(correlationID));
+        discardList_.addElement(Integer.valueOf(correlationID));
     }
     
     int send(DataStream requestStream) throws IOException

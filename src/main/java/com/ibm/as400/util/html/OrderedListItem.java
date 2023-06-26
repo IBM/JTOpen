@@ -335,7 +335,7 @@ public class OrderedListItem extends HTMLListItem
 
         value_ = value;
 
-        if (changes_ != null) changes_.firePropertyChange("value", new Integer(old), new Integer(value) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("value", Integer.valueOf(old), Integer.valueOf(value) ); //@CRS
 
     }
 }

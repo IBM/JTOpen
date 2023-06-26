@@ -394,84 +394,84 @@ public class ToolboxJarMaker extends JarMaker
   // Note: The following list must be kept in sync with VALID_COMPONENTS.
 
   /** Specifies the <b>AS400</b> component. **/
-  public static final Integer AS400 = new Integer(0);
+  public static final Integer AS400 = Integer.valueOf(0);
   /** Specifies the <b>Command Call</b> component. **/
-  public static final Integer COMMAND_CALL = new Integer(1);
+  public static final Integer COMMAND_CALL = Integer.valueOf(1);
   /** Specifies the <b>Connection Pool</b> component. **/
-  public static final Integer CONNECTION_POOL = new Integer(2);
+  public static final Integer CONNECTION_POOL = Integer.valueOf(2);
   /** Specifies the <b>Data Area</b> component. **/
-  public static final Integer DATA_AREA = new Integer(3);
+  public static final Integer DATA_AREA = Integer.valueOf(3);
   /** Specifies the <b>Data Description</b> component. **/
-  public static final Integer DATA_DESCRIPTION = new Integer(4);
+  public static final Integer DATA_DESCRIPTION = Integer.valueOf(4);
   /** Specifies the <b>Data Queue</b> component. **/
-  public static final Integer DATA_QUEUE = new Integer(5);
+  public static final Integer DATA_QUEUE = Integer.valueOf(5);
   /** Specifies the <b>Digital Certificate</b> component. **/
-  public static final Integer DIGITAL_CERTIFICATE = new Integer(6);
+  public static final Integer DIGITAL_CERTIFICATE = Integer.valueOf(6);
   /** Specifies the <b>FTP</b> component. **/
-  public static final Integer FTP = new Integer(7);
+  public static final Integer FTP = Integer.valueOf(7);
   /** Specifies the <b>Integrated File System</b> component. **/
-  public static final Integer INTEGRATED_FILE_SYSTEM = new Integer(8);
+  public static final Integer INTEGRATED_FILE_SYSTEM = Integer.valueOf(8);
   /** Specifies the <b>JAAS</b> component. **/
-  public static final Integer JAAS = new Integer(9);
+  public static final Integer JAAS = Integer.valueOf(9);
   /** Specifies the <b>Java Application Call</b> component. **/
-  public static final Integer JAVA_APPLICATION_CALL = new Integer(10);
+  public static final Integer JAVA_APPLICATION_CALL = Integer.valueOf(10);
   /** Specifies the <b>JDBC</b> component. **/
-  public static final Integer JDBC = new Integer(11);
+  public static final Integer JDBC = Integer.valueOf(11);
   /** Specifies the <b>Job</b> component. **/
-  public static final Integer JOB = new Integer(12);
+  public static final Integer JOB = Integer.valueOf(12);
   /** Specifies the <b>Message Queue</b> component. **/
-  public static final Integer MESSAGE = new Integer(13);
+  public static final Integer MESSAGE = Integer.valueOf(13);
   /** Specifies the <b>NetServer</b> component. **/
-  public static final Integer NETSERVER = new Integer(14);
+  public static final Integer NETSERVER = Integer.valueOf(14);
   /** Specifies the <b>Numeric Data Types</b> component. **/
-  public static final Integer NUMERIC_DATA_TYPES = new Integer(15);
+  public static final Integer NUMERIC_DATA_TYPES = Integer.valueOf(15);
   /** Specifies the <b>PCML</b> component. **/
-  public static final Integer PCML = new Integer(16);
+  public static final Integer PCML = Integer.valueOf(16);
   /** Specifies the <b>Network Print</b> component. **/
-  public static final Integer PRINT = new Integer(17);
+  public static final Integer PRINT = Integer.valueOf(17);
   /** Specifies the <b>Program Call</b> component. **/
-  public static final Integer PROGRAM_CALL = new Integer(18);
+  public static final Integer PROGRAM_CALL = Integer.valueOf(18);
   /** Specifies the <b>Record Level Access</b> component. **/
-  public static final Integer RECORD_LEVEL_ACCESS = new Integer(19);
+  public static final Integer RECORD_LEVEL_ACCESS = Integer.valueOf(19);
   /** Specifies the <b>Secure AS400</b> component.
    This component performs SSL (Secure Sockets Layer) processing. **/
-  public static final Integer SECURE_AS400 = new Integer(20);
+  public static final Integer SECURE_AS400 = Integer.valueOf(20);
   /** Specifies the <b>Service Program Call</b> component. **/
-  public static final Integer SERVICE_PROGRAM_CALL = new Integer(21);
+  public static final Integer SERVICE_PROGRAM_CALL = Integer.valueOf(21);
   /** Specifies the <b>System Status</b> component. **/
-  public static final Integer SYSTEM_STATUS = new Integer(22);
+  public static final Integer SYSTEM_STATUS = Integer.valueOf(22);
   /** Specifies the <b>System Value</b> component. **/
-  public static final Integer SYSTEM_VALUE = new Integer(23);
+  public static final Integer SYSTEM_VALUE = Integer.valueOf(23);
   /** Specifies the <b>Trace</b> component. **/
-  public static final Integer TRACE = new Integer(24);
+  public static final Integer TRACE = Integer.valueOf(24);
   /** Specifies the <b>User</b> component. **/
-  public static final Integer USER = new Integer(25);
+  public static final Integer USER = Integer.valueOf(25);
   /** Specifies the <b>User Space</b> component. **/
-  public static final Integer USER_SPACE = new Integer(26);
+  public static final Integer USER_SPACE = Integer.valueOf(26);
   /** Specifies the <b>Visual AS400</b> component. **/
-  public static final Integer AS400_VISUAL = new Integer(27);
+  public static final Integer AS400_VISUAL = Integer.valueOf(27);
   /** Specifies the <b>Visual Command Call</b> component. **/
-  public static final Integer COMMAND_CALL_VISUAL = new Integer(28);
+  public static final Integer COMMAND_CALL_VISUAL = Integer.valueOf(28);
   /** Specifies the <b>Visual Data Queue</b> component. **/
-  public static final Integer DATA_QUEUE_VISUAL = new Integer(29);
+  public static final Integer DATA_QUEUE_VISUAL = Integer.valueOf(29);
   /** Specifies the <b>Visual Integrated File System </b> component. **/
-  public static final Integer INTEGRATED_FILE_SYSTEM_VISUAL = new Integer(30);
+  public static final Integer INTEGRATED_FILE_SYSTEM_VISUAL = Integer.valueOf(30);
   /** Specifies the <b>Visual Java Application Call</b> component. **/
-  public static final Integer JAVA_APPLICATION_CALL_VISUAL = new Integer(31);
+  public static final Integer JAVA_APPLICATION_CALL_VISUAL = Integer.valueOf(31);
   /** Specifies the <b>Visual JDBC</b> component. **/
-  public static final Integer JDBC_VISUAL = new Integer(32);  // and Visual SQL
+  public static final Integer JDBC_VISUAL = Integer.valueOf(32);  // and Visual SQL
   /** Specifies the <b>Visual Job</b> component. **/
-  public static final Integer JOB_VISUAL = new Integer(33);
+  public static final Integer JOB_VISUAL = Integer.valueOf(33);
   /** Specifies the <b>Visual Message Queue</b> component. **/
-  public static final Integer MESSAGE_VISUAL = new Integer(34);
+  public static final Integer MESSAGE_VISUAL = Integer.valueOf(34);
   /** Specifies the <b>Visual Network Print</b> component. **/
-  public static final Integer PRINT_VISUAL = new Integer(35);
+  public static final Integer PRINT_VISUAL = Integer.valueOf(35);
   /** Specifies the <b>Visual Program Call</b> component. **/
-  public static final Integer PROGRAM_CALL_VISUAL = new Integer(36);
+  public static final Integer PROGRAM_CALL_VISUAL = Integer.valueOf(36);
   /** Specifies the <b>Visual Record Level Access</b> component. **/
-  public static final Integer RECORD_LEVEL_ACCESS_VISUAL = new Integer(37);
+  public static final Integer RECORD_LEVEL_ACCESS_VISUAL = Integer.valueOf(37);
   /** Specifies the <b>Visual User</b> component. **/
-  public static final Integer USER_VISUAL = new Integer(38);
+  public static final Integer USER_VISUAL = Integer.valueOf(38);
 
 
   private static final String CIAA  = "com/ibm/as400/access/";  // for convenience
@@ -713,10 +713,10 @@ public class ToolboxJarMaker extends JarMaker
       // If the IFS component was specified, be sure to include
       // the "old Unicode" ccsid.  @A0a
       if (components_.contains(INTEGRATED_FILE_SYSTEM))
-        addElement(ccsids_, new Integer(61952));
+        addElement(ccsids_, Integer.valueOf(61952));
 
       // In all cases, be sure to include the "new Unicode" ccsid.  @A2a
-      addElement(ccsids_, new Integer(13488));
+      addElement(ccsids_, Integer.valueOf(13488));
 
       // Add the ConvTableXXX's for the selected CCSIDs.
       Enumeration e3 = ccsids_.elements();
@@ -1109,10 +1109,10 @@ public class ToolboxJarMaker extends JarMaker
             // If the IFS component was specified, be sure to include
             // the "old Unicode" ccsid.  @A0a
             if (components_.contains(INTEGRATED_FILE_SYSTEM))
-              addElement(ccsids_, new Integer(61952));
+              addElement(ccsids_, Integer.valueOf(61952));
 
             // In all cases, be sure to include the "new Unicode" ccsid.  @A2a
-            addElement(ccsids_, new Integer(13488));
+            addElement(ccsids_, Integer.valueOf(13488));
 
             // Now add back in the ConvTableXXX's for the selected CCSIDs.
             Enumeration e3 = ccsids_.elements();
@@ -1881,7 +1881,7 @@ public class ToolboxJarMaker extends JarMaker
     for (int i=0; i<VALID_COMPONENTS.length; ++i) {
       if (comp.equalsIgnoreCase(VALID_COMPONENTS[i]))
       {
-        id = new Integer(i);
+        id = Integer.valueOf(i);
         break;
       }
     }
@@ -1889,7 +1889,7 @@ public class ToolboxJarMaker extends JarMaker
       for (int i=0; i<VALID_COMPONENT_ABBREVS.length; ++i) {
         if (comp.equalsIgnoreCase(VALID_COMPONENT_ABBREVS[i]))
         {
-          id = new Integer(i);
+          id = Integer.valueOf(i);
           break;
         }
       }
@@ -2104,36 +2104,36 @@ public class ToolboxJarMaker extends JarMaker
       {
         case  930:
         case 5026:
-          addElement(ccsids_, new Integer(290));
-          addElement(ccsids_, new Integer(300));
+          addElement(ccsids_, Integer.valueOf(290));
+          addElement(ccsids_, Integer.valueOf(300));
           break;
 
         case  933:
         case 1364:
-          addElement(ccsids_, new Integer(833));
-          addElement(ccsids_, new Integer(834));
+          addElement(ccsids_, Integer.valueOf(833));
+          addElement(ccsids_, Integer.valueOf(834));
           break;
 
         case  935:
         case 1388:
-          addElement(ccsids_, new Integer(836));
-          addElement(ccsids_, new Integer(837));
+          addElement(ccsids_, Integer.valueOf(836));
+          addElement(ccsids_, Integer.valueOf(837));
           break;
 
         case  937:
-          addElement(ccsids_, new Integer( 37));
-          addElement(ccsids_, new Integer(835));
+          addElement(ccsids_, Integer.valueOf( 37));
+          addElement(ccsids_, Integer.valueOf(835));
           break;
 
         case  939:
         case 5035:
-          addElement(ccsids_, new Integer(1027));
-          addElement(ccsids_, new Integer( 300));
+          addElement(ccsids_, Integer.valueOf(1027));
+          addElement(ccsids_, Integer.valueOf( 300));
           break;
 
         case 1399:
-          addElement(ccsids_, new Integer( 5123));
-          addElement(ccsids_, new Integer(16684));
+          addElement(ccsids_, Integer.valueOf( 5123));
+          addElement(ccsids_, Integer.valueOf(16684));
           break;
 
         default:
@@ -2546,7 +2546,7 @@ public class ToolboxJarMaker extends JarMaker
             {
               String token = st.nextToken();
               Integer ccsid = null;
-              try { ccsid = new Integer(token); }
+              try { ccsid = Integer.valueOf(token); }
               catch (NumberFormatException e) {
                 System.err.println("Error: Non-integer CCSID value: " + token);
                 succeeded = false;
@@ -2574,7 +2574,7 @@ public class ToolboxJarMaker extends JarMaker
             {
               String token = st.nextToken();
               Integer ccsid = null;
-              try {ccsid = new Integer(token);}
+              try {ccsid = Integer.valueOf(token);}
               catch (NumberFormatException e) {
                 System.err.println("Error: Non-integer CCSID value: " + token);
                 succeeded = false;

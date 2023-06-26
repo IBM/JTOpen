@@ -506,7 +506,7 @@ public class RunJavaApplication
 
                else if (property.equals("GARBAGECOLLECTIONINITIALSIZE"))
                {
-                   Integer val = new Integer(value);
+                   Integer val = Integer.valueOf(value);
                    jac.setGarbageCollectionInitialSize(val.intValue());
                }
 
@@ -515,13 +515,13 @@ public class RunJavaApplication
 
                else if (property.equals("GARBAGECOLLECTIONFREQUENCY"))
                {
-                   Integer val = new Integer(value);
+                   Integer val = Integer.valueOf(value);
                    jac.setGarbageCollectionFrequency(val.intValue());
                }
 
                else if (property.equals("GARBAGECOLLECTIONPRIORITY"))
                {
-                   Integer val = new Integer(value);
+                   Integer val = Integer.valueOf(value);
                    jac.setGarbageCollectionPriority(val.intValue());
                }
 
@@ -530,7 +530,7 @@ public class RunJavaApplication
 
                else if (property.equals("DEFAULTPORT"))
                {
-                   Integer val = new Integer(value);
+                   Integer val = Integer.valueOf(value);
                    jac.setDefaultPort(val.intValue());
                }
 

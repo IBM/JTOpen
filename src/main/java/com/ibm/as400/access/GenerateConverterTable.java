@@ -104,7 +104,7 @@ public class GenerateConverterTable {
     }
 
     for (int i = start; i < args.length; ++i) {
-      go((new Integer(args[i])).intValue());
+      go((Integer.parseInt(args[i])));
     }
   }
 

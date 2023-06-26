@@ -277,22 +277,22 @@ which represents the message type.  Converted to an int, the possible values are
 
     static {
         attributes_.add(MESSAGE_TYPE, Integer.class, true,
-                        new Integer[] { new Integer(AS400Message.COMPLETION),
-                                        new Integer(AS400Message.DIAGNOSTIC),
-                                        new Integer(AS400Message.INFORMATIONAL),
-                                        new Integer(AS400Message.INQUIRY),
-                                        new Integer(AS400Message.SENDERS_COPY),
-                                        new Integer(AS400Message.REQUEST),
-                                        new Integer(AS400Message.REQUEST_WITH_PROMPTING),
-                                        new Integer(AS400Message.NOTIFY),
-                                        new Integer(AS400Message.ESCAPE),
-                                        new Integer(AS400Message.NOTIFY_NOT_HANDLED),           // @A1A
-                                        new Integer(AS400Message.ESCAPE_NOT_HANDLED),           // @A1A
-                                        new Integer(AS400Message.REPLY_NOT_VALIDITY_CHECKED),
-                                        new Integer(AS400Message.REPLY_VALIDITY_CHECKED),
-                                        new Integer(AS400Message.REPLY_MESSAGE_DEFAULT_USED),
-                                        new Integer(AS400Message.REPLY_SYSTEM_DEFAULT_USED),
-                                        new Integer(AS400Message.REPLY_FROM_SYSTEM_REPLY_LIST) }, null, true);
+                        new Integer[] { Integer.valueOf(AS400Message.COMPLETION),
+                                        Integer.valueOf(AS400Message.DIAGNOSTIC),
+                                        Integer.valueOf(AS400Message.INFORMATIONAL),
+                                        Integer.valueOf(AS400Message.INQUIRY),
+                                        Integer.valueOf(AS400Message.SENDERS_COPY),
+                                        Integer.valueOf(AS400Message.REQUEST),
+                                        Integer.valueOf(AS400Message.REQUEST_WITH_PROMPTING),
+                                        Integer.valueOf(AS400Message.NOTIFY),
+                                        Integer.valueOf(AS400Message.ESCAPE),
+                                        Integer.valueOf(AS400Message.NOTIFY_NOT_HANDLED),           // @A1A
+                                        Integer.valueOf(AS400Message.ESCAPE_NOT_HANDLED),           // @A1A
+                                        Integer.valueOf(AS400Message.REPLY_NOT_VALIDITY_CHECKED),
+                                        Integer.valueOf(AS400Message.REPLY_VALIDITY_CHECKED),
+                                        Integer.valueOf(AS400Message.REPLY_MESSAGE_DEFAULT_USED),
+                                        Integer.valueOf(AS400Message.REPLY_SYSTEM_DEFAULT_USED),
+                                        Integer.valueOf(AS400Message.REPLY_FROM_SYSTEM_REPLY_LIST) }, null, true);
     }
 
 /**

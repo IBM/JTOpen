@@ -317,11 +317,11 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
 
         int old = cols_;
 
-        if (vetos_ != null) vetos_.fireVetoableChange("cols", new Integer(old), new Integer(cols) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("cols", Integer.valueOf(old), Integer.valueOf(cols) ); //@CRS
 
         cols_ = cols;
 
-        if (changes_ != null) changes_.firePropertyChange("cols", new Integer(old), new Integer(cols) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("cols", Integer.valueOf(old), Integer.valueOf(cols) ); //@CRS
     }
 
 
@@ -411,11 +411,11 @@ public class TextAreaFormElement extends HTMLTagAttributes implements java.io.Se
 
         int old = rows_;
 
-        if (vetos_ != null) vetos_.fireVetoableChange("rows", new Integer(old), new Integer(rows) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("rows", Integer.valueOf(old), Integer.valueOf(rows) ); //@CRS
 
         rows_ = rows;
 
-        if (changes_ != null) changes_.firePropertyChange("rows", new Integer(old), new Integer(rows) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("rows", Integer.valueOf(old), Integer.valueOf(rows) ); //@CRS
     }
 
     /**

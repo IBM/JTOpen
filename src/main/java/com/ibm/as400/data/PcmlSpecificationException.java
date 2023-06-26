@@ -71,7 +71,7 @@ public class PcmlSpecificationException extends Exception
             Trace.log(Trace.PCML, SystemResourceFinder.format(DAMRI.ONE_PARSE_ERROR));
     	else
 		{
-			Object[] args = { new Integer(count) };
+			Object[] args = { Integer.valueOf(count) };
     		Trace.log(Trace.PCML, SystemResourceFinder.format(DAMRI.MANY_PARSE_ERRORS, args));
 		}
     }

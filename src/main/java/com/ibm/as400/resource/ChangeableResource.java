@@ -828,7 +828,7 @@ fires an attributeValueChanged() ResourceEvent.
         // Make the change.
         synchronized(this) {
             uncommittedChanges_.put(attributeID, value);
-            uncommittedChangeBidiStringTypes_.put(attributeID, new Integer(bidiStringType));    // @A2A
+            uncommittedChangeBidiStringTypes_.put(attributeID, Integer.valueOf(bidiStringType));    // @A2A
         }
 
         // Fire the event.

@@ -670,7 +670,7 @@ abstract public class AS400File implements Serializable, AutoCloseable
 
         chooseImpl();
         impl_.doIt("create", new Class[] { Integer.TYPE, String.class, String.class },
-        new Object[] { new Integer(recordLength), fileType, textDescription }); //@B0A
+        new Object[] { Integer.valueOf(recordLength), fileType, textDescription }); //@B0A
 
         // Create was successful.  Set the record format for the file.
         RecordFormat old = recordFormat_; // Save the old format for when we fire the
@@ -1462,7 +1462,7 @@ abstract public class AS400File implements Serializable, AutoCloseable
         }
 
         chooseImpl();
-        impl_.doIt("lock", new Class[] { Integer.TYPE }, new Object[] { new Integer(lockToObtain) });
+        impl_.doIt("lock", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(lockToObtain) });
     }
 
 
@@ -2312,7 +2312,7 @@ abstract public class AS400File implements Serializable, AutoCloseable
             throw new ExtendedIllegalArgumentException("recordFormat (" + String.valueOf(recordFormat) + ") too small", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
         chooseImpl();
-        setRecordFormat(impl_.doItRecordFormat("setRecordFormat", new Class[] { Integer.TYPE }, new Object[] { new Integer(recordFormat) }));
+        setRecordFormat(impl_.doItRecordFormat("setRecordFormat", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(recordFormat) }));
     }
 
 
@@ -2467,7 +2467,7 @@ abstract public class AS400File implements Serializable, AutoCloseable
 
         // Start commitment control.
         chooseImpl();
-        impl_.doIt("startCommitmentControl", new Class[] { Integer.TYPE }, new Object[] { new Integer(commitLockLevel) });
+        impl_.doIt("startCommitmentControl", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(commitLockLevel) });
     }
 
 
@@ -2518,7 +2518,7 @@ abstract public class AS400File implements Serializable, AutoCloseable
                                                              "com.ibm.as400.access.AS400FileImplProxy");
 
         impl.doIt("startCommitmentControl", new Class[] { AS400Impl.class, Integer.TYPE },
-        new Object[] { system.getImpl(), new Integer(commitLockLevel) });
+        new Object[] { system.getImpl(), Integer.valueOf(commitLockLevel) });
     }
 
 

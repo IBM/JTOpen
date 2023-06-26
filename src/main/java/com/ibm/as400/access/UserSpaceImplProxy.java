@@ -42,7 +42,7 @@ class UserSpaceImplProxy extends AbstractProxyImpl implements UserSpaceImpl
     {
         try
         {
-            connection_.callMethod(pxId_, "create", new Class[] { byte[].class, Integer.TYPE, Boolean.TYPE, String.class, Byte.TYPE, String.class, String.class }, new Object[] { domainBytes, new Integer(length), Boolean.valueOf(replace), extendedAttribute, new Byte(initialValue), textDescription, authority } );
+            connection_.callMethod(pxId_, "create", new Class[] { byte[].class, Integer.TYPE, Boolean.TYPE, String.class, Byte.TYPE, String.class, String.class }, new Object[] { domainBytes, Integer.valueOf(length), Boolean.valueOf(replace), extendedAttribute, Byte.valueOf(initialValue), textDescription, authority } );
         }
         catch (InvocationTargetException e)
         {
@@ -102,7 +102,7 @@ class UserSpaceImplProxy extends AbstractProxyImpl implements UserSpaceImpl
     {
         try
         {
-            ProxyReturnValue rv = connection_.callMethod(pxId_, "read", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE, Integer.TYPE }, new Object[] { dataBuffer, new Integer(userSpaceOffset), new Integer(dataOffset), new Integer(length) }, new boolean[] { true, false, false, false }, false);
+            ProxyReturnValue rv = connection_.callMethod(pxId_, "read", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE, Integer.TYPE }, new Object[] { dataBuffer, Integer.valueOf(userSpaceOffset), Integer.valueOf(dataOffset), Integer.valueOf(length) }, new boolean[] { true, false, false, false }, false);
             byte [] returnDataB = (byte[])rv.getArgument(0);
             for (int i = 0; i < dataBuffer.length; ++i)
             {
@@ -132,7 +132,7 @@ class UserSpaceImplProxy extends AbstractProxyImpl implements UserSpaceImpl
     {
         try
         {
-            connection_.callMethod(pxId_, "setInitialValue", new Class[] { Byte.TYPE }, new Object[] { new Byte(initialValue) } );
+            connection_.callMethod(pxId_, "setInitialValue", new Class[] { Byte.TYPE }, new Object[] { Byte.valueOf(initialValue) } );
         }
         catch (InvocationTargetException e)
         {
@@ -144,7 +144,7 @@ class UserSpaceImplProxy extends AbstractProxyImpl implements UserSpaceImpl
     {
         try
         {
-            connection_.callMethod(pxId_, "setLength", new Class[] { Integer.TYPE }, new Object[] { new Integer(length) } );
+            connection_.callMethod(pxId_, "setLength", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(length) } );
         }
         catch (InvocationTargetException e)
         {
@@ -168,7 +168,7 @@ class UserSpaceImplProxy extends AbstractProxyImpl implements UserSpaceImpl
     {
         try
         {
-            connection_.callMethod(pxId_, "write", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE }, new Object[] { dataBuffer, new Integer(userSpaceOffset), new Integer(dataOffset), new Integer(length), new Integer(forceAuxiliary) } );
+            connection_.callMethod(pxId_, "write", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE, Integer.TYPE, Integer.TYPE }, new Object[] { dataBuffer, Integer.valueOf(userSpaceOffset), Integer.valueOf(dataOffset), Integer.valueOf(length), Integer.valueOf(forceAuxiliary) } );
         }
         catch (InvocationTargetException e)
         {

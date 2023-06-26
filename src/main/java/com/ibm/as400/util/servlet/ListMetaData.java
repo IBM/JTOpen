@@ -409,7 +409,7 @@ public class ListMetaData implements RowMetaData, Serializable
       //@CRS Integer newInt = new Integer(columns);
       int oldInt = columnCount_; //@CRS
 
-      if (vetos_ != null) vetos_.fireVetoableChange("columns", new Integer(oldInt), new Integer(columns)); //@CRS
+      if (vetos_ != null) vetos_.fireVetoableChange("columns", Integer.valueOf(oldInt), Integer.valueOf(columns)); //@CRS
 
       columnCount_ = columns;
 
@@ -421,7 +421,7 @@ public class ListMetaData implements RowMetaData, Serializable
       columnAlignment_ = new String[columnCount_];        //@D5A
       columnDirection_ = new String[columnCount_];         //@D4A
 
-      if (changes_ != null) changes_.firePropertyChange("columns", new Integer(oldInt), new Integer(columns)); //@CRS
+      if (changes_ != null) changes_.firePropertyChange("columns", Integer.valueOf(oldInt), Integer.valueOf(columns)); //@CRS
    }
 
    /**

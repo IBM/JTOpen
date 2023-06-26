@@ -94,7 +94,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
              {
                 try
                 {
-                   attrTable_.put(new Integer(attr.getID()), attr.clone());
+                   attrTable_.put(Integer.valueOf(attr.getID()), attr.clone());
                 }
                 catch(java.lang.CloneNotSupportedException e )
                 {
@@ -217,7 +217,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
            // value and we should just set the name field to this
            if (value.startsWith("*"))
            {
-               attrTable_.put(new Integer(ifsAttr.nameID_),
+               attrTable_.put(Integer.valueOf(ifsAttr.nameID_),
                               new NPAttrString(ifsAttr.nameID_, value));            // @B1C
            } else {
 
@@ -230,11 +230,11 @@ abstract class NPCPAttributeValue extends NPCodePoint
                  ifsPath = new QSYSObjectPathName(value, ifsAttr.typeString_);
               }
 
-              attrTable_.put(new Integer(ifsAttr.nameID_),
+              attrTable_.put(Integer.valueOf(ifsAttr.nameID_),
                              new NPAttrString(ifsAttr.nameID_,
                                               ifsPath.getObjectName())); // @B1C
 
-              attrTable_.put(new Integer(ifsAttr.libraryID_),
+              attrTable_.put(Integer.valueOf(ifsAttr.libraryID_),
                              new NPAttrString(ifsAttr.libraryID_,
                                               ifsPath.getLibraryName()));// @B1C
 
@@ -244,13 +244,13 @@ abstract class NPCPAttributeValue extends NPCodePoint
                    // convert the type from "OVL" to "*OVL" first
                    String strType = "*";
                    strType += ifsPath.getObjectType();
-                   attrTable_.put(new Integer(ifsAttr.typeID_),
+                   attrTable_.put(Integer.valueOf(ifsAttr.typeID_),
                                   new NPAttrString(ifsAttr.typeID_,
                                                    strType));            // @B1C
                }
            }
        } else {
-          attrTable_.put(new Integer(attrID), new NPAttrString(attrID, value));  // @B1C
+          attrTable_.put(Integer.valueOf(attrID), new NPAttrString(attrID, value));  // @B1C
        }
        fDataOutOfDate_ = true;
 
@@ -299,7 +299,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
 
            // get the string for the object name
            // if this is null we'll end up returning null for the IFS path
-           attr = attrTable_.get(new Integer(ifsAttr.nameID_));
+           attr = attrTable_.get(Integer.valueOf(ifsAttr.nameID_));
            if (attr != null)
            {
               name = ((NPAttrString)attr).get();
@@ -312,7 +312,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
           //    {
             //    lib = "          "; /* Library will be blank in this case @B5A@B6D */
               //} else {                                           /* @B5A@B6D */
-                 attr = attrTable_.get(new Integer(ifsAttr.libraryID_));
+                 attr = attrTable_.get(Integer.valueOf(ifsAttr.libraryID_));
                  if (attr != null)
                 {
                    lib  = ((NPAttrString)attr).get();
@@ -326,7 +326,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
            // get the string for the object type
            if (ifsAttr.typeID_ != 0)
            {
-               attr = attrTable_.get(new Integer(ifsAttr.typeID_));
+               attr = attrTable_.get(Integer.valueOf(ifsAttr.typeID_));
                if (attr != null)
                {
                   // check that attr is a String type
@@ -357,7 +357,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
 
        } else {
 
-          attr = attrTable_.get(new Integer(attrID));
+          attr = attrTable_.get(Integer.valueOf(attrID));
           if (attr != null)
           {
               // make sure this an NPAttrString class object
@@ -391,7 +391,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
        {
           updateList();
        }
-       attrTable_.put(new Integer(attrID), new NPAttrBin4(attrID, value));
+       attrTable_.put(Integer.valueOf(attrID), new NPAttrBin4(attrID, value));
        fDataOutOfDate_ = true;
     }
 
@@ -424,14 +424,14 @@ abstract class NPCPAttributeValue extends NPCodePoint
        {
           updateList();
        }
-       attr = attrTable_.get(new Integer(attrID));
+       attr = attrTable_.get(Integer.valueOf(attrID));
        if (attr != null)
        {
           // make sure this an NPAttrBin4 class object
           if (attr instanceof NPAttrBin4)
           {
              NPAttrBin4 attrBin4= (NPAttrBin4)attr;
-             rcInt = new Integer(attrBin4.get());
+             rcInt = Integer.valueOf(attrBin4.get());
           } else {
              throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
                 ExtendedIllegalArgumentException.PARAMETER_VALUE_DATATYPE_NOT_VALID));
@@ -457,7 +457,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
        {
           updateList();
        }
-       attrTable_.put(new Integer(attrID), new NPAttrFloat(attrID, value));
+       attrTable_.put(Integer.valueOf(attrID), new NPAttrFloat(attrID, value));
        fDataOutOfDate_ = true;
     }
 
@@ -491,14 +491,14 @@ abstract class NPCPAttributeValue extends NPCodePoint
        {
           updateList();
        }
-       attr = attrTable_.get(new Integer(attrID));
+       attr = attrTable_.get(Integer.valueOf(attrID));
        if (attr != null)
        {
           // make sure this an NPAttrFloat class object
           if (attr instanceof NPAttrFloat)
           {
              NPAttrFloat attrFloat= (NPAttrFloat)attr;
-             rcFloat = new Float(attrFloat.get());
+             rcFloat = Float.valueOf(attrFloat.get());
           } else {
              throw(new ExtendedIllegalArgumentException(PrintObject.getAttributeName(attrID),
                 ExtendedIllegalArgumentException.PARAMETER_VALUE_DATATYPE_NOT_VALID));
@@ -528,7 +528,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
             attr = (NPAttribute)e.nextElement();
             if (attr != null)
             {
-                attrTable_.put(new Integer(attr.getID()), attr);
+                attrTable_.put(Integer.valueOf(attr.getID()), attr);
             }
         }
 
@@ -563,18 +563,18 @@ abstract class NPCPAttributeValue extends NPCodePoint
 
 
              // remove the string for the object name
-             attrTable_.remove(new Integer(ifsAttr.nameID_));
+             attrTable_.remove(Integer.valueOf(ifsAttr.nameID_));
              // remove the string for the object library
-             attrTable_.remove(new Integer(ifsAttr.libraryID_));
+             attrTable_.remove(Integer.valueOf(ifsAttr.libraryID_));
 
              // get the string for the object type
              if (ifsAttr.typeID_ != 0)
              {
-                 attrTable_.remove(new Integer(ifsAttr.typeID_));
+                 attrTable_.remove(Integer.valueOf(ifsAttr.typeID_));
              }
        } else {
            // just a simple attribute, remove it from the table
-           attrTable_.remove(new Integer(attrID));
+           attrTable_.remove(Integer.valueOf(attrID));
        }
      }
 
@@ -746,7 +746,7 @@ abstract class NPCPAttributeValue extends NPCodePoint
                             // unknown attribute type - could be new?
                             // System.out.println(" unknown type = " + type);
                       }
-                      attrTable_.put(new Integer(ID), attr);
+                      attrTable_.put(Integer.valueOf(ID), attr);
 
                       elements--;
                       offset += size - LEN_ATTR_ENTRY;  // if the attribute entry was bigger than we know it

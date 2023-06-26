@@ -98,7 +98,7 @@ class SystemValueUtility
                     }
                     else
                     {
-                        value = new Integer(BinaryConverter.byteArrayToInt(data, valueOffset + 16));
+                        value = Integer.valueOf(BinaryConverter.byteArrayToInt(data, valueOffset + 16));
                     }
                     break;
                 default:

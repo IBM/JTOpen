@@ -24,7 +24,7 @@ public class IFSExistenceOptionEditor extends java.beans.PropertyEditorSupport
 {
   private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
-  private Integer value_ = new Integer(0);
+  private Integer value_ = Integer.valueOf(0);
   private static Hashtable javaInitializationString_ = new Hashtable();
   private static Hashtable optionAsText_ = new Hashtable();
   private static ResourceBundleLoader rbl_;
@@ -33,38 +33,38 @@ public class IFSExistenceOptionEditor extends java.beans.PropertyEditorSupport
 
   static
   {
-    javaInitializationString_.put(new Integer(IFSRandomAccessFile.OPEN_OR_CREATE),
+    javaInitializationString_.put(Integer.valueOf(IFSRandomAccessFile.OPEN_OR_CREATE),
                                   "IFSRandomAccessFile.OPEN_OR_CREATE");
-    javaInitializationString_.put(new Integer(IFSRandomAccessFile.REPLACE_OR_CREATE),
+    javaInitializationString_.put(Integer.valueOf(IFSRandomAccessFile.REPLACE_OR_CREATE),
                                   "IFSRandomAccessFile.REPLACE_OR_CREATE");
-    javaInitializationString_.put(new Integer(IFSRandomAccessFile.FAIL_OR_CREATE),
+    javaInitializationString_.put(Integer.valueOf(IFSRandomAccessFile.FAIL_OR_CREATE),
                                   "IFSRandomAccessFile.FAIL_OR_CREATE");
-    javaInitializationString_.put(new Integer(IFSRandomAccessFile.OPEN_OR_FAIL),
+    javaInitializationString_.put(Integer.valueOf(IFSRandomAccessFile.OPEN_OR_FAIL),
                                   "IFSRandomAccessFile.OPEN_OR_FAIL");
-    javaInitializationString_.put(new Integer(IFSRandomAccessFile.REPLACE_OR_FAIL),
+    javaInitializationString_.put(Integer.valueOf(IFSRandomAccessFile.REPLACE_OR_FAIL),
                                   "IFSRandomAccessFile.REPLACE_OR_FAIL");
 
-    optionAsText_.put(new Integer(IFSRandomAccessFile.OPEN_OR_CREATE),
+    optionAsText_.put(Integer.valueOf(IFSRandomAccessFile.OPEN_OR_CREATE),
                       rbl_.getText("EDIT_OPEN_CREATE"));
-    optionAsText_.put(new Integer(IFSRandomAccessFile.REPLACE_OR_CREATE),
+    optionAsText_.put(Integer.valueOf(IFSRandomAccessFile.REPLACE_OR_CREATE),
                       rbl_.getText("EDIT_REPLACE_CREATE"));
-    optionAsText_.put(new Integer(IFSRandomAccessFile.FAIL_OR_CREATE),
+    optionAsText_.put(Integer.valueOf(IFSRandomAccessFile.FAIL_OR_CREATE),
                       rbl_.getText("EDIT_FAIL_CREATE"));
-    optionAsText_.put(new Integer(IFSRandomAccessFile.OPEN_OR_FAIL),
+    optionAsText_.put(Integer.valueOf(IFSRandomAccessFile.OPEN_OR_FAIL),
                       rbl_.getText("EDIT_OPEN_FAIL"));
-    optionAsText_.put(new Integer(IFSRandomAccessFile.REPLACE_OR_FAIL),
+    optionAsText_.put(Integer.valueOf(IFSRandomAccessFile.REPLACE_OR_FAIL),
                       rbl_.getText("EDIT_REPLACE_FAIL"));
 
     textAsOption_.put(rbl_.getText("EDIT_OPEN_CREATE"),
-                      new Integer(IFSRandomAccessFile.OPEN_OR_CREATE));
+                      Integer.valueOf(IFSRandomAccessFile.OPEN_OR_CREATE));
     textAsOption_.put(rbl_.getText("EDIT_REPLACE_CREATE"),
-                      new Integer(IFSRandomAccessFile.REPLACE_OR_CREATE));
+                      Integer.valueOf(IFSRandomAccessFile.REPLACE_OR_CREATE));
     textAsOption_.put(rbl_.getText("EDIT_FAIL_CREATE"),
-                      new Integer(IFSRandomAccessFile.FAIL_OR_CREATE));
+                      Integer.valueOf(IFSRandomAccessFile.FAIL_OR_CREATE));
     textAsOption_.put(rbl_.getText("EDIT_OPEN_FAIL"),
-                      new Integer(IFSRandomAccessFile.OPEN_OR_FAIL));
+                      Integer.valueOf(IFSRandomAccessFile.OPEN_OR_FAIL));
     textAsOption_.put(rbl_.getText("EDIT_REPLACE_FAIL"),
-                      new Integer(IFSRandomAccessFile.REPLACE_OR_FAIL));
+                      Integer.valueOf(IFSRandomAccessFile.REPLACE_OR_FAIL));
 
     tags_[0] = rbl_.getText("EDIT_OPEN_CREATE");
     tags_[1] = rbl_.getText("EDIT_REPLACE_CREATE");

@@ -106,7 +106,7 @@ public class ConvTableDoubleMap extends ConvTable
         triplet[1] = trailingSurrogate; 
         triplet[2] = ebcdicChar; 
         combiningCombinationArrayList.add(triplet); 
-        combiningCharacterHashtable.put(new Integer(trailingSurrogate), pair); 
+        combiningCharacterHashtable.put(Integer.valueOf(trailingSurrogate), pair); 
         
       }
     } /* for i */ 

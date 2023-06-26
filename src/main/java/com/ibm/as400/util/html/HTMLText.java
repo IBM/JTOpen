@@ -864,11 +864,11 @@ public class HTMLText extends HTMLTagAttributes implements HTMLConstants, Serial
         //@CRS Integer newSize = new Integer(size);
         int oldSize = size_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("size", new Integer(oldSize), new Integer(size) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("size", Integer.valueOf(oldSize), Integer.valueOf(size) ); //@CRS
 
         size_ = size;       
 
-        if (changes_ != null) changes_.firePropertyChange("size", new Integer(oldSize), new Integer(size) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("size", Integer.valueOf(oldSize), Integer.valueOf(size) ); //@CRS
     }
 
     /**

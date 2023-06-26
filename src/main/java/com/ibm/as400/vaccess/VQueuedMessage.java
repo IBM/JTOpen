@@ -286,7 +286,7 @@ Returns a property value.
 
         // Get the severity.
         else if (propertyIdentifier == SEVERITY_PROPERTY)
-            return new Integer (message_.getSeverity ());
+            return Integer.valueOf(message_.getSeverity ());
 
         // Get the type.
         else if (propertyIdentifier == TYPE_PROPERTY)

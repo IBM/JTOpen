@@ -525,7 +525,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
 
     height_ = height;
 
-    if (changes_ != null) changes_.firePropertyChange("height", new Integer(old), new Integer(height) ); //@CRS
+    if (changes_ != null) changes_.firePropertyChange("height", Integer.valueOf(old), Integer.valueOf(height) ); //@CRS
   }
 
 
@@ -570,7 +570,7 @@ public class HTMLApplet extends HTMLTagAttributes implements java.io.Serializabl
 
     width_ = width;
 
-    if (changes_ != null) changes_.firePropertyChange("width", new Integer(old), new Integer(width) ); //@CRS
+    if (changes_ != null) changes_.firePropertyChange("width", Integer.valueOf(old), Integer.valueOf(width) ); //@CRS
   }
 
 

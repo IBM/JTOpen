@@ -675,8 +675,8 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     **/
     public void setBorderWidth(int borderWidth)             //@D1A
     {
-        Integer oldWidth = new Integer(borderWidth_);
-        Integer newWidth = new Integer(borderWidth);
+        Integer oldWidth = Integer.valueOf(borderWidth_);
+        Integer newWidth = Integer.valueOf(borderWidth);
 
         borderWidth_ = borderWidth;
 
@@ -691,8 +691,8 @@ public class HTMLTableRow extends HTMLTagAttributes implements HTMLConstants, Se
     **/
     public void setCellPadding(int cellPadding)                   //@D1A
     {
-        Integer oldPadding = new Integer(cellPadding_);
-        Integer newPadding = new Integer(cellPadding);
+        Integer oldPadding = Integer.valueOf(cellPadding_);
+        Integer newPadding = Integer.valueOf(cellPadding);
 
         cellPadding_ = cellPadding;
 

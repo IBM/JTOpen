@@ -367,7 +367,7 @@ public class ClusteredHashTableEntry implements java.io.Serializable
 
     int old = entryAuthority_;
     entryAuthority_ = entryAuthority;
-    changes_.firePropertyChange("entryAuthority", new Integer(old), new Integer(entryAuthority_));
+    changes_.firePropertyChange("entryAuthority", Integer.valueOf(old), Integer.valueOf(entryAuthority_));
   }
 
 
@@ -426,7 +426,7 @@ public class ClusteredHashTableEntry implements java.io.Serializable
 
     int old = timeToLive_;
     timeToLive_ = timeToLive;
-    changes_.firePropertyChange("timeToLive", new Integer(old), new Integer(timeToLive_));
+    changes_.firePropertyChange("timeToLive", Integer.valueOf(old), Integer.valueOf(timeToLive_));
   }
 
 
@@ -450,7 +450,7 @@ public class ClusteredHashTableEntry implements java.io.Serializable
 
     int old = entryUpdateOption_;
     entryUpdateOption_ = updateOption;
-    changes_.firePropertyChange("updateOption", new Integer(old), new Integer(entryUpdateOption_));
+    changes_.firePropertyChange("updateOption", Integer.valueOf(old), Integer.valueOf(entryUpdateOption_));
   }
 
 

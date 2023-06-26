@@ -54,11 +54,11 @@ implements JDFieldMap
         String serverDataAsString = serverData.toString ();
 
         if(serverDataAsString.equalsIgnoreCase("NO"))
-            return new Short ((short) DatabaseMetaData.procedureNoNulls);
+            return Short.valueOf((short) DatabaseMetaData.procedureNoNulls);
         else if(serverDataAsString.equalsIgnoreCase("YES"))
-            return new Short ((short) DatabaseMetaData.procedureNullable);
+            return Short.valueOf((short) DatabaseMetaData.procedureNullable);
         else
-            return new Short ((short) DatabaseMetaData.procedureNullableUnknown);
+            return Short.valueOf((short) DatabaseMetaData.procedureNullableUnknown);
     }
 
     /**

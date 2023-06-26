@@ -124,25 +124,25 @@ when it was not previously set by the constructor.
   // @550
   public int getDateFormat()
   {
-	  return (new Byte(rawBytes_[offset_+ 8])).intValue();
+	  return (Byte.valueOf(rawBytes_[offset_+ 8])).intValue();
   }
 
   // @550
   public int getTimeFormat()
   {
-	  return (new Byte(rawBytes_[offset_+ 9])).intValue();
+	  return (Byte.valueOf(rawBytes_[offset_+ 9])).intValue();
   }
 
   // @550
   public int getDateSeparator()
   {
-	  return (new Byte(rawBytes_[offset_+ 10])).intValue();
+	  return (Byte.valueOf(rawBytes_[offset_+ 10])).intValue();
   }
 
   // @550
   public int getTimeSeparator()
   {
-	  return (new Byte(rawBytes_[offset_+ 11])).intValue();
+	  return (Byte.valueOf(rawBytes_[offset_+ 11])).intValue();
   }
 
   public int getRecordSize ()

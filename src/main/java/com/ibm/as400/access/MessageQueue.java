@@ -1887,8 +1887,8 @@ public class MessageQueue implements Serializable
         }
         else
         {
-            Integer oldValue = new Integer(severity_);
-            Integer newValue = new Integer(severity);
+            Integer oldValue = Integer.valueOf(severity_);
+            Integer newValue = Integer.valueOf(severity);
 
             if (vetoableChangeListeners_ != null)
             {

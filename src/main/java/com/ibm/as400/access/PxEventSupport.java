@@ -201,7 +201,7 @@ This is for use in the internal hashtable.
 **/
     private static Object toKey (long proxyId)
     {
-        return new Long (proxyId);
+        return Long.valueOf(proxyId);
     }
 
 

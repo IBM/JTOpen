@@ -66,7 +66,7 @@ implements ProxyFactoryImpl
     try {
       connection_.callMethod (pxId_, "write",
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (c) });
+                               new Object[] { Integer.valueOf(c) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
@@ -102,7 +102,7 @@ implements ProxyFactoryImpl
     try {
       connection_.callMethod (pxId_, "write",
                                new Class[] { char[].class, Integer.TYPE, Integer.TYPE },
-                               new Object[] { cbuff, new Integer(off), new Integer(len) });
+                               new Object[] { cbuff, Integer.valueOf(off), Integer.valueOf(len) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
@@ -114,7 +114,7 @@ implements ProxyFactoryImpl
     try {
       connection_.callMethod (pxId_, "write",
                                new Class[] { String.class, Integer.TYPE, Integer.TYPE },
-                               new Object[] { str, new Integer(off), new Integer(len) });
+                               new Object[] { str, Integer.valueOf(off), Integer.valueOf(len) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);

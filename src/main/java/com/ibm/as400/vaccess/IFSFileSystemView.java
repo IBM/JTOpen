@@ -177,7 +177,7 @@ public class IFSFileSystemView extends FileSystemView
       {
         newFolder = new IFSJavaFile(ifsDir,
                                     MessageFormat.format(
-                                      NEW_FOLDER_NEXT_STRING, new Object[] { new Integer(i++)}));
+                                      NEW_FOLDER_NEXT_STRING, new Object[] { Integer.valueOf(i++)}));
       }
 
       if (newFolder.exists())

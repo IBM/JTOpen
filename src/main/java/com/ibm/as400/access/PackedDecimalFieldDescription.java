@@ -124,7 +124,7 @@ public class PackedDecimalFieldDescription extends FieldDescription implements S
     // Type column (1)
     desc.append("P");
     // Decimal positions columns (2)
-    StringBuffer decPos = new StringBuffer(new Integer(decimalPositions_).toString());
+    StringBuffer decPos = new StringBuffer(Integer.toString(decimalPositions_));
     if (decPos.length() == 1)
     {
       decPos.insert(0, " ");

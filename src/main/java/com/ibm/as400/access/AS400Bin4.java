@@ -64,7 +64,7 @@ public class AS400Bin4 implements AS400DataType
      **/
     public Object getDefaultValue()
     {
-     return new Integer(defaultValue);
+     return Integer.valueOf(defaultValue);
     }
 
     /**
@@ -194,7 +194,7 @@ public class AS400Bin4 implements AS400DataType
     public Object toObject(byte[] as400Value)
     {
      // BinaryConverter will throw the ArrayIndexException's
-     return new Integer(BinaryConverter.byteArrayToInt(as400Value, 0));
+     return Integer.valueOf(BinaryConverter.byteArrayToInt(as400Value, 0));
     }
 
     /**
@@ -206,6 +206,6 @@ public class AS400Bin4 implements AS400DataType
     public Object toObject(byte[] as400Value, int offset)
     {
      // BinaryConverter will throw the ArrayIndexException's
-     return new Integer(BinaryConverter.byteArrayToInt(as400Value, offset));
+     return Integer.valueOf(BinaryConverter.byteArrayToInt(as400Value, offset));
     }
 }

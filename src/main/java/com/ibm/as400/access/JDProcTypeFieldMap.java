@@ -61,10 +61,10 @@ implements JDFieldMap
         int serverDataAsInt = ((Number) serverData).intValue ();
 
         if(serverDataAsInt == 0)
-            return new Short ((short) DatabaseMetaData.procedureNoResult);
+            return Short.valueOf((short) DatabaseMetaData.procedureNoResult);
         else if(serverDataAsInt >= 0)
-            return new Short ((short) DatabaseMetaData.procedureReturnsResult);
+            return Short.valueOf((short) DatabaseMetaData.procedureReturnsResult);
         else
-            return new Short ((short) DatabaseMetaData.procedureResultUnknown);
+            return Short.valueOf((short) DatabaseMetaData.procedureResultUnknown);
     }
 }

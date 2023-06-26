@@ -86,7 +86,7 @@ Processes the request.
             Class listenerClass = Class.forName ("com.ibm.as400.access.PS" + listenerName);
             Constructor constructor = listenerClass.getConstructor (new Class[] { PSConnection.class, PxTable.class, Long.TYPE });
             long proxyId = proxyTable_.get (proxy);
-            Object listener = constructor.newInstance (new Object[] { connection_, proxyTable_, new Long (proxyId) });
+            Object listener = constructor.newInstance (new Object[] { connection_, proxyTable_, Long.valueOf(proxyId)});
     
             // Add/remove a PSXxxListener to/from the object.                
             Class proxyClass = proxy.getClass ();

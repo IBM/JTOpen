@@ -169,7 +169,7 @@ implements PreparedStatement
 
       callMethod ("setArray",
                   new Class[] { Integer.TYPE, Array.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue });
     }
 
@@ -199,9 +199,9 @@ implements PreparedStatement
       callMethod ("setAsciiStream",
                   new Class[] { Integer.TYPE, InputStream.class,
                                 Integer.TYPE },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  iStream,
-                                 new Integer (length) });
+                                 Integer.valueOf(length) });
     }
 
 
@@ -211,7 +211,7 @@ implements PreparedStatement
     {
       callMethod ("setBigDecimal", 
                   new Class[] { Integer.TYPE, BigDecimal.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue });
     }
 
@@ -241,9 +241,9 @@ implements PreparedStatement
       callMethod ("setBinaryStream",
                   new Class[] { Integer.TYPE, InputStream.class,
                                 Integer.TYPE },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  iStream,
-                                 new Integer (length) });
+                                 Integer.valueOf(length) });
     }
 
 
@@ -262,7 +262,7 @@ implements PreparedStatement
 
       callMethod ("setBlob",
                   new Class[] { Integer.TYPE, Blob.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue });
     }
 
@@ -273,7 +273,7 @@ implements PreparedStatement
     {
       callMethod ("setBoolean",
                   new Class[] { Integer.TYPE, Boolean.TYPE },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  Boolean.valueOf(parameterValue) });
     }
 
@@ -284,8 +284,8 @@ implements PreparedStatement
     {
       callMethod ("setByte",
                   new Class[] { Integer.TYPE, Byte.TYPE },
-                  new Object[] { new Integer (parameterIndex),
-                                 new Byte (parameterValue) });
+                  new Object[] { Integer.valueOf(parameterIndex),
+                                 Byte.valueOf(parameterValue) });
     }
 
 
@@ -295,7 +295,7 @@ implements PreparedStatement
     {
       callMethod ("setBytes",
                   new Class[] { Integer.TYPE, byte[].class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue });
     }
 
@@ -316,9 +316,9 @@ implements PreparedStatement
         callMethod ("setCharacterStream",
                     new Class[] { Integer.TYPE, Reader.class,
                                   Integer.TYPE },
-                    new Object[] { new Integer (parameterIndex),
+                    new Object[] { Integer.valueOf(parameterIndex),
                                    reader,
-                                   new Integer (length) });
+                                   Integer.valueOf(length) });
       }
       catch (java.io.IOException e) {
         SQLException throwException = new SQLException(e.getMessage());
@@ -345,7 +345,7 @@ implements PreparedStatement
 
       callMethod ("setClob",
                   new Class[] { Integer.TYPE, Clob.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue });
     }
 
@@ -356,7 +356,7 @@ implements PreparedStatement
     {
       callMethod ("setDate",
                   new Class[] { Integer.TYPE, Date.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue });
     }
 
@@ -371,7 +371,7 @@ implements PreparedStatement
       callMethod ("setDate",
                   new Class[] { Integer.TYPE, Date.class,
                                 Calendar.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue,
                                  calendar });
     }
@@ -383,8 +383,8 @@ implements PreparedStatement
     {
       callMethod ("setDouble",
                   new Class[] { Integer.TYPE, Double.TYPE },
-                  new Object[] { new Integer (parameterIndex),
-                                 new Double (parameterValue) });
+                  new Object[] { Integer.valueOf(parameterIndex),
+                                 Double.valueOf(parameterValue) });
     }
 
 
@@ -394,8 +394,8 @@ implements PreparedStatement
     {
       callMethod ("setFloat",
                   new Class[] { Integer.TYPE, Float.TYPE },
-                  new Object[] { new Integer (parameterIndex),
-                                 new Float (parameterValue) });
+                  new Object[] { Integer.valueOf(parameterIndex),
+                                 Float.valueOf(parameterValue) });
     }
 
 
@@ -405,8 +405,8 @@ implements PreparedStatement
     {
       callMethod ("setInt",
                   new Class[] { Integer.TYPE, Integer.TYPE },
-                  new Object[] { new Integer (parameterIndex),
-                                 new Integer (parameterValue) });
+                  new Object[] { Integer.valueOf(parameterIndex),
+                                 Integer.valueOf(parameterValue) });
     }
 
 
@@ -416,8 +416,8 @@ implements PreparedStatement
     {
       callMethod ("setLong",
                   new Class[] { Integer.TYPE, Long.TYPE },
-                  new Object[] { new Integer (parameterIndex),
-                                 new Long (parameterValue) });
+                  new Object[] { Integer.valueOf(parameterIndex),
+                                 Long.valueOf(parameterValue) });
     }
 
 
@@ -427,8 +427,8 @@ implements PreparedStatement
     {
       callMethod ("setNull",
                   new Class[] { Integer.TYPE, Integer.TYPE },
-                  new Object[] { new Integer (parameterIndex),
-                                 new Integer (sqlType) });
+                  new Object[] { Integer.valueOf(parameterIndex),
+                                 Integer.valueOf(sqlType) });
     }
 
 
@@ -438,8 +438,8 @@ implements PreparedStatement
       callMethod ("setNull",
                   new Class[] { Integer.TYPE, Integer.TYPE,
                                 String.class },
-                  new Object[] { new Integer (parameterIndex),
-                                 new Integer (sqlType),
+                  new Object[] { Integer.valueOf(parameterIndex),
+                                 Integer.valueOf(sqlType),
                                  typeName});
     }
 
@@ -455,7 +455,7 @@ implements PreparedStatement
 
       callMethod ("setObject",
                   new Class[] { Integer.TYPE, Object.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue });
     }
 
@@ -476,9 +476,9 @@ implements PreparedStatement
       callMethod ("setObject",
                   new Class[] { Integer.TYPE, Object.class,
                                 Integer.TYPE },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue,
-                                 new Integer (sqlType) });
+                                 Integer.valueOf(sqlType) });
     }
 
 
@@ -499,10 +499,10 @@ implements PreparedStatement
       callMethod ("setObject",
                   new Class[] { Integer.TYPE, Object.class,
                                 Integer.TYPE, Integer.TYPE },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue,
-                                 new Integer (sqlType),
-                                 new Integer (scale) });
+                                 Integer.valueOf(sqlType),
+                                 Integer.valueOf(scale) });
     }
 
 
@@ -520,7 +520,7 @@ implements PreparedStatement
 
       callMethod ("setRef",
                   new Class[] { Integer.TYPE, Ref.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue });
     }
 
@@ -531,8 +531,8 @@ implements PreparedStatement
     {
       callMethod ("setShort",
                   new Class[] { Integer.TYPE, Short.TYPE },
-                  new Object[] { new Integer (parameterIndex),
-                                 new Short (parameterValue) });
+                  new Object[] { Integer.valueOf(parameterIndex),
+                                 Short.valueOf(parameterValue) });
     }
 
 
@@ -542,7 +542,7 @@ implements PreparedStatement
     {
       callMethod ("setString",
                   new Class[] { Integer.TYPE, String.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue });
     }
 
@@ -553,7 +553,7 @@ implements PreparedStatement
     {
       callMethod ("setTime",
                   new Class[] { Integer.TYPE, Time.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue });
     }
 
@@ -568,7 +568,7 @@ implements PreparedStatement
       callMethod ("setTime",
                   new Class[] { Integer.TYPE, Time.class,
                                 Calendar.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue, calendar });
     }
 
@@ -579,7 +579,7 @@ implements PreparedStatement
     {
       callMethod ("setTimestamp",
                   new Class[] { Integer.TYPE, Timestamp.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue });
     }
 
@@ -594,7 +594,7 @@ implements PreparedStatement
       callMethod ("setTimestamp",
                   new Class[] { Integer.TYPE, Timestamp.class,
                                 Calendar.class },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue, calendar });
     }
 
@@ -629,9 +629,9 @@ implements PreparedStatement
       callMethod ("setUnicodeStream",
                   new Class[] { Integer.TYPE, InputStream.class,
                                 Integer.TYPE },
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  iStream,
-                                 new Integer (length) });
+                                 Integer.valueOf(length) });
     }
 
 
@@ -642,7 +642,7 @@ implements PreparedStatement
     {
       callMethod ("setURL",
                   new Class[] { Integer.TYPE, URL.class},
-                  new Object[] { new Integer (parameterIndex),
+                  new Object[] { Integer.valueOf(parameterIndex),
                                  parameterValue });
     }
 
@@ -653,7 +653,7 @@ implements PreparedStatement
     {
         callMethod ("setRowId",
                 new Class[] { Integer.TYPE, RowId.class},
-                new Object[] { new Integer (parameterIndex), x });        
+                new Object[] { Integer.valueOf(parameterIndex), x });        
     }
 /* endif */ 
     
@@ -662,7 +662,7 @@ implements PreparedStatement
     {
         callMethod ("setNString",
                 new Class[] { Integer.TYPE, String.class },
-                new Object[] { new Integer (parameterIndex), value });                
+                new Object[] { Integer.valueOf(parameterIndex), value });                
     }
     
     //@PDA jdbc40
@@ -677,9 +677,9 @@ implements PreparedStatement
             callMethod ("setNCharacterStream",
                     new Class[] { Integer.TYPE, Reader.class,
                     Long.TYPE },
-                    new Object[] { new Integer (parameterIndex),
+                    new Object[] { Integer.valueOf(parameterIndex),
                     reader,
-                    new Long(length) });
+                    Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -704,7 +704,7 @@ implements PreparedStatement
         
         callMethod ("setNClob",
                 new Class[] { Integer.TYPE, NClob.class },
-                new Object[] { new Integer (parameterIndex),
+                new Object[] { Integer.valueOf(parameterIndex),
                 value });
     }
 /* endif */ 
@@ -724,9 +724,9 @@ implements PreparedStatement
             callMethod ("setClob",
                     new Class[] { Integer.TYPE, Reader.class,
                     Long.TYPE },
-                    new Object[] { new Integer (parameterIndex),
+                    new Object[] { Integer.valueOf(parameterIndex),
                     serialRreader,
-                    new Long (length) });
+                    Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -759,9 +759,9 @@ implements PreparedStatement
         callMethod ("setBlob",
                 new Class[] { Integer.TYPE, InputStream.class,
                 Long.TYPE },
-                new Object[] { new Integer (parameterIndex),
+                new Object[] { Integer.valueOf(parameterIndex),
                 iStream,
-                new Long (length) });
+                Long.valueOf(length) });
     }
     
     //@PDA jdbc40
@@ -776,9 +776,9 @@ implements PreparedStatement
             callMethod ("setNClob",
                     new Class[] { Integer.TYPE, Reader.class,
                     Long.TYPE },
-                    new Object[] { new Integer (parameterIndex),
+                    new Object[] { Integer.valueOf(parameterIndex),
                     serialRreader,
-                    new Long (length) });
+                    Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -803,7 +803,7 @@ implements PreparedStatement
         
         callMethod ("setSQLXML",
                 new Class[] { Integer.TYPE, SQLXML.class },
-                new Object[] { new Integer (parameterIndex),
+                new Object[] { Integer.valueOf(parameterIndex),
                 xmlObject });
     }
 /* endif */ 
@@ -837,9 +837,9 @@ implements PreparedStatement
         callMethod ("setAsciiStream",
                 new Class[] { Integer.TYPE, InputStream.class,
                 Long.TYPE },
-                new Object[] { new Integer (parameterIndex),
+                new Object[] { Integer.valueOf(parameterIndex),
                 iStream,
-                new Long (length) });
+                Long.valueOf(length) });
     }
 
     //@PDA jdbc40
@@ -864,9 +864,9 @@ implements PreparedStatement
         callMethod ("setBinaryStream",
                 new Class[] { Integer.TYPE, InputStream.class,
                 Long.TYPE },
-                new Object[] { new Integer (parameterIndex),
+                new Object[] { Integer.valueOf(parameterIndex),
                 iStream,
-                new Long (length) });
+                Long.valueOf(length) });
     }
     
     //@PDA jdbc40
@@ -881,9 +881,9 @@ implements PreparedStatement
             callMethod ("setCharacterStream",
                     new Class[] { Integer.TYPE, Reader.class,
                     Long.TYPE },
-                    new Object[] { new Integer (parameterIndex),
+                    new Object[] { Integer.valueOf(parameterIndex),
                     serialReader,
-                    new Long (length) });
+                    Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -915,7 +915,7 @@ implements PreparedStatement
         }
         callMethod ("setAsciiStream",
                 new Class[] { Integer.TYPE, InputStream.class },
-                new Object[] { new Integer (parameterIndex),
+                new Object[] { Integer.valueOf(parameterIndex),
                 iStream });
     }
 
@@ -941,7 +941,7 @@ implements PreparedStatement
         }
         callMethod ("setBinaryStream",
                 new Class[] { Integer.TYPE, InputStream.class },
-                new Object[] { new Integer (parameterIndex),
+                new Object[] { Integer.valueOf(parameterIndex),
                 iStream });
     }
 
@@ -967,7 +967,7 @@ implements PreparedStatement
         }
         callMethod ("setBlob",
                 new Class[] { Integer.TYPE, InputStream.class },
-                new Object[] { new Integer (parameterIndex),
+                new Object[] { Integer.valueOf(parameterIndex),
                 iStream });
     }
 
@@ -983,7 +983,7 @@ implements PreparedStatement
                 serialReader = new SerializableReader (reader);
             callMethod ("setCharacterStream",
                     new Class[] { Integer.TYPE, Reader.class },
-                    new Object[] { new Integer (parameterIndex),
+                    new Object[] { Integer.valueOf(parameterIndex),
                     serialReader });
         }
         catch (java.io.IOException e) {
@@ -1007,7 +1007,7 @@ implements PreparedStatement
                 serialReader = new SerializableReader (reader);
             callMethod ("setClob",
                     new Class[] { Integer.TYPE, Reader.class },
-                    new Object[] { new Integer (parameterIndex),
+                    new Object[] { Integer.valueOf(parameterIndex),
                     serialReader });
         }
         catch (java.io.IOException e) {
@@ -1031,7 +1031,7 @@ implements PreparedStatement
                 serialReader = new SerializableReader (value);
             callMethod ("setNCharacterStream",
                     new Class[] { Integer.TYPE, Reader.class },
-                    new Object[] { new Integer (parameterIndex),
+                    new Object[] { Integer.valueOf(parameterIndex),
                     serialReader });
         }
         catch (java.io.IOException e) {
@@ -1055,7 +1055,7 @@ implements PreparedStatement
                 serialReader = new SerializableReader (reader);
             callMethod ("setNClob",
                     new Class[] { Integer.TYPE, Reader.class },
-                    new Object[] { new Integer (parameterIndex),
+                    new Object[] { Integer.valueOf(parameterIndex),
                     serialReader });
         }
         catch (java.io.IOException e) {
@@ -1076,13 +1076,13 @@ implements PreparedStatement
     public void setDB2Default(int parameterIndex) throws SQLException {
         callMethod("setDB2Default", 
             new Class[] { Integer.TYPE},
-            new Object[] { new Integer (parameterIndex)}); 
+            new Object[] { Integer.valueOf(parameterIndex)}); 
     }
 
     public void setDB2Unassigned(int parameterIndex) throws SQLException {
       callMethod("setDB2Unassigned", 
           new Class[] { Integer.TYPE},
-          new Object[] { new Integer (parameterIndex)}); 
+          new Object[] { Integer.valueOf(parameterIndex)}); 
     }
     
     public void setDBUnassigned(int parameterIndex) throws SQLException

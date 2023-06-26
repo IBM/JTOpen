@@ -234,7 +234,7 @@ class ConnectionPoolProperties implements Serializable
     int oldValue = ccsid_;
 
     ccsid_ = ccsid;
-    if (changes_ != null) changes_.firePropertyChange(property, new Integer(oldValue), new Integer(ccsid));
+    if (changes_ != null) changes_.firePropertyChange(property, Integer.valueOf(oldValue), Integer.valueOf(ccsid));
   }
 
   /**
@@ -256,7 +256,7 @@ class ConnectionPoolProperties implements Serializable
     long oldValue = cleanupInterval_;
 
 		cleanupInterval_ = cleanupInterval;
-    if (changes_ != null) changes_.firePropertyChange(property, new Long(oldValue), new Long(cleanupInterval));
+    if (changes_ != null) changes_.firePropertyChange(property, Long.valueOf(oldValue), Long.valueOf(cleanupInterval));
   }
 
   /**
@@ -277,7 +277,7 @@ class ConnectionPoolProperties implements Serializable
     int oldValue = maxConnections_;
 
 		maxConnections_ = maxConnections;
-    if (changes_ != null) changes_.firePropertyChange(property, new Integer(oldValue), new Integer(maxConnections));
+    if (changes_ != null) changes_.firePropertyChange(property, Integer.valueOf(oldValue), Integer.valueOf(maxConnections));
   }
 
  	/**
@@ -299,7 +299,7 @@ class ConnectionPoolProperties implements Serializable
     long oldValue = maxInactivity_;
 
 		maxInactivity_ = maxInactivity;
-    if (changes_ != null) changes_.firePropertyChange(property, new Long(oldValue), new Long(maxInactivity));
+    if (changes_ != null) changes_.firePropertyChange(property, Long.valueOf(oldValue), Long.valueOf(maxInactivity));
   }
 
 	/**
@@ -321,7 +321,7 @@ class ConnectionPoolProperties implements Serializable
     long oldValue = maxLifetime_;
 
 		maxLifetime_ = maxLifetime;
-    if (changes_ != null) changes_.firePropertyChange(property, new Long(oldValue), new Long(maxLifetime));
+    if (changes_ != null) changes_.firePropertyChange(property, Long.valueOf(oldValue), Long.valueOf(maxLifetime));
   }
 
 
@@ -392,7 +392,7 @@ class ConnectionPoolProperties implements Serializable
     int oldValue = maxUseCount_;
 
 		maxUseCount_ = maxUseCount;
-    if (changes_ != null) changes_.firePropertyChange(property, new Integer(oldValue), new Integer(maxUseCount));
+    if (changes_ != null) changes_.firePropertyChange(property, Integer.valueOf(oldValue), Integer.valueOf(maxUseCount));
   }
 
 	/**
@@ -413,6 +413,6 @@ class ConnectionPoolProperties implements Serializable
     long oldValue = maxUseTime_;
 
 		maxUseTime_ = maxUseTime;
-    if (changes_ != null) changes_.firePropertyChange(property, new Long(oldValue), new Long(maxUseTime));
+    if (changes_ != null) changes_.firePropertyChange(property, Long.valueOf(oldValue), Long.valueOf(maxUseTime));
   }
 }

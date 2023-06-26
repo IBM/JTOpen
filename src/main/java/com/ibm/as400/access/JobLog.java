@@ -227,93 +227,93 @@ public class JobLog implements Serializable
      **/
     public void addAttributeToRetrieve(int attribute) throws IOException 
     {
-        if( !numberOfFieldIdentifiers_.contains(new Integer(attribute)) ) 
+        if( !numberOfFieldIdentifiers_.contains(Integer.valueOf(attribute)) ) 
 	{
             switch (attribute)
             {  
 	        case 1001:  //REPLY_STATUS:
-                    numberOfFieldIdentifiers_.add( new Integer(REPLY_STATUS));
+                    numberOfFieldIdentifiers_.add( Integer.valueOf(REPLY_STATUS));
                     break;
 	        case 603:   //SENDING_PROGRAM_NAME:
-                    numberOfFieldIdentifiers_.add( new Integer(SENDING_PROGRAM_NAME));
+                    numberOfFieldIdentifiers_.add( Integer.valueOf(SENDING_PROGRAM_NAME));
                     break;
 	        case 501:   //DEFAULT_REPLY:
-                    numberOfFieldIdentifiers_.add( new Integer(DEFAULT_REPLY));
+                    numberOfFieldIdentifiers_.add( Integer.valueOf(DEFAULT_REPLY));
                     break;
 	        case 404:   //MESSAGE_HELP_WITH_REPLACEMENT_DATA_AND_FORMATTING_CHARACTERS:
-                    numberOfFieldIdentifiers_.add( new Integer(MESSAGE_HELP_WITH_REPLACEMENT_DATA_AND_FORMATTING_CHARACTERS));
+                    numberOfFieldIdentifiers_.add( Integer.valueOf(MESSAGE_HELP_WITH_REPLACEMENT_DATA_AND_FORMATTING_CHARACTERS));
                     break;
 	        case 302:   //MESSAGE_WITH_REPLACEMENT_DATA:
-                    numberOfFieldIdentifiers_.add( new Integer(MESSAGE_WITH_REPLACEMENT_DATA));
+                    numberOfFieldIdentifiers_.add( Integer.valueOf(MESSAGE_WITH_REPLACEMENT_DATA));
                     break;
                 case 101:   //ALERT_OPTION:
-                    numberOfFieldIdentifiers_.add( new Integer(ALERT_OPTION));
+                    numberOfFieldIdentifiers_.add( Integer.valueOf(ALERT_OPTION));
                     break;
                 case 201: //REPLACEMENT_DATA:
-                    numberOfFieldIdentifiers_.add( new Integer(REPLACEMENT_DATA));
+                    numberOfFieldIdentifiers_.add( Integer.valueOf(REPLACEMENT_DATA));
                     break;
                 case 301: //MESSAGE:
-            	    numberOfFieldIdentifiers_.add( new Integer(MESSAGE));	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(MESSAGE));	
                     break;
                 case 401: //MESSAGE_HELP:
-            	    numberOfFieldIdentifiers_.add( new Integer (MESSAGE_HELP));	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(MESSAGE_HELP));	
                     break;
                 case 402: //MESSAGE_HELP_WITH_REPLACEMENT_DATA:
-            	    numberOfFieldIdentifiers_.add( new Integer(MESSAGE_HELP_WITH_REPLACEMENT_DATA));	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(MESSAGE_HELP_WITH_REPLACEMENT_DATA));	
                     break;
                 case 403: //MESSAGE_HELP_WITH_FORMATTING_CHARACTERS:
-                    numberOfFieldIdentifiers_.add( new Integer(MESSAGE_HELP_WITH_FORMATTING_CHARACTERS));		
+                    numberOfFieldIdentifiers_.add( Integer.valueOf(MESSAGE_HELP_WITH_FORMATTING_CHARACTERS));		
                     break;
                 case 602: //SENDER_TYPE:
-            	    numberOfFieldIdentifiers_.add( new Integer(SENDER_TYPE)); 	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(SENDER_TYPE)); 	
                     break;
                 case 604: //SENDING_MODULE_NAME:
-            	    numberOfFieldIdentifiers_.add( new Integer(SENDING_MODULE_NAME)); 	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(SENDING_MODULE_NAME)); 	
                     break;
                 case 605: //SENDING_PROCEDURE_NAME:
-            	    numberOfFieldIdentifiers_.add( new Integer(SENDING_PROCEDURE_NAME));	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(SENDING_PROCEDURE_NAME));	
                     break;
                 case 606: //SENDING_STATEMENT_NUMBERS:
-                    numberOfFieldIdentifiers_.add( new Integer(SENDING_STATEMENT_NUMBERS));		
+                    numberOfFieldIdentifiers_.add( Integer.valueOf(SENDING_STATEMENT_NUMBERS));		
                     break;
                 case 607: //SENDING_USER_PROFILE:
-            	    numberOfFieldIdentifiers_.add( new Integer(SENDING_USER_PROFILE));	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(SENDING_USER_PROFILE));	
                     break;
                 case 702: //RECEIVING_TYPE:
-            	    numberOfFieldIdentifiers_.add( new Integer(RECEIVING_TYPE)); 	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(RECEIVING_TYPE)); 	
                     break;
                 case 703: //RECEIVING_PROGRAM_NAME:
-            	    numberOfFieldIdentifiers_.add( new Integer(RECEIVING_PROGRAM_NAME)); 	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(RECEIVING_PROGRAM_NAME)); 	
                     break;
                 case 704: //RECEIVING_MODULE_NAME:
-            	    numberOfFieldIdentifiers_.add( new Integer(RECEIVING_MODULE_NAME));	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(RECEIVING_MODULE_NAME));	
                     break;
                 case 705: //RECEIVING_PROCEDURE_NAME:
-            	    numberOfFieldIdentifiers_.add( new Integer(RECEIVING_PROCEDURE_NAME)); 	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(RECEIVING_PROCEDURE_NAME)); 	
                     break;
                 case 706: //RECEIVING_STATEMENT_NUMBERS:
-            	    numberOfFieldIdentifiers_.add( new Integer(RECEIVING_STATEMENT_NUMBERS)); 	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(RECEIVING_STATEMENT_NUMBERS)); 	
                     break;
                 case 801: //MESSAGE_FILE_LIBRARY_USED:
-            	    numberOfFieldIdentifiers_.add( new Integer(MESSAGE_FILE_LIBRARY_USED)); 	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(MESSAGE_FILE_LIBRARY_USED)); 	
                     break;
                 case 1101: //REQUEST_STATUS:
-                    numberOfFieldIdentifiers_.add( new Integer(REQUEST_STATUS)); 		
+                    numberOfFieldIdentifiers_.add( Integer.valueOf(REQUEST_STATUS)); 		
                     break;
                 case 1201: //REQUEST_LEVEL:
-            	    numberOfFieldIdentifiers_.add( new Integer(REQUEST_LEVEL)); 	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(REQUEST_LEVEL)); 	
                     break;
                 case 1301: //CCSID_FOR_TEXT:
-            	    numberOfFieldIdentifiers_.add( new Integer(CCSID_FOR_TEXT)); 	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(CCSID_FOR_TEXT)); 	
                     break;
                 case 1302: //CCSID_CONVERSION_STATUS_TEXT:
-            	    numberOfFieldIdentifiers_.add( new Integer(CCSID_CONVERSION_STATUS_TEXT));	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(CCSID_CONVERSION_STATUS_TEXT));	
                     break;
                 case 1303: //CCSID_FOR_DATA:
-            	    numberOfFieldIdentifiers_.add( new Integer(CCSID_FOR_DATA)); 	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(CCSID_FOR_DATA)); 	
                     break;
                 case 1304: //CCSID_CONVERSION_STATUS_DATA:
-            	    numberOfFieldIdentifiers_.add( new Integer(CCSID_CONVERSION_STATUS_DATA)); 	
+            	    numberOfFieldIdentifiers_.add( Integer.valueOf(CCSID_CONVERSION_STATUS_DATA)); 	
                     break;
                 default:
                     Trace.log(Trace.ERROR, "Value of parameter 'attribute' is not valid: " + attribute);
@@ -1204,12 +1204,12 @@ public class JobLog implements Serializable
     
     private void addDefaultListInformation()
     {
-        numberOfFieldIdentifiers_.add(new Integer(REPLY_STATUS));
-        numberOfFieldIdentifiers_.add(new Integer(SENDING_PROGRAM_NAME));
-        numberOfFieldIdentifiers_.add(new Integer(DEFAULT_REPLY));
-        numberOfFieldIdentifiers_.add(new Integer(MESSAGE_HELP_WITH_REPLACEMENT_DATA_AND_FORMATTING_CHARACTERS));
-        numberOfFieldIdentifiers_.add(new Integer(MESSAGE_WITH_REPLACEMENT_DATA));
-        numberOfFieldIdentifiers_.add(new Integer(ALERT_OPTION));
+        numberOfFieldIdentifiers_.add(Integer.valueOf(REPLY_STATUS));
+        numberOfFieldIdentifiers_.add(Integer.valueOf(SENDING_PROGRAM_NAME));
+        numberOfFieldIdentifiers_.add(Integer.valueOf(DEFAULT_REPLY));
+        numberOfFieldIdentifiers_.add(Integer.valueOf(MESSAGE_HELP_WITH_REPLACEMENT_DATA_AND_FORMATTING_CHARACTERS));
+        numberOfFieldIdentifiers_.add(Integer.valueOf(MESSAGE_WITH_REPLACEMENT_DATA));
+        numberOfFieldIdentifiers_.add(Integer.valueOf(ALERT_OPTION));
     }
 
     private byte[] listInformationArray() throws IOException

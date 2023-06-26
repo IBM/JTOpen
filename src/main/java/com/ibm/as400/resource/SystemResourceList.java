@@ -577,7 +577,7 @@ or refreshed.
     {
         super.setSelectionValue(selectionID, value, bidiStringType);
 
-        selectionBidiStringTypes_.put(selectionID, new Integer(bidiStringType));
+        selectionBidiStringTypes_.put(selectionID, Integer.valueOf(bidiStringType));
     }
 
 

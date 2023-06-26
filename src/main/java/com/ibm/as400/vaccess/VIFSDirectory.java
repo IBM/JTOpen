@@ -1147,8 +1147,8 @@ list of details children.
     public void setInclude (int include)
         throws PropertyVetoException
     {
-        Integer oldValue = new Integer (actualFilter_.getInclude ());
-        Integer newValue = new Integer (include);
+        Integer oldValue = Integer.valueOf(actualFilter_.getInclude ());
+        Integer newValue = Integer.valueOf(include);
         vetoableChangeSupport_.fireVetoableChange ("includeFiles", oldValue, newValue);
 
         if (!oldValue.equals(newValue))

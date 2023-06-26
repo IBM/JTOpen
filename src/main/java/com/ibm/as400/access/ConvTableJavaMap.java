@@ -39,7 +39,7 @@ public class ConvTableJavaMap extends ConvTable
         String ccsid = ConversionMaps.encodingToCcsidString(encoding);
         try
         {
-            ccsid_ = (new Integer(ccsid)).intValue();
+            ccsid_ = Integer.parseInt(ccsid);
         }
         catch (Exception e)
         {

@@ -70,9 +70,9 @@ Maps from a physical value to a logical value.
 
         String asString = (String)physicalValue;
         if (asString.length() == 0)
-            return new Integer(0);
+            return Integer.valueOf(0);
         else
-            return new Integer(asString.trim());
+            return Integer.valueOf(asString.trim());
     }
 
 

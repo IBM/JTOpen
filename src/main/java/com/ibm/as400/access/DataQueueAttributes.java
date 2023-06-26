@@ -304,8 +304,8 @@ public class DataQueueAttributes implements Serializable
         }
         else
         {
-            Integer oldValue = new Integer(entryLength_);
-            Integer newValue = new Integer(entryLength);
+            Integer oldValue = Integer.valueOf(entryLength_);
+            Integer newValue = Integer.valueOf(entryLength);
 
             if (vetoableChangeListeners_ != null)
             {
@@ -400,8 +400,8 @@ public class DataQueueAttributes implements Serializable
         }
         else
         {
-            Integer oldValue = new Integer(keyLength_);
-            Integer newValue = new Integer(keyLength);
+            Integer oldValue = Integer.valueOf(keyLength_);
+            Integer newValue = Integer.valueOf(keyLength);
 
             if (vetoableChangeListeners_ != null)
             {

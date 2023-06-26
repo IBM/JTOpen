@@ -124,7 +124,7 @@ public class ZonedDecimalFieldDescription extends FieldDescription implements Se
     // Type column (1)
     desc.append("S");
     // Decimal positions columns (2)
-    StringBuffer decPos = new StringBuffer(new Integer(decimalPositions_).toString());
+    StringBuffer decPos = new StringBuffer(Integer.toString(decimalPositions_));
     if (decPos.length() == 1)
     {
       decPos.insert(0, " ");
