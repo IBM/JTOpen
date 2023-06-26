@@ -444,7 +444,7 @@ public class MemberDescription
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException,
   IOException, InterruptedException, ObjectDoesNotExistException
   {
-    final Integer key = new Integer(attribute);
+    final Integer key = Integer.valueOf(attribute);
     Object value = null;
 
     value = attributes_.get(key);
@@ -486,7 +486,7 @@ public class MemberDescription
    */
   void setAttribute(int attribute, Object value)
   {
-    attributes_.put(new Integer(attribute), value);
+    attributes_.put(Integer.valueOf(attribute), value);
   }
 
   /**
@@ -516,7 +516,7 @@ public class MemberDescription
       if (program.run())
       {
         readMemberInfo(parameters[0].getOutputData(), format);
-        return attributes_.get(new Integer(attribute));
+        return attributes_.get(Integer.valueOf(attribute));
       }
       else
       {
@@ -672,15 +672,15 @@ public class MemberDescription
       setAttribute(LOGICAL_FILE,
                    transformBoolean(charConverter.byteArrayToString(entryBytes, offsetOf(LOGICAL_FILE), 1)));
       setAttribute(CURRENT_NUMBER_OF_RECORDS,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(CURRENT_NUMBER_OF_RECORDS))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(CURRENT_NUMBER_OF_RECORDS))));
       setAttribute(ODP_SHARING,
                    transformBoolean(charConverter.byteArrayToString(entryBytes, offsetOf(ODP_SHARING), 1)));
       setAttribute(DATA_SPACE_SIZE,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(DATA_SPACE_SIZE))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(DATA_SPACE_SIZE))));
       setAttribute(ACCESS_PATH_SIZE,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(ACCESS_PATH_SIZE))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(ACCESS_PATH_SIZE))));
       setAttribute(NUMBER_OF_BASED_ON_PHYICAL_FILE_MEMBERS,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(NUMBER_OF_BASED_ON_PHYICAL_FILE_MEMBERS))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(NUMBER_OF_BASED_ON_PHYICAL_FILE_MEMBERS))));
       setAttribute(CHANGE_DATE_AND_TIME,
                    transformDate(charConverter.byteArrayToString(entryBytes, offsetOf(CHANGE_DATE_AND_TIME), 13)));
       setAttribute(RESTORE_DATE_AND_TIME,
@@ -690,19 +690,19 @@ public class MemberDescription
       setAttribute(EXPIRATION_DATE,
                    transformDate(charConverter.byteArrayToString(entryBytes, offsetOf(EXPIRATION_DATE), 13)));
       setAttribute(NUMBER_OF_DAYS_USED,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(NUMBER_OF_DAYS_USED))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(NUMBER_OF_DAYS_USED))));
       setAttribute(DATE_LAST_USED,
                    transformDate(charConverter.byteArrayToString(entryBytes, offsetOf(DATE_LAST_USED), 13)));
       setAttribute(USE_RESET_DATE,
                    transformDate(charConverter.byteArrayToString(entryBytes, offsetOf(USE_RESET_DATE), 13)));
       setAttribute(DATA_SPACE_SIZE_MULTIPLIER,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(DATA_SPACE_SIZE_MULTIPLIER))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(DATA_SPACE_SIZE_MULTIPLIER))));
       setAttribute(ACCESS_PATH_SIZE_MULTIPLIER,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(ACCESS_PATH_SIZE_MULTIPLIER))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(ACCESS_PATH_SIZE_MULTIPLIER))));
       setAttribute(MEMBER_TEXT_DESCRIPTION_CCSID,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(MEMBER_TEXT_DESCRIPTION_CCSID))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(MEMBER_TEXT_DESCRIPTION_CCSID))));
       setAttribute(NUMBER_OF_DELETED_RECORDS,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(NUMBER_OF_DELETED_RECORDS))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(NUMBER_OF_DELETED_RECORDS))));
     }
 
     // Fields returned only in format 300:
@@ -723,19 +723,19 @@ public class MemberDescription
       setAttribute(ALLOW_DELETE_OPERATION,
                    transformBoolean(charConverter.byteArrayToString(entryBytes, offsetOf(ALLOW_DELETE_OPERATION), 1)));
       setAttribute(RECORDS_TO_FORCE_A_WRITE,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(RECORDS_TO_FORCE_A_WRITE))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(RECORDS_TO_FORCE_A_WRITE))));
       setAttribute(MAXIMUM_PERCENT_DELETED_RECORDS_ALLOWED,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(MAXIMUM_PERCENT_DELETED_RECORDS_ALLOWED))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(MAXIMUM_PERCENT_DELETED_RECORDS_ALLOWED))));
       setAttribute(INITIAL_NUMBER_OF_RECORDS,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(INITIAL_NUMBER_OF_RECORDS))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(INITIAL_NUMBER_OF_RECORDS))));
       setAttribute(INCREMENT_NUMBER_OF_RECORDS,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(INCREMENT_NUMBER_OF_RECORDS))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(INCREMENT_NUMBER_OF_RECORDS))));
       setAttribute(MAXIMUM_NUMBER_OF_INCREMENTS,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(MAXIMUM_NUMBER_OF_INCREMENTS))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(MAXIMUM_NUMBER_OF_INCREMENTS))));
       setAttribute(CURRENT_NUMBER_OF_INCREMENTS,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(CURRENT_NUMBER_OF_INCREMENTS))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(CURRENT_NUMBER_OF_INCREMENTS))));
       setAttribute(RECORD_CAPACITY,
-                   new Integer(intConverter_.toInt(entryBytes, offsetOf(RECORD_CAPACITY))));
+                   Integer.valueOf(intConverter_.toInt(entryBytes, offsetOf(RECORD_CAPACITY))));
       setAttribute(RECORD_FORMAT_SELECTOR_PROGRAM_NAME,
                    charConverter.byteArrayToString(entryBytes, offsetOf(RECORD_FORMAT_SELECTOR_PROGRAM_NAME), 10).trim());
       setAttribute(RECORD_FORMAT_SELECTOR_LIBRARY_NAME,

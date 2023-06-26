@@ -39,8 +39,8 @@ implements JDFieldMap
     {
         String typeName = row.getSQLData(typeIndex_).getString().trim();        //@A1A
         if(typeName.equals("DISTINCT"))                                         //@A1A
-            return new Integer(row.getSQLData(scaleIndex_).getInt());           //@A1A
-        return new Integer(((SQLData)super.getValue(row)).getScale());
+            return Integer.valueOf(row.getSQLData(scaleIndex_).getInt());           //@A1A
+        return Integer.valueOf(((SQLData)super.getValue(row)).getScale());
     }
 
     /**

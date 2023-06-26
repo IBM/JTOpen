@@ -87,7 +87,7 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     {
         try
         {
-            return connection_.callMethod(pxId_, "runCommand", new Class[] { String.class, Boolean.class, Integer.TYPE }, new Object[] { command, threadSafety, new Integer(messageCount) }, true).getReturnValueBoolean();
+            return connection_.callMethod(pxId_, "runCommand", new Class[] { String.class, Boolean.class, Integer.TYPE }, new Object[] { command, threadSafety, Integer.valueOf(messageCount) }, true).getReturnValueBoolean();
         }
         catch (InvocationTargetException e)
         {
@@ -113,7 +113,7 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     {
         try
         {
-            return connection_.callMethod(pxId_, "runCommand", new Class[] { byte[].class, Boolean.class, Integer.TYPE }, new Object[] { command, threadSafety, new Integer(messageCount) }, true).getReturnValueBoolean();
+            return connection_.callMethod(pxId_, "runCommand", new Class[] { byte[].class, Boolean.class, Integer.TYPE }, new Object[] { command, threadSafety, Integer.valueOf(messageCount) }, true).getReturnValueBoolean();
         }
         catch (InvocationTargetException e)
         {
@@ -164,7 +164,7 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     {
         try
         {
-            ProxyReturnValue rv = connection_.callMethod(pxId_, "runProgram", new Class[] { String.class, String.class, ProgramParameter[].class, Boolean.class, Integer.TYPE }, new Object[] { library, name, parameterList, threadSafety, new Integer(messageCount) }, new boolean[] { false, false, true, false, false }, true);
+            ProxyReturnValue rv = connection_.callMethod(pxId_, "runProgram", new Class[] { String.class, String.class, ProgramParameter[].class, Boolean.class, Integer.TYPE }, new Object[] { library, name, parameterList, threadSafety, Integer.valueOf(messageCount) }, new boolean[] { false, false, true, false, false }, true);
             ProgramParameter[] returnParmL = (ProgramParameter[])rv.getArgument(2);
             for (int i = 0; i < parameterList.length; ++i)
             {
@@ -202,7 +202,7 @@ class RemoteCommandImplProxy extends AbstractProxyImpl implements RemoteCommandI
     {
         try
         {
-            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, String.class, Integer.TYPE, ProgramParameter[].class, Boolean.class, Integer.TYPE, Integer.TYPE, Boolean.TYPE }, new Object[] { library,  name, procedureName, new Integer(returnValueFormat), parameterList, threadSafety, new Integer(procedureNameCCSID), new Integer(messageCount), Boolean.valueOf(alignOn16Bytes) }, new boolean[] { false, false, false, false, true, false, false, false, false }, true);
+            ProxyReturnValue rv = connection_.callMethod(pxId_, "runServiceProgram", new Class[] { String.class, String.class, String.class, Integer.TYPE, ProgramParameter[].class, Boolean.class, Integer.TYPE, Integer.TYPE, Boolean.TYPE }, new Object[] { library,  name, procedureName, Integer.valueOf(returnValueFormat), parameterList, threadSafety, Integer.valueOf(procedureNameCCSID), Integer.valueOf(messageCount), Boolean.valueOf(alignOn16Bytes) }, new boolean[] { false, false, false, false, true, false, false, false, false }, true);
             ProgramParameter[] returnParmL = (ProgramParameter[])rv.getArgument(4);
             for (int i = 0; i < parameterList.length; ++i)
             {

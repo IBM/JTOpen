@@ -54,7 +54,7 @@ public class SystemPool
       * @deprecated
      **/
      public static final float CALCULATE = -2;
-     private static final Float CALCULATE_FLOAT = new Float(-2);
+     private static final Float CALCULATE_FLOAT = Float.valueOf(-2);
 
      /**
       * Indicates that the system should calculate
@@ -63,8 +63,8 @@ public class SystemPool
      **/
      public static final int CALCULATE_INT = -2;
 
-     private static final Integer CALCULATE_INTEGER = new Integer(-2);
-     private static final Integer NO_CHANGE = new Integer(-1);
+     private static final Integer CALCULATE_INTEGER = Integer.valueOf(-2);
+     private static final Integer NO_CHANGE = Integer.valueOf(-1);
      private static final String DEFAULT = "*DFT";
 
      private AS400 system_;
@@ -167,8 +167,8 @@ public class SystemPool
 
        cacheChanges_ = true; // don't send values to the system yet
        try {
-         set("poolSize", new Integer(size));
-         set("activityLevel", new Integer(activityLevel));
+         set("poolSize", Integer.valueOf(size));
+         set("activityLevel", Integer.valueOf(activityLevel));
        }
        catch (Exception e) { // should never happen, no system contact
          Trace.log(Trace.ERROR, e);
@@ -193,8 +193,8 @@ public class SystemPool
 
        cacheChanges_ = true; // don't send values to the system yet
        try {
-         set("poolSizeLong", new Long(size));
-         set("activityLevel", new Integer(activityLevel));
+         set("poolSizeLong", Long.valueOf(size));
+         set("activityLevel", Integer.valueOf(activityLevel));
        }
        catch (Exception e) { // should never happen, no system contact
          Trace.log(Trace.ERROR, e);
@@ -226,7 +226,7 @@ public class SystemPool
 
          system_ = system;
          poolName_ = poolName.trim();
-         poolIdentifier_ = new Integer(poolIdentifier);
+         poolIdentifier_ = Integer.valueOf(poolIdentifier);
          indicatedSharedPool_ = true;
 
          if (Trace.isTraceOn() && !isValidNameForSharedPool(poolName)) {
@@ -254,7 +254,7 @@ public class SystemPool
          }
 
          system_ = system;
-         poolIdentifier_ = new Integer(poolIdentifier);
+         poolIdentifier_ = Integer.valueOf(poolIdentifier);
      }
 
 
@@ -300,8 +300,8 @@ public class SystemPool
 
        // For some fields, negative values have special meanings.
        // It never makes sense to convert a negative value to hundredths.
-       if (floatVal <= 0) obj1 = new Integer((int)floatVal);
-       else obj1 = new Integer((int)(floatVal*100));
+       if (floatVal <= 0) obj1 = Integer.valueOf((int)floatVal);
+       else obj1 = Integer.valueOf((int)(floatVal*100));
 
        return obj1;
      }
@@ -1916,7 +1916,7 @@ public class SystemPool
                    UnsupportedEncodingException
      {
        if (!indicatedSharedPool_) throwUnsupported();
-       set("maximumFaults", new Float(value));
+       set("maximumFaults", Float.valueOf(value));
      }
 
      /**
@@ -1958,7 +1958,7 @@ public class SystemPool
                    UnsupportedEncodingException
      {
        if (!indicatedSharedPool_) throwUnsupported();
-       set("maximumPoolSize", new Float(value));
+       set("maximumPoolSize", Float.valueOf(value));
      }
 
 
@@ -2048,7 +2048,7 @@ public class SystemPool
                    UnsupportedEncodingException
      {
        if (!indicatedSharedPool_) throwUnsupported();
-       set("minimumFaults", new Float(value));
+       set("minimumFaults", Float.valueOf(value));
      }
 
 
@@ -2151,7 +2151,7 @@ public class SystemPool
                    UnsupportedEncodingException
      {
        if (!indicatedSharedPool_) throwUnsupported();
-       set("minimumPoolSize", new Float(value));
+       set("minimumPoolSize", Float.valueOf(value));
      }
 
 
@@ -2241,7 +2241,7 @@ public class SystemPool
                    UnsupportedEncodingException
      {
        if (!indicatedSharedPool_) throwUnsupported();
-       set("perThreadFaults", new Float(value));
+       set("perThreadFaults", Float.valueOf(value));
      }
 
 
@@ -2322,7 +2322,7 @@ public class SystemPool
                    PropertyVetoException,
                    UnsupportedEncodingException
      {
-       set("activityLevel", new Integer(value));
+       set("activityLevel", Integer.valueOf(value));
      }
 
 
@@ -2447,7 +2447,7 @@ public class SystemPool
                    PropertyVetoException,
                    UnsupportedEncodingException
      {
-       set("poolSize", new Integer(value));
+       set("poolSize", Integer.valueOf(value));
      }
 
      /**
@@ -2492,7 +2492,7 @@ public class SystemPool
                 PropertyVetoException,
                 UnsupportedEncodingException
   {
-    set("poolSizeLong", new Long(value));
+    set("poolSizeLong", Long.valueOf(value));
   }
 
      /**
@@ -2533,7 +2533,7 @@ public class SystemPool
                    UnsupportedEncodingException
      {
        if (!indicatedSharedPool_) throwUnsupported();
-       set("priority", new Integer(value));
+       set("priority", Integer.valueOf(value));
      }
 
 

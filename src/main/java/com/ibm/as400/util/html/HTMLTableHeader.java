@@ -210,8 +210,8 @@ public class HTMLTableHeader extends HTMLTableCell
     **/
     public void setBorderWidth(int borderWidth)                           //@C1A
     {
-        Integer oldWidth = new Integer(borderWidth_);
-        Integer newWidth = new Integer(borderWidth);
+        Integer oldWidth = Integer.valueOf(borderWidth_);
+        Integer newWidth = Integer.valueOf(borderWidth);
 
         borderWidth_ = borderWidth;
 
@@ -226,8 +226,8 @@ public class HTMLTableHeader extends HTMLTableCell
     **/
     public void setCellPadding(int cellPadding)                     //@C1A
     {
-        Integer oldPadding = new Integer(cellPadding_);
-        Integer newPadding = new Integer(cellPadding);
+        Integer oldPadding = Integer.valueOf(cellPadding_);
+        Integer newPadding = Integer.valueOf(cellPadding);
 
         cellPadding_ = cellPadding;
 

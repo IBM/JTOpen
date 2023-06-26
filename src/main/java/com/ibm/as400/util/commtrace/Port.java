@@ -160,7 +160,7 @@ class Port {
      */
     public static Object get(int i) {
 	   	if(ports.isEmpty()) { initialize();}
-	    return ports.get((new Integer(i)).toString());
+	    return ports.get((Integer.valueOf(i)).toString());
     }
    
     /**

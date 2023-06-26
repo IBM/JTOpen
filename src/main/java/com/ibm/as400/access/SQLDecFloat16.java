@@ -413,11 +413,11 @@ final class SQLDecFloat16 extends SQLDataBase {
         if(specialValue_ != null){
           //@snan snan is not yet supported, return as regular nan
             if(specialValue_.indexOf("-SNaN") != -1)  //@snan
-                return (new Double("-NaN")).byteValue();
+                return (Double.valueOf("-NaN")).byteValue();
             else if(specialValue_.indexOf("SNaN") != -1)  //@snan
-                return (new Double("NaN")).byteValue();
+                return (Double.valueOf("NaN")).byteValue();
             else 
-                return (new Double(specialValue_)).byteValue();
+                return (Double.valueOf(specialValue_)).byteValue();
         }
 
         if (value_.compareTo(BYTE_MAX_VALUE) > 0 || value_.compareTo(BYTE_MIN_VALUE) < 0) {
@@ -457,11 +457,11 @@ final class SQLDecFloat16 extends SQLDataBase {
         if(specialValue_ != null){
             //@snan snan is not yet supported, return as regular nan
             if(specialValue_.indexOf("-SNaN") != -1)  //@snan
-                return (new Double("-NaN")).doubleValue();
+                return Double.parseDouble("-NaN");
             else if(specialValue_.indexOf("SNaN") != -1)  //@snan
-                return (new Double("NaN")).doubleValue();
+                return Double.parseDouble("NaN");
             else 
-                return (new Double(specialValue_)).doubleValue();
+                return Double.parseDouble(specialValue_);
         }
         
         if (value_.compareTo(DOUBLE_MAX_VALUE) > 0 || value_.compareTo(DOUBLE_MIN_VALUE) < 0) {
@@ -479,11 +479,11 @@ final class SQLDecFloat16 extends SQLDataBase {
         if(specialValue_ != null){
             //@snan snan is not yet supported, return as regular nan
             if(specialValue_.indexOf("-SNaN") != -1)  //@snan
-                return (new Float("-NaN")).floatValue();
+                return Float.parseFloat("-NaN");
             else if(specialValue_.indexOf("SNaN") != -1)  //@snan
-                return (new Float("NaN")).floatValue();
+                return Float.parseFloat("NaN");
             else
-                return (new Float(specialValue_)).floatValue();
+                return Float.parseFloat(specialValue_);
         }
         
         if (value_.compareTo(FLOAT_MAX_VALUE) > 0 || value_.compareTo(FLOAT_MIN_VALUE) < 0) {

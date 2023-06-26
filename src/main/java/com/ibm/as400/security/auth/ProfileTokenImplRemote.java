@@ -209,7 +209,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
         // Input: Profile token type
         parmlist[4] = new ProgramParameter(
                 CharConverter.stringToByteArray(sys, 
-                new Integer(type).toString()));
+                Integer.toString(type)));
 
 	    // Input/output: Error code. NULL.
 	    parmlist[5] = new ProgramParameter(BinaryConverter.intToByteArray(0));
@@ -450,8 +450,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote
 	    parmlist[2] = new ProgramParameter(
 	            new AS400Bin4().toBytes(timeoutInterval));
 	    parmlist[3] = new ProgramParameter(new AS400Text(
-	            1, sys.getCcsid(), sys).toBytes(
-	            new Integer(type).toString()));
+	            1, sys.getCcsid(), sys).toBytes(Integer.toString(type)));
 	    parmlist[4] = new ProgramParameter(new AS400Bin4().toBytes(0));
 
 	    try {

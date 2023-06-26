@@ -63,7 +63,7 @@ public class AS400Float8 implements AS400DataType
      **/
     public Object getDefaultValue()
     {
-     return new Double(defaultValue);
+     return Double.valueOf(defaultValue);
     }
 
     /**
@@ -193,7 +193,7 @@ public class AS400Float8 implements AS400DataType
     public Object toObject(byte[] as400Value)
     {
      // BinaryConverter will throw the ArrayIndexException's
-     return new Double(BinaryConverter.byteArrayToDouble(as400Value, 0));
+     return Double.valueOf(BinaryConverter.byteArrayToDouble(as400Value, 0));
     }
 
     /**
@@ -205,6 +205,6 @@ public class AS400Float8 implements AS400DataType
     public Object toObject(byte[] as400Value, int offset)
     {
      // BinaryConverter will throw the ArrayIndexException's
-     return new Double(BinaryConverter.byteArrayToDouble(as400Value, offset));
+     return Double.valueOf(BinaryConverter.byteArrayToDouble(as400Value, offset));
     }
 }

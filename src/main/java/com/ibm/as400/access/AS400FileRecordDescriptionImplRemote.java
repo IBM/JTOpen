@@ -174,7 +174,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
             // Handle value
             else
             {
-              ((BinaryFieldDescription)fd).setDFT(new Short(dft));
+              ((BinaryFieldDescription)fd).setDFT(Short.valueOf(dft));
             }
           }
         }
@@ -202,7 +202,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
             // Handle value
             else
             {
-              ((BinaryFieldDescription)fd).setDFT(new Integer(dft));
+              ((BinaryFieldDescription)fd).setDFT(Integer.valueOf(dft));
             }
           }
         }
@@ -230,7 +230,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
             // Handle value
             else
             {
-              ((BinaryFieldDescription)fd).setDFT(new Long(dft));
+              ((BinaryFieldDescription)fd).setDFT(Long.valueOf(dft));
             }
           }
         }
@@ -316,7 +316,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
             // Handle value
             else
             {
-              ((FloatFieldDescription)fd).setDFT(new Float(dft));
+              ((FloatFieldDescription)fd).setDFT(Float.valueOf(dft));
             }
           }
         }
@@ -347,7 +347,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
             // Handle value
             else
             {
-              ((FloatFieldDescription)fd).setDFT(new Double(dft));
+              ((FloatFieldDescription)fd).setDFT(Double.valueOf(dft));
             }
           }
         }
@@ -1541,7 +1541,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
             else
             {
               sourceFile.println("    ((BinaryFieldDescription)getFieldDescription(\"" +
-                                 fieldName + "\")).setDFT(new Integer(\"" + dft + "\"));");
+                                 fieldName + "\")).setDFT(Integer.valueOf(\"" + dft + "\"));");
             }
           }
         }

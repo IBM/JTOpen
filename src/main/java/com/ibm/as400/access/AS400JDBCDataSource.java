@@ -2288,8 +2288,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "behaviorOverride";
 
-        Integer oldValue = new Integer(getBehaviorOverride());
-        Integer newValue = new Integer(behaviors);
+        Integer oldValue = Integer.valueOf(getBehaviorOverride());
+        Integer newValue = Integer.valueOf(behaviors);
 
         properties_.setString(JDProperties.BEHAVIOR_OVERRIDE, newValue.toString());
 
@@ -2314,8 +2314,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
         //@B3D if (bidiStringType == null)
         //@B3D    throw new NullPointerException(property);
-        Integer oldBidiStringType = new Integer(getBidiStringType());         //@B3A
-        Integer newBidiStringType = new Integer(bidiStringType);              //@B3A
+        Integer oldBidiStringType = Integer.valueOf(getBidiStringType());         //@B3A
+        Integer newBidiStringType = Integer.valueOf(bidiStringType);              //@B3A
 
         validateProperty(property, newBidiStringType.toString(), JDProperties.BIDI_STRING_TYPE); //@B3C
 
@@ -2413,8 +2413,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public void setBlockCriteria(int blockCriteria)
     {
         String property = "blockCriteria";
-        Integer oldCriteria = new Integer(getBlockCriteria());
-        Integer newCriteria = new Integer(blockCriteria);
+        Integer oldCriteria = Integer.valueOf(getBlockCriteria());
+        Integer newCriteria = Integer.valueOf(blockCriteria);
 
         validateProperty(property, newCriteria.toString(), JDProperties.BLOCK_CRITERIA);
 
@@ -2447,12 +2447,12 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "blockSize";
 
-        Integer oldBlockSize = new Integer(getBlockSize());
-        Integer newBlockSize = new Integer(blockSize);
+        Integer oldBlockSize = Integer.valueOf(getBlockSize());
+        Integer newBlockSize = Integer.valueOf(blockSize);
 
         validateProperty(property, newBlockSize.toString(), JDProperties.BLOCK_SIZE);
 
-        properties_.setString(JDProperties.BLOCK_SIZE, new Integer(blockSize).toString());
+        properties_.setString(JDProperties.BLOCK_SIZE, Integer.toString(blockSize));
         changes_.firePropertyChange(property, oldBlockSize, newBlockSize);
 
         if (JDTrace.isTraceOn())  { //@A8C
@@ -2529,8 +2529,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "concurrentAccessResolution";
 
-        Integer oldValue = new Integer(getConcurrentAccessResolution());
-        Integer newValue = new Integer(concurrentAccessResolution);
+        Integer oldValue = Integer.valueOf(getConcurrentAccessResolution());
+        Integer newValue = Integer.valueOf(concurrentAccessResolution);
 
         validateProperty(property, newValue.toString(), JDProperties.CONCURRENT_ACCESS_RESOLUTION);
 
@@ -3217,10 +3217,10 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (threshold < 0 || threshold > MAX_THRESHOLD)
             throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-        Integer oldValue = new Integer(getLobThreshold());
-        Integer newValue = new Integer(threshold);
+        Integer oldValue = Integer.valueOf(getLobThreshold());
+        Integer newValue = Integer.valueOf(threshold);
 
-        properties_.setString(JDProperties.LOB_THRESHOLD, new Integer(threshold).toString());
+        properties_.setString(JDProperties.LOB_THRESHOLD, Integer.toString(threshold));
 
         changes_.firePropertyChange(property, oldValue, newValue);
 
@@ -3241,8 +3241,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         sockProps_.setLoginTimeout(timeout * 1000); //@st3
         String property = "loginTimeout";                                               //@K5A
 
-        Integer oldValue = new Integer(getLoginTimeout());                              //@K5A
-        Integer newValue = new Integer(timeout);                                        //@K5A
+        Integer oldValue = Integer.valueOf(getLoginTimeout());                              //@K5A
+        Integer newValue = Integer.valueOf(timeout);                                        //@K5A
 
         properties_.setString(JDProperties.LOGIN_TIMEOUT, newValue.toString());         //@K5A
 
@@ -3293,8 +3293,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "metaDataSource";
 
-        Integer oldValue = new Integer(getMetaDataSource());
-        Integer newValue = new Integer(mds);
+        Integer oldValue = Integer.valueOf(getMetaDataSource());
+        Integer newValue = Integer.valueOf(mds);
 
         properties_.setString(JDProperties.METADATA_SOURCE, newValue.toString());
 
@@ -4024,8 +4024,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "serverTrace";
 
-        Integer oldValue = new Integer(getServerTraceCategories());
-        Integer newValue = new Integer(traceCategories);
+        Integer oldValue = Integer.valueOf(getServerTraceCategories());
+        Integer newValue = Integer.valueOf(traceCategories);
 
         properties_.setString(JDProperties.TRACE_SERVER, newValue.toString());
 
@@ -4802,8 +4802,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "packageCCSID";
 
-        Integer oldPackageCCSID = new Integer(getPackageCCSID());
-        Integer newPackageCCSID = new Integer(ccsid);
+        Integer oldPackageCCSID = Integer.valueOf(getPackageCCSID());
+        Integer newPackageCCSID = Integer.valueOf(ccsid);
 
         validateProperty(property, newPackageCCSID.toString(), JDProperties.PACKAGE_CCSID);
 
@@ -4888,8 +4888,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "minimumDivideScale";
 
-        Integer oldValue = new Integer(getMinimumDivideScale());
-        Integer newValue = new Integer(scale);
+        Integer oldValue = Integer.valueOf(getMinimumDivideScale());
+        Integer newValue = Integer.valueOf(scale);
 
         validateProperty(property, newValue.toString(), JDProperties.MINIMUM_DIVIDE_SCALE);
 
@@ -4912,8 +4912,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "maximumBlockedInputRows"; 
 
-        Integer oldValue = new Integer(getMaximumBlockedInputRows());
-        Integer newValue = new Integer(maximumBlockedInputRows);
+        Integer oldValue = Integer.valueOf(getMaximumBlockedInputRows());
+        Integer newValue = Integer.valueOf(maximumBlockedInputRows);
 
         if (maximumBlockedInputRows < 0 || maximumBlockedInputRows > 32000) {
         	throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -4942,8 +4942,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "maximumPrecision";
 
-        Integer oldValue = new Integer(getMaximumPrecision());
-        Integer newValue = new Integer(precision);
+        Integer oldValue = Integer.valueOf(getMaximumPrecision());
+        Integer newValue = Integer.valueOf(precision);
 
         validateProperty(property, newValue.toString(), JDProperties.MAXIMUM_PRECISION);
 
@@ -4966,8 +4966,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "maximumScale";
 
-        Integer oldValue = new Integer(getMaximumScale());
-        Integer newValue = new Integer(scale);
+        Integer oldValue = Integer.valueOf(getMaximumScale());
+        Integer newValue = Integer.valueOf(scale);
 
         // validate the new value
         validateProperty(property, newValue.toString(), JDProperties.MAXIMUM_SCALE);
@@ -5121,8 +5121,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "queryOptimizeGoal";
 
-        Integer oldValue = new Integer(getQueryOptimizeGoal());
-        Integer newValue = new Integer(goal);
+        Integer oldValue = Integer.valueOf(getQueryOptimizeGoal());
+        Integer newValue = Integer.valueOf(goal);
 
         properties_.setString(JDProperties.QUERY_OPTIMIZE_GOAL, newValue.toString());
 
@@ -5148,8 +5148,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (limit < -1 || limit > MAX_STORAGE_LIMIT)
             throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-        Integer oldValue = new Integer(getQueryStorageLimit());
-        Integer newValue = new Integer(limit);
+        Integer oldValue = Integer.valueOf(getQueryStorageLimit());
+        Integer newValue = Integer.valueOf(limit);
 
         properties_.setString(JDProperties.QUERY_STORAGE_LIMIT, newValue.toString());
 
@@ -5241,8 +5241,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
         String property = "xaLooselyCoupledSupport";
 
-        Integer oldValue = new Integer(getXALooselyCoupledSupport());
-        Integer newValue = new Integer(lcs);
+        Integer oldValue = Integer.valueOf(getXALooselyCoupledSupport());
+        Integer newValue = Integer.valueOf(lcs);
 
         properties_.setString(JDProperties.XA_LOOSELY_COUPLED_SUPPORT, newValue.toString());
 

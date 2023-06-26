@@ -291,7 +291,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
 	    // Input: Profile token type. Int to string, get bytes.
 	    parmlist[4] = new ProgramParameter(
 	        CharConverter.stringToByteArray(
-	        sys, new Integer(type).toString()));
+	        sys, Integer.toString(type)));
 
 	    // Input/output: Error code. NULL.
 	    parmlist[5] = new ProgramParameter(
@@ -410,7 +410,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
       // Input: Profile token type. Int to string, get bytes.
       parmlist[4] = new ProgramParameter(
           CharConverter.stringToByteArray(
-          sys, new Integer(type).toString()));
+          sys, Integer.toString(type)));
 
       // Input/output: Error code. NULL.
       parmlist[5] = new ProgramParameter(

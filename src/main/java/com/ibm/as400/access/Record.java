@@ -1721,8 +1721,8 @@ public class Record implements Serializable
     Integer newnum = null;
     if (vetos_ != null || changes_ != null)
     {
-      old = new Integer(recordNumber_);
-      newnum = new Integer(recordNumber);
+      old = Integer.valueOf(recordNumber_);
+      newnum = Integer.valueOf(recordNumber);
     }
     if (vetos_ != null) vetos_.fireVetoableChange("recordNumber", old, newnum);
     recordNumber_ = recordNumber;
@@ -1747,8 +1747,8 @@ public class Record implements Serializable
       Long newnum = null;
       if (vetos_ != null || changes_ != null)
       {
-        old = new Long(recordNumberLong_);
-        newnum = new Long(recordNumber);
+        old = Long.valueOf(recordNumberLong_);
+        newnum = Long.valueOf(recordNumber);
       }
       if (vetos_ != null) vetos_.fireVetoableChange("recordNumberLong_", old, newnum);
       recordNumberLong_ = recordNumber;

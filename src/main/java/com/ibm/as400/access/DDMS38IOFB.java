@@ -89,11 +89,11 @@ class DDMS38IOFB
   {
     StringBuffer str = new StringBuffer();
     str.append("Number of records returned: ");
-    str.append((new Integer(getNumberOfRecordsReturned())).toString());
+    str.append((Integer.toString(getNumberOfRecordsReturned())));
     str.append("\n");
 
     str.append("Record length: ");
-    str.append((new Integer(getRecordLength())).toString());
+    str.append((Integer.toString(getRecordLength())));
     str.append("\n");
 
     return str.toString();

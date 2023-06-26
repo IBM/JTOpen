@@ -4168,7 +4168,7 @@ throws SQLException
                 }
 
                 packageCCSID_Converter = ConvTable.getTable(sendCCSIDInt, null);
-                properties_.setString(JDProperties.PACKAGE_CCSID, (new Integer(sendCCSIDInt)).toString());
+                properties_.setString(JDProperties.PACKAGE_CCSID, (Integer.valueOf(sendCCSIDInt)).toString());
                 request.setClientCCSID(sendCCSIDInt);
                 if(JDTrace.isTraceOn())
         			JDTrace.logInformation(this, "Client CCSID = " + sendCCSIDInt);

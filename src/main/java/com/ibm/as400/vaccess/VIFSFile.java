@@ -518,7 +518,7 @@ Initializes the transient data.
         modified_            = new Date ();
        
         readable_               = false;
-        size_                   = new Long (0);
+        size_                   = Long.valueOf(0);
         writable_               = false;
     }
 
@@ -534,11 +534,11 @@ Loads information about the object from the system.
 
         // Load the size.
         try {
-            size_ = new Long (file_.length());
+            size_ = Long.valueOf(file_.length());
         }
         catch (Exception e) {
             errorEventSupport_.fireError (e);
-            size_ = new Long (0);
+            size_ = Long.valueOf(0);
         }
 
         // Load the modified date.

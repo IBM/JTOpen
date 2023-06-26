@@ -429,7 +429,7 @@ public AS400Date(int format, Character separator)
    **/
   public void setFormat(int format, char separator)
   {
-    super.setFormat(format, new Character(separator));
+    super.setFormat(format, Character.valueOf(separator));
   }
 
   private static Hashtable getFormatsMap()
@@ -439,22 +439,22 @@ public AS400Date(int format, Character separator)
         if (formatsMap_ == null)
         {
           formatsMap_ = new Hashtable(12);
-          formatsMap_.put("MDY",     new Integer(FORMAT_MDY));
-          formatsMap_.put("DMY",     new Integer(FORMAT_DMY));
-          formatsMap_.put("YMD",     new Integer(FORMAT_YMD));
-          formatsMap_.put("JUL",     new Integer(FORMAT_JUL));
-          formatsMap_.put("ISO",     new Integer(FORMAT_ISO));
-          formatsMap_.put("USA",     new Integer(FORMAT_USA));
-          formatsMap_.put("EUR",     new Integer(FORMAT_EUR));
-          formatsMap_.put("JIS",     new Integer(FORMAT_JIS));
-          formatsMap_.put("CYMD",    new Integer(FORMAT_CYMD));
-          formatsMap_.put("CMDY",    new Integer(FORMAT_CMDY));
-          formatsMap_.put("CDMY",    new Integer(FORMAT_CDMY));
-          formatsMap_.put("LONGJUL", new Integer(FORMAT_LONGJUL));
-          formatsMap_.put("MY",      new Integer(FORMAT_MY));
-          formatsMap_.put("YM",      new Integer(FORMAT_YM));
-          formatsMap_.put("MYY",     new Integer(FORMAT_MYY));
-          formatsMap_.put("YYM",     new Integer(FORMAT_YYM));
+          formatsMap_.put("MDY",     Integer.valueOf(FORMAT_MDY));
+          formatsMap_.put("DMY",     Integer.valueOf(FORMAT_DMY));
+          formatsMap_.put("YMD",     Integer.valueOf(FORMAT_YMD));
+          formatsMap_.put("JUL",     Integer.valueOf(FORMAT_JUL));
+          formatsMap_.put("ISO",     Integer.valueOf(FORMAT_ISO));
+          formatsMap_.put("USA",     Integer.valueOf(FORMAT_USA));
+          formatsMap_.put("EUR",     Integer.valueOf(FORMAT_EUR));
+          formatsMap_.put("JIS",     Integer.valueOf(FORMAT_JIS));
+          formatsMap_.put("CYMD",    Integer.valueOf(FORMAT_CYMD));
+          formatsMap_.put("CMDY",    Integer.valueOf(FORMAT_CMDY));
+          formatsMap_.put("CDMY",    Integer.valueOf(FORMAT_CDMY));
+          formatsMap_.put("LONGJUL", Integer.valueOf(FORMAT_LONGJUL));
+          formatsMap_.put("MY",      Integer.valueOf(FORMAT_MY));
+          formatsMap_.put("YM",      Integer.valueOf(FORMAT_YM));
+          formatsMap_.put("MYY",     Integer.valueOf(FORMAT_MYY));
+          formatsMap_.put("YYM",     Integer.valueOf(FORMAT_YYM));
         }
       }
     }
@@ -793,7 +793,7 @@ public AS400Date(int format, Character separator)
     else if (year < 40) century = 1;   // century 1 is years 2001-2100
     else                century = 0;   // century 0 is years 1901-2000
 
-    return new Integer(century);
+    return Integer.valueOf(century);
   }
 
 

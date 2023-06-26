@@ -319,7 +319,7 @@ public class TimeFieldDescription extends FieldDescription implements Serializab
       if (separator != null && separator.length() > 1) {
         throw new ExtendedIllegalArgumentException("separator (" + separator + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
       }
-      Character sep = ( separator == null ? null : new Character(separator.charAt(0)));
+      Character sep = ( separator == null ? null : Character.valueOf(separator.charAt(0)));
       ((AS400Time)dataType_).setSeparator(sep);
     }
     timeSeparator_ = separator;

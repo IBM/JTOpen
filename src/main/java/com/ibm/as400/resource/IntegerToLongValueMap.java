@@ -52,9 +52,9 @@ Maps from a physical value to a logical value.
 
         int intValue = ((Integer)physicalValue).intValue();
         if (intValue >= 0)
-            return new Long(intValue);
+            return Long.valueOf(intValue);
         else
-            return new Long( ((long)(UPPER_LIMIT_ + (long)intValue)));
+            return Long.valueOf((long)(UPPER_LIMIT_ + (long)intValue));
     }
 
 

@@ -43,7 +43,7 @@ class ConverterImplProxy extends AbstractProxyImpl implements ConverterImpl
     {
         try
         {
-            connection_.callMethod(pxId_, "setCcsid", new Class[] { Integer.TYPE, AS400Impl.class }, new Object[] { new Integer(ccsid), systemImpl });
+            connection_.callMethod(pxId_, "setCcsid", new Class[] { Integer.TYPE, AS400Impl.class }, new Object[] { Integer.valueOf(ccsid), systemImpl });
         }
         catch (InvocationTargetException e)
         {
@@ -81,7 +81,7 @@ class ConverterImplProxy extends AbstractProxyImpl implements ConverterImpl
     {
         try
         {
-            return(String)connection_.callMethod(pxId_, "byteArrayToString", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE}, new Object[] { source, new Integer(offset), new Integer(length)}).getReturnValue();
+            return(String)connection_.callMethod(pxId_, "byteArrayToString", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE}, new Object[] { source, Integer.valueOf(offset), Integer.valueOf(length)}).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
@@ -93,7 +93,7 @@ class ConverterImplProxy extends AbstractProxyImpl implements ConverterImpl
     {
         try
         {
-            return(String)connection_.callMethod(pxId_, "byteArrayToString", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE, BidiConversionProperties.class }, new Object[] { source, new Integer(offset), new Integer(length), properties }).getReturnValue();
+            return(String)connection_.callMethod(pxId_, "byteArrayToString", new Class[] { byte[].class, Integer.TYPE, Integer.TYPE, BidiConversionProperties.class }, new Object[] { source, Integer.valueOf(offset), Integer.valueOf(length), properties }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {

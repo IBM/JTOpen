@@ -1822,103 +1822,103 @@ public class Job implements Serializable
      Constant indicating that the job is an autostart job.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_AUTOSTART = new Integer(110);
+    public static final Integer JOB_TYPE_ENHANCED_AUTOSTART = Integer.valueOf(110);
 
     /**
      Constant indicating that the job is a batch job.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_BATCH = new Integer(210);
+    public static final Integer JOB_TYPE_ENHANCED_BATCH = Integer.valueOf(210);
 
     /**
      Constant indicating that the job is a batch immediate job.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_BATCH_IMMEDIATE = new Integer(220);
+    public static final Integer JOB_TYPE_ENHANCED_BATCH_IMMEDIATE = Integer.valueOf(220);
 
     /**
      Constant indicating that the job is a batch System/36 multiple requester terminal (MRT) job.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_BATCH_MRT = new Integer(230);
+    public static final Integer JOB_TYPE_ENHANCED_BATCH_MRT = Integer.valueOf(230);
 
     /**
      Constant indicating that the job is a batch alternate spool user job.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_BATCH_ALTERNATE_SPOOL_USER = new Integer(240);
+    public static final Integer JOB_TYPE_ENHANCED_BATCH_ALTERNATE_SPOOL_USER = Integer.valueOf(240);
 
     /**
      Constant indicating that the job is a communications procedure start request job.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_COMM_PROCEDURE_START_REQUEST = new Integer(310);
+    public static final Integer JOB_TYPE_ENHANCED_COMM_PROCEDURE_START_REQUEST = Integer.valueOf(310);
 
     /**
      Constant indicating that the job is an interactive job.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_INTERACTIVE = new Integer(910);
+    public static final Integer JOB_TYPE_ENHANCED_INTERACTIVE = Integer.valueOf(910);
 
     /**
      Constant indicating that the job is an interactive job that is part of a group.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_INTERACTIVE_GROUP = new Integer(920);
+    public static final Integer JOB_TYPE_ENHANCED_INTERACTIVE_GROUP = Integer.valueOf(920);
 
     /**
      Constant indicating that the job is an interactive job that is part of a system request pair.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ = new Integer(930);
+    public static final Integer JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ = Integer.valueOf(930);
 
     /**
      Constant indicating that the job is an interactive job that is part of a system request pair and part of a group.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ_AND_GROUP = new Integer(940);
+    public static final Integer JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ_AND_GROUP = Integer.valueOf(940);
 
     /**
      Constant indicating that the job is a prestart job.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_PRESTART = new Integer(1610);
+    public static final Integer JOB_TYPE_ENHANCED_PRESTART = Integer.valueOf(1610);
 
     /**
      Constant indicating that the job is a prestart batch job.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_PRESTART_BATCH = new Integer(1620);
+    public static final Integer JOB_TYPE_ENHANCED_PRESTART_BATCH = Integer.valueOf(1620);
 
     /**
      Constant indicating that the job is a prestart communications job.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_PRESTART_COMM = new Integer(1630);
+    public static final Integer JOB_TYPE_ENHANCED_PRESTART_COMM = Integer.valueOf(1630);
 
     /**
      Constant indicating that the job is a reader job.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_READER = new Integer(1810);
+    public static final Integer JOB_TYPE_ENHANCED_READER = Integer.valueOf(1810);
 
     /**
      Constant indicating that the job is a subsystem job.
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_SUBSYSTEM = new Integer(1910);
+    public static final Integer JOB_TYPE_ENHANCED_SUBSYSTEM = Integer.valueOf(1910);
 
     /**
      Constant indicating that the job is a system job (all system jobs including SCPF).
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_SYSTEM = new Integer(1920);
+    public static final Integer JOB_TYPE_ENHANCED_SYSTEM = Integer.valueOf(1920);
 
     /**
      Constant indicating that the job is a writer job (including both spool writers and print drivers).
      @see  #JOB_TYPE_ENHANCED
      **/
-    public static final Integer JOB_TYPE_ENHANCED_WRITER = new Integer(2310);
+    public static final Integer JOB_TYPE_ENHANCED_WRITER = Integer.valueOf(2310);
 
     /**
      Job attribute representing the user profile name by which the job is known to other jobs on the system.  The job user identity is used for authorization checks when other jobs on the system attempt to operate against the job.  For more detail on how the job user identity is set and used, refer to the Set Job User Identity (QWTSJUID) API.  For jobs that are on a job queue or have completed running, the job user identity is same as the user name from the qualified job name.  This attribute will return blanks for these jobs.  A value of *N is returned if the job user identity is set, but the user profile to which it is set no longer exists.
@@ -4867,7 +4867,7 @@ public class Job implements Serializable
     {
         String p = ((String)getValue(JOB_QUEUE_PRIORITY)).trim();
         if (p.length() == 0) return -1;
-        return (new Integer(p)).intValue();
+        return (Integer.valueOf(p)).intValue();
     }
 
     /**
@@ -6034,7 +6034,7 @@ public class Job implements Serializable
     // Helper method.  Used after an API call to set the attribute values into our internal table.
     final void setAsInt(int key, int val)
     {
-        setValueInternal(key, new Integer(val));
+        setValueInternal(key, Integer.valueOf(val));
     }
 
     // Helper method.  Used when the user calls a setter to set the attribute value into our internal table as well as the table of uncommitted changes.
@@ -6050,7 +6050,7 @@ public class Job implements Serializable
     // Helper method.  Used after an API call to set the attribute values into our internal table.
     final void setAsLong(int key, long val)
     {
-        setValueInternal(key, new Long(val));
+        setValueInternal(key, Long.valueOf(val));
     }
 
     /**

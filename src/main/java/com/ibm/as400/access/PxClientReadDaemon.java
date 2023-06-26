@@ -90,7 +90,7 @@ extends StoppableThread
     public PxRepCV getReply(long correlationId)
         throws InvocationTargetException, IOException
     {
-        Long key = new Long(correlationId);
+        Long key = Long.valueOf(correlationId);
 
         // Loop and poll, until the correct reply has been read by the
         // read daemon thread.
@@ -178,7 +178,7 @@ extends StoppableThread
                     long correlationId = reply.getCorrelationId();
                     if (correlationId >= 0) {
                         synchronized(this) {
-                            replies_.put(new Long(correlationId), reply);
+                            replies_.put(Long.valueOf(correlationId), reply);
                             notifyAll();
                         }
                     }
@@ -231,7 +231,7 @@ extends StoppableThread
 
     //  try
     //  {
-           Long key = new Long(CID);
+           Long key = Long.valueOf(CID);
 
            if (replies_.containsKey(key))
            {
@@ -260,7 +260,7 @@ extends StoppableThread
               long correlationId = reply.getCorrelationId();
               if (correlationId != CID) {
                 
-                 replies_.put(new Long(correlationId), reply);
+                 replies_.put(Long.valueOf(correlationId), reply);
               }
               else
               {

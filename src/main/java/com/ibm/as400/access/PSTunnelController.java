@@ -231,7 +231,7 @@ class PSTunnelController
 				{
 					if (clientCleanupInterval_ > 0)	 // do not do cleanup if <= 0	                              //@A1A
 					{												  //@A1A
-						useTimes_.put(new Long(reply.getClientId()), new Long(System.currentTimeMillis()));	  //@A1A
+						useTimes_.put(Long.valueOf(reply.getClientId()), Long.valueOf(System.currentTimeMillis()));	  //@A1A
 					}												  //@A1A
 					reply.setCorrelationId(request.getCorrelationId());
 
@@ -247,7 +247,7 @@ class PSTunnelController
 			// exception.  If yes, give the request to the connection object for this clientId_.
 			else
 			{
-				PSTunnelConnection connectionObject = (PSTunnelConnection)clientIds_.get(new Long(clientId));
+				PSTunnelConnection connectionObject = (PSTunnelConnection)clientIds_.get(Long.valueOf(clientId));
 				if (connectionObject == null)
 				{
 					PxRepSV reply = new PxExceptionRepSV(new ProxyException (ProxyException.CONNECTION_DROPPED));
@@ -264,7 +264,7 @@ class PSTunnelController
 					connectionObject.runRequest(request, outputStream);
 					if (clientCleanupInterval_ > 0)	  // do not do cleanup if <= 0			   //@A1A
 					{										   //@A1A
-						useTimes_.put(new Long(clientId), new Long(System.currentTimeMillis()));   //@A1A
+						useTimes_.put(Long.valueOf(clientId), Long.valueOf(System.currentTimeMillis()));   //@A1A
 					}										   //@A1A
 				}
 			}

@@ -140,7 +140,7 @@ class ServerTrace
         {
             try
             {
-               JDBCServerTraceCategories_ = (new Integer(value)).intValue();
+               JDBCServerTraceCategories_ = Integer.parseInt(value);
             }
             catch (Exception e)
             {

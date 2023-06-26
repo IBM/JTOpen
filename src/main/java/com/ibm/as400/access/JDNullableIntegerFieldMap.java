@@ -54,15 +54,15 @@ implements JDFieldMap
             switch(serverDataAsString.charAt (0))
             {
                 case 'N':
-                    return new Integer (DatabaseMetaData.columnNoNulls);
+                    return Integer.valueOf(DatabaseMetaData.columnNoNulls);
                 case 'Y':
-                    return new Integer (DatabaseMetaData.columnNullable);
+                    return Integer.valueOf(DatabaseMetaData.columnNullable);
                 default:
-                    return new Integer (DatabaseMetaData.columnNullableUnknown);
+                    return Integer.valueOf(DatabaseMetaData.columnNullableUnknown);
             }
         }
         else
-            return new Integer (DatabaseMetaData.columnNullableUnknown);
+            return Integer.valueOf(DatabaseMetaData.columnNullableUnknown);
     }
 
     /**

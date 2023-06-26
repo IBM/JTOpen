@@ -393,8 +393,8 @@ public class ProgramParameter implements Serializable
         Integer newValue = null;
         if (vetoableChangeListeners_ != null || propertyChangeListeners_ != null)
         {
-          oldValue = new Integer(outputDataLength_);
-          newValue = new Integer(outputDataLength);
+          oldValue = Integer.valueOf(outputDataLength_);
+          newValue = Integer.valueOf(outputDataLength);
         }
         if (vetoableChangeListeners_ != null) vetoableChangeListeners_.fireVetoableChange("outputDataLength", oldValue, newValue);
         nullParameter_ = false;
@@ -424,8 +424,8 @@ public class ProgramParameter implements Serializable
         Integer newValue = null;
         if (vetoableChangeListeners_ != null || propertyChangeListeners_ != null)
         {
-          oldValue = new Integer(parameterType_);
-          newValue = new Integer(parameterType);
+          oldValue = Integer.valueOf(parameterType_);
+          newValue = Integer.valueOf(parameterType);
         }
         if (vetoableChangeListeners_ != null) vetoableChangeListeners_.fireVetoableChange("parameterType", oldValue, newValue);
         parameterType_ = parameterType;

@@ -465,7 +465,7 @@ public class FileListRenderer implements java.io.Serializable
                     Date d = new Date(fileList[i].lastModified());                     
 
                     row[0] = fileName.replace('\\','/');                         // @A4C
-                    row[1] = new Long(fileList[i].length());                             
+                    row[1] = Long.valueOf(fileList[i].length());                             
                     row[2] = "File";                                                   // @A3C
                     row[3] = formatter_.format(d);                                       
 

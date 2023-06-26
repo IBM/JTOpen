@@ -3279,7 +3279,7 @@ public int getASP(boolean retrieveAll) throws IOException, AS400SecurityExceptio
     throws IOException, PropertyVetoException
   {
     // Fire a vetoable change event for lastModified.
-    vetos_.fireVetoableChange("lastModified", null, new Long(time));
+    vetos_.fireVetoableChange("lastModified", null, Long.valueOf(time));
 
     try
     {
@@ -3339,7 +3339,7 @@ public int getASP(boolean retrieveAll) throws IOException, AS400SecurityExceptio
     if (success)
     {
       // Fire the property change event.
-      changes_.firePropertyChange("lastModified", null, new Long(time));
+      changes_.firePropertyChange("lastModified", null, Long.valueOf(time));
 
       // Fire the file modified event.
       if (fileListeners_.size() != 0) {

@@ -115,7 +115,7 @@ public class RecordFormat implements Serializable
   // Name of this record format
   private String name_ = "";
   // Constant used to indicate that a field is not a dependent field
-  private static final Integer NOT_DEPENDENT_ = new Integer(-1);
+  private static final Integer NOT_DEPENDENT_ = Integer.valueOf(-1);
   // Contains the index of the field depended on for offset by the field description specified by the
   // the index into this Vector.
   private Vector offsetDependentFields_ = new Vector();
@@ -173,7 +173,7 @@ public class RecordFormat implements Serializable
       throw new NullPointerException("field");
     }
     // Map the name to the appropriate index
-    fieldNameToIndexMap_.put(field.getFieldName(), new Integer(fieldDescriptions_.size()));
+    fieldNameToIndexMap_.put(field.getFieldName(), Integer.valueOf(fieldDescriptions_.size()));
     // Add the field to the field descriptions
     fieldDescriptions_.addElement(field);
     // Indicate that this field is not a dependent field
@@ -206,7 +206,7 @@ public class RecordFormat implements Serializable
     }
     FieldDescription f = (FieldDescription)fieldDescriptions_.elementAt(index);
     // Map the name to the appropriate index
-    keyFieldNameToIndexMap_.put(f.getFieldName(), new Integer(keyFieldDescriptions_.size()));
+    keyFieldNameToIndexMap_.put(f.getFieldName(), Integer.valueOf(keyFieldDescriptions_.size()));
     // Add the field to the key field descriptions
     keyFieldDescriptions_.addElement(f);
 
@@ -942,7 +942,7 @@ public class RecordFormat implements Serializable
     {
       throw new ExtendedIllegalArgumentException("fieldDependedOn", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-    lengthDependentFields_.setElementAt(new Integer(fieldDependedOn), dependentField);
+    lengthDependentFields_.setElementAt(Integer.valueOf(fieldDependedOn), dependentField);
     hasDependentFields_ = true;
   }
 
@@ -1019,7 +1019,7 @@ public class RecordFormat implements Serializable
     {
       throw new ExtendedIllegalArgumentException("fieldDependedOn", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-    offsetDependentFields_.setElementAt(new Integer(fieldDependedOn), dependentField);
+    offsetDependentFields_.setElementAt(Integer.valueOf(fieldDependedOn), dependentField);
     hasDependentFields_ = true;
   }
 

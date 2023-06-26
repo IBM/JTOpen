@@ -866,8 +866,8 @@ public final class ProfileTokenCredential extends AS400Credential
                 "seconds", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
-        Integer old = new Integer(timeoutInterval_);
-        Integer sec = new Integer(seconds);
+        Integer old = Integer.valueOf(timeoutInterval_);
+        Integer sec = Integer.valueOf(seconds);
         fireVetoableChange("timeoutInterval", old, sec);
         timeoutInterval_ = seconds;
         firePropertyChange("timeoutInterval", old, sec);
@@ -1531,8 +1531,8 @@ public final class ProfileTokenCredential extends AS400Credential
                 "type", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
-        Integer old = new Integer(type_);
-        Integer typ = new Integer(type);
+        Integer old = Integer.valueOf(type_);
+        Integer typ = Integer.valueOf(type);
         fireVetoableChange("tokenType", old, typ);
         type_ = type;
         firePropertyChange("tokenType", old, typ);

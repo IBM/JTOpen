@@ -305,7 +305,7 @@ public AS400Time(int format)
    **/
   public void setFormat(int format, char separator)
   {
-     super.setFormat(format, new Character(separator));
+     super.setFormat(format, Character.valueOf(separator));
   }
 
   private static Hashtable getFormatsMap()
@@ -317,11 +317,11 @@ public AS400Time(int format)
         if (formatsMap_ == null)
         {
           formatsMap_ = new Hashtable(12);
-          formatsMap_.put("HMS",     new Integer(FORMAT_HMS));
-          formatsMap_.put("ISO",     new Integer(FORMAT_ISO));
-          formatsMap_.put("USA",     new Integer(FORMAT_USA));
-          formatsMap_.put("EUR",     new Integer(FORMAT_EUR));
-          formatsMap_.put("JIS",     new Integer(FORMAT_JIS));
+          formatsMap_.put("HMS",     Integer.valueOf(FORMAT_HMS));
+          formatsMap_.put("ISO",     Integer.valueOf(FORMAT_ISO));
+          formatsMap_.put("USA",     Integer.valueOf(FORMAT_USA));
+          formatsMap_.put("EUR",     Integer.valueOf(FORMAT_EUR));
+          formatsMap_.put("JIS",     Integer.valueOf(FORMAT_JIS));
         }
       }
     }

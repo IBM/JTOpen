@@ -898,8 +898,8 @@ public class IFSFileInputStream extends InputStream
     Integer oldShareOption = null;
     Integer newShareOption = null;
 
-    oldShareOption = new Integer(fd_.getShareOption());
-    newShareOption = new Integer(shareOption);
+    oldShareOption = Integer.valueOf(fd_.getShareOption());
+    newShareOption = Integer.valueOf(shareOption);
 
     // Fire a vetoable change event for shareOption.
     vetos_.fireVetoableChange("shareOption", oldShareOption,

@@ -221,7 +221,7 @@ public class DefaultProfileTokenProvider implements ProfileTokenProvider
          (specialValue != ProfileTokenCredential.PW_NOPWDCHK) ) {
       throw new ExtendedIllegalArgumentException("specialValue", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
     }
-    setExtendedInfo(new Integer(specialValue));
+    setExtendedInfo(Integer.valueOf(specialValue));
   }
 
   /**

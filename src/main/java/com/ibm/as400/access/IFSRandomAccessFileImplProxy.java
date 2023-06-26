@@ -83,7 +83,7 @@ implements IFSRandomAccessFileImpl
     try {
       return (IFSKey) connection_.callMethod (pxId_, "lock",
                               new Class[] { Long.TYPE, Long.TYPE },
-                              new Object[] { new Long(offset), new Long(length) })
+                              new Object[] { Long.valueOf(offset), Long.valueOf(length) })
                         .getReturnValue();
     }
     catch (InvocationTargetException e) {
@@ -119,8 +119,8 @@ implements IFSRandomAccessFileImpl
                                                  Integer.TYPE,
                                                  Boolean.TYPE},
                                    new Object[] { data,
-                                                  new Integer (dataOffset),
-                                                  new Integer (length),
+                                                  Integer.valueOf(dataOffset),
+                                                  Integer.valueOf(length),
                                                   Boolean.valueOf(readFully) },
                                    ARGS_TO_RETURN, readFully );
       // Note: The 6th arg says whether to call the method asynchronously.
@@ -164,7 +164,7 @@ implements IFSRandomAccessFileImpl
     try {
       connection_.callMethod (pxId_, "setExistenceOption",
                               new Class[] { Integer.TYPE },
-                              new Object[] { new Integer(existenceOption) });
+                              new Object[] { Integer.valueOf(existenceOption) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
@@ -204,7 +204,7 @@ implements IFSRandomAccessFileImpl
     try {
       connection_.callMethod (pxId_, "setLength",
                               new Class[] { Long.TYPE },
-                              new Object[] { new Long(length) });
+                              new Object[] { Long.valueOf(length) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow1 (e);
@@ -247,8 +247,8 @@ implements IFSRandomAccessFileImpl
     try {
       connection_.callMethod (pxId_, "writeBytes",
                               new Class[] { byte[].class, Integer.TYPE, Integer.TYPE },
-                              new Object[] { data, new Integer(dataOffset),
-                                             new Integer(length) });
+                              new Object[] { data, Integer.valueOf(dataOffset),
+                                             Integer.valueOf(length) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow1 (e);

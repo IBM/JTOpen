@@ -486,7 +486,7 @@ implements JDRow
                     // Never uppercase the name from the database. If the name is
                     // supposed to be uppercase, it will already be. If it isn't, it will be
                     // lowercase and its double quotes will be missing.
-                    insensitiveColumnNames_.put(cName, new Integer(i));
+                    insensitiveColumnNames_.put(cName, Integer.valueOf(i));
                 }
             }
 

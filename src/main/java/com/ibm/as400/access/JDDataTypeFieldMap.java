@@ -42,8 +42,8 @@ implements JDFieldMap
     {
         String typeName = row.getSQLData(typeIndex_).getString().trim();    //@A1A
         if(typeName.equals("DISTINCT"))                                     //@A1A  We do not have a SQLData class for DISTINCTs
-            return new Short((short)2001);                                  //@A1A
-        return new Short((short)((SQLData)super.getValue(row)).getType());
+            return Short.valueOf((short)2001);                                  //@A1A
+        return Short.valueOf((short)((SQLData)super.getValue(row)).getType());
     }
 
     /**

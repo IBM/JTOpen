@@ -1654,7 +1654,7 @@ implements IFSFileImpl
         }
 
         // Grab the "attribute bytes". These are the 2 bytes starting at offset 8.
-        databaseFileAttributes_ = new Integer(BinaryConverter.byteArrayToUnsignedShort(outputData, 8));
+        databaseFileAttributes_ = Integer.valueOf(BinaryConverter.byteArrayToUnsignedShort(outputData, 8));
       }
       catch (AS400Exception e) {
         throw e;

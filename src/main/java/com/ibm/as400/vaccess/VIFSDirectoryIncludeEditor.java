@@ -90,7 +90,7 @@ Returns the property value.
 **/
     public Object getValue ()
     {
-        return new Integer (value_);
+        return Integer.valueOf(value_);
     }
 
 

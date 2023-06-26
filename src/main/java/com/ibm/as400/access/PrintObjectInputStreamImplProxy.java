@@ -139,7 +139,7 @@ implements PrintObjectInputStreamImpl, ProxyImpl
         try {
             connection_.callMethod(pxId_, "mark",
                                    new Class[] {Integer.TYPE},
-                                   new Object[] { new Integer (readLimit) });
+                                   new Object[] { Integer.valueOf(readLimit) });
         }
         catch (InvocationTargetException e) {
             throw ProxyClientConnection.rethrow(e);
@@ -154,7 +154,7 @@ implements PrintObjectInputStreamImpl, ProxyImpl
         try {
             ProxyReturnValue rv = connection_.callMethod(pxId_, "read",
                                      new Class[] { byte[].class , Integer.TYPE, Integer.TYPE },
-                                     new Object[] { data, new Integer(dataOffset), new Integer(length) },
+                                     new Object[] { data, Integer.valueOf(dataOffset), Integer.valueOf(length) },
                                      myArgs, false);
 
             byte [] returnDataBuffer = (byte[])rv.getArgument(0);
@@ -195,7 +195,7 @@ implements PrintObjectInputStreamImpl, ProxyImpl
         try {
             return connection_.callMethod(pxId_, "skip",
                                           new Class[] { Long.TYPE },
-                                          new Object[] { new Long(bytesToSkip) }).getReturnValueLong();
+                                          new Object[] { Long.valueOf(bytesToSkip)}).getReturnValueLong();
         }
         catch (InvocationTargetException e) {
             Throwable error = e.getTargetException();

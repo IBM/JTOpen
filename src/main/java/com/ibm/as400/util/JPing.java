@@ -207,7 +207,7 @@ public class JPing
       // Get the JPing timeout value.
       String t = arguments.getOptionValue("-timeout");
       if (t != null)
-         time_ = (new Integer(t)).intValue();
+         time_ = Integer.parseInt(t);
          
       // The user wants verbose output if they specify this flag.
       verbose_ = (arguments.isOptionSpecified("-verbose"));

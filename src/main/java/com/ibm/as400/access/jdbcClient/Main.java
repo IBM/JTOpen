@@ -2043,11 +2043,11 @@ public class Main implements Runnable {
               argClasses);
           Object[] args = new Object[1];
           if (setting.startsWith("true")) {
-            args[0] = new Integer(3);
+            args[0] = Integer.valueOf(3);
           } else if (setting.startsWith("false")) {
-            args[0] = new Integer(0);
+            args[0] = Integer.valueOf(0);
           } else {
-            args[0] = new Integer(Integer.parseInt(setting));
+            args[0] = Integer.valueOf(setting);
           }
           method.invoke(null, args);
 
@@ -2882,7 +2882,7 @@ public class Main implements Runnable {
                             parameters[p] = arg;
                           } else if (parameterTypeName.equals("char") ) {
                             if (arg.length() == 1) {
-                              parameters[p] = new Character(arg.charAt(0));
+                              parameters[p] = Character.valueOf(arg.charAt(0));
                             } else {
                               possibleErrors.append("Could not parse " + arg
                                   + " as char\n");
@@ -2898,7 +2898,7 @@ public class Main implements Runnable {
                             }
                           } else if (parameterTypeName.equals("short")) {
                             try {
-                              parameters[p] = new Short(arg);
+                              parameters[p] = Short.valueOf(arg);
                             } catch (Exception e) {
                               possibleErrors.append("Could not parse " + arg
                                   + " as short\n");
@@ -2906,7 +2906,7 @@ public class Main implements Runnable {
                             }
                           } else if (parameterTypeName.equals("int")) {
                             try {
-                              parameters[p] = new Integer(arg);
+                              parameters[p] = Integer.valueOf(arg);
                             } catch (Exception e) {
                               possibleErrors.append("Could not parse " + arg
                                   + " as integer\n");
@@ -2914,7 +2914,7 @@ public class Main implements Runnable {
                             }
                           } else if (parameterTypeName.equals("long")) {
                             try {
-                              parameters[p] = new Long(arg);
+                              parameters[p] = Long.valueOf(arg);
                             } catch (Exception e) {
                               possibleErrors.append("Could not parse " + arg
                                   + " as long\n");
@@ -2922,7 +2922,7 @@ public class Main implements Runnable {
                             }
                           } else if (parameterTypeName.equals("float")) {
                             try {
-                              parameters[p] = new Float(arg);
+                              parameters[p] = Float.valueOf(arg);
                             } catch (Exception e) {
                               possibleErrors.append("Could not parse " + arg
                                   + " as float\n");
@@ -2930,7 +2930,7 @@ public class Main implements Runnable {
                             }
                           } else if (parameterTypeName.equals("double")) {
                             try {
-                              parameters[p] = new Double(arg);
+                              parameters[p] = Double.valueOf(arg);
                             } catch (Exception e) {
                               possibleErrors.append("Could not parse " + arg
                                   + " as double\n");
@@ -3242,7 +3242,7 @@ public class Main implements Runnable {
                       parameters[p] = arg;
                     } else if (parameterTypeName.equals("int")) {
                       try {
-                        parameters[p] = new Integer(arg);
+                        parameters[p] = Integer.valueOf(arg);
                       } catch (Exception e) {
                         possibleErrors.append("Could not parse " + arg
                             + " as integer\n");
@@ -3258,7 +3258,7 @@ public class Main implements Runnable {
                       }
                     } else if (parameterTypeName.equals("long")) {
                       try {
-                        parameters[p] = new Long(arg);
+                        parameters[p] = Long.valueOf(arg);
                       } catch (Exception e) {
                         possibleErrors.append("Could not parse " + arg
                             + " as long\n");
@@ -4668,7 +4668,7 @@ public class Main implements Runnable {
               if ("null".equals(s)) {
                 parameter[i] = null;
               } else {
-                parameter[i] = new Integer(Integer.parseInt(s));
+                parameter[i] = Integer.valueOf(s);
               }
             }
             cstmt.setArray(parm, makeArray(parameter, "INTEGER"));
@@ -4685,7 +4685,7 @@ public class Main implements Runnable {
               // Toolbox does not handle native types on convert
               Integer[] newParameter = new Integer[arrayCardinality];
               for (int i = 0; i < arrayCardinality; i++) {
-                newParameter[i] = new Integer(parameter[i]);
+                newParameter[i] = Integer.valueOf(parameter[i]);
               }
               cstmt.setArray(parm, makeArray(newParameter, "INTEGER"));
           } else if (typename.equals("Short")) {
@@ -4696,7 +4696,7 @@ public class Main implements Runnable {
                 parameter[i] = null;
               } else {
                
-                parameter[i] = new Short((short) Integer.parseInt(s));
+                parameter[i] = Short.valueOf((short) Integer.parseInt(s));
               }
             }
               cstmt.setArray(parm, makeArray(parameter, "SMALLINT"));
@@ -4713,7 +4713,7 @@ public class Main implements Runnable {
               // Toolbox does not handle native types on convert
               Short[] newParameter = new Short[arrayCardinality];
               for (int i = 0; i < arrayCardinality; i++) {
-                newParameter[i] = new Short(parameter[i]);
+                newParameter[i] = Short.valueOf(parameter[i]);
               }
 
               cstmt.setArray(parm, makeArray(newParameter, "SMALLINT"));
@@ -4724,7 +4724,7 @@ public class Main implements Runnable {
               if ("null".equals(s)) {
                 parameter[i] = false;
               } else {
-                parameter[i] =  Boolean.valueOf(s).booleanValue();
+                parameter[i] = Boolean.parseBoolean(s);
               }
             }
               // Toolbox does not handle native types on convert
@@ -4741,7 +4741,7 @@ public class Main implements Runnable {
               if ("null".equals(s)) {
                 parameter[i] = null;
               } else {
-                parameter[i] = new Long(Long.parseLong(s));
+                parameter[i] = Long.valueOf(s);
               }
             }
               cstmt.setArray(parm, makeArray(parameter, "BIGINT"));
@@ -4758,7 +4758,7 @@ public class Main implements Runnable {
               // Toolbox does not handle native types on convert
               Long[] newParameter = new Long[arrayCardinality];
               for (int i = 0; i < arrayCardinality; i++) {
-                newParameter[i] = new Long(parameter[i]);
+                newParameter[i] = Long.valueOf(parameter[i]);
               }
 
               cstmt.setArray(parm, makeArray(newParameter, "BIGINT"));
@@ -4769,7 +4769,7 @@ public class Main implements Runnable {
               if ("null".equals(s)) {
                 parameter[i] = null;
               } else {
-                parameter[i] = new Float((float) Double.parseDouble(s));
+                parameter[i] = Float.valueOf((float) Double.parseDouble(s));
               }
             }
               cstmt.setArray(parm, makeArray(parameter, "REAL"));
@@ -4786,7 +4786,7 @@ public class Main implements Runnable {
               // Toolbox does not handle native types on convert
               Float[] newParameter = new Float[arrayCardinality];
               for (int i = 0; i < arrayCardinality; i++) {
-                newParameter[i] = new Float(parameter[i]);
+                newParameter[i] = Float.valueOf(parameter[i]);
               }
 
               cstmt.setArray(parm, makeArray(newParameter, "REAL"));
@@ -4797,7 +4797,7 @@ public class Main implements Runnable {
               if ("null".equals(s)) {
                 parameter[i] = null;
               } else {
-                parameter[i] = new Double(Double.parseDouble(s));
+                parameter[i] = Double.valueOf(s);
               }
             }
               cstmt.setArray(parm, makeArray(parameter, "DOUBLE"));
@@ -4815,7 +4815,7 @@ public class Main implements Runnable {
               // Toolbox does not handle native types on convert
               Double[] newParameter = new Double[arrayCardinality];
               for (int i = 0; i < arrayCardinality; i++) {
-                newParameter[i] = new Double(parameter[i]);
+                newParameter[i] = Double.valueOf(parameter[i]);
               }
 
               cstmt.setArray(parm, makeArray(newParameter, "DOUBLE"));

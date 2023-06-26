@@ -81,7 +81,7 @@ Returns the Object value.
 **/
     public Object getObjectValue ()
     {
-        return new Short (value_);
+        return Short.valueOf(value_);
     }
 
 

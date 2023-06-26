@@ -558,8 +558,8 @@ public class ServiceProgramCall extends ProgramCall
         }
         else
         {
-            Integer oldValue = new Integer(returnValueFormat_);
-            Integer newValue = new Integer(returnValueFormat);
+            Integer oldValue = Integer.valueOf(returnValueFormat_);
+            Integer newValue = Integer.valueOf(returnValueFormat);
 
             if (vetoableChangeListeners_ != null)
             {

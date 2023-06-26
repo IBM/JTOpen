@@ -201,7 +201,7 @@ Closes the connection to the proxy server.
             	Constructor constructor = classPxSecureSocketContainer.getConstructor(parameterTypes);
             	Object[] initargs = new Object[3]; 
             	initargs[0] = name; 
-            	initargs[1] = new Integer(port); 
+            	initargs[1] = Integer.valueOf(port); 
             	initargs[2] = sslOptions_; 
                 socket_ = (PxSocketContainerAdapter) constructor.newInstance(initargs);
             } else

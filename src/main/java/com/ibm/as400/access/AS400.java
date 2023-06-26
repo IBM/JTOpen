@@ -544,7 +544,7 @@ public class AS400 implements Serializable, AutoCloseable
      */
     public AS400(String systemName, ProfileTokenProvider tokenProvider, int refreshThreshold)
     {
-      this(systemName, tokenProvider, new Integer(refreshThreshold));
+      this(systemName, tokenProvider, Integer.valueOf(refreshThreshold));
     }
 
     private AS400(String systemName, ProfileTokenProvider tokenProvider, Integer refreshThreshold)
@@ -3816,8 +3816,8 @@ public class AS400 implements Serializable, AutoCloseable
         }
         else
         {
-            Integer oldValue = new Integer(ccsid_);
-            Integer newValue = new Integer(ccsid);
+            Integer oldValue = Integer.valueOf(ccsid_);
+            Integer newValue = Integer.valueOf(ccsid);
 
             if (vetoableChangeListeners_ != null)
             {

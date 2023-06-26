@@ -4490,7 +4490,7 @@ implements ResultSet
     public void updateBoolean (int columnIndex, boolean columnValue)
     throws SQLException
     {
-        updateValue (columnIndex, new Short ((short) (columnValue ? 1 : 0)), null, -1);
+        updateValue (columnIndex, Short.valueOf((short) (columnValue ? 1 : 0)), null, -1);
     }
 
 
@@ -4612,7 +4612,7 @@ implements ResultSet
     public void updateByte (int columnIndex, byte columnValue)
     throws SQLException
     {
-        updateValue (columnIndex, new Short (columnValue), null, -1);
+        updateValue (columnIndex, Short.valueOf(columnValue), null, -1);
     }
 
 
@@ -4923,7 +4923,7 @@ implements ResultSet
     public void updateDouble (int columnIndex, double columnValue)
     throws SQLException
     {
-        updateValue (columnIndex, new Double (columnValue), null, -1);
+        updateValue (columnIndex, Double.valueOf(columnValue), null, -1);
     }
 
 
@@ -4977,7 +4977,7 @@ implements ResultSet
     public void updateFloat (int columnIndex, float columnValue)
     throws SQLException
     {
-        updateValue (columnIndex, new Float (columnValue), null, -1);
+        updateValue (columnIndex, Float.valueOf(columnValue), null, -1);
     }
 
 
@@ -5031,7 +5031,7 @@ implements ResultSet
     public void updateInt (int columnIndex, int columnValue)
     throws SQLException
     {
-        updateValue (columnIndex, new Integer (columnValue), null, -1);
+        updateValue (columnIndex, Integer.valueOf(columnValue), null, -1);
     }
 
 
@@ -5095,7 +5095,7 @@ implements ResultSet
     public void updateLong (int columnIndex, long columnValue)
     throws SQLException
     {        
-        updateValue (columnIndex, new Long(columnValue), null, -1); // @D0C
+        updateValue (columnIndex, Long.valueOf(columnValue), null, -1); // @D0C
     }
 
 
@@ -5643,7 +5643,7 @@ implements ResultSet
     public void updateShort (int columnIndex, short columnValue)
     throws SQLException
     {
-        updateValue (columnIndex, new Short (columnValue), null, -1);
+        updateValue (columnIndex, Short.valueOf(columnValue), null, -1);
     }
 
 
@@ -7376,42 +7376,42 @@ implements ResultSet
         if (b == 0 && wasNull()) { 
           return null;  
         } else { 
-          return new Byte(b);
+          return Byte.valueOf(b);
         }
       } else if (type == java.lang.Short.class){
         short s = getShort(columnIndex); 
         if (s == 0 && wasNull()) { 
           return null;  
         } else { 
-          return new Short(s);
+          return Short.valueOf(s);
         }
       } else if (type == java.lang.Integer.class){
         int i = getInt(columnIndex); 
         if (i == 0 && wasNull()) { 
           return null;  
         } else { 
-          return new Integer(i);
+          return Integer.valueOf(i);
         }
       } else if (type == java.lang.Long.class){
         long l = getLong(columnIndex); 
         if (l == 0 && wasNull()) { 
           return null;  
         } else { 
-          return new Long(l);
+          return Long.valueOf(l);
         }
       } else if (type == java.lang.Float.class){
         float f = getFloat(columnIndex);
         if (f == 0 && wasNull()) { 
           return null;  
         } else { 
-        return new Float(f);
+        return Float.valueOf(f);
         }
       } else if (type == java.lang.Double.class){
         double d = getDouble(columnIndex); 
         if (d == 0 && wasNull()) { 
           return null;  
         } else { 
-          return new Double(d);
+          return Double.valueOf(d);
         }
       } else if (type == java.math.BigDecimal.class){
         return getBigDecimal(columnIndex); 

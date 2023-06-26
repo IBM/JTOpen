@@ -214,13 +214,13 @@ abstract class PcmlNode implements Serializable, Cloneable {        // @C2A
     }
 
     // Separator characters.
-    static final Character AMPERSAND = new Character('&');
-    static final Character BLANK = new Character(' ');
-    static final Character COLON = new Character(':');
-    static final Character COMMA = new Character(',');
-    static final Character HYPHEN = new Character('-');
-    static final Character PERIOD = new Character('.');
-    static final Character SLASH = new Character('/');
+    static final Character AMPERSAND = Character.valueOf('&');
+    static final Character BLANK = Character.valueOf(' ');
+    static final Character COLON = Character.valueOf(':');
+    static final Character COMMA = Character.valueOf(',');
+    static final Character HYPHEN = Character.valueOf('-');
+    static final Character PERIOD = Character.valueOf('.');
+    static final Character SLASH = Character.valueOf('/');
 
 
     private static Hashtable getSeparatorsMap()

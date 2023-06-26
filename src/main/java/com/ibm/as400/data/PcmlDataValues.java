@@ -429,7 +429,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                 return length;
 
             default:
-                throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {new Integer(getDataType()) , getNameForException()} );
+                throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {Integer.valueOf(getDataType()) , getNameForException()} );
 
         }
     }
@@ -522,13 +522,13 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
 
 
                 default:
-                    throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {new Integer(getDataType()) , getNameForException()} );
+                    throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {Integer.valueOf(getDataType()) , getNameForException()} );
     
             } // END: switch (getDataType())
         }
        /* catch (ClassNotFoundException e)  //@O6D 
         {
-            throw new PcmlException(DAMRI.CLASS_NOT_FOUND, new Object[] {new Integer(getDataType()) , getNameForException()} );
+            throw new PcmlException(DAMRI.CLASS_NOT_FOUND, new Object[] {Integer.valueOf(getDataType()) , getNameForException()} );
         }*/
     }
 
@@ -650,7 +650,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
             // Handle errors caused by bad offset values
             if (myOffset < 0 || myOffset > bytes.length)
             {
-                throw new PcmlException(DAMRI.BAD_OFFSET_VALUE, new Object[] {new Integer(myOffset), new Integer(bytes.length), "<data>", getNameForException()} );
+                throw new PcmlException(DAMRI.BAD_OFFSET_VALUE, new Object[] {Integer.valueOf(myOffset), Integer.valueOf(bytes.length), "<data>", getNameForException()} );
             }
             
             // Determine from where the offset is based
@@ -675,7 +675,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                 // If offsetfrom= was specified with an integer literal, use it.
                 if (m_owner.getOffsetfrom() >= 0)                   // @A1A
                 {                                                   // @A1A
-                    myOffsetbase = new Integer(m_owner.getOffsetfrom()); // @A1A
+                    myOffsetbase = Integer.valueOf(m_owner.getOffsetfrom()); // @A1A
                 }                                                   // @A1A
                 // getOffsetfrom() returns -1 to indicate that offset from was not specified.
                 // No offsetfrom= was specified, the offset will be relative to the
@@ -694,7 +694,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                 // Handle errors caused by bad offset values
                 if (myOffset < 0 || myOffset > bytes.length)
                 {
-                    throw new PcmlException(DAMRI.BAD_TOTAL_OFFSET, new Object[] {new Integer(myOffset), new Integer(bytes.length), myOffsetbase, myOffsetfrom, "<data>", getNameForException()} );
+                    throw new PcmlException(DAMRI.BAD_TOTAL_OFFSET, new Object[] {Integer.valueOf(myOffset), Integer.valueOf(bytes.length), myOffsetbase, myOffsetfrom, "<data>", getNameForException()} );
                 }
             }
             
@@ -713,7 +713,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
         // Make sure length makes sense
         if (nbrBytes < 0 || nbrBytes > PcmlData.MAX_STRING_LENGTH)
         {
-            throw new PcmlException(DAMRI.BAD_DATA_LENGTH, new Object[] {new Integer(nbrBytes), new Integer(PcmlData.MAX_STRING_LENGTH), "<data>", getNameForException()} ); // @C4C
+            throw new PcmlException(DAMRI.BAD_DATA_LENGTH, new Object[] {Integer.valueOf(nbrBytes), Integer.valueOf(PcmlData.MAX_STRING_LENGTH), "<data>", getNameForException()} ); // @C4C
         }
 
         // Make sure we are not trying to access more bytes than available.
@@ -818,7 +818,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                     {
                         if (newVal instanceof String) 
                         {
-                            convertedVal = new Integer((String) newVal);
+                            convertedVal = Integer.valueOf((String) newVal);
                         }
                         else 
                         {
@@ -828,7 +828,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                             }
                             else if (newVal instanceof Number) 
                             {
-                                convertedVal = new Integer( ((Number) newVal).intValue() );
+                                convertedVal = Integer.valueOf( ((Number) newVal).intValue() );
                             }
                             else 
                             {
@@ -840,7 +840,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                     { // dataPrecision == 15 or defaulted
                         if (newVal instanceof String) 
                         {
-                            convertedVal = new Short( ((String) newVal) );
+                            convertedVal = Short.valueOf( ((String) newVal) );
                         }
                         else 
                         {
@@ -850,7 +850,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                             }
                             else if (newVal instanceof Number) 
                             {
-                                convertedVal = new Short( ((Number) newVal).shortValue() );
+                                convertedVal = Short.valueOf( ((Number) newVal).shortValue() );
                             }
                             else 
                             {
@@ -865,7 +865,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                     {
                         if (newVal instanceof String) 
                         {
-                            convertedVal = new Long((String) newVal);
+                            convertedVal = Long.valueOf((String) newVal);
                         }
                         else 
                         {
@@ -875,7 +875,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                             }
                             else if (newVal instanceof Number) 
                             {
-                                convertedVal = new Long( ((Number) newVal).longValue() );
+                                convertedVal = Long.valueOf( ((Number) newVal).longValue() );
                             }
                             else 
                             {
@@ -887,7 +887,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                     { // dataPrecision == 31 or defaulted
                         if (newVal instanceof String) 
                         {
-                            convertedVal = new Integer((String) newVal);
+                            convertedVal = Integer.valueOf((String) newVal);
                         }
                         else 
                         {
@@ -897,7 +897,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                             }
                             else if (newVal instanceof Number) 
                             {
-                                convertedVal = new Integer( ((Number) newVal).intValue() );
+                                convertedVal = Integer.valueOf( ((Number) newVal).intValue() );
                             }
                             else 
                             {
@@ -935,7 +935,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                     { // dataPrecision == 63 or defaulted
                       if (newVal instanceof String)                   // @C3A
                       {                                               // @C3A
-                          convertedVal = new Long((String) newVal);   // @C3A
+                          convertedVal = Long.valueOf((String) newVal);   // @C3A
                       }                                               // @C3A
                       else                                            // @C3A
                       {                                               // @C3A
@@ -945,7 +945,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                           }
                           else if (newVal instanceof Number)          // @C3A
                           {                                           // @C3A
-                            convertedVal = new Long( ((Number) newVal).longValue() ); // @C3A
+                            convertedVal = Long.valueOf( ((Number) newVal).longValue() ); // @C3A
                           }                                           // @C3A
                           else                                        // @C3A
                           {                                           // @C3A
@@ -992,7 +992,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                 {
                     if (newVal instanceof String) 
                     {
-                        convertedVal = new Float((String) newVal);
+                        convertedVal = Float.valueOf((String) newVal);
                     }
                     else 
                     {
@@ -1002,7 +1002,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                         }
                         else if (newVal instanceof Number) 
                         {
-                            convertedVal = new Float( ((Number) newVal).floatValue() );
+                            convertedVal = Float.valueOf( ((Number) newVal).floatValue() );
                         }
                         else 
                         {
@@ -1014,7 +1014,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                 { // Must be length=8
                     if (newVal instanceof String) 
                     {
-                        convertedVal = new Double((String) newVal);
+                        convertedVal = Double.valueOf((String) newVal);
                     }
                     else 
                     {
@@ -1024,7 +1024,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
                         }
                         else if (newVal instanceof Number) 
                         {
-                            convertedVal = new Double( ((Number) newVal).doubleValue() );
+                            convertedVal = Double.valueOf( ((Number) newVal).doubleValue() );
                         }
                         else 
                         {
@@ -1145,7 +1145,7 @@ class PcmlDataValues extends Object implements Serializable         // @C1C
 
 
             default:
-                throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {new Integer(dataType) , nodeNameForException} );
+                throw new PcmlException(DAMRI.BAD_DATA_TYPE, new Object[] {Integer.valueOf(dataType) , nodeNameForException} );
 
         } // END: switch (getDataType())
 

@@ -221,7 +221,7 @@ public class SequentialFile extends AS400File implements Serializable
            IOException
   {
     verifyState(recordNumber); //@C0A
-    impl_.doIt("positionCursor", new Class[] { Integer.TYPE }, new Object[] { new Integer(recordNumber) });
+    impl_.doIt("positionCursor", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(recordNumber) });
   }
 
 
@@ -268,7 +268,7 @@ public class SequentialFile extends AS400File implements Serializable
            IOException
   {
     verifyState(recordNumber); //@C0A
-    impl_.doIt("positionCursorBefore", new Class[] { Integer.TYPE }, new Object[] { new Integer(recordNumber) });
+    impl_.doIt("positionCursorBefore", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(recordNumber) });
   }
 
 
@@ -291,7 +291,7 @@ public class SequentialFile extends AS400File implements Serializable
            IOException
   {
     verifyState(recordNumber); //@C0A
-    return fillInRecord(impl_.doItRecord("read", new Class[] { Integer.TYPE }, new Object[] { new Integer(recordNumber) })); //@D0C
+    return fillInRecord(impl_.doItRecord("read", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(recordNumber) })); //@D0C
   }
 
 
@@ -314,7 +314,7 @@ public class SequentialFile extends AS400File implements Serializable
            IOException
   {
     verifyState(recordNumber); //@C0A
-    return fillInRecord(impl_.doItRecord("readAfter", new Class[] { Integer.TYPE }, new Object[] { new Integer(recordNumber) })); //@D0C
+    return fillInRecord(impl_.doItRecord("readAfter", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(recordNumber) })); //@D0C
   }
 
 
@@ -362,7 +362,7 @@ public class SequentialFile extends AS400File implements Serializable
     int bf = 2048/(recordFormat_.getNewRecord().getRecordLength() + 16); //@D0M
     if (bf <= 1) bf = 100; //@D0M
 
-    Record[] recs = impl_.doItRecordArray("readAll", new Class[] { String.class, Integer.TYPE }, new Object[] { "seq", new Integer(bf) }); //@D0C
+    Record[] recs = impl_.doItRecordArray("readAll", new Class[] { String.class, Integer.TYPE }, new Object[] { "seq", Integer.valueOf(bf) }); //@D0C
     //@D0A
     if (recs != null)
     {
@@ -395,7 +395,7 @@ public class SequentialFile extends AS400File implements Serializable
            IOException
   {
     verifyState(recordNumber); //@C0A
-    return fillInRecord(impl_.doItRecord("readBefore", new Class[] { Integer.TYPE }, new Object[] { new Integer(recordNumber) })); //@D0C
+    return fillInRecord(impl_.doItRecord("readBefore", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(recordNumber) })); //@D0C
   }
 
 

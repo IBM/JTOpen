@@ -49,7 +49,7 @@ implements JDFieldMap
             // to convert it ourselves. 
             byte[] asBytes = ((String) serverData).getBytes ();
             short asShort = BinaryConverter.byteArrayToShort (asBytes, 0);
-            return new Short (asShort);
+            return Short.valueOf(asShort);
         }                                                                       // @C1A
         else {                                                                  // @C1A
             // In V4R4, this started coming back as a Short.                    // @C1A
