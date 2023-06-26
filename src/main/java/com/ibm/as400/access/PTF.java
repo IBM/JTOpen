@@ -53,6 +53,7 @@ public class PTF
   private String licGroup_;
   private String saveFile_;  
   private String supersedingPTF_;
+  private String supersededByPTF_;
   private String targetRelease_;
   //private String supersededByPTFID_;      // V5R2
   //private String currentServerIPLSource_; // V5R3
@@ -70,6 +71,7 @@ public class PTF
   private boolean loaded600_ = false;
   private boolean loaded700_ = false;
   private boolean loaded800_ = false;
+  private boolean loaded1000_ = false;
 //  private boolean loaded900_ = false;
   private int chunkSize_ = 8192;
 
@@ -100,6 +102,9 @@ public class PTF
 
   // PTFR0800
   private PTFExitProgram[] exitPrograms_;
+  
+  // PTFR10000
+  private PTF[] superseded_;
 
   // PTFR0900
 //  private PTFPrecondition[] preconditions_;
@@ -1245,8 +1250,8 @@ public class PTF
 
   
   /**
-   * Returns the PTF ID of the PTF that supersedes this PTF. This will be ""
-   * if there is no superseding PTF, or if the superseding PTF is not known.
+   * Returns the PTF ID of the most recent supersede of this PTF that exists on the system. 
+   * This will be "" if there is no superseding PTF, or if the superseding PTF is not known.
    * @return The PTF ID.
    * @throws AS400Exception If an error occurs.
    * @throws  AS400SecurityException  If a security or authority error occurs.
@@ -1267,6 +1272,56 @@ public class PTF
   {
     if (!loaded_ && !partiallyLoadedGroup_) refresh(100); //@L12A
     return supersedingPTF_;
+  }
+  
+  /**
+   * Returns the PTF ID that has replaced this PTF. 
+   * This will be "" if there is no superseding PTF, or if the superseding PTF is not known.
+   * @return The PTF ID.
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
+   * @see #getDependentPTFs
+   * @see #getRequisitePTFs
+  **/
+  public String getSupersededByPTF()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded_ && !partiallyLoadedGroup_) refresh(100);
+    return supersededByPTF_;
+  }
+  
+  /**
+   * Retrieves the list of PTFs that are supserseded by this PTF.
+   * If there are no supserseded PTFs, an array of size 0 will be returned.
+   * @return The PTF ID.
+   * @throws AS400Exception If an error occurs.
+   * @throws  AS400SecurityException  If a security or authority error occurs.
+   * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   * @throws  InterruptedException  If this thread is interrupted.
+   * @throws  IOException  If an error occurs while communicating with the system.
+   * @throws ObjectDoesNotExistException  If the object does not exist.
+   * @see #getDependentPTFs
+   * @see #getRequisitePTFs
+  **/
+  public PTF[] getSupersededPTFs()
+  throws AS400Exception,
+         AS400SecurityException,
+         ErrorCompletingRequestException,
+         InterruptedException,
+         IOException,
+         ObjectDoesNotExistException
+  {
+    if (!loaded1000_) refresh(1000);
+    return superseded_;
   }
 
   
@@ -1694,6 +1749,7 @@ public class PTF
     refresh(600);
     refresh(700);
     refresh(800);
+    refresh(1000);
   }
 
 
@@ -1741,6 +1797,10 @@ public class PTF
       case 800:
         format = "PTFR0800";
         len = baseSize_+12+chunkSize_; // 108+12+(29*numberOfExitPrograms)
+        break;
+      case 1000:
+        format = "PTFR1000";
+        len = baseSize_+12+chunkSize_; // 108+12+(7*numberOfSuperseded)
         break;
 //      case 900:
 //        format = "PTFR0900";
@@ -1832,6 +1892,7 @@ public class PTF
       statusDate_ = null;
     }
     licGroup_ = conv.byteArrayToString(output, 101, 7).trim();
+    supersededByPTF_ = conv.byteArrayToString(output, 108, 7).trim();
     if (output.length >= 115)
     {
       // V5R2 and higher
@@ -2025,6 +2086,23 @@ public class PTF
         exitPrograms_[i] = new PTFExitProgram(path, runOption, userData);
       }
       loaded800_ = true;
+    }
+    else if (whichFormat == 1000)
+    {
+      int offset = BinaryConverter.byteArrayToInt(output, 8);
+      int entryOffset = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int numSupers = BinaryConverter.byteArrayToInt(output, offset);
+      offset += 4;
+      int entryLength = BinaryConverter.byteArrayToInt(output, offset);
+      superseded_ = new PTF[numSupers];
+      for (int i=0; i<numSupers; ++i)
+      {
+        offset = entryOffset + (i*entryLength);
+        String supPTFID = conv.byteArrayToString(output, offset, 7);
+        superseded_[i] = new PTF(system_, productID_, supPTFID, ptfReleaseLevel_, ptfProductOption_, ptfProductLoad_);
+      }
+      loaded1000_ = true;
     }
 //    else if (whichFormat == 900)
 //  {
