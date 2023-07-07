@@ -763,7 +763,9 @@ public class ProgramCall implements Serializable
                 system_.aspName= iasp;
             }
           }catch (Exception e){
-            e.printStackTrace();
+        	  // Log the error, but do not print the stack trace
+        	  Trace.log(Trace.ERROR, e); 
+          
           }
       }
       }
@@ -864,14 +866,20 @@ public class ProgramCall implements Serializable
         //boolean isV7R2 = false;//@RCD
        // boolean isV7R1 = false;//@N6A//@RCD
         boolean isSupport255 = false;//@RCA
-        try {
-          //isV7R2 = system_.getVRM() == 0x00070200; //@RCD
-          //isV7R1 = system_.getVRM() == 0x00070100;//@RCD //@N6A V7R1 with ptf SI55519 supported parameter with max 255
-          isSupport255 = (system_.getVRM() >= 0x00070100);//@RCA
-        } catch(Exception e) {
-          e.printStackTrace();
-        }
-        
+        // only check the VRM if system_ exists
+		if (system_ != null) {
+			try {
+				// isV7R2 = system_.getVRM() == 0x00070200; //@RCD
+				// isV7R1 = system_.getVRM() == 0x00070100;//@RCD //@N6A V7R1 with ptf SI55519
+				// supported parameter with max 255
+				isSupport255 = (system_.getVRM() >= 0x00070100);// @RCA
+			} catch (Exception e) {
+				// Log the error but do not print the stack trace
+				Trace.log(Trace.ERROR, e);
+
+			}
+		}
+
         if ((isSupport255)&& parameterList.length > 255)//@N6C //@RCC
         {
           Trace.log(Trace.ERROR, this, "Parameter list length exceeds limit of 255 parameters:", parameterList.length); //@L8
