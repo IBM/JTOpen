@@ -184,22 +184,22 @@ class PermissionTableModelDLO extends DefaultTableModel
                    value = new PermissionNameCellObject(user.getUserID(),user.getGroupIndicator());
                    break;
             case 1 :
-                   value = new Boolean(authorityValue.equals("*USE"));
+                   value = Boolean.valueOf(authorityValue.equals("*USE"));
                    break;
             case 2 :
-                   value = new Boolean(authorityValue.equals("*CHANGE"));
+                   value = Boolean.valueOf(authorityValue.equals("*CHANGE"));
                    break;
             case 3 :
-                   value = new Boolean(authorityValue.equals("*ALL"));
+                   value = Boolean.valueOf(authorityValue.equals("*ALL"));
                    break;
             case 4 :
-                   value = new Boolean(authorityValue.equals("*EXCLUDE"));
+                   value = Boolean.valueOf(authorityValue.equals("*EXCLUDE"));
                    break;
             case 5 :
-                   value = new Boolean(user.isFromAuthorizationList());
+                   value = Boolean.valueOf(user.isFromAuthorizationList());
                    break;
             case 6:                                                        //@A2A
-                   value = new Boolean(authorityValue.equals("USER_DEF")); //@A2A
+                   value = Boolean.valueOf(authorityValue.equals("USER_DEF")); //@A2A
                    break;                                                  //@A2A
         }
         return value;
@@ -282,7 +282,7 @@ class PermissionTableModelDLO extends DefaultTableModel
         int row = userPermissions_.indexOf(up);
         if (row >= 0)
         {
-          setValueAt(new Boolean(false), row, 5);
+          setValueAt(Boolean.FALSE, row, 5);
         }
     }
 

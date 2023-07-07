@@ -13,6 +13,8 @@
 
 package com.ibm.as400.access;
 
+import java.security.AccessControlException;
+
 // The NativeMethods class is used to call the native methods for the IBM Toolbox for Java Native Classes.
 public class NativeMethods
 {
@@ -49,17 +51,21 @@ public class NativeMethods
 
         }
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native non-PASE methods ");  //@pase1
-
-        String alternateLibrary = System.getProperty("com.ibm.as400.access.native.library"); 
-        if (alternateLibrary != null) { 
-        	nativeLibraryQyjspart = "/QSYS.LIB/"+alternateLibrary+".LIB/QYJSPART.SRVPGM"; 
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "QYJSPART as "+nativeLibraryQyjspart);  
+        try{
+            String alternateLibrary = System.getProperty("com.ibm.as400.access.native.library"); 
+            if (alternateLibrary != null) { 
+                nativeLibraryQyjspart = "/QSYS.LIB/"+alternateLibrary+".LIB/QYJSPART.SRVPGM"; 
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "QYJSPART as "+nativeLibraryQyjspart);  
+            }
+        } catch(AccessControlException e)
+        {
+            Trace.log(Trace.DIAGNOSTIC, "Error checking property for custom native library:", e);
         }
         try{
             System.load(nativeLibraryQyjspart );  //if j9, then socket functions in this lib are overridden
         } catch(Throwable e)
         {
-                Trace.log(Trace.ERROR, "Error loading QYJSPART service program:", e); //may be that it is already loaded in multiple .war classloader
+            Trace.log(Trace.ERROR, "Error loading QYJSPART service program:", e); //may be that it is already loaded in multiple .war classloader
         }
     }
 

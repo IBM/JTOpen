@@ -797,8 +797,8 @@ public class UserSpace implements Serializable
         }
         else
         {
-            Boolean oldValue = new Boolean(mustUseProgramCall_);
-            Boolean newValue = new Boolean(useProgramCall);
+            Boolean oldValue = Boolean.valueOf(mustUseProgramCall_);
+            Boolean newValue = Boolean.valueOf(useProgramCall);
 
             mustUseProgramCall_ = useProgramCall;
 
@@ -837,8 +837,8 @@ public class UserSpace implements Serializable
        }
        else
        {
-           Boolean oldValue = new Boolean(mustUseNativeMethods_);
-           Boolean newValue = new Boolean(useNativeMethods);
+           Boolean oldValue = Boolean.valueOf(mustUseNativeMethods_);
+           Boolean newValue = Boolean.valueOf(useNativeMethods);
 
            mustUseNativeMethods_ = useNativeMethods;
 
@@ -1120,8 +1120,8 @@ public class UserSpace implements Serializable
         }
         else
         {
-            Boolean oldValue = new Boolean(mustUseSockets_);
-            Boolean newValue = new Boolean(mustUseSockets);
+            Boolean oldValue = Boolean.valueOf(mustUseSockets_);
+            Boolean newValue = Boolean.valueOf(mustUseSockets);
 
             mustUseSockets_ = mustUseSockets;
 

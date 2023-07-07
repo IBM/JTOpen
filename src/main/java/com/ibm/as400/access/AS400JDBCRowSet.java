@@ -2752,14 +2752,14 @@ implements RowSet, Serializable             // @A3C
     **/
     public void setEscapeProcessing(boolean enable) throws SQLException
     {
-        Boolean old = new Boolean(getEscapeProcessing());
+        Boolean old = Boolean.valueOf(getEscapeProcessing());
 
         validateStatement();
         statement_.setEscapeProcessing(enable);
 
         escapeProcessing_ = enable;      // save it, since it can't be retrieved anywhere else.
 
-        changes_.firePropertyChange("escapeProcessing", old, new Boolean(enable));
+        changes_.firePropertyChange("escapeProcessing", old, Boolean.valueOf(enable));
     }
 
     /**
@@ -3030,8 +3030,8 @@ implements RowSet, Serializable             // @A3C
     {
         String property = "readOnly";
 
-        Boolean oldValue = new Boolean(isReadOnly());
-        Boolean newValue = new Boolean(readOnly);
+        Boolean oldValue = Boolean.valueOf(isReadOnly());
+        Boolean newValue = Boolean.valueOf(readOnly);
 
         if (connection_ != null)
             connection_.setReadOnly(readOnly);
@@ -3243,9 +3243,9 @@ implements RowSet, Serializable             // @A3C
         String property = "useDataSource";
         validateConnection();
 
-        Boolean oldValue = new Boolean(isUseDataSource());
+        Boolean oldValue = Boolean.valueOf(isUseDataSource());
         useDataSource_ = useDataSource;
-        changes_.firePropertyChange(property, oldValue, new Boolean(useDataSource) );
+        changes_.firePropertyChange(property, oldValue, Boolean.valueOf(useDataSource) );
     }
 
     /**

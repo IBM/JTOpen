@@ -494,7 +494,7 @@ implements java.sql.Statement
     {
       callMethod ("setEscapeProcessing",
                   new Class[] { Boolean.TYPE },
-                  new Object[] { new Boolean (escapeProcessing) });
+                  new Object[] { Boolean.valueOf(escapeProcessing) });
     }
 
 
@@ -579,7 +579,7 @@ implements java.sql.Statement
     {
         callMethod ("setPoolable",
                 new Class[] { Boolean.TYPE },
-                new Object[] { new Boolean (poolable) });  
+                new Object[] { Boolean.valueOf(poolable) });  
     }
     
     //@PDA jdbc40

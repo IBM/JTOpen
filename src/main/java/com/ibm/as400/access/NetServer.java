@@ -118,7 +118,7 @@ For String-valued attributes, if the current actual value of the corresponding p
 *   ns.setAttributeValue(NetServer.CCSID_PENDING, new Integer(13488));
 *
 *   // Set the (pending) "allow system name" value of the NetServer to true.
-*   ns.setAttributeValue(NetServer.ALLOW_SYSTEM_NAME_PENDING, new Boolean(true));
+*   ns.setAttributeValue(NetServer.ALLOW_SYSTEM_NAME_PENDING, Boolean.TRUE);
 *
 *   // Commit the attribute changes (send them to the system).
 *   ns.commitAttributeChanges();

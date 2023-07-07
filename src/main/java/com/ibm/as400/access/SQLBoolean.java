@@ -85,7 +85,7 @@ final class SQLBoolean extends SQLDataBase {
   // ---------------------------------------------------------//
   public static Boolean getBooleanObject(Object caller, String string) throws SQLException { 
     if (string == null) return null; 
-    return new Boolean(getBoolean(caller,string)); 
+    return Boolean.valueOf(getBoolean(caller,string)); 
   }
   
   public static boolean getBoolean(Object caller, String string)
@@ -128,7 +128,7 @@ final class SQLBoolean extends SQLDataBase {
 
   public static Boolean getBooleanObject(Object caller, Number object) throws SQLException { 
     if (object == null) return null; 
-    return new Boolean(getBoolean(caller,object)); 
+    return Boolean.valueOf(getBoolean(caller,object)); 
   }
 
   public static boolean getBoolean(Object caller, Number object) {
@@ -369,7 +369,7 @@ final class SQLBoolean extends SQLDataBase {
   }
 
   public Object getObject() throws SQLException {
-    return new Boolean(value_);
+    return Boolean.valueOf(value_);
   }
 
   public short getShort() throws SQLException {
@@ -434,7 +434,7 @@ final class SQLBoolean extends SQLDataBase {
   // @array
 
   public void saveValue() {
-    savedValue_ = new Boolean(value_);
+    savedValue_ = Boolean.valueOf(value_);
   }
 
 }

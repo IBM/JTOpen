@@ -946,7 +946,7 @@ class JDUtilities {
           }
         }
       }
-      answer = new Boolean(booleanAnswer);
+      answer = Boolean.valueOf(booleanAnswer);
       interfaceHash.put(interfaceName, answer);
     }
 

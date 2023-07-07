@@ -432,15 +432,15 @@ public class RadioFormInputGroup extends HTMLTagAttributes implements java.io.Se
     public void setVerticalAlignment(boolean verticalAlignment)                        //$A3A
     throws PropertyVetoException
     {
-        //@CRS Boolean oldAlign = new Boolean(useVertAlign_);
-        //@CRS Boolean newAlign = new Boolean(verticalAlignment);
+        //@CRS Boolean oldAlign = Boolean.valueOf(useVertAlign_);
+        //@CRS Boolean newAlign = Boolean.valueOf(verticalAlignment);
       boolean oldAlign = useVertAlign_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("verticalAlignment", new Boolean(oldAlign), new Boolean(verticalAlignment)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("verticalAlignment", Boolean.valueOf(oldAlign), Boolean.valueOf(verticalAlignment)); //@CRS
 
         useVertAlign_ = verticalAlignment;
 
-        if (changes_ != null) changes_.firePropertyChange("verticalAlignment", new Boolean(oldAlign), new Boolean(verticalAlignment)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("verticalAlignment", Boolean.valueOf(oldAlign), Boolean.valueOf(verticalAlignment)); //@CRS
 
     }
 

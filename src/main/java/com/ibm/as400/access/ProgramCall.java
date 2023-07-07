@@ -578,7 +578,7 @@ public class ProgramCall implements Serializable
 
     static Boolean getDefaultThreadSafety()
     {
-        return new Boolean(getThreadSafetyProperty());
+        return Boolean.valueOf(getThreadSafetyProperty());
     }
 
     // Check thread safety system property.

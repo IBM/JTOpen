@@ -93,7 +93,7 @@ Returns the Object value.
 **/
     public Object getObjectValue ()
     {
-        return new Boolean (value_);
+        return Boolean.valueOf(value_);
     }
 
 

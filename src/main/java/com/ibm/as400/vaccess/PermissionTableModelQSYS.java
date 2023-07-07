@@ -199,52 +199,52 @@ class PermissionTableModelQSYS extends DefaultTableModel
                    value = new PermissionNameCellObject(user.getUserID(),user.getGroupIndicator());
                    break;
             case 1 :
-                   value = new Boolean(authorityValue.equals("*USE"));
+                   value = Boolean.valueOf(authorityValue.equals("*USE"));
                    break;
             case 2 :
-                   value = new Boolean(authorityValue.equals("*CHANGE"));
+                   value = Boolean.valueOf(authorityValue.equals("*CHANGE"));
                    break;
             case 3 :
-                   value = new Boolean(authorityValue.equals("*ALL"));
+                   value = Boolean.valueOf(authorityValue.equals("*ALL"));
                    break;
             case 4 :
-                   value = new Boolean(authorityValue.equals("*EXCLUDE"));
+                   value = Boolean.valueOf(authorityValue.equals("*EXCLUDE"));
                    break;
             case 5 :
                    if (isAuthorizationList_)
-                     value = new Boolean(user.isAuthorizationListManagement());
+                     value = Boolean.valueOf(user.isAuthorizationListManagement());
                    else
-                     value = new Boolean(user.isFromAuthorizationList());
+                     value = Boolean.valueOf(user.isFromAuthorizationList());
                    break;
             case 6 :
-                   value = new Boolean(user.isOperational());
+                   value = Boolean.valueOf(user.isOperational());
                    break;
             case 7 :
-                   value = new Boolean(user.isManagement());
+                   value = Boolean.valueOf(user.isManagement());
                    break;
             case 8 :
-                   value = new Boolean(user.isExistence());
+                   value = Boolean.valueOf(user.isExistence());
                    break;
             case 9 :
-                   value = new Boolean(user.isAlter());
+                   value = Boolean.valueOf(user.isAlter());
                    break;
             case 10 :
-                   value = new Boolean(user.isReference());
+                   value = Boolean.valueOf(user.isReference());
                    break;
             case 11 :
-                   value = new Boolean(user.isRead());
+                   value = Boolean.valueOf(user.isRead());
                    break;
             case 12 :
-                   value = new Boolean(user.isAdd());
+                   value = Boolean.valueOf(user.isAdd());
                    break;
             case 13 :
-                   value = new Boolean(user.isUpdate());
+                   value = Boolean.valueOf(user.isUpdate());
                    break;
             case 14 :
-                   value = new Boolean(user.isDelete());
+                   value = Boolean.valueOf(user.isDelete());
                    break;
             case 15 :
-                   value = new Boolean(user.isExecute());
+                   value = Boolean.valueOf(user.isExecute());
                    break;
         }
         return value;
@@ -348,7 +348,7 @@ class PermissionTableModelQSYS extends DefaultTableModel
         int row = userPermissions_.indexOf(up);
         if (row >= 0)
         {
-          setValueAt(new Boolean(false), row, 5);
+          setValueAt(Boolean.FALSE, row, 5);
         }
     }
 

@@ -33,6 +33,9 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import org.ietf.jgss.GSSCredential;
+import org.ietf.jgss.GSSManager;
+
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 import com.ibm.as400.security.auth.ProfileTokenProvider;
 
@@ -323,8 +326,8 @@ public class AS400 implements Serializable, AutoCloseable
     private static int alreadyCheckedForMultipleVersions_ = 0;
     
     
-    // GSS Manager object, for Kerberos.  Type set to Object to prevent dependency on 1.4 JDK.
-    private static Object gssManager_ = null;
+    // GSS Manager object, for Kerberos.
+    private static GSSManager gssManager_ = null;
 
     // System name.
     private String systemName_ = "";
@@ -344,7 +347,7 @@ public class AS400 implements Serializable, AutoCloseable
     private transient CredentialVault credVault_;  // never null after construction
     
     // GSS Credential object, for Kerberos.  Type set to Object to prevent dependency on 1.4 JDK.
-    private transient Object gssCredential_ = null;
+    private transient GSSCredential gssCredential_ = null;
     // GSS name string, for Kerberos.
     private String gssName_ = "";
     // How to use the GSS framework.
@@ -3918,23 +3921,23 @@ public class AS400 implements Serializable, AutoCloseable
     
     /**
      * Sets the GSS manager to be used for all GSS operations. 
-     * @param  gssMgr  The GSS manager object.  The object's type must be org.ietf.jgss.GSSManager, the object is set to type Object only to avoid a JDK release dependency.
+     * @param  gssMgr  The GSS manager object.
      **/
-    public static void setGSSManager(Object gssMgr)
+    public static void setGSSManager(GSSManager gssMgr)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS manager: '" + gssMgr + "'");
         gssManager_ = gssMgr;
     }
-    static Object getGSSManager()
+    static GSSManager getGSSManager()
     {
         return gssManager_;
     }
 
     /**
      Sets the GSS credential for this object.  Using this method will set the authentication scheme to {@link #AUTHENTICATION_SCHEME_GSS_TOKEN AUTHENTICATION_SCHEME_GSS_TOKEN}.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any previously set authentication information.
-     @param  gssCredential  The GSS credential object.  The object's type must be org.ietf.jgss.GSSCredential, the object is set to type Object only to avoid a JDK release dependency.
+     @param  gssCredential  The GSS credential object.
      **/
-    public void setGSSCredential(Object gssCredential)
+    public void setGSSCredential(GSSCredential gssCredential)
     {
         if (gssCredential == null)
         {
@@ -4015,8 +4018,8 @@ public class AS400 implements Serializable, AutoCloseable
         }
         else
         {
-            Boolean oldValue = new Boolean(guiAvailable_);
-            Boolean newValue = new Boolean(guiAvailable);
+            Boolean oldValue = Boolean.valueOf(guiAvailable_);
+            Boolean newValue = Boolean.valueOf(guiAvailable);
 
             if (vetoableChangeListeners_ != null)
             {
@@ -4462,8 +4465,8 @@ public class AS400 implements Serializable, AutoCloseable
         }
         else
         {
-            Boolean oldValue = new Boolean(threadUsed_);
-            Boolean newValue = new Boolean(useThreads);
+            Boolean oldValue = Boolean.valueOf(threadUsed_);
+            Boolean newValue = Boolean.valueOf(useThreads);
 
             if (vetoableChangeListeners_ != null)
             {
@@ -4492,8 +4495,8 @@ public class AS400 implements Serializable, AutoCloseable
         }
         else
         {
-            Boolean oldValue = new Boolean(useDefaultUser_);
-            Boolean newValue = new Boolean(useDefaultUser);
+            Boolean oldValue = Boolean.valueOf(useDefaultUser_);
+            Boolean newValue = Boolean.valueOf(useDefaultUser);
 
             if (vetoableChangeListeners_ != null)
             {
@@ -4523,8 +4526,8 @@ public class AS400 implements Serializable, AutoCloseable
         }
         else
         {
-            Boolean oldValue = new Boolean(usePasswordCache_);
-            Boolean newValue = new Boolean(usePasswordCache);
+            Boolean oldValue = Boolean.valueOf(usePasswordCache_);
+            Boolean newValue = Boolean.valueOf(usePasswordCache);
 
             if (vetoableChangeListeners_ != null)
             {

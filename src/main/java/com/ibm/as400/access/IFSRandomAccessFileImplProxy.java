@@ -121,16 +121,14 @@ implements IFSRandomAccessFileImpl
                                    new Object[] { data,
                                                   new Integer (dataOffset),
                                                   new Integer (length),
-                                                  new Boolean (readFully) },
+                                                  Boolean.valueOf(readFully) },
                                    ARGS_TO_RETURN, readFully );
       // Note: The 6th arg says whether to call the method asynchronously.
       // In the case of readFully, we want asynchronous, since the read
       // will wait for the requested number of bytes to become available.
 
       byte [] returnDataBuffer = (byte[])rv.getArgument(0);
-      for (int i=0; i<data.length; i++) {
-        data[i] = returnDataBuffer[i];
-      }
+      System.arraycopy(returnDataBuffer, 0, data, 0, data.length);
       return rv.getReturnValueInt();
     }
     catch (InvocationTargetException e) {
@@ -192,7 +190,7 @@ implements IFSRandomAccessFileImpl
     try {
       connection_.callMethod (pxId_, "setForceToStorage",
                               new Class[] { Boolean.TYPE },
-                              new Object[] { new Boolean(forceToStorage) });
+                              new Object[] { Boolean.valueOf(forceToStorage) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
