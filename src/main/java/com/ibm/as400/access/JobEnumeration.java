@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
 
 // Helper class.  Used to wrap the Job[] with an Enumeration.
 // This class is used by JobList.
-class JobEnumeration implements Enumeration
+class JobEnumeration implements Enumeration<Job>
 {
     private Job[] jobCache_;
     private JobList list_;
@@ -37,12 +37,14 @@ class JobEnumeration implements Enumeration
     }
 
     // Sets our tracker free if we are garbage collected, so that our parent JobList knows we are done without it having to actually maintain a hard reference to us.
+    @Override
     protected void finalize() throws Throwable
     {
         tracker_.set(false);
         super.finalize();
     }
 
+    @Override
     public final boolean hasMoreElements()
     {
         if (!tracker_.isSet()) return false;  // JobList invalidated us.
@@ -58,7 +60,8 @@ class JobEnumeration implements Enumeration
         }
     }
 
-    public final Object nextElement()
+    @Override
+    public final Job nextElement()
     {
         if (counter_ >= numJobs_ || !tracker_.isSet())
         {
