@@ -13,7 +13,6 @@
 
 package com.ibm.as400.access;
 
-import java.util.Vector;
 import java.beans.PropertyVetoException;
 
 /**
@@ -30,7 +29,7 @@ import java.beans.PropertyVetoException;
   **/
 
 
-public class AFPResourceList extends PrintObjectList
+public class AFPResourceList extends PrintObjectList<AFPResource>
 implements java.io.Serializable
 {
     static final long serialVersionUID = 4L;
@@ -72,6 +71,7 @@ implements java.io.Serializable
     /**
      * Chooses the appropriate implementation.
      **/
+    @Override
     void chooseImpl()
     {
         AS400 system = getSystem();
@@ -116,8 +116,8 @@ implements java.io.Serializable
     }
 
 
-
-    PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr)
+    @Override
+    AFPResource newNPObject(NPCPID cpid, NPCPAttribute cpattr)
     {
         return new AFPResource(system_, (NPCPIDAFPResource)cpid, cpattr);
     }

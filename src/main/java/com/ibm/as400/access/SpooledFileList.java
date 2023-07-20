@@ -24,7 +24,7 @@ import java.beans.PropertyVetoException;
  **/ 
 
 
-public class SpooledFileList extends PrintObjectList
+public class SpooledFileList extends PrintObjectList<SpooledFile>
 implements java.io.Serializable 
 {
     static final long serialVersionUID = 4L;
@@ -76,6 +76,7 @@ implements java.io.Serializable
     /**
      * Chooses the appropriate implementation.
      **/
+    @Override
     void chooseImpl()
     {
         AS400 system = getSystem();
@@ -195,9 +196,9 @@ implements java.io.Serializable
        return( selectionCP.getEndTime() );
    }
    
-   
 
-    PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr)
+    @Override
+    SpooledFile newNPObject(NPCPID cpid, NPCPAttribute cpattr)
     {
         return new SpooledFile(system_, (NPCPIDSplF)cpid, cpattr);
     }

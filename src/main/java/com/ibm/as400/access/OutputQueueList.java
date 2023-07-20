@@ -22,7 +22,7 @@ import java.beans.PropertyVetoException;
  * @see OutputQueue
  **/
 
-public class OutputQueueList extends PrintObjectList
+public class OutputQueueList extends PrintObjectList<OutputQueue>
 implements java.io.Serializable 
 {
     private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
@@ -65,6 +65,7 @@ implements java.io.Serializable
     /**
      * Chooses the appropriate implementation.
      **/
+    @Override
     void chooseImpl()
     {
         AS400 system = getSystem();
@@ -93,8 +94,8 @@ implements java.io.Serializable
         return( selectionCP.getQueue() );
     }
 
-
-    PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr)
+    @Override
+    OutputQueue newNPObject(NPCPID cpid, NPCPAttribute cpattr)
     {
         return new OutputQueue(system_, (NPCPIDOutQ)cpid, cpattr);
     }

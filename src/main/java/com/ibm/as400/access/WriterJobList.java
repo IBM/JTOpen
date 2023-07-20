@@ -22,7 +22,7 @@ import java.beans.PropertyVetoException;
  * @see WriterJob
  **/
 
-public class WriterJobList extends PrintObjectList
+public class WriterJobList extends PrintObjectList<WriterJob>
 implements java.io.Serializable
 {
     private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
@@ -64,6 +64,7 @@ implements java.io.Serializable
     /**
      * Chooses the appropriate implementation.
      **/
+    @Override
     void chooseImpl()
     {
         AS400 system = getSystem();
@@ -108,8 +109,8 @@ implements java.io.Serializable
         return( selectionCP.getWriter() );
     }
 
-
-    PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr)
+    @Override
+    WriterJob newNPObject(NPCPID cpid, NPCPAttribute cpattr)
     {
         return new WriterJob(system_, (NPCPIDWriter)cpid, cpattr);
     }
