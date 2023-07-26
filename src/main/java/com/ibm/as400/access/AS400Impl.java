@@ -72,6 +72,7 @@ interface AS400Impl
     void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB, boolean mustUseNetSockets, boolean mustUseSuppliedProfile, boolean mustAddLanguageLibrary);
     // Sign-on to system.
     SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException;
+    SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException;
     
     //@Bidi-HCG3 start        
     /**

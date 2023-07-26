@@ -76,7 +76,7 @@ class PasswordVault extends CredentialVault implements Cloneable, Serializable
    *
    * @return A newly created PasswordVault that is a copy of this one
    */
-  public Object clone() {
+  public PasswordVault clone() {
     PasswordVault vaultClone = (PasswordVault)super.clone();
     return vaultClone;
   }

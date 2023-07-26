@@ -24,7 +24,14 @@ class SignonExchangeAttributeRep extends ClientAccessDataStream
      **/
     public Object getNewDataStream()
     {
-      return new SignonExchangeAttributeRep();
+        return new SignonExchangeAttributeRep();
+    }
+
+    byte getAdditionalAuthenticationIndicator()
+    {
+        int offset = findCP(0x112E);
+        if (offset == -1) return 0;
+        return data_[offset + 6] ;
     }
 
     int getRC()
@@ -110,7 +117,7 @@ class SignonExchangeAttributeRep extends ClientAccessDataStream
      **/
     public int hashCode()
     {
-      return 0xF003;
+        return 0xF003;
     }
 
 }

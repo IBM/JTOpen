@@ -43,7 +43,7 @@ class GSSTokenVault extends CredentialVault implements Cloneable
    *
    * @return A newly created IdentityTokenVault that is a copy of this one
    */
-  public Object clone() {
+  public GSSTokenVault clone() {
     GSSTokenVault vaultClone = (GSSTokenVault)super.clone();
     return vaultClone;
   }
