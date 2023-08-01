@@ -38,8 +38,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
-import java.util.Vector;
-import java.util.Enumeration;
+import java.util.*;
 
 
 /**
@@ -133,7 +132,7 @@ public class Permission
     private int type_;
 
     private transient Vector userPermissionsBuffer_;
-    private transient Vector userPermissions_;
+    private transient Vector<UserPermission> userPermissions_;
     private transient Object userPermissionsLock_ = new Object();
 
     private transient PermissionAccess access_;
@@ -433,7 +432,7 @@ public class Permission
             //sensitivityChanged_ = false;                   // @B2d
 
             userPermissionsBuffer_ = new Vector ();
-            userPermissions_ = new Vector();
+            userPermissions_ = new Vector<UserPermission>();
             int count = perms.size();
             for (int i=4;i<count;i++)
             {
@@ -707,19 +706,24 @@ public class Permission
      * @return An enumeration of authorized users.
      *
     **/
-    public Enumeration getAuthorizedUsers()
+    public Enumeration<String> getAuthorizedUsers()
     {
-      synchronized (userPermissionsLock_)
-      {
-        int count = userPermissions_.size();
-        Vector names = new Vector();
-        for (int i=0;i<count;i++)
-        {
-          UserPermission userPermission = (UserPermission)userPermissions_.elementAt(i);
-          names.addElement(userPermission.getUserID());
+      return Collections.enumeration(getAuthorizedUsersList());
+    }
+
+    /**
+     * Returns a List of authorized users.
+     * @return A list of authorized users.
+     *
+     **/
+    public List<String> getAuthorizedUsersList() {
+        synchronized (userPermissionsLock_) {
+            List<String> names = new ArrayList<>();
+            for (UserPermission userPermission : userPermissions_) {
+                names.add(userPermission.getUserID());
+            }
+            return names;
         }
-        return names.elements();
-      }
     }
 
     
@@ -877,12 +881,23 @@ public class Permission
      * @return An enumeration of UserPermission objects.
      *
     **/
-    public Enumeration getUserPermissions()
+    public Enumeration<UserPermission> getUserPermissions()
     {
       synchronized (userPermissionsLock_)
       {
         return userPermissions_.elements();
       }
+    }
+
+    /**
+     * Returns a list of UserPermission objects.
+     * @return A list of UserPermission objects.
+     *
+     **/
+    public List<UserPermission> getUserPermissionsList() {
+        synchronized (userPermissionsLock_) {
+            return userPermissions_;
+        }
     }
 
     
@@ -1052,7 +1067,7 @@ public class Permission
         size = ((Integer)s.readObject()).intValue();
         for (int i=0;i<size;i++)
         {
-            userPermissions_.addElement(s.readObject());
+            userPermissions_.addElement((UserPermission) s.readObject());
         }
         changes_ = new PropertyChangeSupport(this);
         s.readObject();
@@ -1275,12 +1290,12 @@ public class Permission
 
         synchronized (userPermissionsLock_)
         {
-          s.writeObject(new Integer(userPermissionsBuffer_.size()));
+          s.writeObject(Integer.valueOf(userPermissionsBuffer_.size()));
           for (int i=0;i<userPermissionsBuffer_.size();i++)
           {
             s.writeObject(userPermissionsBuffer_.elementAt(i));
           }
-          s.writeObject(new Integer(userPermissions_.size()));
+          s.writeObject(Integer.valueOf(userPermissions_.size()));
           for (int i=0;i<userPermissions_.size();i++)
           {
             s.writeObject(userPermissions_.elementAt(i));

@@ -64,7 +64,7 @@ public class AS400Float4 implements AS400DataType
      **/
     public Object getDefaultValue()
     {
-     return new Float(defaultValue);
+     return Float.valueOf(defaultValue);
     }
 
     /**
@@ -194,7 +194,7 @@ public class AS400Float4 implements AS400DataType
     public Object toObject(byte[] as400Value)
     {
      // BinaryConverter will throw the ArrayIndexException's
-     return new Float(BinaryConverter.byteArrayToFloat(as400Value, 0));
+     return Float.valueOf(BinaryConverter.byteArrayToFloat(as400Value, 0));
     }
 
     /**
@@ -206,6 +206,6 @@ public class AS400Float4 implements AS400DataType
     public Object toObject(byte[] as400Value, int offset)
     {
      // BinaryConverter will throw the ArrayIndexException's
-     return new Float(BinaryConverter.byteArrayToFloat(as400Value, offset));
+     return Float.valueOf(BinaryConverter.byteArrayToFloat(as400Value, offset));
     }
 }

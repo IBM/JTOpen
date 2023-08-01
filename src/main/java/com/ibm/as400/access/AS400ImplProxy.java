@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.Socket;
+
+import org.ietf.jgss.GSSCredential;
+
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 import java.beans.PropertyVetoException;
 
@@ -46,7 +49,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            return (String)connection_.callMethod(pxId_, "ccsidToEncoding", new Class[] { Integer.TYPE }, new Object[] { new Integer(ccsid) }).getReturnValue();
+            return (String)connection_.callMethod(pxId_, "ccsidToEncoding", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(ccsid) }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
@@ -59,7 +62,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            return (SignonInfo)connection_.callMethod(pxId_, "changePassword", new Class[] { String.class, Boolean.TYPE, String.class, byte[].class, byte[].class }, new Object[] { systemName, new Boolean(systemNameLocal), userId, oldBytes, newBytes }).getReturnValue();
+            return (SignonInfo)connection_.callMethod(pxId_, "changePassword", new Class[] { String.class, Boolean.TYPE, String.class, byte[].class, byte[].class }, new Object[] { systemName, Boolean.valueOf(systemNameLocal), userId, oldBytes, newBytes }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
@@ -78,7 +81,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
         {
             connection_.callMethod(pxId_, "connect", 
                 new Class[] { Integer.TYPE, Integer.TYPE, Boolean.TYPE }, 
-                new Object[] { new Integer(service), new Integer(overridePort), new Boolean(skipSignonServer) });
+                new Object[] { Integer.valueOf(service), Integer.valueOf(overridePort), Boolean.valueOf(skipSignonServer) });
         }
         catch (InvocationTargetException e)
         {
@@ -91,7 +94,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            return (Socket)connection_.callMethod(pxId_, "connectToPort", new Class[] { Integer.TYPE }, new Object[] { new Integer(port) }).getReturnValue();
+            return (Socket)connection_.callMethod(pxId_, "connectToPort", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(port) }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
@@ -106,7 +109,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
             return (Socket)connection_.callMethod(pxId_, 
                 "connectToPort", 
                 new Class[] { Integer.TYPE, Boolean.TYPE }, 
-                new Object[] { new Integer(port), new Boolean(forceNonLocalhost) }).getReturnValue();
+                new Object[] { Integer.valueOf(port), Boolean.valueOf(forceNonLocalhost) }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
@@ -119,7 +122,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            connection_.callMethod(pxId_, "disconnect", new Class[] { Integer.TYPE }, new Object[] { new Integer(service) });
+            connection_.callMethod(pxId_, "disconnect", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(service) });
         }
         catch (InvocationTargetException e)
         {
@@ -191,7 +194,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            return (String[])connection_.callMethod(pxId_, "getJobs", new Class[] { Integer.TYPE }, new Object[] { new Integer(service) }).getReturnValue();
+            return (String[])connection_.callMethod(pxId_, "getJobs", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(service) }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
@@ -204,7 +207,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            return connection_.callMethod(pxId_, "getServicePort", new Class[] { String.class, Integer.TYPE }, new Object[] { systemName, new Integer(service) }).getReturnValueInt();
+            return connection_.callMethod(pxId_, "getServicePort", new Class[] { String.class, Integer.TYPE }, new Object[] { systemName, Integer.valueOf(service) }).getReturnValueInt();
         }
         catch (InvocationTargetException e)
         {
@@ -217,7 +220,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            return connection_.callMethod(pxId_, "isConnected", new Class[] { Integer.TYPE }, new Object[] { new Integer(service) }).getReturnValueBoolean();
+            return connection_.callMethod(pxId_, "isConnected", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(service) }).getReturnValueBoolean();
         }
         catch (InvocationTargetException e)
         {
@@ -241,7 +244,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            return connection_.callMethod(pxId_, "isConnectionAlive", new Class[] { Integer.TYPE }, new Object[] { new Integer(service) }).getReturnValueBoolean();
+            return connection_.callMethod(pxId_, "isConnectionAlive", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(service) }).getReturnValueBoolean();
         }
         catch (InvocationTargetException e)
         {
@@ -254,7 +257,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            connection_.callMethod(pxId_, "newConverter", new Class[] { Integer.TYPE }, new Object[] { new Integer(ccsid) });
+            connection_.callMethod(pxId_, "newConverter", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(ccsid) });
         }
         catch (InvocationTargetException e)
         {
@@ -274,7 +277,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     }
 
     // Set the GSS credential.
-    public void setGSSCredential(Object gssCredential)
+    public void setGSSCredential(GSSCredential gssCredential)
     {
         try
         {
@@ -291,7 +294,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            connection_.callMethod(pxId_, "setServicePort", new Class[] { String.class, Integer.TYPE, Integer.TYPE }, new Object[] { systemName, new Integer(service), new Integer(port) });
+            connection_.callMethod(pxId_, "setServicePort", new Class[] { String.class, Integer.TYPE, Integer.TYPE }, new Object[] { systemName, Integer.valueOf(service), Integer.valueOf(port) });
         }
         catch (InvocationTargetException e)
         {
@@ -317,7 +320,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            connection_.callMethod(pxId_, "setState", new Class[] { SSLOptions.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, String.class, SocketProperties.class, String.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE }, new Object[] { useSSLConnection, new Boolean(canUseNativeOptimization), new Boolean(threadUsed), new Integer(ccsid), nlv, socketProperties, ddmRDB, new Boolean(mustUseNetSockets), new Boolean(mustUseSuppliedProfile), new Boolean(mustAddLanguageLibrary) } );
+            connection_.callMethod(pxId_, "setState", new Class[] { SSLOptions.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, String.class, SocketProperties.class, String.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE }, new Object[] { useSSLConnection, Boolean.valueOf(canUseNativeOptimization), Boolean.valueOf(threadUsed), Integer.valueOf(ccsid), nlv, socketProperties, ddmRDB, Boolean.valueOf(mustUseNetSockets), Boolean.valueOf(mustUseSuppliedProfile), Boolean.valueOf(mustAddLanguageLibrary) } );
         }
         catch (InvocationTargetException e)
         {
@@ -330,7 +333,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            return (SignonInfo)connection_.callMethod(pxId_, "signon", new Class[] { String.class, Boolean.TYPE, String.class, CredentialVault.class, String.class }, new Object[] { systemName, new Boolean(systemNameLocal), userId, vault, gssName }).getReturnValue();
+            return (SignonInfo)connection_.callMethod(pxId_, "signon", new Class[] { String.class, Boolean.TYPE, String.class, CredentialVault.class, String.class }, new Object[] { systemName, Boolean.valueOf(systemNameLocal), userId, vault, gssName }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {
@@ -343,7 +346,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     {
         try
         {
-            return (SignonInfo)connection_.callMethod(pxId_, "skipSignon", new Class[] { String.class, Boolean.TYPE, String.class, CredentialVault.class, String.class }, new Object[] { systemName, new Boolean(systemNameLocal), userId, vault, gssName }).getReturnValue();
+            return (SignonInfo)connection_.callMethod(pxId_, "skipSignon", new Class[] { String.class, Boolean.TYPE, String.class, CredentialVault.class, String.class }, new Object[] { systemName, Boolean.valueOf(systemNameLocal), userId, vault, gssName }).getReturnValue();
         }
         catch (InvocationTargetException e)
         {

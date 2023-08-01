@@ -403,7 +403,7 @@ class PcmlProgram extends PcmlDocNode
             //       can reduce the number of parameters at runtime
             // if ( getNbrChildren() > 7 )                             // @B1A
             // {                                                       // @B1A
-            //    getDoc().addPcmlSpecificationError(DAMRI.TOO_MANY_PARMS, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), new Integer(7), getBracketedTagName(), getNameForException()} ); // @B1A
+            //    getDoc().addPcmlSpecificationError(DAMRI.TOO_MANY_PARMS, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), Integer.valueOf(7), getBracketedTagName(), getNameForException()} ); // @B1A
             // }                                                       // @B1A
         }                                                           // @B1A
         // else                                                        // @B1A
@@ -517,7 +517,7 @@ class PcmlProgram extends PcmlDocNode
             //       can reduce the number of parameters at runtime
             if ( getNbrChildren() > 7 )                             // @D1A
             {                                                       
-                throw new PcmlException(DAMRI.TOO_MANY_PARMS, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), new Integer(7), getBracketedTagName(), getNameForException()} ); // @D1A
+                throw new PcmlException(DAMRI.TOO_MANY_PARMS, new Object[] {makeQuotedAttr("entrypoint", m_EntrypointStr), Integer.valueOf(7), getBracketedTagName(), getNameForException()} ); // @D1A
             }                                                       
         }
         else if (getEntrypoint() != null)                           // @D1A
@@ -592,7 +592,7 @@ class PcmlProgram extends PcmlDocNode
                     }                                               // @A1A
                     break;
                 default:
-                    throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , child.getNameForException()} );
+                    throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {Integer.valueOf(child.getNodeType()) , child.getNameForException()} );
             }
 
             // Parameter is supported at current host VRM
@@ -799,7 +799,7 @@ class PcmlProgram extends PcmlDocNode
                         ((PcmlData) child).parseBytes(bytes, 0, offsetStack, new PcmlDimensions() );
                         break;
                     default:
-                        throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , child.getNameForException()} );
+                        throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {Integer.valueOf(child.getNodeType()) , child.getNameForException()} );
                 }
             }
 

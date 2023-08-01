@@ -2125,11 +2125,9 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         {
             String[] temp = new String[NUMBER_OF_ATTRIBUTES_];
 
-            for(int i = 0; i < values_.length; i++)
-                temp[i] = values_[i];
+            System.arraycopy(values_, 0, temp, 0, values_.length);
 
-            for(int i = values_.length; i < NUMBER_OF_ATTRIBUTES_; i++)
-                temp[i] = defaults_[i];
+            System.arraycopy(defaults_, values_.length, temp, values_.length, NUMBER_OF_ATTRIBUTES_ - values_.length);
 
             values_ = temp;
         }

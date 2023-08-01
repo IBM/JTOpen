@@ -205,7 +205,7 @@ abstract class PermissionAccess
         String primaryGroup=((String)record0.getField("primaryGroup")).trim();
         String authorizationList=((String)record0.getField("authorizationList")).trim();
         String sensitivityLev=((String)record0.getField("sensitivityLevel")).trim();
-        Integer sensitivityLevel=new Integer(getIntValue(sensitivityLev));
+        Integer sensitivityLevel=Integer.valueOf(getIntValue(sensitivityLev));
 
         // Adds information to vector.
         vector.addElement(owner);

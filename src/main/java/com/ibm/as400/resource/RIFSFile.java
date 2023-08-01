@@ -634,7 +634,7 @@ returns the same value as <b>getAttributeValue()</b>.
               else if (attributeID.equals(RIFSFile.CAN_WRITE))
                   return file_.canWrite() ? Boolean.TRUE : Boolean.FALSE;
               else if (attributeID.equals(RIFSFile.CCSID))
-                  return new Integer(file_.getCCSID());
+                  return Integer.valueOf(file_.getCCSID());
               else if (attributeID.equals(RIFSFile.CREATED))
                   return new Date(file_.created());
               else if (attributeID.equals(RIFSFile.EXISTS))
@@ -654,11 +654,11 @@ returns the same value as <b>getAttributeValue()</b>.
               else if (attributeID.equals(RIFSFile.LAST_MODIFIED))
                   return new Date(file_.lastModified());
               else if (attributeID.equals(RIFSFile.LENGTH))
-                  return new Long(file_.length());
+                  return Long.valueOf(file_.length());
               else if (attributeID.equals(RIFSFile.NAME))
                   return file_.getName();
               else if (attributeID.equals(RIFSFile.OWNERID))  // @A1a
-                  return new Integer(file_.getOwnerId());
+                  return Integer.valueOf(file_.getOwnerId());
               else if (attributeID.equals(RIFSFile.PARENT))
                   return file_.getParent();
               else if (attributeID.equals(RIFSFile.PATH))

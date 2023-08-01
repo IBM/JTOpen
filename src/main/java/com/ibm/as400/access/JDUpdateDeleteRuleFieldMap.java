@@ -85,11 +85,11 @@ implements JDFieldMap
         switch(((Number) serverData).intValue ())
         {
             case 0:
-                return new Short ((short) DatabaseMetaData.importedKeyCascade);
+                return Short.valueOf((short) DatabaseMetaData.importedKeyCascade);
             case 1:
-                return new Short ((short) DatabaseMetaData.importedKeyRestrict);
+                return Short.valueOf((short) DatabaseMetaData.importedKeyRestrict);
             default:
-                return new Short ((short) DatabaseMetaData.importedKeySetNull);
+                return Short.valueOf((short) DatabaseMetaData.importedKeySetNull);
         }
     }
 }

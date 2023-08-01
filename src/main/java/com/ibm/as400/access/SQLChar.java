@@ -381,7 +381,7 @@ endif */
         try
         {
             //return(new Double(getString().trim())).byteValue();           //@trunc
-            Double doubleValue  = new Double (value_.trim ());              //@trunc
+            Double doubleValue  = Double.valueOf(value_.trim ());           //@trunc
             double d = doubleValue.doubleValue();                           //@trunc
             if(d > Byte.MAX_VALUE || d < Byte.MIN_VALUE)  {                 //@trunc
                 truncated_ = 1;                                             //@trunc

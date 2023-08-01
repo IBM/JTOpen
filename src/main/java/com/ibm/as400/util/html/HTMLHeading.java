@@ -446,7 +446,7 @@ public class HTMLHeading extends HTMLTagAttributes implements java.io.Serializab
 
         level_ = level;
 
-        if (changes_ != null) changes_.firePropertyChange("level", new Integer(old), new Integer(level) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("level", Integer.valueOf(old), Integer.valueOf(level) ); //@CRS
     }
 
 

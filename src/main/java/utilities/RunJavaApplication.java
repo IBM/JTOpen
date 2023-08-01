@@ -384,8 +384,7 @@ public class RunJavaApplication
                         if (!alreadyExist)
                         {
                             String[] newOpt = new String[curOption.length + 1];
-                            for (int optidx = 0 ; optidx < curOption.length ; optidx++)
-                                newOpt[optidx] = curOption[optidx];
+                            System.arraycopy(curOption, 0, newOpt, 0, curOption.length);
                             newOpt[newOpt.length-1] = "*VERBOSE";
                             jac.setOptions(newOpt);
                             verboseExist = true;
@@ -507,7 +506,7 @@ public class RunJavaApplication
 
                else if (property.equals("GARBAGECOLLECTIONINITIALSIZE"))
                {
-                   Integer val = new Integer(value);
+                   Integer val = Integer.valueOf(value);
                    jac.setGarbageCollectionInitialSize(val.intValue());
                }
 
@@ -516,13 +515,13 @@ public class RunJavaApplication
 
                else if (property.equals("GARBAGECOLLECTIONFREQUENCY"))
                {
-                   Integer val = new Integer(value);
+                   Integer val = Integer.valueOf(value);
                    jac.setGarbageCollectionFrequency(val.intValue());
                }
 
                else if (property.equals("GARBAGECOLLECTIONPRIORITY"))
                {
-                   Integer val = new Integer(value);
+                   Integer val = Integer.valueOf(value);
                    jac.setGarbageCollectionPriority(val.intValue());
                }
 
@@ -531,7 +530,7 @@ public class RunJavaApplication
 
                else if (property.equals("DEFAULTPORT"))
                {
-                   Integer val = new Integer(value);
+                   Integer val = Integer.valueOf(value);
                    jac.setDefaultPort(val.intValue());
                }
 

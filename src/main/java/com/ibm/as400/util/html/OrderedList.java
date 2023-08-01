@@ -294,7 +294,7 @@ public class OrderedList extends HTMLList
 
         start_ = start;
 
-        if (changes_ != null) changes_.firePropertyChange("start", new Integer(old), new Integer(start) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("start", Integer.valueOf(old), Integer.valueOf(start) ); //@CRS
     }
 
 

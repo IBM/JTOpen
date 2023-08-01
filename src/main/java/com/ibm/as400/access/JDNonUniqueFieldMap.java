@@ -48,9 +48,9 @@ implements JDFieldMap
         // if serverData == "D", allows duplicate values (set to true)
         //               == "U", must be unique  (set to false)
         if(serverData.toString ().charAt (0) == 'D')
-            return new Boolean (true);
+            return Boolean.TRUE;
         else
-            return new Boolean (false);
+            return Boolean.FALSE;
     }
 
     /**

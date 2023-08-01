@@ -328,7 +328,7 @@ class PcmlData extends PcmlDocNode
         // values such as getCount()
         if (indices.size() < myDimensions.length)
         {
-            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {new Integer(indices.size()), new Integer(myDimensions.length), getNameForException()} );
+            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {Integer.valueOf(indices.size()), Integer.valueOf(myDimensions.length), getNameForException()} );
         }
 
         if (myDimensions.length == 0)
@@ -388,7 +388,7 @@ class PcmlData extends PcmlDocNode
             // Make sure index is not out of bounds
             if (index < 0 || index >= myDimensions[i])
             {
-                throw new PcmlException(DAMRI.INDEX_OUT_OF_BOUNDS, new Object[] {new Integer(myDimensions[i]-1), new Integer(i), indices, getNameForException()} );  // @D0C Subtract 1 from myDimensions to get the upper end of range to come out right in the message.
+                throw new PcmlException(DAMRI.INDEX_OUT_OF_BOUNDS, new Object[] {Integer.valueOf(myDimensions[i]-1), Integer.valueOf(i), indices, getNameForException()} );  // @D0C Subtract 1 from myDimensions to get the upper end of range to come out right in the message.
             }
 
             // If we have are not on the last (deepest) dimension
@@ -439,7 +439,7 @@ class PcmlData extends PcmlDocNode
         }
         else
         {
-            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {new Integer(indices.size()), new Integer(getNbrOfDimensions()), getNameForException()} );
+            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {Integer.valueOf(indices.size()), Integer.valueOf(getNbrOfDimensions()), getNameForException()} );
         }
     }
 
@@ -466,7 +466,7 @@ class PcmlData extends PcmlDocNode
             }
             else
             {
-                throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {new Integer(indices.size()), new Integer(getNbrOfDimensions()), getNameForException()} );
+                throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {Integer.valueOf(indices.size()), Integer.valueOf(getNbrOfDimensions()), getNameForException()} );
             }
         }
     }
@@ -504,7 +504,7 @@ class PcmlData extends PcmlDocNode
         }
         else
         {
-            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {new Integer(indices.size()), new Integer(getNbrOfDimensions()), getNameForException()} );  // @C9A
+            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {Integer.valueOf(indices.size()), Integer.valueOf(getNbrOfDimensions()), getNameForException()} );  // @C9A
         }
     }
 
@@ -526,7 +526,7 @@ class PcmlData extends PcmlDocNode
         }
         else
         {
-            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {new Integer(indices.size()), new Integer(getNbrOfDimensions()), getNameForException()} );
+            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {Integer.valueOf(indices.size()), Integer.valueOf(getNbrOfDimensions()), getNameForException()} );
         }
     }
 
@@ -544,7 +544,7 @@ class PcmlData extends PcmlDocNode
         }
         else
         {
-            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {new Integer(indices.size()), new Integer(getNbrOfDimensions()), getNameForException()} );  // @C9A
+            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {Integer.valueOf(indices.size()), Integer.valueOf(getNbrOfDimensions()), getNameForException()} );  // @C9A
         }
     }
     
@@ -563,7 +563,7 @@ class PcmlData extends PcmlDocNode
         }
         else
         {
-            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {new Integer(indices.size()), new Integer(getNbrOfDimensions()), getNameForException()} );  // @C9A
+            throw new PcmlException(DAMRI.TOO_FEW_INDICES, new Object[] {Integer.valueOf(indices.size()), Integer.valueOf(getNbrOfDimensions()), getNameForException()} );  // @C9A
         }
     }
 
@@ -908,7 +908,7 @@ class PcmlData extends PcmlDocNode
                                 totalSize += ((PcmlData) child).getOutputsize(indices);
                                 break;
                             default:
-                                throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , getNameForException()} );
+                                throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {Integer.valueOf(child.getNodeType()) , getNameForException()} );
                         }
                     }
                     break;
@@ -1066,7 +1066,7 @@ class PcmlData extends PcmlDocNode
                                 totalBytes += ((PcmlData) child).toBytes(bytes, offset + totalBytes, indices);
                                 break;
                             default:
-                                throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , getNameForException()} );
+                                throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {Integer.valueOf(child.getNodeType()) , getNameForException()} );
                         } // END: switch (child.getNodeType())
                     } // END: while (children.hasMoreElements())
                     break;
@@ -1155,7 +1155,7 @@ class PcmlData extends PcmlDocNode
                     // If offsetfrom= was specified with an integer literal, use it.
                     if (getOffsetfrom() >= 0)                           // @C8A
                     {
-                        myOffsetbase = new Integer(getOffsetfrom());    // @C8A
+                        myOffsetbase = Integer.valueOf(getOffsetfrom());    // @C8A
                     }
                     // getOffsetfrom() returns -1 to indicate that offset from was not specified.
                     // No offsetfrom= was specified, the offset will be relative to the
@@ -1210,7 +1210,7 @@ class PcmlData extends PcmlDocNode
                 String qName = getQualifiedName();
                 if (!qName.equals(""))
                 {
-                    offsetStack.put(qName, new Integer(offset + skipBytes + nbrBytes)); // @C8C
+                    offsetStack.put(qName, Integer.valueOf(offset + skipBytes + nbrBytes)); // @C8C
                 }
 
                 children = getChildren();
@@ -1228,7 +1228,7 @@ class PcmlData extends PcmlDocNode
                             nbrBytes += dataNode.parseBytes(bytes, offset + skipBytes + nbrBytes, offsetStack, indices);    // @C8C
                             break;
                         default:
-                            throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , getNameForException()} );
+                            throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {Integer.valueOf(child.getNodeType()) , getNameForException()} );
                     } // END: switch (child.getNodeType())
                 } // END: while (children.hasMoreElements())
 
@@ -1711,16 +1711,16 @@ class PcmlData extends PcmlDocNode
           {
             bidiTypeMap_ = new Hashtable(10);
 
-            bidiTypeMap_.put("DEFAULT", new Integer(BidiStringType.DEFAULT));
-            bidiTypeMap_.put("NONE",    new Integer(BidiStringType.NONE));
-            bidiTypeMap_.put("ST4",     new Integer(BidiStringType.ST4));
-            bidiTypeMap_.put("ST5",     new Integer(BidiStringType.ST5));
-            bidiTypeMap_.put("ST6",     new Integer(BidiStringType.ST6));
-            bidiTypeMap_.put("ST7",     new Integer(BidiStringType.ST7));
-            bidiTypeMap_.put("ST8",     new Integer(BidiStringType.ST8));
-            bidiTypeMap_.put("ST9",     new Integer(BidiStringType.ST9));
-            bidiTypeMap_.put("ST10",    new Integer(BidiStringType.ST10));
-            bidiTypeMap_.put("ST11",    new Integer(BidiStringType.ST11));
+            bidiTypeMap_.put("DEFAULT", Integer.valueOf(BidiStringType.DEFAULT));
+            bidiTypeMap_.put("NONE",    Integer.valueOf(BidiStringType.NONE));
+            bidiTypeMap_.put("ST4",     Integer.valueOf(BidiStringType.ST4));
+            bidiTypeMap_.put("ST5",     Integer.valueOf(BidiStringType.ST5));
+            bidiTypeMap_.put("ST6",     Integer.valueOf(BidiStringType.ST6));
+            bidiTypeMap_.put("ST7",     Integer.valueOf(BidiStringType.ST7));
+            bidiTypeMap_.put("ST8",     Integer.valueOf(BidiStringType.ST8));
+            bidiTypeMap_.put("ST9",     Integer.valueOf(BidiStringType.ST9));
+            bidiTypeMap_.put("ST10",    Integer.valueOf(BidiStringType.ST10));
+            bidiTypeMap_.put("ST11",    Integer.valueOf(BidiStringType.ST11));
           }
         }
       }
@@ -1967,7 +1967,7 @@ class PcmlData extends PcmlDocNode
         // Do not allow ccsid= to be a literal value that is negative or greater than 65535.   @D0C
         if (m_Ccsid < 0 || m_Ccsid > 65535)  // @D0C - added check for >65535.
         {
-            getDoc().addPcmlSpecificationError(DAMRI.DATA_LENGTH_OUT_OF_RANGE, new Object[] {new Integer(m_Ccsid), new Integer(0), new Integer(65535), getBracketedTagName(), getNameForException()} );
+            getDoc().addPcmlSpecificationError(DAMRI.DATA_LENGTH_OUT_OF_RANGE, new Object[] {Integer.valueOf(m_Ccsid), Integer.valueOf(0), Integer.valueOf(65535), getBracketedTagName(), getNameForException()} );
         }
 
 
@@ -2046,7 +2046,7 @@ class PcmlData extends PcmlDocNode
                     case BYTE:
                         if ( m_Length < 0 || m_Length > (MAX_STRING_LENGTH) )
                         {
-                            getDoc().addPcmlSpecificationError(DAMRI.DATA_LENGTH_OUT_OF_RANGE, new Object[] {new Integer(m_Length), new Integer(0), new Integer(PcmlData.MAX_STRING_LENGTH), getBracketedTagName(), getNameForException()} );
+                            getDoc().addPcmlSpecificationError(DAMRI.DATA_LENGTH_OUT_OF_RANGE, new Object[] {Integer.valueOf(m_Length), Integer.valueOf(0), Integer.valueOf(PcmlData.MAX_STRING_LENGTH), getBracketedTagName(), getNameForException()} );
 
                         }
                         break;
@@ -2062,7 +2062,7 @@ class PcmlData extends PcmlDocNode
                     case ZONED:
                         if (m_Length < 1 || m_Length > 31)
                         {
-                            getDoc().addPcmlSpecificationError(DAMRI.DATA_LENGTH_OUT_OF_RANGE, new Object[] {new Integer(m_Length), new Integer(1), new Integer(31), getBracketedTagName(), getNameForException()} );
+                            getDoc().addPcmlSpecificationError(DAMRI.DATA_LENGTH_OUT_OF_RANGE, new Object[] {Integer.valueOf(m_Length), Integer.valueOf(1), Integer.valueOf(31), getBracketedTagName(), getNameForException()} );
                         }
                         break;
 

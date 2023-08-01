@@ -539,11 +539,11 @@ public class HTMLForm extends HTMLTagAttributes implements HTMLConstants, java.i
             throw new ExtendedIllegalArgumentException("method", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         int old = method_;
-        if (vetos_ != null) vetos_.fireVetoableChange("method", new Integer(old), new Integer(method) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("method", Integer.valueOf(old), Integer.valueOf(method) ); //@CRS
 
         method_ = method;
 
-        if (changes_ != null) changes_.firePropertyChange("method", new Integer(old), new Integer(method) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("method", Integer.valueOf(old), Integer.valueOf(method) ); //@CRS
     }
 
     /**

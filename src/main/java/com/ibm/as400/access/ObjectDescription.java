@@ -1326,7 +1326,7 @@ public class ObjectDescription
       if (attribute == ORDER_IN_LIBRARY_LIST)
       {
         // Can only retrieve this via ObjectList
-        return new Integer(-1);
+        return Integer.valueOf(-1);
       }
       
       retrieve(attribute);
@@ -1373,11 +1373,11 @@ public class ObjectDescription
       case OBJECT_SIZE:
         long multi = ((Integer)getValue(OBJECT_SIZE_MULTIPLIER)).longValue();
         long size = ((Integer)o).longValue();
-        return new Long(multi*size);
+        return Long.valueOf(multi*size);
       case SAVE_SIZE:
         long multi2 = ((Integer)getValue(SAVE_SIZE_MULTIPLIER)).longValue();
         long size2 = ((Integer)o).longValue();
-        return new Long(multi2*size2);
+        return Long.valueOf(multi2*size2);
       case LICENSED_PROGRAM:
       case COMPILER:
         // pppppppVvvRrrMmm -- For example: "5761SS1V06R01M00"
@@ -1409,11 +1409,11 @@ public class ObjectDescription
       case DIGITALLY_SIGNED:
       case DIGITALLY_SIGNED_TRUSTED:
       case DIGITALLY_SIGNED_MULTIPLE:
-        return new Boolean (((String)o).charAt(0) == '1');
+        return Boolean.valueOf(((String)o).charAt(0) == '1');
       case USAGE_INFO_UPDATED:
-        return new Boolean (((String)o).charAt(0) == 'Y');
+        return Boolean.valueOf(((String)o).charAt(0) == 'Y');
       case JOURNAL_OMITTED_ENTRIES:
-        return new Boolean(((String)o).charAt(0) == '0');
+        return Boolean.valueOf(((String)o).charAt(0) == '0');
 
       default:
         return o;
@@ -1948,17 +1948,17 @@ public class ObjectDescription
 
   void set(int attribute, int value)
   {
-    values_.put(attribute, new Integer(value));
+    values_.put(attribute, Integer.valueOf(value));
   }
 
   void set(int attribute, long value)
   {
-    values_.put(attribute, new Long(value));
+    values_.put(attribute, Long.valueOf(value));
   }
 
   void set(int attribute, boolean value)
   {
-    values_.put(attribute, new Boolean(value));
+    values_.put(attribute, Boolean.valueOf(value));
   }
 
   void set(int attribute, Object value)

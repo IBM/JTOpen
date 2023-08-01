@@ -20,7 +20,9 @@ import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -275,7 +277,7 @@ public class JobList implements Serializable
      @see  com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_BATCH_MRT
      @see  com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_BATCH_ALTERNATE_SPOOL_USER
      **/
-    public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_BATCH = new Integer(200);
+    public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_BATCH = Integer.valueOf(200);
 
     /**
      Selection value indicating all the interactive job types will be selected.
@@ -285,7 +287,7 @@ public class JobList implements Serializable
      @see  com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ
      @see  com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_INTERACTIVE_SYSREQ_AND_GROUP
      **/
-    public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_INTERACTIVE = new Integer(900);
+    public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_INTERACTIVE = Integer.valueOf(900);
 
     /**
      Selection value indicating all the prestart job types will be selected.
@@ -294,7 +296,7 @@ public class JobList implements Serializable
      @see  com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_PRESTART_BATCH
      @see  com.ibm.as400.access.Job#JOB_TYPE_ENHANCED_PRESTART_COMM
      **/
-    public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_PRESTART = new Integer(1600);
+    public static final Integer SELECTION_JOB_TYPE_ENHANCED_ALL_PRESTART = Integer.valueOf(1600);
 
     // Holds the lengths for all of the valid sort keys.
     static final IntegerHashtable sortableKeys_ = new IntegerHashtable();
@@ -446,7 +448,7 @@ public class JobList implements Serializable
     private boolean[] sortOrders_ = new boolean[1];
 
     // Used to determine if there are open Enumerations still using us.
-    private Vector trackers_;
+    private Vector<Tracker> trackers_;
 
     /**
      Constructs a JobList object.  The system must be set before retrieving the list of jobs.
@@ -943,7 +945,7 @@ public class JobList implements Serializable
                 int inUse = 0;
                 for (int i = 0; i < trackers_.size(); ++i)
                 {
-                  Tracker tracker = (Tracker)trackers_.elementAt(i);
+                  Tracker tracker = trackers_.elementAt(i);
                   if (tracker.isSet()) ++inUse;
                   // Force the Enumeration to shut down since the JobList is being closed.
                   tracker.set(false);
@@ -986,7 +988,7 @@ public class JobList implements Serializable
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      @see  com.ibm.as400.access.Job
      **/
-    public synchronized Enumeration getJobs() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    public synchronized Enumeration<Job> getJobs() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving job list.");
         // Need to get the length.
@@ -995,17 +997,39 @@ public class JobList implements Serializable
         // Use a tracker so we know if someone tries to close us, whether or not they have open Enumerations.  It's possible they do, and they are just done with them, but this is mostly for debugging purposes.
         Tracker tracker = new Tracker();
 
-        if (trackers_ == null) trackers_ = new Vector();
+        if (trackers_ == null) trackers_ = new Vector<>();
         trackers_.addElement(tracker);
 
         // Remove dead trackers to prevent a memory leak.  JobEnumerations whose hasMoreElements() return false, or those who have been garbage collected, will all have freed their trackers.
         for (int i = trackers_.size() - 1; i >= 0; --i)
         {
-            Tracker t = (Tracker)trackers_.elementAt(i);
+            Tracker t = trackers_.elementAt(i);
             if (!t.isSet()) trackers_.removeElementAt(i);
         }
 
         return new JobEnumeration(this, length_, tracker);
+    }
+
+    /**
+     * Returns the list of jobs on the system. This method calls
+     * {@link #load load()} implicitly if needed.
+     *
+     * @return An Enumeration of {@link com.ibm.as400.access.Job Job} objects.
+     * @exception AS400SecurityException If a security or authority error
+     * occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the
+     * request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with the
+     * system.
+     * @exception ObjectDoesNotExistException If the object does not exist on
+     * the system.
+     * @see com.ibm.as400.access.Job
+     *
+     */
+    public synchronized List<Job> getJobsList() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+        return Collections.list(getJobs());
     }
 
     /**

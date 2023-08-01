@@ -93,7 +93,7 @@ Returns the Object value.
 **/
     public Object getObjectValue ()
     {
-        return new Long (value_);
+        return Long.valueOf(value_);
     }
 
 

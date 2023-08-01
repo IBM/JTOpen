@@ -97,7 +97,7 @@ implements DataAreaImpl
        connection_.callMethod (pxId_, "create",
                          new Class[] { Integer.TYPE, String.class,
                                        String.class, String.class},
-                         new Object[] { new Integer(length), initialValue,
+                         new Object[] { Integer.valueOf(length), initialValue,
                                         textDescription, authority});
      }
      catch (InvocationTargetException e) {
@@ -142,8 +142,8 @@ implements DataAreaImpl
                                        Integer.TYPE,
                                        BigDecimal.class,
                                        String.class, String.class},
-                         new Object[] { new Integer(length),
-                                        new Integer(decimalPositions),
+                         new Object[] { Integer.valueOf(length),
+                                        Integer.valueOf(decimalPositions),
                                         initialValue,
                                         textDescription, authority});
      }
@@ -183,7 +183,7 @@ implements DataAreaImpl
        connection_.callMethod (pxId_, "create",
                          new Class[] { Boolean.TYPE,
                                        String.class, String.class},
-                         new Object[] { new Boolean(initialValue),
+                         new Object[] { Boolean.valueOf(initialValue),
                                         textDescription, authority});
      }
      catch (InvocationTargetException e) {
@@ -367,7 +367,7 @@ implements DataAreaImpl
      try {
             ProxyReturnValue rv = connection_.callMethod (pxId_, "readBytes",
                          new Class[] { byte[].class, Integer.TYPE, Integer.TYPE, Integer.TYPE },
-                         new Object[] { data, new Integer(dataBufferOffset), new Integer(dataAreaOffset), new Integer(dataLength) },
+                         new Object[] { data, Integer.valueOf(dataBufferOffset), Integer.valueOf(dataAreaOffset), Integer.valueOf(dataLength) },
                          new boolean[] { true, false, false, false }, // returnArguments
                          true);
             byte[] returnData = (byte[])rv.getArgument(0);
@@ -438,7 +438,7 @@ implements DataAreaImpl
      try {
        return (String) connection_.callMethod (pxId_, "retrieve",
                          new Class[] { Integer.TYPE, Integer.TYPE },
-                         new Object[] { new Integer(dataAreaOffset), new Integer(dataLength) })
+                         new Object[] { Integer.valueOf(dataAreaOffset), Integer.valueOf(dataLength) })
                        .getReturnValue ();
      }
      catch (InvocationTargetException e) {
@@ -473,7 +473,7 @@ implements DataAreaImpl
      try {
        return (String) connection_.callMethod (pxId_, "retrieve",
                          new Class[] { Integer.TYPE, Integer.TYPE, Integer.TYPE },                                   //$A2C
-                         new Object[] { new Integer(dataAreaOffset), new Integer(dataLength), new Integer(type) })   //$A2C
+                         new Object[] { Integer.valueOf(dataAreaOffset), Integer.valueOf(dataLength), Integer.valueOf(type) })   //$A2C
                        .getReturnValue ();
      }
      catch (InvocationTargetException e) {
@@ -499,7 +499,7 @@ implements DataAreaImpl
                                              Integer.TYPE },
                                new Object[] { system,
                                               path,
-                                              new Integer(dataAreaType)
+                                              Integer.valueOf(dataAreaType)
                                             });
      }
      catch (InvocationTargetException e) {
@@ -533,7 +533,7 @@ implements DataAreaImpl
      try {
        connection_.callMethod (pxId_, "write",
                          new Class[] { String.class, Integer.TYPE },
-                         new Object[] { data, new Integer(dataAreaOffset) });
+                         new Object[] { data, Integer.valueOf(dataAreaOffset) });
      }
      catch (InvocationTargetException e) {
        throw ProxyClientConnection.rethrow5 (e);
@@ -569,7 +569,7 @@ implements DataAreaImpl
      try {
        connection_.callMethod (pxId_, "write",
                          new Class[] { String.class, Integer.TYPE , Integer.TYPE},                   //$A2C
-                         new Object[] { data, new Integer(dataAreaOffset), new Integer(type) });     //$A2C
+                         new Object[] { data, Integer.valueOf(dataAreaOffset), Integer.valueOf(type) });     //$A2C
      }
      catch (InvocationTargetException e) {
        throw ProxyClientConnection.rethrow5 (e);
@@ -627,7 +627,7 @@ implements DataAreaImpl
      try {
        connection_.callMethod (pxId_, "write",
                          new Class[] { Boolean.TYPE },
-                         new Object[] { new Boolean(data) });
+                         new Object[] { Boolean.valueOf(data) });
      }
      catch (InvocationTargetException e) {
        throw ProxyClientConnection.rethrow5 (e);
@@ -651,7 +651,7 @@ implements DataAreaImpl
      try {
        connection_.callMethod (pxId_, "write",
                                new Class[] { byte[].class, Integer.TYPE, Integer.TYPE, Integer.TYPE },
-                               new Object[] { data, new Integer(dataBufferOffset), new Integer(dataAreaOffset), new Integer(dataLength) });
+                               new Object[] { data, Integer.valueOf(dataBufferOffset), Integer.valueOf(dataAreaOffset), Integer.valueOf(dataLength) });
      }
      catch (InvocationTargetException e) {
        throw ProxyClientConnection.rethrow5 (e);

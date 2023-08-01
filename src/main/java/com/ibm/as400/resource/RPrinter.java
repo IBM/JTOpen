@@ -171,17 +171,17 @@ take effect at the end of the page.
 /**
 Attribute value that indicates that separator page information is set in the device description.
 **/
-    public static final Integer SEPARATOR_PAGE_DEVICE       = new Integer(-2);
+    public static final Integer SEPARATOR_PAGE_DEVICE       = Integer.valueOf(-2);
 
 /**
 Attribute value that indicates that separator page information is set in the file.
 **/
-    public static final Integer SEPARATOR_PAGE_FILE         = new Integer(-1);
+    public static final Integer SEPARATOR_PAGE_FILE         = Integer.valueOf(-1);
 
 /**
 Attribute value that indicates that there is no separator page.
 **/
-    public static final Integer SEPARATOR_PAGE_NONE         = new Integer(-10);
+    public static final Integer SEPARATOR_PAGE_NONE         = Integer.valueOf(-10);
 
 /**
 Attribute value for status indicating held.

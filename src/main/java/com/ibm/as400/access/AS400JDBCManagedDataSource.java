@@ -2787,7 +2787,7 @@ return connection;
 
     validateProperty(property, Integer.toString(blockSize), JDProperties.BLOCK_SIZE);
 
-    properties_.setString(JDProperties.BLOCK_SIZE, new Integer(blockSize).toString());
+    properties_.setString(JDProperties.BLOCK_SIZE, Integer.toString(blockSize));
     
     if (JDTrace.isTraceOn())  { //@A8C
       JDTrace.logInformation (this, property + ": " + blockSize);  //@A8C
@@ -3407,7 +3407,7 @@ return connection;
     if (threshold < 0 || threshold > MAX_THRESHOLD)
       throw new ExtendedIllegalArgumentException(property, ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-    properties_.setString(JDProperties.LOB_THRESHOLD, new Integer(threshold).toString());
+    properties_.setString(JDProperties.LOB_THRESHOLD, Integer.toString(threshold));
   }
 
   // method required by javax.sql.DataSource
@@ -3461,7 +3461,7 @@ return connection;
   **/
   public void setMetaDataSource(int mds)
   {
-      Integer newValue = new Integer(mds);
+      Integer newValue = Integer.valueOf(mds);
 
       properties_.setString(JDProperties.METADATA_SOURCE, newValue.toString());
 

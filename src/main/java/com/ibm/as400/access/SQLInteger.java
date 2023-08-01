@@ -465,7 +465,7 @@ extends SQLDataBase
     throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false; 
-        return new Integer((int) value_);
+        return Integer.valueOf((int) value_);
     }
 
     public short getShort()
@@ -538,7 +538,7 @@ extends SQLDataBase
     // @array
     
     public void saveValue() {
-      savedValue_ = new Integer(value_); 
+      savedValue_ = Integer.valueOf(value_); 
    }
 
 }

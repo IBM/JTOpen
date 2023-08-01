@@ -75,7 +75,7 @@ implements PrintObjectListImpl, ProxyImpl
     {
       try
       {
-        connection_.callMethod(pxId_, "setCache", new Class[] { Boolean.TYPE }, new Object[] { new Boolean(b) });
+        connection_.callMethod(pxId_, "setCache", new Class[] { Boolean.TYPE }, new Object[] { Boolean.valueOf(b) });
       }
       catch(InvocationTargetException e)
       {
@@ -88,7 +88,7 @@ implements PrintObjectListImpl, ProxyImpl
         try {
             return (NPCPID) connection_.callMethod(pxId_, "getNPCPID",
                                  new Class[]{ Integer.TYPE },
-                                 new Object[] { new Integer(index) }).getReturnValue();  
+                                 new Object[] { Integer.valueOf(index) }).getReturnValue();  
         }
         catch (InvocationTargetException e) {
             throw ProxyClientConnection.rethrow(e);
@@ -101,7 +101,7 @@ implements PrintObjectListImpl, ProxyImpl
         try {
             return (NPCPAttribute) connection_.callMethod(pxId_, "getNPCPAttribute",
                                  new Class[]{ Integer.TYPE },
-                                 new Object[] { new Integer(index) }).getReturnValue();  
+                                 new Object[] { Integer.valueOf(index) }).getReturnValue();  
         }
         catch (InvocationTargetException e) {
             throw ProxyClientConnection.rethrow(e);
@@ -257,7 +257,7 @@ implements PrintObjectListImpl, ProxyImpl
                                               new Class[] { NPCPAttributeIDList.class,
                                                             NPCPID.class, NPCPSelection.class,
                                                             Integer.TYPE},
-                                              new Object[] { attrsToRetrieve, idFilter, selection, new Integer(typeOfObject) });
+                                              new Object[] { attrsToRetrieve, idFilter, selection, Integer.valueOf(typeOfObject) });
         }
         catch (InvocationTargetException e) {
             throw ProxyClientConnection.rethrow(e);
@@ -304,7 +304,7 @@ implements PrintObjectListImpl, ProxyImpl
         try {
             connection_.callMethod(pxId_, "waitForItem",
                                               new Class[] { Integer.TYPE },
-                                              new Object[] { new Integer(itemNumber) });
+                                              new Object[] { Integer.valueOf(itemNumber) });
         }
         catch (InvocationTargetException e) {   
             throw ProxyClientConnection.rethrow6a(e);

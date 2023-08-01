@@ -155,7 +155,7 @@ public class DBCSOnlyFieldDescription extends FieldDescription implements Variab
     {
       if (variableLength_ > 0)
       {
-        v.addElement("VARLEN(" + new Integer(variableLength_).toString() + ") ");
+        v.addElement("VARLEN(" + Integer.toString(variableLength_) + ") ");
       }
       else
       {

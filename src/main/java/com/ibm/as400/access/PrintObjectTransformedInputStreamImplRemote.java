@@ -342,7 +342,7 @@ no more data because the end of file has been reached.
     {
         int bytesRead = 0;                               
         int bytesToRead = 0;
-        Integer sizeTarget = new Integer(data.length);
+        Integer sizeTarget = Integer.valueOf(data.length);
         
         byte dataSource[] = new byte[length];
         if (conversation_ == null) {
@@ -380,7 +380,7 @@ no more data because the end of file has been reached.
                 if (cidConv){ //  begin
                     String convString = new String(data, dataOffset, length, convSource);
                     dataSource = convString.getBytes(convTarget);
-                    Integer sizeSource = new Integer(dataSource.length);
+                    Integer sizeSource = Integer.valueOf(dataSource.length);
                     if (sizeSource.compareTo(sizeTarget) >= 0){
                         bytesToRead = sizeTarget.intValue();
                     }

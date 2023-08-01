@@ -70,7 +70,7 @@ public class AS400Bin1 implements AS400DataType
    **/
   public Object getDefaultValue()
   {
-    return new Byte(DEFAULT_VALUE);
+    return Byte.valueOf(DEFAULT_VALUE);
   }
 
   // Implements method of interface AS400DataType.
@@ -182,7 +182,7 @@ public class AS400Bin1 implements AS400DataType
    **/
   public Object toObject(byte[] as400Value)
   {
-    return new Byte(as400Value[0]);
+    return Byte.valueOf(as400Value[0]);
   }
 
   // Implements method of interface AS400DataType.
@@ -194,7 +194,7 @@ public class AS400Bin1 implements AS400DataType
    **/
   public Object toObject(byte[] as400Value, int offset)
   {
-    return new Byte(as400Value[offset]);
+    return Byte.valueOf(as400Value[offset]);
   }
 
   /**

@@ -56,8 +56,8 @@ implements Blob
     try {
       return (byte[]) connection_.callMethod (pxId_, "getBytes",
                                new Class[] { Long.TYPE, Integer.TYPE },
-                               new Object[] { new Long (start),
-                                              new Integer (length) })
+                               new Object[] { Long.valueOf(start),
+                                              Integer.valueOf(length) })
                          .getReturnValue();
     }
     catch (InvocationTargetException e) {
@@ -83,7 +83,7 @@ implements Blob
     try {
       return connection_.callMethod (pxId_, "position",
                                new Class[] { byte[].class, Long.TYPE },
-                               new Object[] { pattern, new Long (start) })
+                               new Object[] { pattern, Long.valueOf(start) })
                              .getReturnValueLong ();
     }
     catch (InvocationTargetException e) {
@@ -98,7 +98,7 @@ implements Blob
     try {
       return connection_.callMethod (pxId_, "position",
                                new Class[] { Blob.class, Long.TYPE },
-                               new Object[] { pattern, new Long (start) })
+                               new Object[] { pattern, Long.valueOf(start) })
                              .getReturnValueLong ();
     }
     catch (InvocationTargetException e) {
@@ -120,7 +120,7 @@ implements Blob
             JDOutputStreamProxy newStream = new JDOutputStreamProxy ();
             return (JDOutputStreamProxy) connection_.callFactoryMethod (pxId_, "setBinaryStream", 
                                                                         new Class[] { Long.TYPE},
-                                                                        new Object[] { new Long(pos)},
+                                                                        new Object[] { Long.valueOf(pos)},
                                                                         newStream);
         }
         catch (InvocationTargetException e) {
@@ -136,7 +136,7 @@ implements Blob
         try {
             return connection_.callMethod (pxId_, "setBytes",
                                            new Class[] { Long.TYPE, byte[].class},
-                                           new Object[] { new Long(pos), bytes})
+                                           new Object[] { Long.valueOf(pos), bytes})
             .getReturnValueInt ();
         }
         catch (InvocationTargetException e) {
@@ -152,7 +152,7 @@ implements Blob
         try {
             return connection_.callMethod (pxId_, "setBytes",
                                            new Class[] { Long.TYPE, byte[].class, Integer.TYPE, Integer.TYPE},
-                                           new Object[] { new Long(pos), bytes, new Integer(offset), new Integer(len)})
+                                           new Object[] { Long.valueOf(pos), bytes, Integer.valueOf(offset), Integer.valueOf(len)})
             .getReturnValueInt ();
         }
         catch (InvocationTargetException e) {
@@ -168,7 +168,7 @@ implements Blob
         try {
             connection_.callMethod (pxId_, "truncate",
                                                          new Class[] { Long.TYPE},
-                                                         new Object[] { new Long(len)});
+                                                         new Object[] { Long.valueOf(len)});
         }
         catch (InvocationTargetException e) {
             throw JDConnectionProxy.rethrow1 (e);
@@ -195,7 +195,7 @@ implements Blob
             return (JDInputStreamProxy) connection_.callFactoryMethod (
                     pxId_, "getBinaryStream",
                     new Class[] { Long.TYPE, Long.TYPE},
-                    new Object[] { new Long(pos),  new Long(length)},
+                    new Object[] { Long.valueOf(pos),  Long.valueOf(length)},
                     newStream);
         }
         catch (InvocationTargetException e) {

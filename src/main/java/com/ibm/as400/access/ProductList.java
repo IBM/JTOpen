@@ -72,6 +72,12 @@ public class ProductList
   public static final String PRODUCT_OPTION_ALL = "*ALL";
 
   /**
+   * Constant representing a list of all product options when specifying a list filter.
+   * This constant is only used when PRODUCT_FILTER_LIST is specified for the product filter.
+  **/
+  public static final String PRODUCT_OPTION_FILTER_LIST_ALL = "     ";
+
+  /**
    * Constant representing the base product option.
   **/
   public static final String PRODUCT_OPTION_BASE = "*BASE";
@@ -109,7 +115,7 @@ public class ProductList
    * <UL>
    * <LI>Any valid product option, e.g. "30".
    * <LI>{@link #PRODUCT_OPTION_BASE PRODUCT_OPTION_BASE}
-   * <LI>{@link #PRODUCT_OPTION_ALL PRODUCT_OPTION_ALL}
+   * <LI>{@link #PRODUCT_OPTION_FILTER_LIST_ALL PRODUCT_OPTION_FILTER_LIST_ALL}
    * </UL>
    * @param releaseLevel The product release level, for example "V5R1M0" or "V4R5M0". The length must be 6 characters.
    * @see #clearProductsToRetrieve
@@ -125,13 +131,23 @@ public class ProductList
     {
       throw new ExtendedIllegalArgumentException("productID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
-    String option = productOption.toUpperCase().trim();
-    if (!option.equals(PRODUCT_OPTION_BASE) &&
-        !option.equals(PRODUCT_OPTION_ALL))
+    
+    String option = productOption.toUpperCase();
+    if (!option.equals(PRODUCT_OPTION_FILTER_LIST_ALL))
     {
-      while (option.length() < 5)
+      option = option.trim();
+      if (option.equals(PRODUCT_OPTION_ALL))
       {
-        option = "0"+option;
+        // *ALL is not a valid parameter.
+        throw new ExtendedIllegalArgumentException("productOption", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+      }
+      
+      if (!option.equals(PRODUCT_OPTION_BASE))
+      {
+        while (option.length() < 5)
+        {
+          option = "0"+option;
+        }
       }
     }
     if (option.length() > 5)

@@ -353,7 +353,7 @@ class PcmlStruct extends PcmlDocNode
                         totalSize += ((PcmlData) child).getOutputsize(indices);
                         break;
                     default:
-                        throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , getNameForException()} );
+                        throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {Integer.valueOf(child.getNodeType()) , getNameForException()} );
                 }
             }
 
@@ -812,7 +812,7 @@ class PcmlStruct extends PcmlDocNode
                         totalBytes += ((PcmlData) child).toBytes(bytes, offset + totalBytes, indices);
                         break;
                     default:
-                        throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , getNameForException()} );
+                        throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {Integer.valueOf(child.getNodeType()) , getNameForException()} );
                 } // END: switch (child.getNodeType())
             } // END: while (children.hasMoreElements())
 
@@ -893,7 +893,7 @@ class PcmlStruct extends PcmlDocNode
                 // If offsetfrom= was specified with an integer literal, use it.
                 if (getOffsetfrom() >= 0)                           // @A1A
                 {                                                   // @A1A
-                    myOffsetbase = new Integer(getOffsetfrom());    // @A1A
+                    myOffsetbase = Integer.valueOf(getOffsetfrom());    // @A1A
                 }                                                   // @A1A
                 // getOffsetfrom() returns -1 to indicate that offset from was not specified.
                 // No offsetfrom= was specified, the offset will be relative to the
@@ -935,7 +935,7 @@ class PcmlStruct extends PcmlDocNode
             String qName = getQualifiedName();
             if (!qName.equals(""))
             {
-                offsetStack.put(qName, new Integer(offset + skipBytes + nbrBytes));    // pva 10/30
+                offsetStack.put(qName, Integer.valueOf(offset + skipBytes + nbrBytes));    // pva 10/30
             }
 
             // Add the current index for this dimension to the indices
@@ -960,7 +960,7 @@ class PcmlStruct extends PcmlDocNode
                         nbrBytes += dataNode.parseBytes(bytes, offset + skipBytes + nbrBytes, offsetStack, indices);
                         break;
                     default:
-                        throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , getNameForException()} );
+                        throw new PcmlException(DAMRI.BAD_NODE_TYPE, new Object[] {Integer.valueOf(child.getNodeType()) , getNameForException()} );
                 } // END: switch (child.getNodeType())
             } // END: while (children.hasMoreElements())
 

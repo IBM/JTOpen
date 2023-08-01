@@ -48,7 +48,7 @@ implements IFSFileOutputStreamImpl
     try {
       connection_.callMethod (pxId_, "connectAndOpen",
                               new Class[] { Integer.TYPE },
-                              new Object[] { new Integer(ccsid) });
+                              new Object[] { Integer.valueOf(ccsid) });
     }
     catch (InvocationTargetException e) {
     Throwable e1 = e.getTargetException ();
@@ -77,7 +77,7 @@ implements IFSFileOutputStreamImpl
     try {
       return (IFSKey) connection_.callMethod (pxId_, "lock",
                               new Class[] { Long.TYPE },
-                              new Object[] { new Long(length) })
+                              new Object[] { Long.valueOf(length)})
                         .getReturnValue();
     }
     catch (InvocationTargetException e) {
@@ -92,7 +92,7 @@ implements IFSFileOutputStreamImpl
     try {
       connection_.callMethod (pxId_, "open",
                               new Class[] { Integer.TYPE },
-                              new Object[] { new Integer(fileDataCCSID) });
+                              new Object[] { Integer.valueOf(fileDataCCSID) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow1 (e);
@@ -105,7 +105,7 @@ implements IFSFileOutputStreamImpl
     try {
       connection_.callMethod (pxId_, "setAppend",
                               new Class[] { Boolean.TYPE },
-                              new Object[] { new Boolean(append) });
+                              new Object[] { Boolean.valueOf(append) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
@@ -145,8 +145,8 @@ implements IFSFileOutputStreamImpl
     try {
       connection_.callMethod (pxId_, "write",
                               new Class[] { byte[].class, Integer.TYPE, Integer.TYPE },
-                              new Object[] { data, new Integer(dataOffset),
-                              new Integer(length) });
+                              new Object[] { data, Integer.valueOf(dataOffset),
+                              Integer.valueOf(length) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow1 (e);
@@ -160,7 +160,7 @@ implements IFSFileOutputStreamImpl
     try {
       connection_.callMethod (pxId_, "writeText",
                               new Class[] { String.class, Integer.TYPE },
-                              new Object[] { data, new Integer(ccsid) });
+                              new Object[] { data, Integer.valueOf(ccsid) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow1 (e);

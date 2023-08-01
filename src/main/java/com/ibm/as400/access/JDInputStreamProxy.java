@@ -83,7 +83,7 @@ implements ProxyFactoryImpl
     try {
       connection_.callMethod (pxId_, "mark",
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (readLimit) });
+                               new Object[] { Integer.valueOf(readLimit) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
@@ -132,13 +132,11 @@ implements ProxyFactoryImpl
                                                  Integer.TYPE,
                                                  Integer.TYPE },
                                    new Object[] { data,
-                                                  new Integer (start),
-                                                  new Integer (length) },
+                                                  Integer.valueOf(start),
+                                                  Integer.valueOf(length) },
                                    ARGS_TO_RETURN, false );
       byte [] returnDataBuffer = (byte[])rv.getArgument(0);
-      for (int i=0; i<data.length; i++) {
-        data[i] = returnDataBuffer[i];
-      }
+      System.arraycopy(returnDataBuffer, 0, data, 0, data.length);
       return rv.getReturnValueInt();
     }
     catch (InvocationTargetException e) {
@@ -165,7 +163,7 @@ implements ProxyFactoryImpl
     try {
       return connection_.callMethod (pxId_, "skip",
                      new Class[] { Long.TYPE },
-                     new Object[] { new Long (length) })
+                     new Object[] { Long.valueOf(length)})
                .getReturnValueLong ();
     }
     catch (InvocationTargetException e) {

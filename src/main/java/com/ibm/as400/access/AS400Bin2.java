@@ -62,7 +62,7 @@ public class AS400Bin2 implements AS400DataType
      **/
     public Object getDefaultValue()
     {
-     return new Short(defaultValue);
+     return Short.valueOf(defaultValue);
     }
 
     /**
@@ -169,7 +169,7 @@ public class AS400Bin2 implements AS400DataType
     public Object toObject(byte[] as400Value)
     {
      // BinaryConverter will throw the ArrayIndexException's
-     return new Short(BinaryConverter.byteArrayToShort(as400Value, 0));
+     return Short.valueOf(BinaryConverter.byteArrayToShort(as400Value, 0));
     }
 
     /**
@@ -181,7 +181,7 @@ public class AS400Bin2 implements AS400DataType
     public Object toObject(byte[] as400Value, int offset)
     {
      // BinaryConverter will throw the ArrayIndexException's
-     return new Short(BinaryConverter.byteArrayToShort(as400Value, offset));
+     return Short.valueOf(BinaryConverter.byteArrayToShort(as400Value, offset));
     }
 
     /**

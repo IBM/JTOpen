@@ -628,7 +628,7 @@ class BidiOrder
   {
     if (myBdx.insertPoints == null)
         myBdx.insertPoints = new Vector(10, 50);
-    myBdx.insertPoints.addElement(new Long((pos<<17) + after + insert));
+    myBdx.insertPoints.addElement(Long.valueOf((pos<<17) + after + insert));
   }
 
 /*------------------------------------------------------------------------*/
@@ -1533,7 +1533,7 @@ class BidiOrder
                         ipos = pos;
                         break;
                     }
-                myBdx.insertPoints.setElementAt(new Long((ipos<<17)+after+insert), i);
+                myBdx.insertPoints.setElementAt(Long.valueOf((ipos<<17)+after+insert), i);
             }
         }
         /*  sorting is needed if the insert points are not in ascending order;

@@ -2008,7 +2008,7 @@ public class JarMaker
       // for its class name, verify that this entry is a utf8 entry.
       if (DEBUG_CP &&
           (tag != 1) &&
-          (classIndexes.contains(new Integer(cpIndex))))
+          (classIndexes.contains(Integer.valueOf(cpIndex))))
         System.err.println("Error: Class file format");
 
       // Decide what to do based on the tag.
@@ -2035,7 +2035,7 @@ public class JarMaker
           if (DEBUG_CP)
             System.out.println("Found class constant pointing to index "
                                 + nameIndex);
-          classIndexes.addElement(new Integer(nameIndex));
+          classIndexes.addElement(Integer.valueOf(nameIndex));
           break;
 
         case 8: // CONSTANT_String
@@ -2111,7 +2111,7 @@ public class JarMaker
       // If a "class" entry in the constant_pool pointed to this index
       // for its class name, verify that this entry is a utf8 entry.
       if (DEBUG_CP)
-        if ((tag != 1) && (classIndexes.contains(new Integer(cpIndex))))
+        if ((tag != 1) && (classIndexes.contains(Integer.valueOf(cpIndex))))
           System.err.println("Error: Class file format");
 
       // Decide what to do based on the tag.
@@ -2203,7 +2203,7 @@ public class JarMaker
 
     // If this index was flagged as one with a CONSTANT_class
     // structure, then it is a referenced class.
-    if (classIndexes.contains(new Integer(cpIndex)))
+    if (classIndexes.contains(Integer.valueOf(cpIndex)))
     {
       // Also verify that the class is in the source file, and
       // not the JDK or some primitive class like [[B (byte array).
@@ -2726,7 +2726,7 @@ public class JarMaker
     Vector destJarList = new Vector();
     JarMap jarMap = null;
     ManifestMap manifestMap = null;
-    Long splitSizeLong = new Long(splitSizeKbytes);
+    Long splitSizeLong = Long.valueOf(splitSizeKbytes);
     long splitSize = splitSizeLong.longValue() * 1024; // Kbytes -> bytes
     File currentOutputFile = null;
 

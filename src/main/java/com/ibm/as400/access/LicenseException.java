@@ -209,8 +209,8 @@ public class LicenseException extends Exception
     private static String buildMessage(int primaryRC, int secondaryRC)
     {
         return ResourceBundleLoader.getText("LM_EXCEPTION", 
-                                            new Integer(primaryRC), 
-                                            new Integer(secondaryRC));
+                                            Integer.valueOf(primaryRC), 
+                                            Integer.valueOf(secondaryRC));
     }
 
     /**

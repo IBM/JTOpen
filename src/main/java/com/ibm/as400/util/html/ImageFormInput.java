@@ -251,11 +251,11 @@ public class ImageFormInput extends FormInput implements HTMLConstants
             throw new ExtendedIllegalArgumentException("height", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = height_;
-        if (vetos_ != null) vetos_.fireVetoableChange("height", new Integer(old), new Integer(height) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("height", Integer.valueOf(old), Integer.valueOf(height) ); //@CRS
 
         height_ = height;
 
-        if (changes_ != null) changes_.firePropertyChange("height", new Integer(old), new Integer(height) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("height", Integer.valueOf(old), Integer.valueOf(height) ); //@CRS
     }
 
     /**
@@ -295,11 +295,11 @@ public class ImageFormInput extends FormInput implements HTMLConstants
             throw new ExtendedIllegalArgumentException("width", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = width_;
-        if (vetos_ != null) vetos_.fireVetoableChange("width", new Integer(old), new Integer(width) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("width", Integer.valueOf(old), Integer.valueOf(width) ); //@CRS
 
         width_ = width;
 
-        if (changes_ != null) changes_.firePropertyChange("width", new Integer(old), new Integer(width) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("width", Integer.valueOf(old), Integer.valueOf(width) ); //@CRS
     }
 
 }

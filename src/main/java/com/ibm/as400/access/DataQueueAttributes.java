@@ -304,8 +304,8 @@ public class DataQueueAttributes implements Serializable
         }
         else
         {
-            Integer oldValue = new Integer(entryLength_);
-            Integer newValue = new Integer(entryLength);
+            Integer oldValue = Integer.valueOf(entryLength_);
+            Integer newValue = Integer.valueOf(entryLength);
 
             if (vetoableChangeListeners_ != null)
             {
@@ -334,8 +334,8 @@ public class DataQueueAttributes implements Serializable
         }
         else
         {
-            Boolean oldValue = new Boolean(FIFO_);
-            Boolean newValue = new Boolean(FIFO);
+            Boolean oldValue = Boolean.valueOf(FIFO_);
+            Boolean newValue = Boolean.valueOf(FIFO);
 
             if (vetoableChangeListeners_ != null)
             {
@@ -364,8 +364,8 @@ public class DataQueueAttributes implements Serializable
         }
         else
         {
-            Boolean oldValue = new Boolean(forceToAuxiliaryStorage_);
-            Boolean newValue = new Boolean(forceToAuxiliaryStorage);
+            Boolean oldValue = Boolean.valueOf(forceToAuxiliaryStorage_);
+            Boolean newValue = Boolean.valueOf(forceToAuxiliaryStorage);
 
             if (vetoableChangeListeners_ != null)
             {
@@ -400,8 +400,8 @@ public class DataQueueAttributes implements Serializable
         }
         else
         {
-            Integer oldValue = new Integer(keyLength_);
-            Integer newValue = new Integer(keyLength);
+            Integer oldValue = Integer.valueOf(keyLength_);
+            Integer newValue = Integer.valueOf(keyLength);
 
             if (vetoableChangeListeners_ != null)
             {
@@ -430,8 +430,8 @@ public class DataQueueAttributes implements Serializable
         }
         else
         {
-            Boolean oldValue = new Boolean(saveSenderInfo_);
-            Boolean newValue = new Boolean(saveSenderInfo);
+            Boolean oldValue = Boolean.valueOf(saveSenderInfo_);
+            Boolean newValue = Boolean.valueOf(saveSenderInfo);
 
             if (vetoableChangeListeners_ != null)
             {

@@ -555,7 +555,7 @@ public class CommTrace extends WindowAdapter {
                 // we're going to change the JOptionPane's
                 // value property.
                 // 
-                    optionPane.setValue(new Integer(
+                    optionPane.setValue(Integer.valueOf(
                                         JOptionPane.CLOSED_OPTION));
             }
         });

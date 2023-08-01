@@ -53,7 +53,7 @@ Returns the next datastream object from the input stream.
         try { 
         // Read the type of the next datastream.
         DataInputStream dataInput = new DataInputStream (input);
-        Short type = new Short (dataInput.readShort());
+        Short type = Short.valueOf(dataInput.readShort());
 
         // If we know how to deal with this type, then manufacture
         // a new instance.
@@ -111,7 +111,7 @@ registered in order to be recognized when they are read.
     public void register (PxDSRV datastream)
     {
         // Add the class to the factory.
-        Short key = new Short (datastream.getType ());
+        Short key = Short.valueOf(datastream.getType ());
         if (factory_.contains (key))
             throw new InternalErrorException (InternalErrorException.PROTOCOL_ERROR);
         factory_.put (key, datastream);

@@ -404,9 +404,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
           // For default and unassigned extended indicator values, we use Byte
           // to contain the indicator flag
           if (parameterDefaults_[i]) // @EIA
-            parameters[i] = new Byte("1"); // default //@EIA
+            parameters[i] = Byte.valueOf("1"); // default //@EIA
           else if (parameterUnassigned_[i]) // @EIA
-            parameters[i] = new Byte("2"); // unassigned //@EIA
+            parameters[i] = Byte.valueOf("2"); // unassigned //@EIA
           else
             // @EIA
             parameters[i] = sqlData.getBatchableObject();
@@ -2561,7 +2561,7 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
           + " value: " + parameterValue); // @H1A
     } // @H1A
 
-    setValue(parameterIndex, new Short((short) (parameterValue ? 1 : 0)), null,
+    setValue(parameterIndex, Short.valueOf((short) (parameterValue ? 1 : 0)), null,
         -1);
   }
 
@@ -2591,7 +2591,7 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
           + " value: " + parameterValue); // @H1A
     } // @H1A
 
-    setValue(parameterIndex, new Short(parameterValue), null, -1);
+    setValue(parameterIndex, Short.valueOf(parameterValue), null, -1);
   }
 
   /**
@@ -2937,7 +2937,7 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
           + " value: " + parameterValue); // @H1A
     } // @H1A
 
-    setValue(parameterIndex, new Double(parameterValue), null, -1);
+    setValue(parameterIndex, Double.valueOf(parameterValue), null, -1);
   }
 
   /**
@@ -2967,7 +2967,7 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
           + " value: " + parameterValue); // @H1A
     } // @H1A
 
-    setValue(parameterIndex, new Float(parameterValue), null, -1);
+    setValue(parameterIndex, Float.valueOf(parameterValue), null, -1);
   }
 
   /**
@@ -2990,7 +2990,7 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
           + " value: " + parameterValue); // @H1A
     } // @H1A
 
-    setValue(parameterIndex, new Integer(parameterValue), null, -1);
+    setValue(parameterIndex, Integer.valueOf(parameterValue), null, -1);
   }
 
   // @D0C
@@ -3022,7 +3022,7 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
           + " value: " + parameterValue); // @H1A
     } // @H1A
 
-    setValue(parameterIndex, new Long(parameterValue), null, -1); // @D0C
+    setValue(parameterIndex, Long.valueOf(parameterValue), null, -1); // @D0C
   }
 
   /**
@@ -3264,7 +3264,7 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
           + " value: " + parameterValue); // @H1A
     } // @H1A
 
-    setValue(parameterIndex, new Short(parameterValue), null, -1);
+    setValue(parameterIndex, Short.valueOf(parameterValue), null, -1);
   }
 
   /**

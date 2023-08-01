@@ -436,7 +436,7 @@ extends SQLDataBase
     throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false; 
-        return new Float(value_);
+        return Float.valueOf(value_);
     }
 
     public short getShort()
@@ -514,7 +514,7 @@ extends SQLDataBase
     
     
     public void saveValue() {
-      savedValue_ = new Float(value_); 
+      savedValue_ = Float.valueOf(value_); 
    }
 
 }

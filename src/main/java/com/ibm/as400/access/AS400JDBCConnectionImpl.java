@@ -4168,7 +4168,7 @@ throws SQLException
                 }
 
                 packageCCSID_Converter = ConvTable.getTable(sendCCSIDInt, null);
-                properties_.setString(JDProperties.PACKAGE_CCSID, (new Integer(sendCCSIDInt)).toString());
+                properties_.setString(JDProperties.PACKAGE_CCSID, (Integer.valueOf(sendCCSIDInt)).toString());
                 request.setClientCCSID(sendCCSIDInt);
                 if(JDTrace.isTraceOn())
         			JDTrace.logInformation(this, "Client CCSID = " + sendCCSIDInt);
@@ -6258,9 +6258,7 @@ throws SQLException
    * @param newConnection
    */
   void transferObjects(AS400JDBCConnectionImpl newConnection) {
-    for (int i =0; i< MAX_STATEMENTS_; i++) {
-      newConnection.assigned_[i] = assigned_[i]; 
-    }
+    System.arraycopy(assigned_, 0, newConnection.assigned_, 0, MAX_STATEMENTS_);
     newConnection.statements_ = statements_; 
     statements_ = new Vector(); 
     

@@ -414,7 +414,7 @@ extends SQLDataBase
     throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false; 
-        return new Long(value_);
+        return Long.valueOf(value_);
     }
 
     public short getShort()
@@ -486,7 +486,7 @@ extends SQLDataBase
     
     
     public void saveValue() {
-      savedValue_ = new Long(value_); 
+      savedValue_ = Long.valueOf(value_); 
    }
 }
 

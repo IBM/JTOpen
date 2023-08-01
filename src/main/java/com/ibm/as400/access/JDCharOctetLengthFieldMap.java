@@ -39,12 +39,12 @@ implements JDFieldMap
     {
         String typeName = row.getSQLData(typeIndex_).getString().trim();        //@A1A  retrieve the type name
         if(typeName.equals("DISTINCT"))                                         //@A1A  We do not have a SQLData class for DISTINCTs
-            return new Integer(-1);                                             //@A1A
+            return Integer.valueOf(-1);                                             //@A1A
         SQLData data = (SQLData)super.getValue(row);
         if(data.isText())
-            return new Integer(data.getPrecision());
+            return Integer.valueOf(data.getPrecision());
         else
-            return new Integer(-1);
+            return Integer.valueOf(-1);
     }
 
     /**

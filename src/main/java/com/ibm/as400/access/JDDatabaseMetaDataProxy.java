@@ -75,7 +75,7 @@ implements java.sql.DatabaseMetaData
       try {
         return connection_.callMethod (pxId_, methodName,
                                      new Class[] { Integer.TYPE },
-                                     new Object[] { new Integer (arg) })
+                                     new Object[] { Integer.valueOf(arg) })
                                  .getReturnValueBoolean ();
       }
       catch (InvocationTargetException e) {
@@ -235,8 +235,8 @@ implements java.sql.DatabaseMetaData
                                               String.class,
                                               Integer.TYPE, Boolean.TYPE },
                                 new Object[] { catalog, schema, table,
-                                               new Integer (scope),
-                                               new Boolean (nullable) });
+                                               Integer.valueOf(scope),
+                                               Boolean.valueOf(nullable) });
     }
 
 
@@ -437,8 +437,8 @@ implements java.sql.DatabaseMetaData
                                               String.class, Boolean.TYPE,
                                               Boolean.TYPE },
                                 new Object[] { catalog, schema,
-                                               table, new Boolean (unique),
-                                               new Boolean (approximate) });
+                                               table, Boolean.valueOf(unique),
+                                               Boolean.valueOf(approximate) });
     }
 
 
@@ -1088,8 +1088,8 @@ implements java.sql.DatabaseMetaData
     {
       return callMethodRtnBool ("supportsConvert",
                                new Class[] { Integer.TYPE, Integer.TYPE },
-                               new Object[] { new Integer (fromType),
-                                              new Integer (toType) });
+                               new Object[] { Integer.valueOf(fromType),
+                                              Integer.valueOf(toType) });
     }
 
 
@@ -1319,8 +1319,8 @@ implements java.sql.DatabaseMetaData
     {
       return callMethodRtnBool ("supportsResultSetConcurrency",
                           new Class[] { Integer.TYPE, Integer.TYPE },
-                          new Object[] { new Integer (resultSetType),
-                                         new Integer (resultSetConcurrency) });
+                          new Object[] { Integer.valueOf(resultSetType),
+                                         Integer.valueOf(resultSetConcurrency) });
     }
 
 
@@ -1330,7 +1330,7 @@ implements java.sql.DatabaseMetaData
     {
         return callMethodRtnBool ("supportsResultSetHoldability",
                                   new Class[] { Integer.TYPE},
-                                  new Object[] { new Integer (resultSetHoldability)});
+                                  new Object[] { Integer.valueOf(resultSetHoldability)});
     }
 
 

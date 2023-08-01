@@ -1075,15 +1075,15 @@ public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Seria
         if (borderWidth < 0)
             throw new ExtendedIllegalArgumentException("borderWidth", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-        //@CRS Integer oldWidth = new Integer(borderWidth_);
-        //@CRS Integer newWidth = new Integer(borderWidth);
+        //@CRS Integer oldWidth = Integer.valueOf(borderWidth_);
+        //@CRS Integer newWidth = Integer.valueOf(borderWidth);
         int oldWidth = borderWidth_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("borderWidth", new Integer(oldWidth), new Integer(borderWidth)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("borderWidth", Integer.valueOf(oldWidth), Integer.valueOf(borderWidth)); //@CRS
 
         borderWidth_ = borderWidth;
 
-        if (changes_ != null) changes_.firePropertyChange("borderWidth", new Integer(oldWidth), new Integer(borderWidth)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("borderWidth", Integer.valueOf(oldWidth), Integer.valueOf(borderWidth)); //@CRS
     }
 
     /**
@@ -1130,11 +1130,11 @@ public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Seria
         //@CRS Integer newPadding = new Integer(cellPadding);
         int oldPadding = cellPadding_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("cellPadding", new Integer(oldPadding), new Integer(cellPadding)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("cellPadding", Integer.valueOf(oldPadding), Integer.valueOf(cellPadding)); //@CRS
 
         cellPadding_ = cellPadding;
 
-        if (changes_ != null) changes_.firePropertyChange("cellPadding", new Integer(oldPadding), new Integer(cellPadding)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("cellPadding", Integer.valueOf(oldPadding), Integer.valueOf(cellPadding)); //@CRS
     }
 
     /**
@@ -1149,15 +1149,15 @@ public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Seria
         if (cellSpacing < -1)                                                // @C1C
             throw new ExtendedIllegalArgumentException("cellSpacing", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-        //@CRS Integer oldSpacing = new Integer(cellSpacing_);
-        //@CRS Integer newSpacing = new Integer(cellSpacing);
+        //@CRS Integer oldSpacing = Integer.valueOf(cellSpacing_);
+        //@CRS Integer newSpacing = Integer.valueOf(cellSpacing);
         int oldSpacing = cellSpacing_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("cellSpacing", new Integer(oldSpacing), new Integer(cellSpacing)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("cellSpacing", Integer.valueOf(oldSpacing), Integer.valueOf(cellSpacing)); //@CRS
 
         cellSpacing_ = cellSpacing;
 
-        if (changes_ != null) changes_.firePropertyChange("cellSpacing", new Integer(oldSpacing), new Integer(cellSpacing)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("cellSpacing", Integer.valueOf(oldSpacing), Integer.valueOf(cellSpacing)); //@CRS
     }
 
     /**
@@ -1344,15 +1344,15 @@ public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Seria
     **/
     public void setHeaderInUse(boolean headerInUse) throws PropertyVetoException
     {
-        //@CRS Boolean oldUse = new Boolean(headerInUse_);
-        //@CRS Boolean newUse = new Boolean(headerInUse);
+        //@CRS Boolean oldUse = Boolean.valueOf(headerInUse_);
+        //@CRS Boolean newUse = Boolean.valueOf(headerInUse);
         boolean oldUse = headerInUse_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("useHeader", new Boolean(oldUse), new Boolean(headerInUse)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("useHeader", Boolean.valueOf(oldUse), Boolean.valueOf(headerInUse)); //@CRS
 
         headerInUse_ = headerInUse;
 
-        if (changes_ != null) changes_.firePropertyChange("useHeader", new Boolean(oldUse), new Boolean(headerInUse)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("useHeader", Boolean.valueOf(oldUse), Boolean.valueOf(headerInUse)); //@CRS
     }
 
     /**
@@ -1423,11 +1423,11 @@ public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Seria
         //@CRS Integer newWidth = new Integer(width);
         int oldWidth = width_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("width", new Integer(oldWidth), new Integer(width)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("width", Integer.valueOf(oldWidth), Integer.valueOf(width)); //@CRS
 
         width_ = width;
 
-        if (changes_ != null) changes_.firePropertyChange("width", new Integer(oldWidth), new Integer(width)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("width", Integer.valueOf(oldWidth), Integer.valueOf(width)); //@CRS
     }
 
     /**
@@ -1462,15 +1462,15 @@ public class HTMLTable extends HTMLTagAttributes implements HTMLConstants, Seria
     **/
     public void setWidthInPercent(boolean widthInPercent) throws PropertyVetoException
     {
-        //@CRS Boolean oldValue = new Boolean(widthPercent_);
-        //@CRS Boolean newValue = new Boolean(widthInPercent);
+        //@CRS Boolean oldValue = Boolean.valueOf(widthPercent_);
+        //@CRS Boolean newValue = Boolean.valueOf(widthInPercent);
         boolean oldValue = widthPercent_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("widthInPercent", new Boolean(oldValue), new Boolean(widthInPercent)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("widthInPercent", Boolean.valueOf(oldValue), Boolean.valueOf(widthInPercent)); //@CRS
 
         widthPercent_ = widthInPercent;
 
-        if (changes_ != null) changes_.firePropertyChange("widthInPercent", new Boolean(oldValue), new Boolean(widthInPercent)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("widthInPercent", Boolean.valueOf(oldValue), Boolean.valueOf(widthInPercent)); //@CRS
     }
 
     /** 

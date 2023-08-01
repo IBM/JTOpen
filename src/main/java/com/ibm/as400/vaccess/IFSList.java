@@ -345,11 +345,11 @@ class IFSList extends java.awt.List
       **/
     public void setListType(int listType)
     {
-        Integer old = new Integer(directory_);
+        Integer old = Integer.valueOf(directory_);
 
         directory_ = listType;
 
-        propertyList.firePropertyChange("listType", old, new Integer(listType));
+        propertyList.firePropertyChange("listType", old, Integer.valueOf(listType));
     }
 
     /**
@@ -374,11 +374,11 @@ class IFSList extends java.awt.List
       **/
     public void setSort(boolean sort)
     {
-        Boolean old = new Boolean(sort_);
+        Boolean old = Boolean.valueOf(sort_);
 
         sort_ = sort;
 
-        propertyList.firePropertyChange("sort", old, new Boolean(sort_));
+        propertyList.firePropertyChange("sort", old, Boolean.valueOf(sort_));
     }
 
     /**

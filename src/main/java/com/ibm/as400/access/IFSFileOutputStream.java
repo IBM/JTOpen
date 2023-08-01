@@ -884,8 +884,8 @@ public class IFSFileOutputStream extends OutputStream
                          ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
     }
 
-    Boolean oldAppend = new Boolean(append_);
-    Boolean newAppend = new Boolean(append);
+    Boolean oldAppend = Boolean.valueOf(append_);
+    Boolean newAppend = Boolean.valueOf(append);
 
     // Fire a vetoable change event for append.
     vetos_.fireVetoableChange("append", oldAppend, newAppend);
@@ -922,8 +922,8 @@ public class IFSFileOutputStream extends OutputStream
     }
     // End of @A1A
 
-    Integer oldCCSID = new Integer(ccsid_);
-    Integer newCCSID = new Integer(ccsid);
+    Integer oldCCSID = Integer.valueOf(ccsid_);
+    Integer newCCSID = Integer.valueOf(ccsid);
 
     // Fire a vetoable change event for shareOption.
     vetos_.fireVetoableChange("CCSID", oldCCSID, newCCSID);
@@ -1031,8 +1031,8 @@ public class IFSFileOutputStream extends OutputStream
                           ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
     }
 
-    Integer oldShareOption = new Integer(fd_.getShareOption());
-    Integer newShareOption = new Integer(shareOption);
+    Integer oldShareOption = Integer.valueOf(fd_.getShareOption());
+    Integer newShareOption = Integer.valueOf(shareOption);
 
     // Fire a vetoable change event for shareOption.
     vetos_.fireVetoableChange("shareOption", oldShareOption,

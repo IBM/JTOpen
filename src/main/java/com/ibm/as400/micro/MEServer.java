@@ -163,7 +163,7 @@ public class MEServer implements Runnable
      **/
     private int cacheTransaction(ResultSet rs)
     {
-        Integer key = new Integer(nextTransactionID_++);
+        Integer key = Integer.valueOf(nextTransactionID_++);
         cachedJDBCTransactions_.put(key, rs);
 
         return key.intValue();

@@ -86,7 +86,7 @@ implements IFSFileImpl
     {
       return ((Boolean)connection_.callMethod(pxId_, "copyTo",
                                               new Class[] { String.class, Boolean.TYPE },
-                                              new Object[] { path, new Boolean(replace) }).getReturnValue()).booleanValue();
+                                              new Object[] { path, Boolean.valueOf(replace) }).getReturnValue()).booleanValue();
     }
     catch (InvocationTargetException e)
     {
@@ -177,7 +177,7 @@ implements IFSFileImpl
     try {
       return connection_.callMethod (pxId_, "getAvailableSpace",
                               new Class[] { Boolean.TYPE },
-                              new Object[] { new Boolean(forUserOnly) })
+                              new Object[] { Boolean.valueOf(forUserOnly) })
         .getReturnValueLong();
     }
     catch (InvocationTargetException e) {
@@ -191,7 +191,7 @@ implements IFSFileImpl
     try {
       return connection_.callMethod (pxId_, "getTotalSpace",
                               new Class[] { Boolean.TYPE },
-                              new Object[] { new Boolean(forUserOnly) })
+                              new Object[] { Boolean.valueOf(forUserOnly) })
         .getReturnValueLong();
     }
     catch (InvocationTargetException e) {
@@ -450,7 +450,7 @@ implements IFSFileImpl
     try {
       return (IFSCachedAttributes[]) connection_.callMethod (pxId_, "listDirectoryDetails",
                               new Class[] { String.class, String.class, Integer.TYPE, String.class },     // @D4C
-                              new Object[] { directoryPattern, directoryPath, new Integer(maxGetCount), restartName })    // @D4C
+                              new Object[] { directoryPattern, directoryPath, Integer.valueOf(maxGetCount), restartName })    // @D4C
         .getReturnValue();
     }
     catch (InvocationTargetException e) {
@@ -470,7 +470,7 @@ implements IFSFileImpl
     try {
       return (IFSCachedAttributes[]) connection_.callMethod (pxId_, "listDirectoryDetails",
                               new Class[] { String.class, String.class, Integer.TYPE, byte[].class, Boolean.TYPE },
-                              new Object[] { directoryPattern, directoryPath, new Integer(maxGetCount), restartID, new Boolean(allowSortedRequests) })//@D7C
+                              new Object[] { directoryPattern, directoryPath, Integer.valueOf(maxGetCount), restartID, Boolean.valueOf(allowSortedRequests) })//@D7C
         .getReturnValue();
     }
     catch (InvocationTargetException e) {
@@ -564,7 +564,7 @@ implements IFSFileImpl
     try {
       return connection_.callMethod (pxId_, "setAccess",
                                      new Class[] { Integer.TYPE, Boolean.TYPE, Boolean.TYPE },
-                                     new Object[] { new Integer(accessType), new Boolean(enableAccess), new Boolean(ownerOnly) })
+                                     new Object[] { Integer.valueOf(accessType), Boolean.valueOf(enableAccess), Boolean.valueOf(ownerOnly) })
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
@@ -578,7 +578,7 @@ implements IFSFileImpl
     try {
       return connection_.callMethod (pxId_, "setCCSID",
                                      new Class[] { Integer.TYPE },
-                                     new Object[] { new Integer(ccsid) })
+                                     new Object[] { Integer.valueOf(ccsid) })
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
@@ -594,7 +594,7 @@ implements IFSFileImpl
     try {
       return connection_.callMethod (pxId_, "setFixedAttributes",
                                      new Class[] { Integer.TYPE },
-                                     new Object[] { new Integer(attributes) })
+                                     new Object[] { Integer.valueOf(attributes) })
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
@@ -609,7 +609,7 @@ implements IFSFileImpl
     try {
       return connection_.callMethod (pxId_, "setHidden",
                                      new Class[] { Boolean.TYPE },
-                                     new Object[] { new Boolean(attribute) })
+                                     new Object[] { Boolean.valueOf(attribute) })
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
@@ -623,7 +623,7 @@ implements IFSFileImpl
     try {
       return connection_.callMethod (pxId_, "setLastModified",
                                      new Class[] { Long.TYPE },
-                                     new Object[] { new Long(time) })
+                                     new Object[] { Long.valueOf(time)})
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
@@ -638,7 +638,7 @@ implements IFSFileImpl
     try {
       return connection_.callMethod (pxId_, "setLength",
                                      new Class[] { Integer.TYPE },
-                                     new Object[] { new Integer(length) })
+                                     new Object[] { Integer.valueOf(length) })
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
@@ -651,7 +651,7 @@ implements IFSFileImpl
     try {
       connection_.callMethod (pxId_, "setPatternMatching",
                               new Class[] { Integer.TYPE },
-                              new Object[] { new Integer(patternMatching) });
+                              new Object[] { Integer.valueOf(patternMatching) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);
@@ -665,7 +665,7 @@ implements IFSFileImpl
     try {
       return connection_.callMethod (pxId_, "setReadOnly",
                                      new Class[] { Boolean.TYPE },
-                                     new Object[] { new Boolean(attribute) })
+                                     new Object[] { Boolean.valueOf(attribute) })
         .getReturnValueBoolean();
     }
     catch (InvocationTargetException e) {
@@ -696,7 +696,7 @@ implements IFSFileImpl
     try {
       connection_.callMethod (pxId_, "setSorted",
                               new Class[] { Boolean.TYPE },
-                              new Object[] { new Boolean(sort) });
+                              new Object[] { Boolean.valueOf(sort) });
     }
     catch (InvocationTargetException e) {
       throw ProxyClientConnection.rethrow (e);

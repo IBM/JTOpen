@@ -34,13 +34,13 @@ public abstract class AS400AbstractTime implements AS400DataType
   static final TimeZone TIMEZONE_GMT = TimeZone.getTimeZone("GMT-0");
 
   // Separator characters.  Used by AS400Date and AS400Time.
-  static final Character AMPERSAND = new Character('&');
-  static final Character BLANK = new Character(' ');
-  static final Character COLON = new Character(':');
-  static final Character COMMA = new Character(',');
-  static final Character HYPHEN = new Character('-');
-  static final Character PERIOD = new Character('.');
-  static final Character SLASH = new Character('/');
+  static final Character AMPERSAND = Character.valueOf('&');
+  static final Character BLANK = Character.valueOf(' ');
+  static final Character COLON = Character.valueOf(':');
+  static final Character COMMA = Character.valueOf(',');
+  static final Character HYPHEN = Character.valueOf('-');
+  static final Character PERIOD = Character.valueOf('.');
+  static final Character SLASH = Character.valueOf('/');
 
   // Standard XML-Schema format patterns for parsing dates and times.
   // For specifications, see http://www.w3.org/TR/xmlschema-2/

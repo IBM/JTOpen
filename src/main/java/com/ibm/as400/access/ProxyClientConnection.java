@@ -81,7 +81,7 @@ class ProxyClientConnection extends PxClientConnectionAdapter
     {
         PxConstructorReqCV request = new PxConstructorReqCV(className, flag);
         long pxId = ((ProxyReturnValue)sendAndReceive(request)).getReturnValuePxId();
-        pxList_.addElement(new Long(pxId));
+        pxList_.addElement(Long.valueOf(pxId));
         return pxId;
     }
 
@@ -111,7 +111,7 @@ class ProxyClientConnection extends PxClientConnectionAdapter
         if (proxyId2 >= 0)
         {
             proxyImpl.initialize(proxyId2, this);
-            pxList_.addElement(new Long(proxyId2));
+            pxList_.addElement(Long.valueOf(proxyId2));
             return proxyImpl;
         }
         return null;
@@ -123,7 +123,7 @@ class ProxyClientConnection extends PxClientConnectionAdapter
     public void callFinalize(long proxyId) throws InvocationTargetException
     {
         // This may have already been called (by this object's finalize() or the ProxyImpl's finalize).  Account for that fact, so that it only runs once.
-        Long pxId2 = new Long(proxyId);
+        Long pxId2 = Long.valueOf(proxyId);
         if (pxList_.contains(pxId2))
         {
             eventSupport_.removeAll(proxyId);

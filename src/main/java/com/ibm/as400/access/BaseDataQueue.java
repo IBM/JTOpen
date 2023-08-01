@@ -633,8 +633,8 @@ public abstract class BaseDataQueue implements Serializable
         }
         else
         {
-            Integer oldValue = new Integer(ccsid_);
-            Integer newValue = new Integer(ccsid);
+            Integer oldValue = Integer.valueOf(ccsid_);
+            Integer newValue = Integer.valueOf(ccsid);
 
             if (vetoableChangeListeners_ != null)
             {

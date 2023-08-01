@@ -74,7 +74,7 @@ implements CallableStatement
     try {
       return connection_.callMethod (pxId_, methodName,
                               new Class[] { Integer.TYPE },
-                              new Object[] { new Integer (argValue) });
+                              new Object[] { Integer.valueOf(argValue) });
     }
     catch (InvocationTargetException e) {
       throw JDConnectionProxy.rethrow1 (e);
@@ -169,8 +169,8 @@ implements CallableStatement
     {
       return (BigDecimal) callMethodRtnRaw ("getBigDecimal",
                               new Class[] { Integer.TYPE, Integer.TYPE },
-                              new Object[] { new Integer (parameterIndex),
-                                             new Integer (scale) })
+                              new Object[] { Integer.valueOf(parameterIndex),
+                                             Integer.valueOf(scale) })
                          .getReturnValue ();
     }
 
@@ -186,7 +186,7 @@ implements CallableStatement
                              pxId_,
                              "getBlob",
                              new Class[] { Integer.TYPE },
-                             new Object[] { new Integer(parameterIndex) },
+                             new Object[] { Integer.valueOf(parameterIndex) },
                              newBlob);
       }
       catch (InvocationTargetException e) {
@@ -284,7 +284,7 @@ implements CallableStatement
                              pxId_,
                              "getClob",
                              new Class[] { Integer.TYPE },
-                             new Object[] { new Integer(parameterIndex) },
+                             new Object[] { Integer.valueOf(parameterIndex) },
                              newClob);
       }
       catch (InvocationTargetException e) {
@@ -340,7 +340,7 @@ implements CallableStatement
     {
       return (Date) callMethodRtnRaw ("getDate",
                               new Class[] { Integer.TYPE, Calendar.class },
-                              new Object[] { new Integer (parameterIndex),
+                              new Object[] { Integer.valueOf(parameterIndex),
                                              calendar })
                          .getReturnValue ();
     }
@@ -458,14 +458,14 @@ implements CallableStatement
             if (proxyObject != null) {
               return connection_.callFactoryMethod (pxId_, "getObject",
                                  new Class[] { Integer.TYPE },
-                                 new Object[] { new Integer (parameterIndex) },
+                                 new Object[] { Integer.valueOf(parameterIndex) },
                                  proxyObject);
             }
           }
         }
         return connection_.callMethod (pxId_, "getObject",
                                 new Class[] { Integer.TYPE },
-                                new Object[] { new Integer (parameterIndex) })
+                                new Object[] { Integer.valueOf(parameterIndex) })
           .getReturnValue();
       }
       catch (InvocationTargetException e) {
@@ -497,7 +497,7 @@ implements CallableStatement
             if (proxyObject != null) {
               return connection_.callFactoryMethod (pxId_, "getObject",
                                  new Class[] { Integer.TYPE, Map.class },
-                                 new Object[] { new Integer (parameterIndex),
+                                 new Object[] { Integer.valueOf(parameterIndex),
                                                 typeMap },
                                  proxyObject);
             }
@@ -505,7 +505,7 @@ implements CallableStatement
         }
         return connection_.callMethod (pxId_, "getObject",
                                 new Class[] { Integer.TYPE, Map.class },
-                                new Object[] { new Integer (parameterIndex),
+                                new Object[] { Integer.valueOf(parameterIndex),
                                                typeMap })
           .getReturnValue();
       }
@@ -616,7 +616,7 @@ implements CallableStatement
     {
       return (Time) callMethodRtnRaw ("getTime",
                               new Class[] { Integer.TYPE, Calendar.class },
-                              new Object[] { new Integer (parameterIndex),
+                              new Object[] { Integer.valueOf(parameterIndex),
                                              calendar })
                          .getReturnValue ();
     }
@@ -661,7 +661,7 @@ implements CallableStatement
     {
       return (Timestamp) callMethodRtnRaw ("getTimestamp",
                               new Class[] { Integer.TYPE, Calendar.class },
-                              new Object[] { new Integer (parameterIndex),
+                              new Object[] { Integer.valueOf(parameterIndex),
                                              calendar })
                          .getReturnValue ();
     }
@@ -687,7 +687,7 @@ implements CallableStatement
     {
         return(URL) callMethodRtnRaw ("getURL",
                                       new Class[] { Integer.TYPE},
-                                      new Object[] { new Integer (parameterIndex)})
+                                      new Object[] { Integer.valueOf(parameterIndex)})
         .getReturnValue ();
     }
 
@@ -709,7 +709,7 @@ implements CallableStatement
     {
       for (int i=registeredTypes_.size(); i<=parameterIndex; i++)
         registeredTypes_.addElement (null);
-      registeredTypes_.setElementAt (new Integer(sqlType), parameterIndex);
+      registeredTypes_.setElementAt (Integer.valueOf(sqlType), parameterIndex);
     }
 
 
@@ -723,9 +723,9 @@ implements CallableStatement
       callMethod ("registerOutParameter",
                   new Class[] { Integer.TYPE, Integer.TYPE,
                                 Integer.TYPE },
-                  new Object[] { new Integer (parameterIndex),
-                                 new Integer (sqlType),
-                                 new Integer (scale) });
+                  new Object[] { Integer.valueOf(parameterIndex),
+                                 Integer.valueOf(sqlType),
+                                 Integer.valueOf(scale) });
 
       registerLocally (parameterIndex, sqlType);  //@A1C
     }
@@ -737,8 +737,8 @@ implements CallableStatement
     {
       callMethod ("registerOutParameter",
                   new Class[] { Integer.TYPE, Integer.TYPE },
-                  new Object[] { new Integer (parameterIndex),
-                                 new Integer (sqlType) });
+                  new Object[] { Integer.valueOf(parameterIndex),
+                                 Integer.valueOf(sqlType) });
 
       registerLocally (parameterIndex, sqlType);  //@A1C
     }
@@ -751,9 +751,9 @@ implements CallableStatement
       callMethod ("registerOutParameter",
                   new Class[] { Integer.TYPE, Integer.TYPE,
                                 String.class },
-                  new Object[] { new Integer (parameterIndex),
-                                 new Integer (sqlType),
-                                 new Integer (typeName) });
+                  new Object[] { Integer.valueOf(parameterIndex),
+                                 Integer.valueOf(sqlType),
+                                 Integer.valueOf(typeName) });
 
       registerLocally (parameterIndex, sqlType);  //@A1C
     }
@@ -905,7 +905,7 @@ implements CallableStatement
                         Integer.TYPE},
                     new Object[] { parameterName,
                         iStream,
-                        new Integer (length)});
+                        Integer.valueOf(length)});
     }
 
 
@@ -950,7 +950,7 @@ implements CallableStatement
                         Integer.TYPE},
                     new Object[] { parameterName,
                         iStream,
-                        new Integer (length)});
+                        Integer.valueOf(length)});
     }
 
 
@@ -963,7 +963,7 @@ implements CallableStatement
         callMethod ("setBoolean",
                     new Class[] { String.class, Boolean.TYPE},
                     new Object[] { parameterName,
-                        new Boolean(parameterValue)});
+                        Boolean.valueOf(parameterValue)});
     }
 
 
@@ -975,7 +975,7 @@ implements CallableStatement
         callMethod ("setByte",
                     new Class[] { String.class, Byte.TYPE},
                     new Object[] { parameterName,
-                        new Byte(parameterValue)});
+                        Byte.valueOf(parameterValue)});
     }
 
 
@@ -1009,7 +1009,7 @@ implements CallableStatement
                             Integer.TYPE},
                         new Object[] { parameterName,
                             reader,
-                            new Integer (length)});
+                            Integer.valueOf(length)});
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -1053,7 +1053,7 @@ implements CallableStatement
         callMethod ("setDouble",
                     new Class[] { String.class, Double.TYPE},
                     new Object[] { parameterName,
-                        new Double(parameterValue)});
+                        Double.valueOf(parameterValue)});
     }
 
 
@@ -1065,7 +1065,7 @@ implements CallableStatement
         callMethod ("setFloat",
                     new Class[] { String.class, Float.TYPE},
                     new Object[] { parameterName,
-                        new Float(parameterValue)});
+                        Float.valueOf(parameterValue)});
     }
 
 
@@ -1077,7 +1077,7 @@ implements CallableStatement
         callMethod ("setInt",
                     new Class[] { String.class, Integer.TYPE},
                     new Object[] { parameterName,
-                        new Integer(parameterValue)});
+                        Integer.valueOf(parameterValue)});
     }
 
 
@@ -1089,7 +1089,7 @@ implements CallableStatement
         callMethod ("setLong",
                     new Class[] { String.class, Long.TYPE},
                     new Object[] { parameterName,
-                        new Long(parameterValue)});
+                        Long.valueOf(parameterValue)});
     }
 
 
@@ -1101,7 +1101,7 @@ implements CallableStatement
         callMethod ("setNull",
                     new Class[] { String.class, Integer.TYPE},
                     new Object[] { parameterName,
-                        new Integer(sqlType)});
+                        Integer.valueOf(sqlType)});
     }
 
 
@@ -1113,7 +1113,7 @@ implements CallableStatement
         callMethod ("setNull",
                     new Class[] { String.class, Integer.TYPE, String.class},
                     new Object[] { parameterName,
-                        new Integer(sqlType), typeName});
+                        Integer.valueOf(sqlType), typeName});
     }
 
 
@@ -1155,7 +1155,7 @@ implements CallableStatement
                         Integer.TYPE},
                     new Object[] { parameterName,
                         parameterValue,
-                        new Integer (sqlType)});
+                        Integer.valueOf(sqlType)});
     }
 
 
@@ -1179,8 +1179,8 @@ implements CallableStatement
                         Integer.TYPE, Integer.TYPE},
                     new Object[] { parameterName,
                         parameterValue,
-                        new Integer (sqlType),
-                        new Integer (scale)});
+                        Integer.valueOf(sqlType),
+                        Integer.valueOf(scale)});
     }
 
 
@@ -1193,7 +1193,7 @@ implements CallableStatement
         callMethod ("setShort",
                     new Class[] { String.class, Short.TYPE},
                     new Object[] { parameterName,
-                        new Short(parameterValue)});
+                        Short.valueOf(parameterValue)});
     }
 
 
@@ -1293,7 +1293,7 @@ implements CallableStatement
             return (JDReaderProxy) connection_.callFactoryMethod (
                     pxId_, "getCharacterStream",
                     new Class[] { Integer.TYPE },
-                    new Object[] { new Integer (parameterIndex) },
+                    new Object[] { Integer.valueOf(parameterIndex) },
                     newReader);
         }
         catch (InvocationTargetException e) {
@@ -1325,7 +1325,7 @@ implements CallableStatement
             return (JDReaderProxy) connection_.callFactoryMethod (
                     pxId_, "getNCharacterStream",
                     new Class[] { Integer.TYPE },
-                    new Object[] { new Integer (parameterIndex) },
+                    new Object[] { Integer.valueOf(parameterIndex) },
                     newReader);
         }
         catch (InvocationTargetException e) {
@@ -1358,7 +1358,7 @@ implements CallableStatement
             return (JDNClobProxy) connection_.callFactoryMethod (pxId_,
                     "getNClob",
                     new Class[] { Integer.TYPE },
-                    new Object[] { new Integer(parameterIndex) },
+                    new Object[] { Integer.valueOf(parameterIndex) },
                     newClob);
         }
         catch (InvocationTargetException e) {
@@ -1405,7 +1405,7 @@ implements CallableStatement
             return (JDRowIdProxy) connection_.callFactoryMethod (pxId_,
                     "getRowId",
                     new Class[] { Integer.TYPE },
-                    new Object[] { new Integer(parameterIndex) },
+                    new Object[] { Integer.valueOf(parameterIndex) },
                     newRowId);
         }
         catch (InvocationTargetException e) {
@@ -1439,7 +1439,7 @@ implements CallableStatement
             return (JDSQLXMLProxy) connection_.callFactoryMethod (pxId_,
                     "getSQLXML",
                     new Class[] { Integer.TYPE },
-                    new Object[] { new Integer(parameterIndex) },
+                    new Object[] { Integer.valueOf(parameterIndex) },
                     newXML);
         }
         catch (InvocationTargetException e) {
@@ -1488,7 +1488,7 @@ implements CallableStatement
                 Long.TYPE },
                 new Object[] { parameterName,
                 iStream,
-                new Long (length) });
+                Long.valueOf(length) });
     }
     
     //@PDA jdbc40
@@ -1515,7 +1515,7 @@ implements CallableStatement
                 Long.TYPE },
                 new Object[] { parameterName,
                 iStream,
-                new Long (length) });
+                Long.valueOf(length) });
     }
     
     //@PDA jdbc40
@@ -1558,7 +1558,7 @@ implements CallableStatement
                 Long.TYPE },
                 new Object[] { parameterName,
                 iStream,
-                new Long (length) });
+                Long.valueOf(length) });
     }
     
     //@PDA jdbc40
@@ -1575,7 +1575,7 @@ implements CallableStatement
                     Long.TYPE },
                     new Object[] { parameterName,
                     serialReader,
-                    new Long (length) });
+                    Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -1616,7 +1616,7 @@ implements CallableStatement
                     Long.TYPE },
                     new Object[] { parameterName,
                     serialRreader,
-                    new Long (length) });
+                    Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -1641,7 +1641,7 @@ implements CallableStatement
                     Long.TYPE },
                     new Object[] { parameterName,
                     reader,
-                    new Long(length) });
+                    Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -1685,7 +1685,7 @@ implements CallableStatement
                     Long.TYPE },
                     new Object[] { parameterName,
                     serialRreader,
-                    new Long (length) });
+                    Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());

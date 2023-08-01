@@ -284,17 +284,17 @@ need replies.
 /**
 Constant indicating that message help text is not formatted.
 **/
-    public final static Integer NO_FORMATTING                     = new Integer(com.ibm.as400.access.MessageFile.NO_FORMATTING);
+    public final static Integer NO_FORMATTING                     = Integer.valueOf(com.ibm.as400.access.MessageFile.NO_FORMATTING);
 
 /**
 Constant indicating that message help text includes formatting characters.
 **/
-    public final static Integer RETURN_FORMATTING_CHARACTERS                     = new Integer(com.ibm.as400.access.MessageFile.RETURN_FORMATTING_CHARACTERS);
+    public final static Integer RETURN_FORMATTING_CHARACTERS                     = Integer.valueOf(com.ibm.as400.access.MessageFile.RETURN_FORMATTING_CHARACTERS);
 
 /**
 Constant indicating that message help text is formatted.
 **/
-    public final static Integer SUBSTITUTE_FORMATTING_CHARACTERS                     = new Integer(com.ibm.as400.access.MessageFile.SUBSTITUTE_FORMATTING_CHARACTERS);
+    public final static Integer SUBSTITUTE_FORMATTING_CHARACTERS                     = Integer.valueOf(com.ibm.as400.access.MessageFile.SUBSTITUTE_FORMATTING_CHARACTERS);
 
 
 
@@ -403,7 +403,7 @@ list.  The value must be in the range 0 to 99.   The default is 0.
 
     static {
         selections_.add(SEVERITY_CRITERIA, Integer.class, false,
-                        null, new Integer(0), false);
+                        null, Integer.valueOf(0), false);
         selectionMap_.add(SEVERITY_CRITERIA, null, "messageSelectionInformation.severityCriteria");
     }
 

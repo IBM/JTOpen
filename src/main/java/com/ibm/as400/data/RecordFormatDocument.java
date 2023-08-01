@@ -1015,7 +1015,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     public void setIntValue(String name, int value)
         throws XmlException
     {
-        setValue(name, new Integer(value));
+        setValue(name, Integer.valueOf(value));
     }
 
     /**
@@ -1032,7 +1032,7 @@ public class RecordFormatDocument implements Serializable, Cloneable
     public void setIntValue(String name, int[] indices, int value)
         throws XmlException
     {
-        setValue(name, indices, new Integer(value));
+        setValue(name, indices, Integer.valueOf(value));
     }
 
     /**

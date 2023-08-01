@@ -50,7 +50,7 @@ class PxTunnelConnectReqSV extends PxReqSV
 	        PxRepSV reply;
 		PSTunnelConnection connection = new PSTunnelConnection (controller_.getConnectionId()); 
 		long clientId = controller_.getNextClientId();                                          
-		clientIds_.put(new Long(clientId), connection);                             
+		clientIds_.put(Long.valueOf(clientId), connection);                             
 		reply = new PxAcceptRepSV();                                                                   
 		reply.setClientId(clientId);    
 

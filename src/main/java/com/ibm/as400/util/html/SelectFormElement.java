@@ -523,11 +523,11 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
         //@C1D
 
         boolean old = multiple_;
-        if (vetos_ != null) vetos_.fireVetoableChange("multiple", new Boolean(old), new Boolean(multiple) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("multiple", Boolean.valueOf(old), Boolean.valueOf(multiple) ); //@CRS
 
         multiple_ = multiple;
 
-        if (changes_ != null) changes_.firePropertyChange("multiple", new Boolean(old), new Boolean(multiple) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("multiple", Boolean.valueOf(old), Boolean.valueOf(multiple) ); //@CRS
     }
 
     /**
@@ -563,11 +563,11 @@ public class SelectFormElement extends HTMLTagAttributes implements java.io.Seri
             throw new ExtendedIllegalArgumentException("size", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
         int old = size_;
-        if (vetos_ != null) vetos_.fireVetoableChange("size", new Integer(old), new Integer(size) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("size", Integer.valueOf(old), Integer.valueOf(size) ); //@CRS
 
         size_ = size;
 
-        if (changes_ != null) changes_.firePropertyChange("size", new Integer(old), new Integer(size) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("size", Integer.valueOf(old), Integer.valueOf(size) ); //@CRS
     }
 
     /**

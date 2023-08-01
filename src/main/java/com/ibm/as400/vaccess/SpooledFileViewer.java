@@ -1301,16 +1301,16 @@ in order to load the spooled file and properly initialize the viewer.
             int newValue = spooledFileIS_.getNumberOfPages();
 
             vetoableChangeSupport_.fireVetoableChange("numberOfPages",
-                                        new Integer(numberOfPages_),
-                                        new Integer(newValue));
+                                        Integer.valueOf(numberOfPages_),
+                                        Integer.valueOf(newValue));
 
             int oldValue = numberOfPages_;
             numberOfPages_ = newValue;
 
             // fire numberOfPages property change
             propertyChangeSupport_.firePropertyChange("numberOfPages",
-                                        new Integer(oldValue),
-                                        new Integer(numberOfPages_));
+                                        Integer.valueOf(oldValue),
+                                        Integer.valueOf(numberOfPages_));
 
 
             // determine if number of pages is estimated
@@ -1318,8 +1318,8 @@ in order to load the spooled file and properly initialize the viewer.
 
             // warn of pagesEstimated property change
             vetoableChangeSupport_.fireVetoableChange("numberOfPagesEstimated",
-                                        new Boolean(numberOfPagesEst_),
-                                        new Boolean(newEstimated));
+                                        Boolean.valueOf(numberOfPagesEst_),
+                                        Boolean.valueOf(newEstimated));
 
             // we know the number of pages is estimated
             boolean oldEstimated = numberOfPagesEst_;
@@ -1327,8 +1327,8 @@ in order to load the spooled file and properly initialize the viewer.
 
             // fire numberOfPagesEstimated property change
             propertyChangeSupport_.firePropertyChange("numberOfPagesEstimated",
-                                        new Boolean(oldEstimated),
-                                        new Boolean(numberOfPagesEst_));
+                                        Boolean.valueOf(oldEstimated),
+                                        Boolean.valueOf(numberOfPagesEst_));
 
             // display '*' if the number of pages is estimated
             if (numberOfPagesEst_ == true) {
@@ -1425,8 +1425,8 @@ loaded into the viewer previously, an error event is fired.
         if (initialized_ == true) {
             if (flashPageImage_!= null) { // flash page defined
                 vetoableChangeSupport_.fireVetoableChange("currentPage",
-                                        new Integer(oldCurrentPage_),
-                                        new Integer(flashPageNumber_));
+                                        Integer.valueOf(oldCurrentPage_),
+                                        Integer.valueOf(flashPageNumber_));
 
                 // clear current page view
                 pageView_.clearView();
@@ -1452,8 +1452,8 @@ loaded into the viewer previously, an error event is fired.
                 updateViewer();
 
                 propertyChangeSupport_.firePropertyChange("currentPage",
-                                    new Integer(flashPageNumber_),
-                                    new Integer(currentPageNumber_));
+                                    Integer.valueOf(flashPageNumber_),
+                                    Integer.valueOf(currentPageNumber_));
             }
         }
         else {
@@ -1519,8 +1519,8 @@ an error event is fired.
 
                     // warn of property change
                     vetoableChangeSupport_.fireVetoableChange("numberOfPages",
-                                        new Integer(numberOfPages_),
-                                        new Integer(knownPages_));
+                                        Integer.valueOf(numberOfPages_),
+                                        Integer.valueOf(knownPages_));
 
                     // we now know the number of pages
                     int oldValue = numberOfPages_;
@@ -1528,14 +1528,14 @@ an error event is fired.
 
                     // fire numberOfPages property change
                     propertyChangeSupport_.firePropertyChange("numberOfPages",
-                                        new Integer(oldValue),
-                                        new Integer(numberOfPages_));
+                                        Integer.valueOf(oldValue),
+                                        Integer.valueOf(numberOfPages_));
 
 
                     // warn of property change, only from true to false
                     vetoableChangeSupport_.fireVetoableChange("numberOfPagesEstimated",
-                                        new Boolean(true),
-                                        new Boolean(false));
+                                        Boolean.TRUE,
+                                        Boolean.FALSE);
 
                     // we know the number of pages is valid
                     numberOfPagesEst_ = false;
@@ -1543,22 +1543,22 @@ an error event is fired.
 
                     // fire numberOfPagesEstimated property change, only from true to false
                     propertyChangeSupport_.firePropertyChange("numberOfPagesEstimated",
-                                        new Boolean(true),
-                                        new Boolean(false));
+                                        Boolean.TRUE,
+                                        Boolean.FALSE);
 
                  }
                  // warn of property change
                  vetoableChangeSupport_.fireVetoableChange("currentPage",
-                                        new Integer(currentPageNumber_),
-                                        new Integer(oldCurrentPage_));
+                                        Integer.valueOf(currentPageNumber_),
+                                        Integer.valueOf(oldCurrentPage_));
 
                  int oldPage         = currentPageNumber_;
                  currentPageNumber_  = oldCurrentPage_;
 
                  // fire currentPage property change
                  propertyChangeSupport_.firePropertyChange("currentPage",
-                                        new Integer(oldPage),
-                                        new Integer(currentPageNumber_));
+                                        Integer.valueOf(oldPage),
+                                        Integer.valueOf(currentPageNumber_));
                  // fire error event
                  errorEventSupport_.fireError(new IOException());
                }
@@ -1718,8 +1718,8 @@ Sets the current page.
 
              // warn of property change
             vetoableChangeSupport_.fireVetoableChange("currentPage",
-                                   new Integer(currentPageNumber_),
-                                   new Integer(newPage));
+                                   Integer.valueOf(currentPageNumber_),
+                                   Integer.valueOf(newPage));
 
             // update current page
             int oldPage = currentPageNumber_;
@@ -1727,8 +1727,8 @@ Sets the current page.
 
             // fire currentPage property change
             propertyChangeSupport_.firePropertyChange("currentPage",
-                                   new Integer(oldPage),
-                                   new Integer(currentPageNumber_));
+                                   Integer.valueOf(oldPage),
+                                   Integer.valueOf(currentPageNumber_));
         }
     }
 
@@ -1765,8 +1765,8 @@ no action is taken.
 
             // warn of property change
             vetoableChangeSupport_.fireVetoableChange("paperSize",
-                                new Integer(paperSize_),
-                                new Integer(paperSize));
+                                Integer.valueOf(paperSize_),
+                                Integer.valueOf(paperSize));
 
             // update paper size
             int oldValue = paperSize_;
@@ -1778,8 +1778,8 @@ no action is taken.
 
             // fire property change to all listeners
             propertyChangeSupport_.firePropertyChange("paperSize",
-                                new Integer(oldValue),
-                                new Integer(paperSize_));
+                                Integer.valueOf(oldValue),
+                                Integer.valueOf(paperSize_));
         }
         else
             errorEventSupport_.fireError(new IllegalArgumentException("paperSize"));
@@ -1848,8 +1848,8 @@ by <i>viewingFidelity</i> is not valid, no action is taken.
 
             // warn of property change
             vetoableChangeSupport_.fireVetoableChange("viewingFidelity",
-                                                      new Integer(viewingFidelity_),
-                                                      new Integer(viewingFidelity));
+                                                      Integer.valueOf(viewingFidelity_),
+                                                      Integer.valueOf(viewingFidelity));
             // update viewing fidelity
             int oldValue = viewingFidelity_;
             viewingFidelity_ = viewingFidelity;
@@ -1859,8 +1859,8 @@ by <i>viewingFidelity</i> is not valid, no action is taken.
 
             // fire property change to all listeners
             propertyChangeSupport_.firePropertyChange("viewingFidelity",
-                                new Integer(oldValue),
-                                new Integer(viewingFidelity_));
+                                Integer.valueOf(oldValue),
+                                Integer.valueOf(viewingFidelity_));
         }
         else
             errorEventSupport_.fireError(new IllegalArgumentException("viewingFidelity"));

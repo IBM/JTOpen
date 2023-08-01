@@ -64,7 +64,7 @@ implements PrintObjectImpl, ProxyImpl
         try {
             return (Integer) connection_.callMethod(pxId_, "getIntegerAttribute",
                                                     new Class[] { Integer.TYPE },
-                                                    new Object[] { new Integer (attributeID)}).getReturnValue();
+                                                    new Object[] { Integer.valueOf(attributeID)}).getReturnValue();
         }
         catch (InvocationTargetException e) {
             throw ProxyClientConnection.rethrow6a(e);
@@ -84,7 +84,7 @@ implements PrintObjectImpl, ProxyImpl
         try {
             return (Float) connection_.callMethod(pxId_, "getFloatAttribute",
                                                   new Class[] { Integer.TYPE },
-                                                  new Object[] { new Integer (attributeID)}).getReturnValue();
+                                                  new Object[] { Integer.valueOf(attributeID)}).getReturnValue();
         }
         catch (InvocationTargetException e) {
             throw ProxyClientConnection.rethrow6a(e);
@@ -104,7 +104,7 @@ implements PrintObjectImpl, ProxyImpl
         try {
             return (String) connection_.callMethod(pxId_, "getStringAttribute",
                                                    new Class[] { Integer.TYPE },
-                                                   new Object[] { new Integer (attributeID)}).getReturnValue();
+                                                   new Object[] { Integer.valueOf(attributeID)}).getReturnValue();
         }
         catch (InvocationTargetException e) {
                 throw ProxyClientConnection.rethrow6a(e);
@@ -123,7 +123,7 @@ implements PrintObjectImpl, ProxyImpl
         try {
             return (Integer) connection_.callMethod(pxId_, "getIntegerAttribute",
                                                     new Class[] { Integer.TYPE },
-                                                    new Object[] { new Integer (attributeID)}).getReturnValue();
+                                                    new Object[] { Integer.valueOf(attributeID)}).getReturnValue();
         }
         catch (InvocationTargetException e) {
             throw ProxyClientConnection.rethrow6a(e);
@@ -143,7 +143,7 @@ implements PrintObjectImpl, ProxyImpl
         try {
             return (Float) connection_.callMethod(pxId_, "getFloatAttribute",
                                                   new Class[] { Integer.TYPE },
-                                                  new Object[] { new Integer (attributeID)}).getReturnValue();
+                                                  new Object[] { Integer.valueOf(attributeID)}).getReturnValue();
         }
         catch (InvocationTargetException e) {
             throw ProxyClientConnection.rethrow6a(e);
@@ -163,7 +163,7 @@ implements PrintObjectImpl, ProxyImpl
         try {
             return (String) connection_.callMethod(pxId_, "getStringAttribute",
                                                    new Class[] { Integer.TYPE },
-                                                   new Object[] { new Integer (attributeID)}).getReturnValue();
+                                                   new Object[] { Integer.valueOf(attributeID)}).getReturnValue();
         }
         catch (InvocationTargetException e) {
                 throw ProxyClientConnection.rethrow6a(e);
@@ -178,7 +178,7 @@ implements PrintObjectImpl, ProxyImpl
         try {
             connection_.callMethod (pxId_, "setPrintObjectAttrs",
                             new Class[] { NPCPID.class, NPCPAttribute.class, Integer.TYPE },
-                            new Object[] { idCodePoint, cpAttrs, new Integer (type)});
+                            new Object[] { idCodePoint, cpAttrs, Integer.valueOf(type)});
         }
         catch (InvocationTargetException e) {
             throw ProxyClientConnection.rethrow(e);

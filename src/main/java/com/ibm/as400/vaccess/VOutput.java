@@ -147,12 +147,12 @@ Property identifier for the user comment.
 
     // private data.
     private VAction[]           actions_            = null;
-    private Integer             actionsLock_        = new Integer (0);
+    private Integer             actionsLock_        = Integer.valueOf(0);
     private SpooledFile         splF_               = null;
     private VPrinterOutput      parent_             = null;
     private VPropertiesPane     propertiesPane_     = null;
-    private Integer             propertiesPaneLock_ = new Integer (0);
-    private Integer             reloadLock_         = new Integer (0);
+    private Integer             propertiesPaneLock_ = Integer.valueOf(0);
+    private Integer             reloadLock_         = Integer.valueOf(0);
 
     // event support
     private ErrorEventSupport        errorEventSupport_     = new ErrorEventSupport (this);
@@ -448,7 +448,7 @@ Returns a property value.
 
             // spooled file number
             else if (propertyIdentifier == NUMBER_PROPERTY)
-                return new Integer(splF_.getNumber());
+                return Integer.valueOf(splF_.getNumber());
 
             // output queue
             else if (propertyIdentifier == OUTPUTQUEUE_PROPERTY)

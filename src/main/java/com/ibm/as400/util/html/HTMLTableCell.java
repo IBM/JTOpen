@@ -579,11 +579,11 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
         //@CRS Integer newSpan = new Integer(span);
         int oldSpan = colSpan_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("span", new Integer(oldSpan), new Integer(span)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("span", Integer.valueOf(oldSpan), Integer.valueOf(span)); //@CRS
 
         colSpan_ = span;
 
-        if (changes_ != null) changes_.firePropertyChange("span", new Integer(oldSpan), new Integer(span)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("span", Integer.valueOf(oldSpan), Integer.valueOf(span)); //@CRS
     }
 
     /**
@@ -661,11 +661,11 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
         //@CRS Integer newHeight = new Integer(height);
         int oldHeight = height_;
 
-        if (vetos_ != null) vetos_.fireVetoableChange("height", new Integer(oldHeight), new Integer(height)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("height", Integer.valueOf(oldHeight), Integer.valueOf(height)); //@CRS
 
         height_ = height;
 
-        if (changes_ != null) changes_.firePropertyChange("height", new Integer(oldHeight), new Integer(height)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("height", Integer.valueOf(oldHeight), Integer.valueOf(height)); //@CRS
     }
 
     /**
@@ -702,15 +702,15 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     **/
     public void setHeightInPercent(boolean heightInPercent) throws PropertyVetoException
     {
-        //@CRS Boolean oldHeight = new Boolean(heightPercent_);
-        //@CRS Boolean newHeight = new Boolean(heightInPercent);
+        //@CRS Boolean oldHeight = Boolean.valueOf(heightPercent_);
+        //@CRS Boolean newHeight = Boolean.valueOf(heightInPercent);
       boolean oldHeight = heightPercent_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("heightInPercent", new Boolean(oldHeight), new Boolean(heightInPercent)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("heightInPercent", Boolean.valueOf(oldHeight), Boolean.valueOf(heightInPercent)); //@CRS
 
         heightPercent_ = heightInPercent;
 
-        if (changes_ != null) changes_.firePropertyChange("heightInPercent", new Boolean(oldHeight), new Boolean(heightInPercent)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("heightInPercent", Boolean.valueOf(oldHeight), Boolean.valueOf(heightInPercent)); //@CRS
     }
 
     /**
@@ -778,11 +778,11 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
         //@CRS Integer newSpan = new Integer(span);
         int oldSpan = rowSpan_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("span", new Integer(oldSpan), new Integer(span)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("span", Integer.valueOf(oldSpan), Integer.valueOf(span)); //@CRS
 
         rowSpan_ = span;
 
-        if (changes_ != null) changes_.firePropertyChange("span", new Integer(oldSpan), new Integer(span)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("span", Integer.valueOf(oldSpan), Integer.valueOf(span)); //@CRS
     }
 
     /** 
@@ -806,8 +806,8 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     **/
     public void setBorderWidth(int borderWidth)                // @D1A
     {
-        Integer oldWidth = new Integer(borderWidth_);
-        Integer newWidth = new Integer(borderWidth);
+        Integer oldWidth = Integer.valueOf(borderWidth_);
+        Integer newWidth = Integer.valueOf(borderWidth);
 
         borderWidth_ = borderWidth;
 
@@ -821,8 +821,8 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     **/
     public void setCellPadding(int cellPadding)         // @D1A
     {
-        Integer oldPadding = new Integer(cellPadding_);
-        Integer newPadding = new Integer(cellPadding);
+        Integer oldPadding = Integer.valueOf(cellPadding_);
+        Integer newPadding = Integer.valueOf(cellPadding);
 
         cellPadding_ = cellPadding;
 
@@ -877,11 +877,11 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
         //@CRS Integer newWidth = new Integer(width);
         int oldWidth = width_; //@CRS        //@K1C
 
-        if (vetos_ != null) vetos_.fireVetoableChange("width", new Integer(oldWidth), new Integer(width)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("width", Integer.valueOf(oldWidth), Integer.valueOf(width)); //@CRS
 
         width_ = width;
 
-        if (changes_ != null) changes_.firePropertyChange("width", new Integer(oldWidth), new Integer(width)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("width", Integer.valueOf(oldWidth), Integer.valueOf(width)); //@CRS
     }
 
     /**
@@ -918,15 +918,15 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     **/
     public void setWidthInPercent(boolean widthInPercent) throws PropertyVetoException
     {
-        //@CRS Boolean oldWidth = new Boolean(widthPercent_);
-        //@CRS Boolean newWidth = new Boolean(widthInPercent);
+        //@CRS Boolean oldWidth = Boolean.valueOf(widthPercent_);
+        //@CRS Boolean newWidth = Boolean.valueOf(widthInPercent);
       boolean oldWidth = widthPercent_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("widthInPercent", new Boolean(oldWidth), new Boolean(widthInPercent)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("widthInPercent", Boolean.valueOf(oldWidth), Boolean.valueOf(widthInPercent)); //@CRS
 
         widthPercent_ = widthInPercent;
 
-        if (changes_ != null) changes_.firePropertyChange("widthInPercent", new Boolean(oldWidth), new Boolean(widthInPercent)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("widthInPercent", Boolean.valueOf(oldWidth), Boolean.valueOf(widthInPercent)); //@CRS
     }
 
     /**
@@ -937,15 +937,15 @@ public class HTMLTableCell extends HTMLTagAttributes implements HTMLConstants, S
     **/
     public void setWrap(boolean wrap) throws PropertyVetoException
     {
-        //@CRS Boolean oldWrap = new Boolean(wrap_);
-        //@CRS Boolean newWrap = new Boolean(wrap);
+        //@CRS Boolean oldWrap = Boolean.valueOf(wrap_);
+        //@CRS Boolean newWrap = Boolean.valueOf(wrap);
         boolean oldWrap = wrap_; //@CRS
 
-        if (vetos_ != null) vetos_.fireVetoableChange("wrap", new Boolean(oldWrap), new Boolean(wrap)); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("wrap", Boolean.valueOf(oldWrap), Boolean.valueOf(wrap)); //@CRS
 
         wrap_ = wrap;
 
-        if (changes_ != null) changes_.firePropertyChange("wrap", new Boolean(oldWrap), new Boolean(wrap)); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("wrap", Boolean.valueOf(oldWrap), Boolean.valueOf(wrap)); //@CRS
     }
 
     /**

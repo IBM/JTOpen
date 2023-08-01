@@ -250,7 +250,7 @@ public class ReflectionUtil {
     method = thisClass.getMethod(methodName, argTypes);
     method.setAccessible(true); // allow toolbox proxy methods to be invoked
     Object[] args = new Object[1];
-    args[0] = new Integer(i);
+    args[0] = Integer.valueOf(i);
     try {
       // System.out.println("Calling method");
       Object outObject = method.invoke(o, args);
@@ -624,8 +624,8 @@ public class ReflectionUtil {
     method = thisClass.getMethod(methodName, argTypes);
     method.setAccessible(true); // allow toolbox proxy methods to be invoked
     Object[] args = new Object[2];
-    args[0] = new Long(i);
-    args[1] = new Long(j);
+    args[0] = Long.valueOf(i);
+    args[1] = Long.valueOf(j);
     try {
       // System.out.println("Calling method");
       Object outObject = method.invoke(o, args);
@@ -694,7 +694,7 @@ public class ReflectionUtil {
     method = thisClass.getMethod(methodName, argTypes);
     method.setAccessible(true); // allow toolbox proxy methods to be invoked
     Object[] args = new Object[1];
-    args[0] = new Integer(i);
+    args[0] = Integer.valueOf(i);
     try {
       // System.out.println("Calling method");
       Object outObject = method.invoke(o, args);
@@ -733,8 +733,8 @@ public class ReflectionUtil {
     method = thisClass.getMethod(methodName, argTypes);
     method.setAccessible(true); // allow toolbox proxy methods to be invoked
     Object[] args = new Object[2];
-    args[0] = new Long(l);
-    args[1] = new Integer(j);
+    args[0] = Long.valueOf(l);
+    args[1] = Integer.valueOf(j);
     try {
       // System.out.println("Calling method");
       Object outObject = method.invoke(o, args);
@@ -798,7 +798,7 @@ public class ReflectionUtil {
     method = thisClass.getMethod(methodName, argTypes);
     method.setAccessible(true); // allow toolbox proxy methods to be invoked
     Object[] args = new Object[1];
-    args[0] = new Integer(parm);
+    args[0] = Integer.valueOf(parm);
     try {
       Integer i = (Integer) method.invoke(o, args);
       return i.intValue();
@@ -982,7 +982,7 @@ public class ReflectionUtil {
     method = thisClass.getMethod(methodName, argTypes);
     method.setAccessible(true); // allow toolbox proxy methods to be invoked
     Object[] args = new Object[1];
-    args[0] = new Integer(i);
+    args[0] = Integer.valueOf(i);
     try {
       Boolean b = (Boolean) method.invoke(o, args);
       return b.booleanValue();
@@ -1197,7 +1197,7 @@ public class ReflectionUtil {
     method = thisClass.getMethod(methodName, argTypes);
     method.setAccessible(true); // allow toolbox proxy methods to be invoked
     Object[] args = new Object[1];
-    args[0] = new Integer(parm1);
+    args[0] = Integer.valueOf(parm1);
     try {
       method.invoke(o, args);
     } catch (java.lang.reflect.InvocationTargetException ite) {
@@ -1232,7 +1232,7 @@ public class ReflectionUtil {
     method = thisClass.getMethod(methodName, argTypes);
     method.setAccessible(true); // allow toolbox proxy methods to be invoked
     Object[] args = new Object[2];
-    args[0] = new Integer(parm1);
+    args[0] = Integer.valueOf(parm1);
     args[1] = parm2;
     try {
       method.invoke(o, args);
@@ -1301,7 +1301,7 @@ public class ReflectionUtil {
     method = thisClass.getMethod(methodName, argTypes);
     method.setAccessible(true); // allow toolbox proxy methods to be invoked
     Object[] args = new Object[1];
-    args[0] = new Boolean(parm1);
+    args[0] = Boolean.valueOf(parm1);
     try {
       method.invoke(o, args);
     } catch (java.lang.reflect.InvocationTargetException ite) {
@@ -1436,7 +1436,7 @@ public class ReflectionUtil {
       throw new Exception("Unable to find method:  tried " + tryArgs);
     }
     Object[] args = new Object[2];
-    args[0] = new Integer(i);
+    args[0] = Integer.valueOf(i);
     args[1] = parm2;
     try {
       method.invoke(o, args);
@@ -1530,7 +1530,7 @@ public class ReflectionUtil {
     }
     Object[] args = new Object[2];
     args[0] = parm1;
-    args[1] = new Integer(i);
+    args[1] = Integer.valueOf(i);
     try {
       method.invoke(o, args);
     } catch (java.lang.reflect.InvocationTargetException ite) {
@@ -1623,7 +1623,7 @@ public class ReflectionUtil {
     }
     Object[] args = new Object[2];
     args[0] = parm1;
-    args[1] = new Boolean(b);
+    args[1] = Boolean.valueOf(b);
     try {
       method.invoke(o, args);
     } catch (java.lang.reflect.InvocationTargetException ite) {
@@ -1926,7 +1926,7 @@ public class ReflectionUtil {
       throw new Exception("Unable to find method:  tried " + tryArgs);
     }
     Object[] args = new Object[2];
-    args[0] = new Long(l);
+    args[0] = Long.valueOf(l);
     args[1] = parm2;
     try {
       method.invoke(o, args);
@@ -1965,9 +1965,9 @@ public class ReflectionUtil {
     method = thisClass.getMethod(methodName, argTypes);
     method.setAccessible(true); // allow toolbox proxy methods to be invoked
     Object[] args = new Object[3];
-    args[0] = new Integer(parameterIndex);
+    args[0] = Integer.valueOf(parameterIndex);
     args[1] = inputStream;
-    args[2] = new Long(length);
+    args[2] = Long.valueOf(length);
     try {
       method.invoke(o, args);
     } catch (java.lang.reflect.InvocationTargetException ite) {
@@ -2009,7 +2009,7 @@ public class ReflectionUtil {
     Object[] args = new Object[3];
     args[0] = parameterName;
     args[1] = inputStream;
-    args[2] = new Long(length);
+    args[2] = Long.valueOf(length);
     try {
       method.invoke(o, args);
     } catch (java.lang.reflect.InvocationTargetException ite) {
@@ -2045,9 +2045,9 @@ public class ReflectionUtil {
     method = thisClass.getMethod(methodName, argTypes);
     method.setAccessible(true); // allow toolbox proxy methods to be invoked
     Object[] args = new Object[3];
-    args[0] = new Integer(parameterIndex);
+    args[0] = Integer.valueOf(parameterIndex);
     args[1] = reader;
-    args[2] = new Long(length);
+    args[2] = Long.valueOf(length);
     try {
       method.invoke(o, args);
     } catch (java.lang.reflect.InvocationTargetException ite) {
@@ -2085,7 +2085,7 @@ public class ReflectionUtil {
     Object[] args = new Object[3];
     args[0] = parameterName;
     args[1] = reader;
-    args[2] = new Long(length);
+    args[2] = Long.valueOf(length);
     try {
       method.invoke(o, args);
     } catch (java.lang.reflect.InvocationTargetException ite) {

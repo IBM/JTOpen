@@ -162,7 +162,7 @@ class NPConversation extends Object
                         Integer intCPFMessageSeverity = cpCPFMessage.getIntValue(PrintObject.ATTR_MSGSEV);
                         String strCPFMessageType = cpCPFMessage.getStringValue(PrintObject.ATTR_MSGTYPE);
                         byte[] substitutionData = new byte[cpCPFMessage.getLength()];
-                        Integer intCPFMessageType = new Integer(strCPFMessageType);
+                        Integer intCPFMessageType = Integer.valueOf(strCPFMessageType);
 
                         Trace.log(Trace.ERROR, "CPF Message("+strCPFMessageID+") = " +
                                   strCPFMessageText + ", HelpText= " + strCPFMessageHelp);

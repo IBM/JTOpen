@@ -814,16 +814,16 @@ until a <i>load()</i> is done.
 public void setKeyed (boolean keyed)
     throws PropertyVetoException
 {
-    Boolean old = new Boolean(getKeyed());
+    Boolean old = Boolean.valueOf(getKeyed());
 
     // Fire a vetoable change event.
-    vetoListeners_.fireVetoableChange("keyed", old, new Boolean(keyed));
+    vetoListeners_.fireVetoableChange("keyed", old, Boolean.valueOf(keyed));
 
     // Make property change.
     tableData_.setKeyed(keyed);
 
     // Fire the property change event.
-    changeListeners_.firePropertyChange("keyed", old, new Boolean(keyed));
+    changeListeners_.firePropertyChange("keyed", old, Boolean.valueOf(keyed));
 }
 
 
@@ -846,14 +846,14 @@ public void setSearchType (int searchType)
 
     // Fire a vetoable change event.
     vetoListeners_.fireVetoableChange("searchType",
-        new Integer(old), new Integer(searchType));
+        Integer.valueOf(old), Integer.valueOf(searchType));
 
     // Make property change.
     tableData_.setSearchType(searchType);
 
     // Fire the property change event.
     changeListeners_.firePropertyChange("searchType",
-        new Integer(old), new Integer(searchType));
+        Integer.valueOf(old), Integer.valueOf(searchType));
 }
 
 

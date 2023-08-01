@@ -141,7 +141,7 @@ Applies any changes made by the user.
                         Object value = changes_.get(attributeID);
                         if ((resource_.getAttributeMetaData(attributeID).getType() == Integer.class)    // @A1A
                             && (value  instanceof String))                                              // @A1A
-                            value = new Integer((String)value);                                         // @A1A
+                            value = Integer.valueOf((String)value);                                     // @A1A
                         ((ChangeableResource)resource_).setAttributeValue(attributeID, value);
                     }
                     ((ChangeableResource)resource_).commitAttributeChanges();
@@ -400,7 +400,7 @@ in the properties pane.  It enables the Apply button and records any changes.
 
         public void actionPerformed(ActionEvent event)
         {
-            registerChange(new Boolean(((JCheckBox)event.getSource()).isSelected()));
+            registerChange(Boolean.valueOf(((JCheckBox)event.getSource()).isSelected()));
         }
 
         public void itemStateChanged(ItemEvent event)

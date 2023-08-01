@@ -585,14 +585,14 @@ implements DatabaseMetaData
                         JDServerRow row =  new JDServerRow (connection_, id_, dataFormat, settings_);
                         JDRowCache serverRowCache = new JDSimpleRowCache(new JDServerRowCache(row, connection_, id_, 1, resultData, true, ResultSet.TYPE_SCROLL_INSENSITIVE));
                         JDFieldMap[] maps = new JDFieldMap[8];
-                        maps[0] = new JDHardcodedFieldMap(new Short ((short) scope)); // scope
+                        maps[0] = new JDHardcodedFieldMap(Short.valueOf((short) scope)); // scope
                         maps[1] = new JDSimpleFieldMap (1); // column name
                         maps[2] = new JDDataTypeFieldMap (2, 4, 3, 5, 0, connection_.getVRM(), connection_.getProperties());   // @M0C // data type - converted to short   //@KKB pass 0 for ccsid since cannot get ccsid from host server
                         maps[3] = new JDSimpleFieldMap (2);  // type name
                         maps[4] = new JDSimpleFieldMap (4); // column size (length)
-                        maps[5] = new JDHardcodedFieldMap(new Integer (0)); // buffer length
+                        maps[5] = new JDHardcodedFieldMap(Integer.valueOf(0)); // buffer length
                         maps[6] = new JDSimpleFieldMap (5); // decimal digits (scale)
-                        maps[7] = new JDHardcodedFieldMap(new Short ((short) versionColumnNotPseudo));
+                        maps[7] = new JDHardcodedFieldMap(Short.valueOf((short) versionColumnNotPseudo));
                         JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
                         rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
                     }
@@ -1423,7 +1423,7 @@ implements DatabaseMetaData
                     maps[4] = new JDDataTypeFieldMap (6, 7, 10, 11, 12, connection_.getVRM(), connection_.getProperties());    // @M0C  // Data type    //@KKB include ccsid
                     maps[5] = new JDLocalNameFieldMap (6, 7, 10, 11, 12, connection_.getVRM(), connection_.getProperties());   // @M0C  // Type name    //@KKB include ccsid
                     maps[6] = new JDPrecisionFieldMap (6, 7, 10, 11, 12, connection_.getVRM(), connection_.getProperties());   // @M0C  // column size (length) //@KKB include ccsid
-                    maps[7] = new JDHardcodedFieldMap(new Integer(0)); // Buffer - not used
+                    maps[7] = new JDHardcodedFieldMap(Integer.valueOf(0)); // Buffer - not used
                     maps[8] = new JDScaleFieldMap (6, 7, 10, 11, 12, connection_.getVRM(), connection_.getProperties());       // @M0C  // decimal digits (scale)  //@KKB include ccsid
                     maps[9] = new JDSimpleFieldMap (9); // radix
                     maps[10] = new JDNullableIntegerFieldMap(8); // is null capable?
@@ -1440,10 +1440,10 @@ implements DatabaseMetaData
                         maps[12] = new JDSimpleFieldMap(14);
 
                     // Per JDBC api - not used - hardcode to 0
-                    maps[13] = new JDHardcodedFieldMap (new Integer (0)); // SQL data type
+                    maps[13] = new JDHardcodedFieldMap (Integer.valueOf(0)); // SQL data type
 
                     // Per JDBC api - not used - hardcode to 0
-                    maps[14] = new JDHardcodedFieldMap (new Integer (0)); // SQL datetime
+                    maps[14] = new JDHardcodedFieldMap (Integer.valueOf(0)); // SQL datetime
 
                     maps[15] = new JDCharOctetLengthFieldMap(6, 7, 10, 11, 12, connection_.getVRM(), connection_.getProperties()); // octet // @M0C   //@KKB include ccsid
 
@@ -1452,7 +1452,7 @@ implements DatabaseMetaData
                     if (connection_.getServerFunctionalLevel() >= 7)                    // @E3A
                         maps[16] = new JDSimpleFieldMap(13);                            // @E3A //@KKB changed from 12 since requesting ccsid
                     else                                                                // @E3A
-                        maps[16] = new JDHardcodedFieldMap(new Integer(-1));
+                        maps[16] = new JDHardcodedFieldMap(Integer.valueOf(-1));
 
                     maps[17] = new JDNullableStringFieldMap(8);  // is Nullable
 
@@ -1463,7 +1463,7 @@ implements DatabaseMetaData
                         maps[18] = new JDHardcodedFieldMap ("", true, false);  // scope catalog    //@G4A
                         maps[19] = new JDHardcodedFieldMap ("", true, false);  // scope schema     //@G4A
                         maps[20] = new JDHardcodedFieldMap ("", true, false);  // scope table      //@G4A
-                        maps[21] = new JDHardcodedFieldMap (new Short((short) 0)); // source data type //@G4A
+                        maps[21] = new JDHardcodedFieldMap (Short.valueOf((short) 0)); // source data type //@G4A
 /* ifdef JDBC40 */
                         maps[22] = new JDHardcodedFieldMap ("");  // is autoincrement "" till switch to sysibm //jdbc40
 /* endif */ 
@@ -1809,7 +1809,7 @@ implements DatabaseMetaData
                         maps[10] = new JDUpdateDeleteRuleFieldMap (9);  // delete rule
                         maps[11] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false);
                         maps[12] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false);
-                        maps[13] = new JDHardcodedFieldMap(new Short ((short) importedKeyNotDeferrable));
+                        maps[13] = new JDHardcodedFieldMap(Short.valueOf((short) importedKeyNotDeferrable));
 
                         // Create the mapped row cache that is returned in the
                         // result set
@@ -2313,7 +2313,7 @@ implements DatabaseMetaData
                             maps[11] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true, false);
                             maps[12] = new JDHardcodedFieldMap (new SQLVarchar(0, settings_), true, false);
                         }
-                        maps[13] = new JDHardcodedFieldMap (new Short ((short) importedKeyNotDeferrable));
+                        maps[13] = new JDHardcodedFieldMap (Short.valueOf((short) importedKeyNotDeferrable));
 
                         JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
                         rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
@@ -2592,7 +2592,7 @@ implements DatabaseMetaData
                             maps[11] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false);
                             maps[12] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false);
                         }
-                        maps[13] = new JDHardcodedFieldMap(new Short ((short) importedKeyNotDeferrable));
+                        maps[13] = new JDHardcodedFieldMap(Short.valueOf((short) importedKeyNotDeferrable));
 
                         JDMappedRow mappedRow = new JDMappedRow (formatRow, maps);
                         rowCache = new JDMappedRowCache (mappedRow, serverRowCache);
@@ -2870,15 +2870,15 @@ implements DatabaseMetaData
                         maps[3] = new JDNonUniqueFieldMap (3);  // non-unique
                         maps[4] = new JDSimpleFieldMap (4); // index library name
                         maps[5] = new JDSimpleFieldMap (5); // index name
-                        maps[6] = new JDHardcodedFieldMap(new Short ((short) tableIndexOther)); // type
+                        maps[6] = new JDHardcodedFieldMap(Short.valueOf((short) tableIndexOther)); // type
 
                         maps[7] = new JDSimpleFieldMap (7); // ordinal position
                         maps[8] = new JDSimpleFieldMap (6); // column name
                         maps[9] = new JDSimpleFieldMap (8); // sort sequence (collation)
                         // cardinality unknown
-                        maps[10] = new JDHardcodedFieldMap(new Integer(-1));
+                        maps[10] = new JDHardcodedFieldMap(Integer.valueOf(-1));
                         // number of pages unknown
-                        maps[11] = new JDHardcodedFieldMap(new Integer(-1));
+                        maps[11] = new JDHardcodedFieldMap(Integer.valueOf(-1));
                         maps[12] = new JDHardcodedFieldMap(new SQLVarchar(0, settings_), true, false);
 
                         // Create the mapped row cache that is returned in the
@@ -3713,11 +3713,11 @@ implements DatabaseMetaData
                 maps[5] = new JDDataTypeFieldMap(5, 7, 6, 8, 0, connection_.getVRM(), connection_.getProperties()); // @M0C // data type - converts from string to short //@KKB  pass 0 for ccsid
                 maps[6] = new JDSimpleFieldMap (5); // type name
 
-                maps[7] = new JDHandleNullFieldMap (6, new Integer (0));  // precision
-                maps[8] = new JDHandleNullFieldMap (7, new Integer (0));  // length
+                maps[7] = new JDHandleNullFieldMap (6, Integer.valueOf(0));  // precision
+                maps[8] = new JDHandleNullFieldMap (7, Integer.valueOf(0));  // length
 
-                maps[9] = new JDHandleNullFieldMap (8, new Short ((short) 0));  // scale
-                maps[10] = new JDHandleNullFieldMap (9, new Short ((short) 0)); // radix
+                maps[9] = new JDHandleNullFieldMap (8, Short.valueOf((short) 0));  // scale
+                maps[10] = new JDHandleNullFieldMap (9, Short.valueOf((short) 0)); // radix
 
                 maps[11] = new JDNullableSmallintFieldMap(10);  // nullable - is Nullable
                 maps[12] = new JDHandleNullFieldMap (11, "");  // remarks - long comment
@@ -3938,9 +3938,9 @@ implements DatabaseMetaData
                 maps[0] = new JDHardcodedFieldMap (connection_.getCatalog());
                 maps[1] = new JDSimpleFieldMap (1); // schema
                 maps[2] = new JDSimpleFieldMap (2); // procedure
-                maps[3] = new JDHardcodedFieldMap (new Integer (0));
-                maps[4] = new JDHardcodedFieldMap (new Integer (0));
-                maps[5] = new JDHardcodedFieldMap (new Integer (0));
+                maps[3] = new JDHardcodedFieldMap (Integer.valueOf(0));
+                maps[4] = new JDHardcodedFieldMap (Integer.valueOf(0));
+                maps[5] = new JDHardcodedFieldMap (Integer.valueOf(0));
                 maps[6] = new JDHandleNullFieldMap (3, ""); // remarks
                 maps[7] = new JDProcTypeFieldMap (4);
 /* ifdef JDBC40 */
@@ -5398,8 +5398,8 @@ implements DatabaseMetaData
 
             SQLData typeSample = (SQLData) typeSamples.elementAt(i);            // @D0C
             data[i][0] = typeSample.getTypeName ();                             // @D0C
-            data[i][1] = new Short ((short) typeSample.getType ());             // @D0C
-            data[i][2] = new Integer (typeSample.getMaximumPrecision());        // @D0C
+            data[i][1] = Short.valueOf((short) typeSample.getType ());             // @D0C
+            data[i][2] = Integer.valueOf(typeSample.getMaximumPrecision());        // @D0C
 
             String literalPrefix = typeSample.getLiteralPrefix ();              // @D0C
             if (literalPrefix == null)
@@ -5428,12 +5428,12 @@ implements DatabaseMetaData
             else
                 data[i][5] = createParameters;
 
-            data[i][6]  = new Short ((short) typeNullable);
-            data[i][7]  = new Boolean (typeSample.isText ());                   // @D0C
-            data[i][8]  = new Short ((short) typeSearchable);
-            data[i][9]  = new Boolean (! typeSample.isSigned ());               // @D0C
-            data[i][10] = new Boolean (false);
-            data[i][11] = new Boolean (false);
+            data[i][6]  = Short.valueOf((short) typeNullable);
+            data[i][7]  = Boolean.valueOf(typeSample.isText ());                   // @D0C
+            data[i][8]  = Short.valueOf((short) typeSearchable);
+            data[i][9]  = Boolean.valueOf(! typeSample.isSigned ());               // @D0C
+            data[i][10] = Boolean.FALSE;
+            data[i][11] = Boolean.FALSE;
 
             String localName = typeSample.getLocalName ();                      // @D0C
             if (localName == null)
@@ -5444,11 +5444,11 @@ implements DatabaseMetaData
             else
                 data[i][12] = localName;
 
-            data[i][13] = new Short ((short) typeSample.getMinimumScale ());    // @D0C
-            data[i][14] = new Short ((short) typeSample.getMaximumScale ());    // @D0C
-            data[i][15] = new Integer (0);
-            data[i][16] = new Integer (0);
-            data[i][17] = new Integer (typeSample.getRadix ());                 // @D0C
+            data[i][13] = Short.valueOf((short) typeSample.getMinimumScale ());    // @D0C
+            data[i][14] = Short.valueOf((short) typeSample.getMaximumScale ());    // @D0C
+            data[i][15] = Integer.valueOf(0);
+            data[i][16] = Integer.valueOf(0);
+            data[i][17] = Integer.valueOf(typeSample.getRadix ());                 // @D0C
         }
 
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data, nulls, dataMappingErrors);
@@ -5696,7 +5696,7 @@ implements DatabaseMetaData
                         new JDSimpleFieldMap (1),                                            // type schema
                         new JDSimpleFieldMap (2),                                            // type name
                         new JDClassNameFieldMap (3, settings_, connection_.getVRM(), connection_.getProperties()), // class name   // @B3C // @M0C
-                        new JDHardcodedFieldMap (new Integer (Types.DISTINCT)),              // data type
+                        new JDHardcodedFieldMap (Integer.valueOf(Types.DISTINCT)),              // data type
                         new JDHandleNullFieldMap (4, ""),                                    // remarks      // @B3C
                     };
                 }
@@ -5707,7 +5707,7 @@ implements DatabaseMetaData
                         new JDSimpleFieldMap (1),                                            // type schema
                         new JDSimpleFieldMap (2),                                            // type name
                         new JDClassNameFieldMap (3, settings_, connection_.getVRM(), connection_.getProperties()), // class name   // @B3C  // @M0C
-                        new JDHardcodedFieldMap (new Integer (Types.DISTINCT)),              // data type
+                        new JDHardcodedFieldMap (Integer.valueOf(Types.DISTINCT)),              // data type
                         new JDHandleNullFieldMap (4, ""),                                    // remarks      // @B3C
                         new JDSimpleFieldMap (5)                                             // base type    // @G4A
                     };
@@ -5963,14 +5963,14 @@ implements DatabaseMetaData
                         // This does not actual move the data, it just sets up
                         // the mapping.
                         JDFieldMap[] maps = new JDFieldMap[8];
-                        maps[0] = new JDHardcodedFieldMap (new Short ((short) 0)); // scope
+                        maps[0] = new JDHardcodedFieldMap (Short.valueOf((short) 0)); // scope
                         maps[1] = new JDSimpleFieldMap (1); // column name
                         maps[2] = new JDDataTypeFieldMap (2, 3, 3, 5, 0, connection_.getVRM(), connection_.getProperties()); // @M0C  // data type - converted to short   //@KKB added 0 for ccsid since not given to us by host server
                         maps[3] = new JDSimpleFieldMap (2);  // type name
                         maps[4] = new JDSimpleFieldMap (3); // column size (precision)
                         maps[5] = new JDSimpleFieldMap(4); // buffer length
                         maps[6] = new JDSimpleFieldMap (5); // decimal digits (scale)
-                        maps[7] = new JDHardcodedFieldMap (new Short ((short) versionColumnNotPseudo));
+                        maps[7] = new JDHardcodedFieldMap (Short.valueOf((short) versionColumnNotPseudo));
 
                         // Create the mapped row cache that is returned in the
                         // result set
@@ -7779,11 +7779,11 @@ implements DatabaseMetaData
         SQLData[] sqlData = { new SQLVarchar(32, settings_), new SQLInteger(vrm,settings_), new SQLVarchar(32, settings_), new SQLVarchar(1024, settings_) }; //trunc3
         int[] fieldNullables = {columnNoNulls, columnNoNulls, columnNoNulls, columnNoNulls}; // table types can not be null
 
-        Object[][] data =  { { "ApplicationName", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_APPLICATIONNAME",null) },
-                { "ClientUser", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTUSER",null)},
-                { "ClientHostname", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTHOSTNAME",null)},
-                { "ClientAccounting", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTACCOUNTING",null)},
-                { "ClientProgramID", new Integer(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTPROGRAMID",null)}};  //@pdc programID
+        Object[][] data =  { { "ApplicationName", Integer.valueOf(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_APPLICATIONNAME",null) },
+                { "ClientUser", Integer.valueOf(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTUSER",null)},
+                { "ClientHostname", Integer.valueOf(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTHOSTNAME",null)},
+                { "ClientAccounting", Integer.valueOf(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTACCOUNTING",null)},
+                { "ClientProgramID", Integer.valueOf(255), "", AS400JDBCDriver.getResource ("CLIENT_INFO_DESC_CLIENTPROGRAMID",null)}};  //@pdc programID
 
         JDSimpleRow formatRow = new JDSimpleRow (fieldNames, sqlData, fieldNullables);
         JDSimpleRowCache rowCache = new JDSimpleRowCache(formatRow, data);

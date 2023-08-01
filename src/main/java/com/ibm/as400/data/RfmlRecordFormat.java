@@ -247,10 +247,10 @@ class RfmlRecordFormat extends PcmlDocNode
               if (initValue != null)
               {
                 if (fieldLength == 4) {
-                  ((FloatFieldDescription)fieldDesc).setDFT(new Float(initValue));
+                  ((FloatFieldDescription)fieldDesc).setDFT(Float.valueOf(initValue));
                 }
                 else { // length==8
-                  ((FloatFieldDescription)fieldDesc).setDFT(new Double(initValue));
+                  ((FloatFieldDescription)fieldDesc).setDFT(Double.valueOf(initValue));
                 }
               }
               ((FloatFieldDescription)fieldDesc).setLength(fieldLength);
@@ -381,7 +381,7 @@ class RfmlRecordFormat extends PcmlDocNode
           // If this field is a "key field", add its relative field index to keyFields list.
           if (dNode.isKeyField()) {
             int fieldIndex = fieldDescriptions.size() - 1; // most-recently-added field
-            keyFields.addElement(new Integer(fieldIndex));
+            keyFields.addElement(Integer.valueOf(fieldIndex));
           }
 
         }
@@ -545,7 +545,7 @@ class RfmlRecordFormat extends PcmlDocNode
             }
           }
           else {
-            throw new XmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , child.getNameForException()} );
+            throw new XmlException(DAMRI.BAD_NODE_TYPE, new Object[] {Integer.valueOf(child.getNodeType()) , child.getNameForException()} );
           }
         }
         return offsetIntoBuffer;  // total number of bytes consumed
@@ -625,7 +625,7 @@ class RfmlRecordFormat extends PcmlDocNode
             }
             break;
           default:
-            throw new XmlException(DAMRI.BAD_NODE_TYPE, new Object[] {new Integer(child.getNodeType()) , child.getNameForException()} );
+            throw new XmlException(DAMRI.BAD_NODE_TYPE, new Object[] {Integer.valueOf(child.getNodeType()) , child.getNameForException()} );
         }
       }
 

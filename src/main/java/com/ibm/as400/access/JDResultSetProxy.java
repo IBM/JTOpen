@@ -128,7 +128,7 @@ implements ResultSet
       return (JDInputStreamProxy) connection_.callFactoryMethod (
                                           pxId_, methodName,
                                           new Class[] { Integer.TYPE },
-                                          new Object[] { new Integer (argValue) },
+                                          new Object[] { Integer.valueOf(argValue) },
                                           newStream);
     }
     catch (InvocationTargetException e) {
@@ -296,7 +296,7 @@ implements ResultSet
     {
       callMethod ("setFetchDirection",
                   new Class[] { Integer.TYPE },
-                  new Object[] { new Integer (fetchDirection) });
+                  new Object[] { Integer.valueOf(fetchDirection) });
     }
 
 
@@ -307,7 +307,7 @@ implements ResultSet
     {
       callMethod ("setFetchSize",
                   new Class[] { Integer.TYPE },
-                  new Object[] { new Integer (fetchSize) });
+                  new Object[] { Integer.valueOf(fetchSize) });
     }
 
 
@@ -340,7 +340,7 @@ implements ResultSet
     {
       return callMethodRtnRaw ("absolute",
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (rowNumber) })
+                               new Object[] { Integer.valueOf(rowNumber) })
                  .getReturnValueBoolean();
     }
 
@@ -476,7 +476,7 @@ implements ResultSet
     {
       return callMethodRtnRaw ("relative",
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (rowNumber) })
+                               new Object[] { Integer.valueOf(rowNumber) })
                  .getReturnValueBoolean();
     }
 
@@ -496,7 +496,7 @@ implements ResultSet
     {
       return (Array) callMethodRtnObj ("getArray",
                   new Class[] { Integer.TYPE },
-                  new Object[] { new Integer (columnIndex) });
+                  new Object[] { Integer.valueOf(columnIndex) });
     }
 
 
@@ -532,7 +532,7 @@ implements ResultSet
     {
       return (BigDecimal) callMethodRtnObj ("getBigDecimal",
                   new Class[] { Integer.TYPE },
-                  new Object[] { new Integer (columnIndex) });
+                  new Object[] { Integer.valueOf(columnIndex) });
     }
 
 
@@ -556,8 +556,8 @@ implements ResultSet
     {
       return (BigDecimal) callMethodRtnObj ("getBigDecimal",
                   new Class[] { Integer.TYPE, Integer.TYPE },
-                  new Object[] { new Integer (columnIndex),
-                                 new Integer (scale) });
+                  new Object[] { Integer.valueOf(columnIndex),
+                                 Integer.valueOf(scale) });
     }
 
 
@@ -600,7 +600,7 @@ implements ResultSet
         return (JDBlobProxy) connection_.callFactoryMethod (pxId_,
                              "getBlob",
                              new Class[] { Integer.TYPE },
-                             new Object[] { new Integer(columnIndex) },
+                             new Object[] { Integer.valueOf(columnIndex) },
                              newBlob);
       }
       catch (InvocationTargetException e) {
@@ -624,7 +624,7 @@ implements ResultSet
     {
       return callMethodRtnRaw ("getBoolean",
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (columnIndex) })
+                               new Object[] { Integer.valueOf(columnIndex) })
                  .getReturnValueBoolean();
     }
 
@@ -643,7 +643,7 @@ implements ResultSet
     {
       return callMethodRtnRaw ("getByte",
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (columnIndex) })
+                               new Object[] { Integer.valueOf(columnIndex) })
                  .getReturnValueByte();
     }
 
@@ -662,7 +662,7 @@ implements ResultSet
     {
       return (byte[]) callMethodRtnObj ("getBytes",
                   new Class[] { Integer.TYPE },
-                  new Object[] { new Integer (columnIndex) });
+                  new Object[] { Integer.valueOf(columnIndex) });
     }
 
 
@@ -684,7 +684,7 @@ implements ResultSet
         return (JDReaderProxy) connection_.callFactoryMethod (
                                      pxId_, "getCharacterStream",
                                      new Class[] { Integer.TYPE },
-                                     new Object[] { new Integer (columnIndex) },
+                                     new Object[] { Integer.valueOf(columnIndex) },
                                      newReader);
       }
       catch (InvocationTargetException e) {
@@ -712,7 +712,7 @@ implements ResultSet
         return (JDClobProxy) connection_.callFactoryMethod (pxId_,
                              "getClob",
                              new Class[] { Integer.TYPE },
-                             new Object[] { new Integer(columnIndex) },
+                             new Object[] { Integer.valueOf(columnIndex) },
                              newClob);
       }
       catch (InvocationTargetException e) {
@@ -736,7 +736,7 @@ implements ResultSet
     {
         return (Date) callMethodRtnObj ("getDate",
                                         new Class[] { Integer.TYPE },
-                                        new Object[] { new Integer (columnIndex) });
+                                        new Object[] { Integer.valueOf(columnIndex) });
     }
 
 
@@ -757,7 +757,7 @@ implements ResultSet
     {
       return (Date) callMethodRtnObj ("getDate",
                   new Class[] { Integer.TYPE, Calendar.class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  calendar });
     }
 
@@ -777,7 +777,7 @@ implements ResultSet
     {
       return callMethodRtnRaw ("getDouble",
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (columnIndex) })
+                               new Object[] { Integer.valueOf(columnIndex) })
                  .getReturnValueDouble();
     }
 
@@ -796,7 +796,7 @@ implements ResultSet
     {
       return callMethodRtnRaw ("getFloat",
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (columnIndex) })
+                               new Object[] { Integer.valueOf(columnIndex) })
                  .getReturnValueFloat();
     }
 
@@ -815,7 +815,7 @@ implements ResultSet
     {
       return callMethodRtnRaw ("getInt",
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (columnIndex) })
+                               new Object[] { Integer.valueOf(columnIndex) })
                  .getReturnValueInt();
     }
 
@@ -834,7 +834,7 @@ implements ResultSet
     {
       return callMethodRtnRaw ("getLong",
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (columnIndex) })
+                               new Object[] { Integer.valueOf(columnIndex) })
                  .getReturnValueLong();
     }
 
@@ -879,11 +879,11 @@ implements ResultSet
         else
           return callMethodRtnObj ("getObject",
                                    new Class[] { Integer.TYPE },
-                                   new Object[] { new Integer (columnIndex) });
+                                   new Object[] { Integer.valueOf(columnIndex) });
 
         return connection_.callFactoryMethod (pxId_, "getObject",
                                    new Class[] { Integer.TYPE },
-                                   new Object[] { new Integer (columnIndex) },
+                                   new Object[] { Integer.valueOf(columnIndex) },
                                    proxyObject);
       }
       catch (InvocationTargetException e) {
@@ -918,12 +918,12 @@ implements ResultSet
         else
           return callMethodRtnObj ("getObject",
                                    new Class[] { Integer.TYPE, Map.class },
-                                   new Object[] { new Integer (columnIndex),
+                                   new Object[] { Integer.valueOf(columnIndex),
                                                   typeMap });
 
         return connection_.callFactoryMethod (pxId_, "getObject",
                                    new Class[] { Integer.TYPE, Map.class },
-                                   new Object[] { new Integer (columnIndex),
+                                   new Object[] { Integer.valueOf(columnIndex),
                                                   typeMap },
                                    proxyObject);
       }
@@ -949,7 +949,7 @@ implements ResultSet
     {
       return (Ref) callMethodRtnObj ("getRef",
                   new Class[] { Integer.TYPE},
-                  new Object[] { new Integer (columnIndex) });
+                  new Object[] { Integer.valueOf(columnIndex) });
     }
 
 
@@ -968,7 +968,7 @@ implements ResultSet
     {
       return callMethodRtnRaw ("getShort",
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (columnIndex) })
+                               new Object[] { Integer.valueOf(columnIndex) })
                  .getReturnValueShort();
     }
 
@@ -987,7 +987,7 @@ implements ResultSet
     {
       return (String) callMethodRtnObj ("getString",
                   new Class[] { Integer.TYPE},
-                  new Object[] { new Integer (columnIndex) });
+                  new Object[] { Integer.valueOf(columnIndex) });
     }
 
 
@@ -1005,7 +1005,7 @@ implements ResultSet
     {
         return (Time) callMethodRtnObj ("getTime",
                                         new Class[] { Integer.TYPE },
-                                        new Object[] { new Integer (columnIndex) });
+                                        new Object[] { Integer.valueOf(columnIndex) });
     }
 
 
@@ -1024,7 +1024,7 @@ implements ResultSet
     {
       return (Time) callMethodRtnObj ("getTime",
                   new Class[] { Integer.TYPE, Calendar.class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  calendar });
     }
 
@@ -1044,7 +1044,7 @@ implements ResultSet
     {
         return (Timestamp) callMethodRtnObj ("getTimestamp",
                                              new Class[] { Integer.TYPE },
-                                             new Object[] { new Integer (columnIndex) });
+                                             new Object[] { Integer.valueOf(columnIndex) });
     }
 
 
@@ -1063,7 +1063,7 @@ implements ResultSet
     {
       return (Timestamp) callMethodRtnObj ("getTimestamp",
                   new Class[] { Integer.TYPE, Calendar.class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  calendar });
     }
 
@@ -1110,7 +1110,7 @@ implements ResultSet
     {
         return(URL) callMethodRtnObj ("getURL",
                                       new Class[] { Integer.TYPE},
-                                      new Object[] { new Integer(columnIndex)});
+                                      new Object[] { Integer.valueOf(columnIndex)});
     }
 
 
@@ -1209,7 +1209,7 @@ implements ResultSet
 
       callMethod ("updateArray",
                   new Class[] { Integer.TYPE, Array.class },
-                  new Object[] { new Integer(columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  columnValue });
     }
 
@@ -1261,9 +1261,9 @@ implements ResultSet
       callMethod ("updateAsciiStream",
                   new Class[] { Integer.TYPE, InputStream.class,
                                 Integer.TYPE },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  iStream,
-                                 new Integer (length) });
+                                 Integer.valueOf(length) });
     }
 
 
@@ -1285,7 +1285,7 @@ implements ResultSet
     {
       callMethod ("updateBigDecimal",
                   new Class[] { Integer.TYPE, BigDecimal.class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  columnValue });
     }
 
@@ -1325,9 +1325,9 @@ implements ResultSet
       callMethod ("updateBinaryStream",
                   new Class[] { Integer.TYPE, InputStream.class,
                                 Integer.TYPE },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  iStream,
-                                 new Integer (length) });
+                                 Integer.valueOf(length) });
     }
 
 
@@ -1349,7 +1349,7 @@ implements ResultSet
     {
       callMethod ("updateBlob",
                   new Class[] { Integer.TYPE, Blob.class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  columnValue });
     }
 
@@ -1373,8 +1373,8 @@ implements ResultSet
     {
       callMethod ("updateBoolean",
                   new Class[] { Integer.TYPE, Boolean.TYPE },
-                  new Object[] { new Integer (columnIndex),
-                                 new Boolean (columnValue) });
+                  new Object[] { Integer.valueOf(columnIndex),
+                                 Boolean.valueOf(columnValue) });
     }
 
 
@@ -1394,8 +1394,8 @@ implements ResultSet
     {
       callMethod ("updateByte",
                   new Class[] { Integer.TYPE, Byte.TYPE },
-                  new Object[] { new Integer (columnIndex),
-                                 new Byte (columnValue) });
+                  new Object[] { Integer.valueOf(columnIndex),
+                                 Byte.valueOf(columnValue) });
     }
 
 
@@ -1415,7 +1415,7 @@ implements ResultSet
     {
       callMethod ("updateBytes",
                   new Class[] { Integer.TYPE, byte[].class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  columnValue });
     }
 
@@ -1444,8 +1444,8 @@ implements ResultSet
           reader = new SerializableReader (columnValue, Math.max(0,length));
         callMethod ("updateCharacterStream",
                     new Class[] { Integer.TYPE, Reader.class, Integer.TYPE },
-                    new Object[] { new Integer (columnIndex),
-                                   reader, new Integer (length) });
+                    new Object[] { Integer.valueOf(columnIndex),
+                                   reader, Integer.valueOf(length) });
       }
       catch (java.io.IOException e) {
         SQLException throwException = new SQLException(e.getMessage());
@@ -1475,7 +1475,7 @@ implements ResultSet
     {
       callMethod ("updateClob",
                   new Class[] { Integer.TYPE, Clob.class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  columnValue });
     }
 
@@ -1499,7 +1499,7 @@ implements ResultSet
     {
       callMethod ("updateDate",
                   new Class[] { Integer.TYPE, Date.class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  columnValue });
     }
 
@@ -1520,8 +1520,8 @@ implements ResultSet
     {
       callMethod ("updateDouble",
                   new Class[] { Integer.TYPE, Double.TYPE },
-                  new Object[] { new Integer (columnIndex),
-                                 new Double (columnValue) });
+                  new Object[] { Integer.valueOf(columnIndex),
+                                 Double.valueOf(columnValue) });
     }
 
 
@@ -1541,8 +1541,8 @@ implements ResultSet
     {
       callMethod ("updateFloat",
                   new Class[] { Integer.TYPE, Float.TYPE },
-                  new Object[] { new Integer (columnIndex),
-                                 new Float (columnValue) });
+                  new Object[] { Integer.valueOf(columnIndex),
+                                 Float.valueOf(columnValue) });
     }
 
 
@@ -1562,8 +1562,8 @@ implements ResultSet
     {
       callMethod ("updateInt",
                   new Class[] { Integer.TYPE, Integer.TYPE },
-                  new Object[] { new Integer (columnIndex),
-                                 new Integer (columnValue) });
+                  new Object[] { Integer.valueOf(columnIndex),
+                                 Integer.valueOf(columnValue) });
     }
 
 
@@ -1583,8 +1583,8 @@ implements ResultSet
     {
       callMethod ("updateLong",
                   new Class[] { Integer.TYPE, Long.TYPE },
-                  new Object[] { new Integer (columnIndex),
-                                 new Long (columnValue) });
+                  new Object[] { Integer.valueOf(columnIndex),
+                                 Long.valueOf(columnValue) });
     }
 
 
@@ -1604,7 +1604,7 @@ implements ResultSet
     {
       callMethod ("updateNull",
                   new Class[] { Integer.TYPE },
-                  new Object[] { new Integer (columnIndex) });
+                  new Object[] { Integer.valueOf(columnIndex) });
     }
 
 
@@ -1631,7 +1631,7 @@ implements ResultSet
 
       callMethod ("updateObject",
                   new Class[] { Integer.TYPE, Object.class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  columnValue });
     }
 
@@ -1661,9 +1661,9 @@ implements ResultSet
 
       callMethod ("updateObject",
                   new Class[] { Integer.TYPE, Object.class, Integer.TYPE },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  columnValue,
-                                 new Integer (scale) });
+                                 Integer.valueOf(scale) });
     }
 
 
@@ -1692,7 +1692,7 @@ implements ResultSet
 
       callMethod ("updateRef",
                   new Class[] { Integer.TYPE, Ref.class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  columnValue });
     }
 
@@ -1732,8 +1732,8 @@ implements ResultSet
     {
       callMethod ("updateShort",
                   new Class[] { Integer.TYPE, Short.TYPE },
-                  new Object[] { new Integer (columnIndex),
-                                 new Short (columnValue) });
+                  new Object[] { Integer.valueOf(columnIndex),
+                                 Short.valueOf(columnValue) });
     }
 
 
@@ -1753,7 +1753,7 @@ implements ResultSet
     {
       callMethod ("updateString",
                   new Class[] { Integer.TYPE, String.class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  columnValue });
     }
 
@@ -1774,7 +1774,7 @@ implements ResultSet
     {
       callMethod ("updateTime",
                   new Class[] { Integer.TYPE, Time.class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  columnValue });
     }
 
@@ -1795,7 +1795,7 @@ implements ResultSet
     {
       callMethod ("updateTimestamp",
                   new Class[] { Integer.TYPE, Timestamp.class },
-                  new Object[] { new Integer (columnIndex),
+                  new Object[] { Integer.valueOf(columnIndex),
                                  columnValue });
     }
 
@@ -1824,7 +1824,7 @@ implements ResultSet
             return (JDReaderProxy) connection_.callFactoryMethod (
                     pxId_, "getNCharacterStream",
                     new Class[] { Integer.TYPE },
-                    new Object[] { new Integer (columnIndex) },
+                    new Object[] { Integer.valueOf(columnIndex) },
                     newReader);
         }
         catch (InvocationTargetException e) {
@@ -1875,7 +1875,7 @@ implements ResultSet
             return (JDNClobProxy) connection_.callFactoryMethod (pxId_,
                     "getNClob",
                     new Class[] { Integer.TYPE },
-                    new Object[] { new Integer(columnIndex) },
+                    new Object[] { Integer.valueOf(columnIndex) },
                     newClob);
         }
         catch (InvocationTargetException e) {
@@ -1924,7 +1924,7 @@ implements ResultSet
     {
         return (String) callMethodRtnObj ("getNString",
                 new Class[] { Integer.TYPE},
-                new Object[] { new Integer (columnIndex) });
+                new Object[] { Integer.valueOf(columnIndex) });
     }
     
     
@@ -1957,7 +1957,7 @@ implements ResultSet
             return (JDRowIdProxy) connection_.callFactoryMethod (pxId_,
                     "getRowId",
                     new Class[] { Integer.TYPE },
-                    new Object[] { new Integer(columnIndex) },
+                    new Object[] { Integer.valueOf(columnIndex) },
                     newClob);
         }
         catch (InvocationTargetException e) {
@@ -1980,7 +1980,7 @@ implements ResultSet
             return (JDSQLXMLProxy) connection_.callFactoryMethod (pxId_,
                     "getSQLXML",
                     new Class[] { Integer.TYPE },
-                    new Object[] { new Integer(columnIndex) },
+                    new Object[] { Integer.valueOf(columnIndex) },
                     newXML);
         }
         catch (InvocationTargetException e) {
@@ -2006,8 +2006,8 @@ implements ResultSet
                 reader = new SerializableReader (x, Math.max(0,(int)length));
             callMethod ("updateNCharacterStream",
                     new Class[] { Integer.TYPE, Reader.class, Long.TYPE },
-                    new Object[] { new Integer (columnIndex),
-                    reader, new Long (length) });
+                    new Object[] { Integer.valueOf(columnIndex),
+                    reader, Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -2031,7 +2031,7 @@ implements ResultSet
     {
         callMethod ("updateNClob",
                 new Class[] { Integer.TYPE, NClob.class },
-                new Object[] { new Integer (columnIndex), nClob });
+                new Object[] { Integer.valueOf(columnIndex), nClob });
     }
     
     //@PDA jdbc40
@@ -2047,7 +2047,7 @@ implements ResultSet
     {
         callMethod ("updateNString",
                 new Class[] { Integer.TYPE, String.class },
-                new Object[] { new Integer (columnIndex),
+                new Object[] { Integer.valueOf(columnIndex),
                 nString });
     }
     
@@ -2063,7 +2063,7 @@ implements ResultSet
     {
         callMethod ("updateRowId",
                 new Class[] { Integer.TYPE, RowId.class },
-                new Object[] { new Integer (columnIndex),
+                new Object[] { Integer.valueOf(columnIndex),
                 x });
     }
     
@@ -2079,7 +2079,7 @@ implements ResultSet
     {
         callMethod ("updateSQLXML",
                 new Class[] { Integer.TYPE, SQLXML.class },
-                new Object[] { new Integer (columnIndex),
+                new Object[] { Integer.valueOf(columnIndex),
                 xmlObject });
     }
     
@@ -2118,9 +2118,9 @@ implements ResultSet
         callMethod ("updateAsciiStream",
                 new Class[] { Integer.TYPE, InputStream.class,
                 Long.TYPE },
-                new Object[] { new Integer (columnIndex),
+                new Object[] { Integer.valueOf(columnIndex),
                 iStream,
-                new Long (length) });        
+                Long.valueOf(length) });        
     }
     
     
@@ -2152,9 +2152,9 @@ implements ResultSet
         callMethod ("updateBinaryStream",
                 new Class[] { Integer.TYPE, InputStream.class,
                 Long.TYPE },
-                new Object[] { new Integer (columnIndex),
+                new Object[] { Integer.valueOf(columnIndex),
                 iStream,
-                new Long (length) });
+                Long.valueOf(length) });
     }
     
     //@PDA jdbc40
@@ -2184,9 +2184,9 @@ implements ResultSet
         callMethod ("updateBlob",
                 new Class[] { Integer.TYPE, InputStream.class,
                 Long.TYPE },
-                new Object[] { new Integer (columnIndex),
+                new Object[] { Integer.valueOf(columnIndex),
                 iStream,
-                new Long (length) });
+                Long.valueOf(length) });
     }
     
     //@PDA jdbc40
@@ -2206,8 +2206,8 @@ implements ResultSet
                 reader = new SerializableReader (x, Math.max(0,(int)length));
             callMethod ("updateCharacterStream",
                     new Class[] { Integer.TYPE, Reader.class, Long.TYPE },
-                    new Object[] { new Integer (columnIndex),
-                    reader, new Long (length) });
+                    new Object[] { Integer.valueOf(columnIndex),
+                    reader, Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -2235,8 +2235,8 @@ implements ResultSet
                 sReader = new SerializableReader (reader, Math.max(0,(int)length));
             callMethod ("updateClob",
                     new Class[] { Integer.TYPE, Reader.class, Long.TYPE },
-                    new Object[] { new Integer (columnIndex),
-                    sReader, new Long (length) });
+                    new Object[] { Integer.valueOf(columnIndex),
+                    sReader, Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -2266,8 +2266,8 @@ implements ResultSet
                 sReader = new SerializableReader (reader, Math.max(0,(int)length));
             callMethod ("updateNClob",
                     new Class[] { Integer.TYPE, Reader.class, Long.TYPE },
-                    new Object[] { new Integer (columnIndex),
-                    sReader, new Long (length) });
+                    new Object[] { Integer.valueOf(columnIndex),
+                    sReader, Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -2312,7 +2312,7 @@ implements ResultSet
         }
         callMethod ("updateAsciiStream",
                 new Class[] { Integer.TYPE, InputStream.class },
-                new Object[] { new Integer (columnIndex),
+                new Object[] { Integer.valueOf(columnIndex),
                 iStream });
     }
 
@@ -2344,7 +2344,7 @@ implements ResultSet
         }
         callMethod ("updateBinaryStream",
                 new Class[] { Integer.TYPE, InputStream.class },
-                new Object[] { new Integer (columnIndex),
+                new Object[] { Integer.valueOf(columnIndex),
                 iStream });
     }
 
@@ -2377,7 +2377,7 @@ implements ResultSet
         }
         callMethod ("updateBlob",
                 new Class[] { Integer.TYPE, InputStream.class },
-                new Object[] { new Integer (columnIndex),
+                new Object[] { Integer.valueOf(columnIndex),
                 iStream });
     }
 
@@ -2400,7 +2400,7 @@ implements ResultSet
                 sReader = new SerializableReader (x);
             callMethod ("updateCharacterStream",
                     new Class[] { Integer.TYPE, Reader.class },
-                    new Object[] { new Integer (columnIndex), sReader });
+                    new Object[] { Integer.valueOf(columnIndex), sReader });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -2430,7 +2430,7 @@ implements ResultSet
                 sReader = new SerializableReader (reader);
             callMethod ("updateClob",
                     new Class[] { Integer.TYPE, Reader.class },
-                    new Object[] { new Integer (columnIndex), sReader });
+                    new Object[] { Integer.valueOf(columnIndex), sReader });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -2459,7 +2459,7 @@ implements ResultSet
                 sReader = new SerializableReader (x);
             callMethod ("updateNCharacterStream",
                     new Class[] { Integer.TYPE, Reader.class },
-                    new Object[] { new Integer (columnIndex), sReader });
+                    new Object[] { Integer.valueOf(columnIndex), sReader });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -2488,7 +2488,7 @@ implements ResultSet
                 sReader = new SerializableReader (reader);
             callMethod ("updateNClob",
                     new Class[] { Integer.TYPE, Reader.class },
-                    new Object[] { new Integer (columnIndex), sReader });
+                    new Object[] { Integer.valueOf(columnIndex), sReader });
         }
         catch (java.io.IOException e) {
           SQLException throwException = new SQLException(e.getMessage());
@@ -2511,7 +2511,7 @@ implements ResultSet
     {
       callMethod ("updateDB2Default",
           new Class[] { Integer.TYPE },
-          new Object[] { new Integer (columnIndex) });
+          new Object[] { Integer.valueOf(columnIndex) });
  
     }
 

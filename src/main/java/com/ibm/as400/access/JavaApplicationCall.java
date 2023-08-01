@@ -978,9 +978,9 @@ public class JavaApplicationCall implements Serializable
         }                                                                   // @E1a
 
         commandString.append("PROP("
-                        +"(os400.stdin 'port:"+localAddress+":"+new Integer(getStandardInPort()).toString()+"') "
-                        +"(os400.stdout 'port:"+localAddress+":"+new Integer(getStandardOutPort()).toString()+"') "
-                        +"(os400.stderr 'port:"+localAddress+":"+new Integer(getStandardErrorPort()).toString()+"') ");
+                        +"(os400.stdin 'port:"+localAddress+":"+Integer.toString(getStandardInPort())+"') "
+                        +"(os400.stdout 'port:"+localAddress+":"+Integer.toString(getStandardOutPort())+"') "
+                        +"(os400.stderr 'port:"+localAddress+":"+Integer.toString(getStandardErrorPort())+"') ");
         commandString.append("(os400.stdio.convert N)");
 
         if (getProperties() != null)
@@ -1152,10 +1152,10 @@ public class JavaApplicationCall implements Serializable
     {
         if (port > 0)
         {
-            Integer old = new Integer(this.defaultPort_);
-            vetoableChange_.fireVetoableChange("defaultPort", old, new Integer(port));
+            Integer old = Integer.valueOf(this.defaultPort_);
+            vetoableChange_.fireVetoableChange("defaultPort", old, Integer.valueOf(port));
             this.defaultPort_ = port;
-            propertyChange_.firePropertyChange("defaultPort", old, new Integer(port));
+            propertyChange_.firePropertyChange("defaultPort", old, Integer.valueOf(port));
         }
         else
             throw new IllegalArgumentException("defaultPort");
@@ -1170,10 +1170,10 @@ public class JavaApplicationCall implements Serializable
     **/
     public void setFindPort(boolean search)  throws PropertyVetoException
     {
-        Boolean old = new Boolean(findPort_);
-        vetoableChange_.fireVetoableChange("findPort",old,new Boolean(search));
+        Boolean old = Boolean.valueOf(findPort_);
+        vetoableChange_.fireVetoableChange("findPort",old,Boolean.valueOf(search));
         findPort_ = search;
-        propertyChange_.firePropertyChange("findPort",old,new Boolean(search));
+        propertyChange_.firePropertyChange("findPort",old,Boolean.valueOf(search));
     }
 
     /**
@@ -1190,9 +1190,9 @@ public class JavaApplicationCall implements Serializable
         if ((frequency >= 0) && (frequency <= 100))
         {
             int old = this.garbageCollectionFrequency_;
-            vetoableChange_.fireVetoableChange("garbageCollectionFrequency",new Integer(old),new Integer(frequency));
+            vetoableChange_.fireVetoableChange("garbageCollectionFrequency",Integer.valueOf(old),Integer.valueOf(frequency));
             this.garbageCollectionFrequency_ = frequency;
-            propertyChange_.firePropertyChange("garbageCollectionFrequency",new Integer(old),new Integer(frequency));
+            propertyChange_.firePropertyChange("garbageCollectionFrequency",Integer.valueOf(old),Integer.valueOf(frequency));
         }
         else
             throw new IllegalArgumentException("garbageCollectionFrequency");
@@ -1241,9 +1241,9 @@ public class JavaApplicationCall implements Serializable
         }
 
         int old = this.garbageCollectionInitialSize_;
-        vetoableChange_.fireVetoableChange("garbageCollectionInitialSize",new Integer(old),new Integer(size));
+        vetoableChange_.fireVetoableChange("garbageCollectionInitialSize",Integer.valueOf(old),Integer.valueOf(size));
         this.garbageCollectionInitialSize_ = size;
-        propertyChange_.firePropertyChange("garbageCollectionInitialSize",new Integer(old),new Integer(size));
+        propertyChange_.firePropertyChange("garbageCollectionInitialSize",Integer.valueOf(old),Integer.valueOf(size));
       }
       else
         throw new IllegalArgumentException("garbageCollectionInitialSize");
@@ -1310,9 +1310,9 @@ public class JavaApplicationCall implements Serializable
         if (priority == 10 || priority == 20 || priority == 30)
         {
             int old = this.garbageCollectionPriority_;
-            vetoableChange_.fireVetoableChange("garbageCollectionPriority",new Integer(old),new Integer(priority));
+            vetoableChange_.fireVetoableChange("garbageCollectionPriority",Integer.valueOf(old),Integer.valueOf(priority));
             this.garbageCollectionPriority_ = priority;
-            propertyChange_.firePropertyChange("garbageCollectionPriority",new Integer(old),new Integer(priority));
+            propertyChange_.firePropertyChange("garbageCollectionPriority",Integer.valueOf(old),Integer.valueOf(priority));
         }
         else
             throw new IllegalArgumentException("garbageCollectionPriority");

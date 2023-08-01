@@ -199,7 +199,7 @@ public class Frame {
 				{
 					IFSRECN,
 					IFSRECTP,
-					new Integer(Integer.parseInt(IFSPDULN.toString()) - (lnHdr.getDataStart() / 8)),
+					Integer.valueOf(Integer.parseInt(IFSPDULN.toString()) - (lnHdr.getDataStart() / 8)),
 				// Calculate the data length
 				time };
 

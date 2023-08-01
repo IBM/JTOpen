@@ -340,8 +340,8 @@ public class SecureAS400 extends AS400
             throw new ExtendedIllegalStateException("proxyEncryptionMode", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
 
-        Integer oldValue = new Integer(useSSLConnection_.proxyEncryptionMode_);
-        Integer newValue = new Integer(proxyEncryptionMode);
+        Integer oldValue = Integer.valueOf(useSSLConnection_.proxyEncryptionMode_);
+        Integer newValue = Integer.valueOf(proxyEncryptionMode);
         if (vetoableChangeListeners_ != null)
         {
           vetoableChangeListeners_.fireVetoableChange("proxyEncryptionMode", oldValue, newValue);

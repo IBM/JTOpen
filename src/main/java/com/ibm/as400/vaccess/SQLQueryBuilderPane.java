@@ -865,10 +865,10 @@ This property is bound and constrained.
 public void setUserSelectTables (boolean flag)
     throws PropertyVetoException
 {
-    Boolean old = new Boolean(tablesUserDefined_);
+    Boolean old = Boolean.valueOf(tablesUserDefined_);
 
     // Fire a vetoable change event.
-    vetoListeners_.fireVetoableChange("userSelectTables", old, new Boolean(flag));
+    vetoListeners_.fireVetoableChange("userSelectTables", old, Boolean.valueOf(flag));
 
     // Make property change.
     tablesUserDefined_ = flag;
@@ -877,7 +877,7 @@ public void setUserSelectTables (boolean flag)
     tablePane_.setEnabled(flag);
 
     // Fire the property change event.
-    changeListeners_.firePropertyChange("userSelectTables", old, new Boolean(flag));
+    changeListeners_.firePropertyChange("userSelectTables", old, Boolean.valueOf(flag));
 }
 
 
@@ -899,7 +899,7 @@ public void setUserSelectTableSchemas (boolean flag)
 {
     // Fire a vetoable change event.
     vetoListeners_.fireVetoableChange("userSelectTableSchemas",
-           new Boolean(schemasUserDefined_), new Boolean(flag));
+           Boolean.valueOf(schemasUserDefined_), Boolean.valueOf(flag));
 
     // Make property change.
     boolean old = schemasUserDefined_;
@@ -913,7 +913,7 @@ public void setUserSelectTableSchemas (boolean flag)
 
     // Fire the property change event.
     changeListeners_.firePropertyChange("userSelectTableSchemas",
-           new Boolean(old), new Boolean(flag));
+           Boolean.valueOf(old), Boolean.valueOf(flag));
 }
 
 

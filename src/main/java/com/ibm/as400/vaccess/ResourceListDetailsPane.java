@@ -604,7 +604,7 @@ Sets whether pop-up menus are enabled.
 **/
     public void setAllowActions(boolean allowActions)
     {
-        Boolean oldValue = new Boolean(allowActions_);
+        Boolean oldValue = Boolean.valueOf(allowActions_);
 
         allowActions_ = allowActions;
         if (allowActions_) {
@@ -616,7 +616,7 @@ Sets whether pop-up menus are enabled.
             table_.removeMouseListener(popupMenuAdapter_);
         }
 
-        propertyChangeSupport_.firePropertyChange("allowActions", oldValue, new Boolean(allowActions));
+        propertyChangeSupport_.firePropertyChange("allowActions", oldValue, Boolean.valueOf(allowActions));
     }
 
 

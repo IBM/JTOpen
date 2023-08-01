@@ -364,11 +364,11 @@ public class SelectOption extends HTMLTagAttributes implements java.io.Serializa
 
         boolean old = selected_;
 
-        if (vetos_ != null) vetos_.fireVetoableChange("selected", new Boolean(old), new Boolean(selected) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("selected", Boolean.valueOf(old), Boolean.valueOf(selected) ); //@CRS
 
         selected_ = selected;
 
-        if (changes_ != null) changes_.firePropertyChange("selected", new Boolean(old), new Boolean(selected) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("selected", Boolean.valueOf(old), Boolean.valueOf(selected) ); //@CRS
     }
     
     /**

@@ -118,7 +118,7 @@ For String-valued attributes, if the current actual value of the corresponding p
 *   ns.setAttributeValue(NetServer.CCSID_PENDING, new Integer(13488));
 *
 *   // Set the (pending) "allow system name" value of the NetServer to true.
-*   ns.setAttributeValue(NetServer.ALLOW_SYSTEM_NAME_PENDING, new Boolean(true));
+*   ns.setAttributeValue(NetServer.ALLOW_SYSTEM_NAME_PENDING, Boolean.TRUE);
 *
 *   // Commit the attribute changes (send them to the system).
 *   ns.commitAttributeChanges();
@@ -174,7 +174,7 @@ extends ChangeableResource
   private static final String OLST0201_ = "qzlsolst_zlsl0201";
 
   private static BooleanValueMap BV_MAP_0_1_ = new BooleanValueMap("0", "1");
-  private static BooleanValueMap BV_MAP_0_1_INT_ = new BooleanValueMap(new Integer(0), new Integer(1));
+  private static BooleanValueMap BV_MAP_0_1_INT_ = new BooleanValueMap(Integer.valueOf(0), Integer.valueOf(1));
   private static BooleanValueMap BV_MAP_NO_YES_ = new BooleanValueMap("*NO", "*YES");
   private static BooleanValueMap BV_MAP_NO_ERR_YES_ = new BooleanValueMap(new String[] {"*NO", "*ERR"}, new String[] { "*YES" });
 

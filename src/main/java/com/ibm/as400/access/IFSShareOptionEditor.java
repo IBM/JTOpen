@@ -23,7 +23,7 @@ public class IFSShareOptionEditor extends java.beans.PropertyEditorSupport
 {
   private static final String copyright = "Copyright (C) 1997-2004 International Business Machines Corporation and others.";
 
-  private Integer value_ = new Integer(0);
+  private Integer value_ = Integer.valueOf(0);
   private static Hashtable javaInitializationString_ = new Hashtable();
   private static Hashtable optionAsText_ = new Hashtable();
   private static ResourceBundleLoader rbl_;
@@ -32,32 +32,32 @@ public class IFSShareOptionEditor extends java.beans.PropertyEditorSupport
 
   static
   {
-    javaInitializationString_.put(new Integer(IFSFileInputStream.SHARE_ALL),
+    javaInitializationString_.put(Integer.valueOf(IFSFileInputStream.SHARE_ALL),
                                  "IFSFileInputStream.SHARE_ALL");
-    javaInitializationString_.put(new Integer(IFSFileInputStream.SHARE_READERS),
+    javaInitializationString_.put(Integer.valueOf(IFSFileInputStream.SHARE_READERS),
                                  "IFSFileInputStream.SHARE_READERS");
-    javaInitializationString_.put(new Integer(IFSFileInputStream.SHARE_WRITERS),
+    javaInitializationString_.put(Integer.valueOf(IFSFileInputStream.SHARE_WRITERS),
                                  "IFSFileInputStream.SHARE_WRITERS");
-    javaInitializationString_.put(new Integer(IFSFileInputStream.SHARE_NONE),
+    javaInitializationString_.put(Integer.valueOf(IFSFileInputStream.SHARE_NONE),
                                  "IFSFileInputStream.SHARE_NONE");
 
-    optionAsText_.put(new Integer(IFSFileInputStream.SHARE_ALL),
+    optionAsText_.put(Integer.valueOf(IFSFileInputStream.SHARE_ALL),
                       rbl_.getText("EDIT_SHARE_ALL"));
-    optionAsText_.put(new Integer(IFSFileInputStream.SHARE_READERS),
+    optionAsText_.put(Integer.valueOf(IFSFileInputStream.SHARE_READERS),
                       rbl_.getText("EDIT_SHARE_READERS"));
-    optionAsText_.put(new Integer(IFSFileInputStream.SHARE_WRITERS),
+    optionAsText_.put(Integer.valueOf(IFSFileInputStream.SHARE_WRITERS),
                       rbl_.getText("EDIT_SHARE_WRITERS"));
-    optionAsText_.put(new Integer(IFSFileInputStream.SHARE_NONE),
+    optionAsText_.put(Integer.valueOf(IFSFileInputStream.SHARE_NONE),
                       rbl_.getText("EDIT_SHARE_NONE"));
 
     textAsOption_.put(rbl_.getText("EDIT_SHARE_ALL"),
-                      new Integer(IFSFileInputStream.SHARE_ALL));
+                      Integer.valueOf(IFSFileInputStream.SHARE_ALL));
     textAsOption_.put(rbl_.getText("EDIT_SHARE_READERS"),
-                      new Integer(IFSFileInputStream.SHARE_READERS));
+                      Integer.valueOf(IFSFileInputStream.SHARE_READERS));
     textAsOption_.put(rbl_.getText("EDIT_SHARE_WRITERS"),
-                      new Integer(IFSFileInputStream.SHARE_WRITERS));
+                      Integer.valueOf(IFSFileInputStream.SHARE_WRITERS));
     textAsOption_.put(rbl_.getText("EDIT_SHARE_NONE"),
-                      new Integer(IFSFileInputStream.SHARE_NONE));
+                      Integer.valueOf(IFSFileInputStream.SHARE_NONE));
 
     tags_[0] = rbl_.getText("EDIT_SHARE_ALL");
     tags_[1] = rbl_.getText("EDIT_SHARE_READERS");

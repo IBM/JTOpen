@@ -50,7 +50,7 @@ implements ParameterMetaData
     try {
       return connection_.callMethod (pxId_, methodName,
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (argValue) });
+                               new Object[] { Integer.valueOf(argValue) });
     }
     catch (InvocationTargetException e) {
       throw JDConnectionProxy.rethrow1 (e);
@@ -64,7 +64,7 @@ implements ParameterMetaData
     try {
       return (String) connection_.callMethod (pxId_, methodName,
                                new Class[] { Integer.TYPE },
-                               new Object[] { new Integer (argValue) })
+                               new Object[] { Integer.valueOf(argValue) })
                      .getReturnValue ();
     }
     catch (InvocationTargetException e) {

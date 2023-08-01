@@ -934,7 +934,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
    void setIsRenewable(boolean b)
    {
       validatePropertyChange("isRenewable");
-      renewable_ = new Boolean(b);
+      renewable_ = Boolean.valueOf(b);
    }
    /**
     * Indicates if the credential is sufficient by itself
@@ -957,7 +957,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
    void setIsStandalone(boolean b)
    {
       validatePropertyChange("isStandalone");
-      standalone_ = new Boolean(b);
+      standalone_ = Boolean.valueOf(b);
    }
    /**
     * Indicates if the credential will expire based on time.
@@ -979,7 +979,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
    void setIsTimed(boolean b)
    {
       validatePropertyChange("isTimed");
-      timed_ = new Boolean(b);
+      timed_ = Boolean.valueOf(b);
    }
    /**
     * Sets the principal associated with the credential.

@@ -121,11 +121,11 @@ public abstract class ToggleFormInput extends FormInput
         //@A1D
 
         boolean old = checked_;
-        if (vetos_ != null) vetos_.fireVetoableChange("checked", new Boolean(old), new Boolean(checked) ); //@CRS
+        if (vetos_ != null) vetos_.fireVetoableChange("checked", Boolean.valueOf(old), Boolean.valueOf(checked) ); //@CRS
 
         checked_ = checked;
 
-        if (changes_ != null) changes_.firePropertyChange("checked", new Boolean(old), new Boolean(checked) ); //@CRS
+        if (changes_ != null) changes_.firePropertyChange("checked", Boolean.valueOf(old), Boolean.valueOf(checked) ); //@CRS
     }
 
     /**

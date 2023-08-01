@@ -455,7 +455,7 @@ public class AS400ZonedDecimal implements AS400DataType
      **/
     public Object toObject(byte[] as400Value, int offset)
     {
-      if (useDouble_) return new Double(toDouble(as400Value, offset));
+      if (useDouble_) return Double.valueOf(toDouble(as400Value, offset));
 
      // Check offset to prevent bogus NumberFormatException message
      if (offset < 0)

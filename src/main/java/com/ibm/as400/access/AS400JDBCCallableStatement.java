@@ -4452,42 +4452,42 @@ implements CallableStatement
         if (b == 0 && wasNull()) { 
           return null;  
         } else { 
-          return new Byte(b);
+          return Byte.valueOf(b);
         }
       } else if (type == java.lang.Short.class){
         short s = getShort(parameterIndex); 
         if (s == 0 && wasNull()) { 
           return null;  
         } else { 
-          return new Short(s);
+          return Short.valueOf(s);
         }
       } else if (type == java.lang.Integer.class){
         int i = getInt(parameterIndex); 
         if (i == 0 && wasNull()) { 
           return null;  
         } else { 
-          return new Integer(i);
+          return Integer.valueOf(i);
         }
       } else if (type == java.lang.Long.class){
         long l = getLong(parameterIndex); 
         if (l == 0 && wasNull()) { 
           return null;  
         } else { 
-          return new Long(l);
+          return Long.valueOf(l);
         }
       } else if (type == java.lang.Float.class){
         float f = getFloat(parameterIndex);
         if (f == 0 && wasNull()) { 
           return null;  
         } else { 
-        return new Float(f);
+        return Float.valueOf(f);
         }
       } else if (type == java.lang.Double.class){
         double d = getDouble(parameterIndex); 
         if (d == 0 && wasNull()) { 
           return null;  
         } else { 
-          return new Double(d);
+          return Double.valueOf(d);
         }
       } else if (type == java.math.BigDecimal.class){
         return getBigDecimal(parameterIndex); 
@@ -4496,7 +4496,7 @@ implements CallableStatement
         if (b == false && wasNull()) { 
           return null;  
         } else { 
-          return new Boolean (b);
+          return Boolean.valueOf(b);
         }
         
       } else if (type == java.sql.Date.class){
