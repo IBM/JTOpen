@@ -3455,8 +3455,11 @@ public class AS400ImplRemote implements AS400Impl {
         
         if (Trace.traceOn_)
           Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
-
+        
         int rc = signonRep.getRC();
+        if(0x00 == this.additionalAuthenticationIndicator_ && null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length) {
+          Trace.log(Trace.INFORMATION, "An additional authentication factor was provided, but the server does not support this mechanism. The additional factor will be ignored.");
+        }
         if (rc != 0) {
           byte[] rcBytes = new byte[4];
           BinaryConverter.intToByteArray(rc, rcBytes, 0);
