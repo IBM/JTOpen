@@ -644,7 +644,9 @@ public class AS400 implements Serializable, AutoCloseable
     {
         this(systemName, userId, password);
         additionalAuthenticationFactor_ = additionalAuthenticationFactor;
-        validateSignon(userId, password, additionalAuthenticationFactor);
+        if (null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length ) {
+            validateSignon(userId, password, additionalAuthenticationFactor);
+        }
     }
 
     /**
