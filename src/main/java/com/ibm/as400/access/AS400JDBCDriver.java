@@ -261,7 +261,9 @@ endif */
     properties.put("user",  userid); 
     return connect(url, properties, password); 
   }
-	/**
+	
+ 
+  /**
   Connects to the database named by the specified URL.
   There are many optional properties that can be specified.
   Properties can be specified either as part of the URL or in
