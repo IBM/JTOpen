@@ -4,6 +4,8 @@ name: GitHub pages PR preview
 on:
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'docs/**'
 
 concurrency: preview-${{ github.ref }}
 
@@ -14,12 +16,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install and Build
-        run: |
-          npm install
-          npm run build
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Build with Jekyll
+        uses: actions/jekyll-build-pages@v1
+        with:
+          source: ./
+          destination: ./_site
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
 
       - name: Deploy preview
         uses: rossjrw/pr-preview-action@v1
         with:
-          source-dir: ./build/
+          source-dir: ./_site/
