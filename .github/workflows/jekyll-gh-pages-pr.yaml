@@ -4,8 +4,6 @@ name: GitHub pages PR preview
 on:
   pull_request:
     branches: [ "main" ]
-    paths:
-      - 'docs/**'
 
 concurrency: preview-${{ github.ref }}
 
