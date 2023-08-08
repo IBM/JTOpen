@@ -22,13 +22,16 @@ import java.beans.PropertyChangeListener;
 import java.beans.VetoableChangeSupport;
 import java.beans.VetoableChangeListener;
 import java.beans.PropertyVetoException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 
 /**
   * Abstract base class for the various types of network print object lists.
   *
   **/
-public abstract class PrintObjectList
+public abstract class PrintObjectList<T extends PrintObject>
 implements java.io.Serializable
 {
     static final long serialVersionUID = 4L;
@@ -46,8 +49,8 @@ implements java.io.Serializable
 
     // These instance variables are not persistent, but private.
     private transient boolean open_;
-    private transient Vector printObjectListListeners_;
-    private transient Vector theList_;
+    private transient Vector<PrintObjectListListener> printObjectListListeners_;
+    private transient Vector<T> theList_;
     
     // These instance variables are not persistent, but are package scope
     // to allow subclasses access to them... 
@@ -239,35 +242,34 @@ implements java.io.Serializable
             return;
         }
 
-        Vector l /* @A5D ;
-        synchronized(this) { l*/ = (Vector)printObjectListListeners_.clone(); //}
+        List<PrintObjectListListener> l = new ArrayList<>(printObjectListListeners_);
 
-        for( int i=0; i < l.size(); i++ )
+        for(PrintObjectListListener listener : l)
         {
             switch( event.getID() )
             {
                 // OBJECT_ADDED is the most frequent case.
                 case PrintObjectListEvent.OBJECT_ADDED:                
                     PrintObject printObject = event.getObject();
-                    if (useCache_) theList_.addElement(printObject);
+                    if (useCache_) theList_.addElement((T) printObject);
                     objectAddedEvent_ = true;
-                    ((PrintObjectListListener)l.elementAt(i)).listObjectAdded(event);
+                    listener.listObjectAdded(event);
                     break;
 
                 case PrintObjectListEvent.CLOSED:
-                    ((PrintObjectListListener)l.elementAt(i)).listClosed(event);
+                    listener.listClosed(event);
                     break;
 
                 case PrintObjectListEvent.COMPLETED:
-                    ((PrintObjectListListener)l.elementAt(i)).listCompleted(event);
+                    listener.listCompleted(event);
                     break;
 
                 case PrintObjectListEvent.ERROR_OCCURRED:
-                    ((PrintObjectListListener)l.elementAt(i)).listErrorOccurred(event);
+                    listener.listErrorOccurred(event);
                     break;
 
                 case PrintObjectListEvent.OPENED:
-                    ((PrintObjectListListener)l.elementAt(i)).listOpened(event);
+                    listener.listOpened(event);
                     break;
             }
         }
@@ -296,7 +298,7 @@ implements java.io.Serializable
       *
       * @exception ArrayIndexOutOfBoundsException If an invalid index is given.
       **/
-    public /* @A5D synchronized*/ PrintObject getObject(int index)
+    public /* @A5D synchronized*/ T getObject(int index)
     {
         if (!open_)
         {
@@ -312,10 +314,10 @@ implements java.io.Serializable
             || ((listOutOfSync_ == true) && (objectAddedEvent_ == true) 
                  && (theList_.size() == impl_.size()))))  {             
             objectAddedEvent_ = false;                                       
-            return (PrintObject) theList_.elementAt(index);             
+            return theList_.elementAt(index);             
         }                                                               
         else {                                                          
-            PrintObject npobject = null;                                
+            T npobject = null;                                
             if (listOutOfSync_ == true) {                               
                 theList_.removeAllElements();                           
                 listOutOfSync_ = false;                                 
@@ -343,15 +345,10 @@ implements java.io.Serializable
         }
     }
 
-
-
     /**
-     * Returns an enumeration of the PrintObjects in the list.
-     * @return Enumeration
-     *
-     **/
-    public /* @A5D synchronized */ Enumeration getObjects()
-    {
+     * @return the list of PrintObjects
+     */
+    public List<T> getObjectsList() {
         if (!open_)
         {
             Trace.log(Trace.ERROR, "getObjects: List has not been opened.");
@@ -365,7 +362,17 @@ implements java.io.Serializable
 
         // Force retrieval of all objects so far.
         getObject(impl_.size() - 1);
-        return theList_.elements();
+        return new ArrayList<>(theList_);
+    }
+
+    /**
+     * Returns an enumeration of the PrintObjects in the list.
+     * @return Enumeration
+     *
+     **/
+    public /* @A5D synchronized */ Enumeration<T> getObjects()
+    {
+        return Collections.enumeration(getObjectsList());
     }
 
 
@@ -393,17 +400,22 @@ implements java.io.Serializable
     private void initializeTransient()
     {
         impl_ = null;
-        printObjectListListeners_ = new Vector();
+        printObjectListListeners_ = new Vector<>();
         changes = new PropertyChangeSupport(this);
         vetos = new VetoableChangeSupport(this);
-        theList_ = new Vector();
+        theList_ = new Vector<>();
         open_ = false;
 
         dispatcher_ = new PrintObjectListListener() {
+            @Override
             public void listClosed(PrintObjectListEvent event) { firePrintObjectList(event); }
+            @Override
             public void listCompleted(PrintObjectListEvent event) { firePrintObjectList(event); }
+            @Override
             public void listErrorOccurred(PrintObjectListEvent event) { firePrintObjectList(event); }
+            @Override
             public void listOpened(PrintObjectListEvent event) { firePrintObjectList(event); }
+            @Override
             public void listObjectAdded(PrintObjectListEvent event) { firePrintObjectList(event); }
         };
     }
@@ -446,7 +458,7 @@ implements java.io.Serializable
 
 
     // Not public!
-    abstract PrintObject newNPObject(NPCPID cpid, NPCPAttribute cpattr);
+    abstract T newNPObject(NPCPID cpid, NPCPAttribute cpattr);
 
 
 
