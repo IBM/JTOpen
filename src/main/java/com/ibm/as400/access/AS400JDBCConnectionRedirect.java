@@ -1320,11 +1320,11 @@ extends AS400JDBCConnection {
 
   }
 
-  public synchronized void postWarning(SQLWarning sqlWarning) throws SQLException {
+  public synchronized void postWarningSQLState(String sqlState) throws SQLException {
     boolean retryOperation = true;
     while (retryOperation) {
       try {
-        currentConnection_.postWarning(sqlWarning);
+        currentConnection_.postWarningSQLState(sqlState);
         retryOperation = false;
       } catch (SQLException e) {
         retryOperation = handleException(e);
@@ -1332,6 +1332,18 @@ extends AS400JDBCConnection {
     }
 
   }
+  public synchronized void postWarning(int id, int errorCode, int returnCode) throws SQLException {
+	    boolean retryOperation = true;
+	    while (retryOperation) {
+	      try {
+	        currentConnection_.postWarning(id, errorCode, returnCode);
+	        retryOperation = false;
+	      } catch (SQLException e) {
+	        retryOperation = handleException(e);
+	      }
+	    }
+
+	  }
 
   public synchronized CallableStatement prepareCall(String sql) throws SQLException {
     boolean retryOperation = true;

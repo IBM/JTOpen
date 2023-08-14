@@ -254,6 +254,7 @@ extends AS400JDBCConnection
     private String clientProgramID_ = ""; //@pdc
 
     private String ignoreWarnings_ = "";             /*@Q1A*/
+    private boolean ignoreAllWarnings_ = false; 
     
     private int concurrentAccessResolution_ = AS400JDBCDataSource.CONCURRENTACCESS_NOT_SET; //@cc1
 
@@ -724,7 +725,7 @@ public void handleAbort() {
     {
         int newResultSetType = (resultSetConcurrency == ResultSet.CONCUR_UPDATABLE)
                                ? ResultSet.TYPE_SCROLL_SENSITIVE : ResultSet.TYPE_SCROLL_INSENSITIVE;
-        postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
+        postWarningSQLState (JDError.WARN_OPTION_VALUE_CHANGED);
         return newResultSetType;
     }
 
@@ -879,7 +880,7 @@ throws SQLException
         {                                                                       //@K1A
             thousandStatements_ = true;                                         //@K1A
             //post warning                                                      //@K1A
-            postWarning(JDError.getSQLWarning(JDError.WARN_1000_OPEN_STATEMENTS));  //@K1A
+            postWarningSQLState(JDError.WARN_1000_OPEN_STATEMENTS);  //@K1A
         }                                                                       //@K1A
 
         if (JDTrace.isTraceOn())                                            //@F4A
@@ -1869,17 +1870,17 @@ throws SQLException
 
 
 
+
     /**
     Posts a warning for the connection.
 
     @param   sqlWarning  The warning.
     **/
-    public void postWarning (SQLWarning sqlWarning)
+    public void postWarningSQLState (String  sqlState)
     throws SQLException // @EGA
     {
-      String sqlState = sqlWarning.getSQLState(); 
       if( !ignoreWarning(sqlState ))  {         /*@Q1A*/
-
+    	  SQLWarning sqlWarning = JDError.getSQLWarning(sqlState);
         if (sqlWarning_ == null)
             sqlWarning_ = sqlWarning;
         else
@@ -1887,7 +1888,26 @@ throws SQLException
       }                /*@Q1A*/
     }
 
+    /**
+    Posts a warning for the connection, constructing the SQLWarning object only if necessary.
 
+    @param   sqlWarning  The warning.
+    **/
+    public void postWarning (int id, int errorClass, int returnCode)
+    throws SQLException // @EGA
+    {
+      String sqlState = JDError.getSQLState(this, id); 
+      if( !ignoreWarning(sqlState ))  {         
+    	  SQLWarning sqlWarning = JDError.getSQLWarning (this, id, errorClass, returnCode);
+        if (sqlWarning_ == null)
+            sqlWarning_ = sqlWarning;
+        else
+            sqlWarning_.setNextWarning (sqlWarning);
+      }                
+    }
+
+    
+ 
 
     /**
     Precompiles an SQL stored procedure call with optional input
@@ -2038,7 +2058,7 @@ throws SQLException
         {                                                                       //@K1A
             thousandStatements_ = true;                                         //@K1A
             //post warning                                                      //@K1A
-            postWarning(JDError.getSQLWarning(JDError.WARN_1000_OPEN_STATEMENTS));  //@K1A
+            postWarningSQLState(JDError.WARN_1000_OPEN_STATEMENTS);  //@K1A
         }                                                                       //@K1A
 
         if (JDTrace.isTraceOn())                                            //@F4A
@@ -2176,7 +2196,7 @@ throws SQLException
         {                                                                       //@K1A
             thousandStatements_ = true;                                         //@K1A
             //post warning                                                      //@K1A
-            postWarning(JDError.getSQLWarning(JDError.WARN_1000_OPEN_STATEMENTS));  //@K1A
+            postWarningSQLState(JDError.WARN_1000_OPEN_STATEMENTS);  //@K1A
         }                                                                       //@K1A
 
         if (JDTrace.isTraceOn())                                            //@F4A
@@ -2319,7 +2339,7 @@ throws SQLException
         {                                                                       //@K1A
             thousandStatements_ = true;                                         //@K1A
             //post warning                                                      //@K1A
-            postWarning(JDError.getSQLWarning(JDError.WARN_1000_OPEN_STATEMENTS));  //@K1A
+            postWarningSQLState(JDError.WARN_1000_OPEN_STATEMENTS);  //@K1A
         }                                                                       //@K1A
 
         if (JDTrace.isTraceOn())                                            //@F4A
@@ -3570,6 +3590,9 @@ throws SQLException
 
     /* Should the warning be ignored  @Q1A*/
     public boolean ignoreWarning(String sqlState) { 
+      if (ignoreAllWarnings_) { 
+    	  return true; 
+      }
       if (ignoreWarnings_.indexOf(sqlState ) >= 0) {
         return true; 
       } else { 
@@ -3591,8 +3614,10 @@ throws SQLException
         properties_             = properties;
         
         
-        ignoreWarnings_ = properties_.getString(JDProperties.IGNORE_WARNINGS).toUpperCase();    /*@Q1A*/
-        
+        ignoreWarnings_ = properties_.getString(JDProperties.IGNORE_WARNINGS).toUpperCase().trim();    /*@Q1A*/
+        if (ignoreWarnings_.equals("ALL")) { 
+        	ignoreAllWarnings_ = true; 
+        }
         //Set the real default for METADATA SOURCE property since we now know the hostsrvr version
         if(properties_.getString(JDProperties.METADATA_SOURCE).equals(JDProperties.METADATA_SOURCE_HOST_VERSION_DEFAULT))   //@mdsp
         {                                                                                                                   //@mdsp
@@ -3621,12 +3646,12 @@ throws SQLException
 
         // Issue any warnings.
         if (dataSourceUrl_.isExtraPathSpecified ())
-            postWarning (JDError.getSQLWarning (JDError.WARN_URL_EXTRA_IGNORED));
+            postWarningSQLState (JDError.WARN_URL_EXTRA_IGNORED);
         if (properties.isExtraPropertySpecified ())
-            postWarning (JDError.getSQLWarning (JDError.WARN_PROPERTY_EXTRA_IGNORED));
+            postWarningSQLState (JDError.WARN_PROPERTY_EXTRA_IGNORED);
         if (dataSourceUrl_.isPortSpecified ())  {
           if (dataSourceUrl_.getPortNumber() == 0) { 
-             postWarning (JDError.getSQLWarning (JDError.WARN_URL_EXTRA_IGNORED));
+             postWarningSQLState (JDError.WARN_URL_EXTRA_IGNORED);
           }  
         }
         
@@ -4606,13 +4631,13 @@ throws SQLException
                 // Sort sequence attribute cannot be set.
                 if ((errorClass == 7)
                     && ((returnCode == 301) || (returnCode == 303)))
-                    postWarning (JDError.getSQLWarning (this, id_, errorClass, returnCode));
+                    postWarning ( id_, errorClass, returnCode);
 
                 // Language feature code id was not changed.   This is caused
                 // when the secondary language can not be added to the library
                 // list, and shows up as a PWS0003.
                 else if ((errorClass == 7) && (returnCode == 304))
-                    postWarning (JDError.getSQLWarning (this, id_, errorClass, returnCode));
+                    postWarning ( id_, errorClass, returnCode);
 
                 // -704 is RDB (IASP) does not exist.  We do not go back to the system to get
                 // error info since they are sending an invalid attribute exception when the
@@ -5232,7 +5257,7 @@ throws SQLException
             {
                 oldValue = null;
                 // post generic syntax error for invalid clientInfo name
-                postWarning(JDError.getSQLWarning(JDError.EXC_SYNTAX_ERROR));
+                postWarningSQLState(JDError.EXC_SYNTAX_ERROR);
             }
 
             if ((getVRM() >= JDUtilities.vrm610) && (oldValue != null))
@@ -5464,7 +5489,7 @@ throws SQLException
         {
             //post generic syntax error for invalid clientInfo name
             //since javadoc for setClientInfo(String,String) says to generate warning, we will do same here and return null
-            postWarning(JDError.getSQLWarning(JDError.EXC_SYNTAX_ERROR));
+            postWarningSQLState(JDError.EXC_SYNTAX_ERROR);
             return null;
         }
     }
@@ -6157,9 +6182,9 @@ throws SQLException
           break;
         case NUMERIC_RANGE_ERROR_WARNING:
           if (statementWarningObject  != null) { 
-            statementWarningObject.postWarning( JDError.getSQLWarning(JDError.EXC_DATA_TYPE_MISMATCH)); 
+            statementWarningObject.postWarningSQLState(JDError.EXC_DATA_TYPE_MISMATCH); 
           } else if (resultSetWarningObject != null ) {
-            resultSetWarningObject.postWarning( JDError.getSQLWarning(JDError.EXC_DATA_TYPE_MISMATCH)); 
+            resultSetWarningObject.postWarningSQLState( JDError.EXC_DATA_TYPE_MISMATCH); 
           }
           break;
         case NUMERIC_RANGE_ERROR_NONE:
@@ -6177,8 +6202,9 @@ throws SQLException
         int actualSize = data.getActualSize();
         // boolean isRead = sqlStatement_.isSelect(); //@pda jdbc40 //@pdc same
         // as native (only select is read) //@trunc //@pdc match native
-        DataTruncation dt = new DataTruncation(parameterIndex, isParameter, false,
-            actualSize + truncated, actualSize); // @pdc jdbc40 //@trunc //@pdc
+        // Delay construction until needed. 
+        // DataTruncation dt = new DataTruncation(parameterIndex, isParameter, false,
+         //    actualSize + truncated, actualSize); // @pdc jdbc40 //@trunc //@pdc
                                                  // match native
 
         // if 610 and number data type, then throw DataTruncation
@@ -6188,12 +6214,15 @@ throws SQLException
         { // @trunc2
           if (characterTruncation_ == CHARACTER_TRUNCATION_WARNING) {
             if (statementWarningObject != null) { 
-              statementWarningObject.postWarning( dt); 
+              statementWarningObject.postDataTruncationWarning( parameterIndex, isParameter, false,
+                      actualSize + truncated, actualSize); 
             } else if (resultSetWarningObject != null ) {
-              resultSetWarningObject.postWarning( dt); 
+              resultSetWarningObject.postDataTruncationWarning( parameterIndex, isParameter, false,
+                      actualSize + truncated, actualSize); 
             }
           } else { 
-          throw dt; // @trunc2
+          throw new DataTruncation(parameterIndex, isParameter, false,
+        	            actualSize + truncated, actualSize); // @trunc2
           }
         } // @trunc2
         else if ((sqlStatement != null) && (sqlStatement.isSelect())
@@ -6201,9 +6230,11 @@ throws SQLException
         {
           
           if (statementWarningObject != null) { 
-            statementWarningObject.postWarning( dt); 
+            statementWarningObject.postDataTruncationWarning( parameterIndex, isParameter, false,
+                    actualSize + truncated, actualSize); 
           } else if (resultSetWarningObject != null ) {
-            resultSetWarningObject.postWarning( dt); 
+            resultSetWarningObject.postDataTruncationWarning( parameterIndex, isParameter, false,
+                    actualSize + truncated, actualSize); 
           }
 // If we want the data replace on a warning.  Go ahead and
           // do the replacement. 
@@ -6213,14 +6244,17 @@ throws SQLException
         } else {
           if (characterTruncation_ == CHARACTER_TRUNCATION_WARNING) {
             if (statementWarningObject != null ) { 
-              statementWarningObject.postWarning( dt); 
+              statementWarningObject.postDataTruncationWarning(  parameterIndex, isParameter, false,
+                      actualSize + truncated, actualSize); 
               checkRawBytes = true; 
             } else if (resultSetWarningObject != null ) {
-              resultSetWarningObject.postWarning( dt); 
+              resultSetWarningObject.postDataTruncationWarning(  parameterIndex, isParameter, false,
+                      actualSize + truncated, actualSize); 
             }
 
           } else { 
-             throw dt;
+             throw new DataTruncation(parameterIndex, isParameter, false,
+     	            actualSize + truncated, actualSize);
           }
         }
       }

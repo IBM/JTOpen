@@ -495,7 +495,7 @@ Set the auto-commit mode.
       if (!autoCommit_ && autoCommit && activeLocal_)
       {                   // @C4C
         commit ();
-        connection_.postWarning (JDError.getSQLWarning (JDError.WARN_TXN_COMMITTED));
+        connection_.postWarningSQLState (JDError.WARN_TXN_COMMITTED);
       }
 
       // Save the auto commit state.

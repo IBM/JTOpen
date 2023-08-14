@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.math.BigDecimal;
 import java.sql.BatchUpdateException;
 import java.sql.Connection;
+import java.sql.DataTruncation;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
@@ -514,7 +515,7 @@ implements Statement
                         }    // @EDA
                         else
                         {    // @EDA
-                            postWarning (JDError.getSQLWarning(connection_, id_, errorClass, returnCode));    // @EDA
+                            postWarning (connection_, id_, errorClass, returnCode);    // @EDA
                         }    // @EDA
                     }    // @EDA
                 }
@@ -625,7 +626,7 @@ implements Statement
                         }
                         else
                         {
-                            postWarning (JDError.getSQLWarning(connection_, id_, errorClass, returnCode));
+                            postWarning (connection_, id_, errorClass, returnCode);
                         }
                     }
                 }
@@ -1099,7 +1100,7 @@ implements Statement
                              if(sqlState.startsWith("00") || sqlState.startsWith("02")) {                //@pda (issue 32120)  //@issue 34500 //@35199
                                 // Do not post this warning.
                              } else { 
-                                postWarning(JDError.getSQLWarning(connection_, id_, errorClass, returnCode));
+                                postWarning(connection_, id_, errorClass, returnCode);
                              }
                            }
                             
@@ -1177,7 +1178,7 @@ implements Statement
                                                              actualConcurrency, fetchDirection_, fetchSize_,
                                                              extendedColumnDescriptors_);    // @E1C@P6A
                             if(resultSet_.getConcurrency () != resultSetConcurrency_ && resultSetConcurrency_ == ResultSet.CONCUR_UPDATABLE) //@nowarn only warn if concurrency level is lessened
-                                postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
+                                postWarningSQLState (JDError.WARN_OPTION_VALUE_CHANGED);
                             if (savedException != null) {     /*@F3A*/
                               resultSet_.addSavedException(savedException);
                             }
@@ -1269,7 +1270,7 @@ implements Statement
                             }
 
                             if(resultSet_.getConcurrency () != resultSetConcurrency_)
-                                postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
+                                postWarningSQLState (JDError.WARN_OPTION_VALUE_CHANGED);
                             
                         }
                     }
@@ -1615,8 +1616,8 @@ implements Statement
                   JDError.throwSQLException(this, connection_, id_, errorClass,
                       returnCode);
                 else
-                  postWarning(JDError.getSQLWarning(connection_, id_,
-                      errorClass, returnCode));
+                  postWarning(connection_, id_,
+                      errorClass, returnCode);
               }
             }
                     transactionManager_.processCommitOnReturn(execImmediateReply);    // @E2A
@@ -1692,7 +1693,7 @@ implements Statement
                             }
 
                         if(resultSet_.getConcurrency () != resultSetConcurrency_)
-                            postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
+                            postWarningSQLState (JDError.WARN_OPTION_VALUE_CHANGED);
                     }
 
                     commonPrepareAfter (sqlStatement, execImmediateReply);
@@ -1820,7 +1821,7 @@ implements Statement
                         if(returnCode < 0)
                             JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
                         else
-                            postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
+                            postWarning (connection_, id_, errorClass, returnCode);
                     }
 
                     // Gather results from the reply.
@@ -1959,7 +1960,7 @@ implements Statement
               if(returnCode < 0)
                   JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
               else
-                  postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
+                  postWarning (connection_, id_, errorClass, returnCode);
           }
 
           // Compute the update count and number of results.
@@ -3413,7 +3414,7 @@ implements Statement
                             }
                             JDError.throwSQLException (this, connection_, id_, errorClass, returnCode);
                         } else {
-                            postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode));
+                            postWarning (connection_, id_, errorClass, returnCode);
                         }
                     }
 
@@ -3465,7 +3466,7 @@ implements Statement
                                                          actualConcurrency, fetchDirection_,
                                                          fetchSize_, extendedColumnDescriptors_);    // @ECC@P6A
                     if(resultSet_.getConcurrency () != resultSetConcurrency_)
-                        postWarning (JDError.getSQLWarning (JDError.WARN_OPTION_VALUE_CHANGED));
+                        postWarningSQLState (JDError.WARN_OPTION_VALUE_CHANGED);
                 }
                 catch(DBDataStreamException e)
                 {
@@ -3910,17 +3911,19 @@ implements Statement
 
     /**
     Posts a warning for the statement.
+    Typically not used, as this requires the SQLWarning object to already be created. 
 
     @param   sqlWarning  The warning.
     **/
-    void postWarning (SQLWarning sqlWarning)
+    void postWarningSQLState (String sqlState)
     {
         /* check to see if warning should be ignored */ 
-        if( connection_ != null && connection_.ignoreWarning(sqlWarning)) {
+        if( connection_ != null && connection_.ignoreWarning(sqlState)) {
             if (JDTrace.isTraceOn ())           {
-                JDTrace.logInformation(this, "postWarning("+sqlWarning+") -- ignored");
+                JDTrace.logInformation(this, "postWarning("+sqlState+") -- ignored");
              }
         } else { 
+        	 SQLWarning sqlWarning = JDError.getSQLWarning(sqlState);
           if (JDTrace.isTraceOn ())           {
             JDTrace.logInformation(this, "postWarning("+sqlWarning+")");
          }
@@ -3932,7 +3935,66 @@ implements Statement
         }
     }
 
+    
+    /**
+    Posts a warning for the statement.
+    Typically not used, as this requires the SQLWarning object to already be created. 
+     * @param connection 
+     * @param id 
+     * @param errorClass 
+     * @param returnCode 
 
+    @param   sqlWarning  The warning.
+     * @throws SQLException 
+    **/
+    void postWarning (AS400JDBCConnection connection, int id, int errorClass, int returnCode) throws SQLException
+    {
+        /* check to see if warning should be ignored */ 
+    	String sqlState = JDError.getSQLState(connection_, id_);
+        if( connection_ != null && connection_.ignoreWarning(sqlState)) {
+            if (JDTrace.isTraceOn ())           {
+                JDTrace.logInformation(this, "postWarning("+sqlState+") -- ignored");
+             }
+        } else { 
+          
+          SQLWarning sqlWarning = JDError.getSQLWarning(connection, id, errorClass, returnCode); 
+          if (JDTrace.isTraceOn ())           {
+              JDTrace.logInformation(this, "postWarning("+sqlWarning+")");
+           }
+        if(sqlWarning_ == null)
+            sqlWarning_ = sqlWarning;
+        else
+            sqlWarning_.setNextWarning (sqlWarning);
+        }
+    }
+
+	void postDataTruncationWarning(int index, boolean parameter, boolean read, int dataSize, int transferSize)
+			throws SQLException {
+		/* Check to see if the warning should be ignored @Q1A */
+
+		String sqlState;
+		if (read)
+			sqlState = "01004";
+		else
+			sqlState = "22001";
+
+		if (connection_ != null && connection_.ignoreWarning(sqlState)) {
+			if (JDTrace.isTraceOn()) {
+				JDTrace.logInformation(this, "postWarning(" + sqlState + ") -- ignored");
+			}
+		} else {
+
+			SQLWarning sqlWarning = new DataTruncation(index, parameter, read, dataSize, transferSize);
+			if (JDTrace.isTraceOn()) {
+				JDTrace.logInformation(this, "postWarning(" + sqlWarning + ")");
+			}
+			if (sqlWarning_ == null)
+				sqlWarning_ = sqlWarning;
+			else
+				sqlWarning_.setNextWarning(sqlWarning);
+		}
+
+	}
 
     // @E9C
     /**

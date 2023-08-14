@@ -325,7 +325,7 @@ in the server job's library list.
             // if the error class is NDB and ret code is library not added       @D1A
             //   continue because library being added is already in *LIBL        @D1A
             //   or library does not exist and either case is OK to continue     @D1A
-            connection.postWarning(JDError.getSQLWarning(connection, id, errorClass, returnCode));  // @D1A
+            connection.postWarning( id, errorClass, returnCode);  // @D1A
           }                                                                        // @D1A
           else
           {

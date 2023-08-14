@@ -792,11 +792,23 @@ implements Connection //@A5A
   *
   *  @param   sqlWarning  The warning.
   **/
-  void postWarning (SQLWarning sqlWarning)
+  void postWarning (int id, int errorCode, int returnCode)
   throws SQLException                                      // @A3A
   {
     validateConnection();
-    connection_.postWarning(sqlWarning);
+    connection_.postWarning(id, errorCode, returnCode);
+  }
+
+  /**
+  *  Posts a warning for the connection.
+  *
+  *  @param   sqlWarning  The warning.
+  **/
+  void postWarningSQLState (String sqlState)
+  throws SQLException                                      // @A3A
+  {
+    validateConnection();
+    connection_.postWarningSQLState(sqlState);
   }
 
   /**
