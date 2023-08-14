@@ -891,7 +891,10 @@ implements ResultSet
     /**
     Posts a warning for this result set.
     
-    @param   sqlWarning  The warning.
+    @param   id          The id used to create the warning
+    @param   errorClass  The error class used to create the warning
+    @param   returnCode  The return code used to create the warning
+
      * @throws SQLException 
     **/
   void postWarning(AS400JDBCConnection connection, int id, int errorClass, int returnCode) throws SQLException {
@@ -953,7 +956,7 @@ void postDataTruncationWarning(int index, boolean parameter, boolean read, int d
   Posts a warning for this result set.
   Usually not a good way to do this since the SQLWarning object has already been created
   
-  @param   sqlWarning  The warning.
+  @param   sqlState  The SQL state for the warning.
    * @throws SQLException 
   **/
 void postWarningSQLState(String sqlState)  {

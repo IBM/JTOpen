@@ -1874,7 +1874,7 @@ throws SQLException
     /**
     Posts a warning for the connection.
 
-    @param   sqlWarning  The warning.
+    @param   sqlState the SQL state for the warning.
     **/
     public void postWarningSQLState (String  sqlState)
     throws SQLException // @EGA
@@ -1891,7 +1891,9 @@ throws SQLException
     /**
     Posts a warning for the connection, constructing the SQLWarning object only if necessary.
 
-    @param   sqlWarning  The warning.
+    @param   id          The id used to create the warning
+    @param   errorClass  The error class used to create the warning
+    @param   returnCode  The return code used to create the warning
     **/
     public void postWarning (int id, int errorClass, int returnCode)
     throws SQLException // @EGA

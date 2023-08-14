@@ -807,7 +807,9 @@ implements Connection
     /**
     Posts a warning for the connection.
 
-    @param   sqlWarning  The warning.
+    @param   id          The id used to create the warning
+    @param   errorClass  The error class used to create the warning
+    @param   returnCode  The return code used to create the warning
     **/
      abstract void postWarning (int id, int errorClass, int returnCode)
     throws SQLException;
@@ -815,7 +817,7 @@ implements Connection
      /**
      Posts a warning for the connection.
 
-     @param   sqlWarning  The warning.
+     @param   sqlState  The SQL state for the warning.
      **/
       abstract void postWarningSQLState (String sqlState)
      throws SQLException;

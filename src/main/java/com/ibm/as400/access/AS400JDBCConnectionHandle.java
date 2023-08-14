@@ -790,7 +790,9 @@ implements Connection //@A5A
   /**
   *  Posts a warning for the connection.
   *
-  *  @param   sqlWarning  The warning.
+    @param   id          The id used to create the warning
+    @param   errorClass  The error class used to create the warning
+    @param   returnCode  The return code used to create the warning
   **/
   void postWarning (int id, int errorCode, int returnCode)
   throws SQLException                                      // @A3A
@@ -802,7 +804,7 @@ implements Connection //@A5A
   /**
   *  Posts a warning for the connection.
   *
-  *  @param   sqlWarning  The warning.
+  *  @param   sqlState  The sqlstate for the warning.
   **/
   void postWarningSQLState (String sqlState)
   throws SQLException                                      // @A3A

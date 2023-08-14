@@ -3911,9 +3911,8 @@ implements Statement
 
     /**
     Posts a warning for the statement.
-    Typically not used, as this requires the SQLWarning object to already be created. 
 
-    @param   sqlWarning  The warning.
+    @param   sqlState  The SQL state of the warning.
     **/
     void postWarningSQLState (String sqlState)
     {
@@ -3938,13 +3937,11 @@ implements Statement
     
     /**
     Posts a warning for the statement.
-    Typically not used, as this requires the SQLWarning object to already be created. 
-     * @param connection 
-     * @param id 
-     * @param errorClass 
-     * @param returnCode 
+    @param   connection  The connection that generated the warning 
+    @param   id          The id used to create the warning
+    @param   errorClass  The error class used to create the warning
+    @param   returnCode  The return code used to create the warning
 
-    @param   sqlWarning  The warning.
      * @throws SQLException 
     **/
     void postWarning (AS400JDBCConnection connection, int id, int errorClass, int returnCode) throws SQLException
