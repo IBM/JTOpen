@@ -10,7 +10,7 @@ Visit specific versions on [the jtopen page on Maven Central](https://mvnreposit
 for example build declarations for Maven's `pom.xml` manifest file. Configuration
 text is also available for other build systems, including Gradle, SBT, Ivy, Grape, Leiningen, and Buildr.
 
-Several coordinates are published to Maven. See [File Information](#file-information) for information about Maven coordinates
+Several coordinates are published to Maven. See [Download Information](#download-information) for information about Maven coordinates
 
 ## Download Information
 

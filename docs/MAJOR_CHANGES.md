@@ -37,5 +37,5 @@ earlier code streams. Key differences include:
    If you need these packages, please acquire older versions from the [archive site on sourceforge](http://jt400.sourceforge.net)
    (**breaking change**)
 
-1. Publication of "native" form to Maven Central (see [File Information](#file-information)). This allows Maven-based
+1. Publication of "native" form to Maven Central (see [Download Information](INSTALL.md#download-information)). This allows Maven-based
    applications running on IBM i to take advantage of extra optimizations present in the operating system
