@@ -73,7 +73,7 @@ class ProfileTokenVault extends CredentialVault implements Cloneable, Serializab
    *
    * @return A newly created ProfileTokenVault that is a copy of this one
    */
-  public Object clone() {
+  public ProfileTokenVault clone() {
     
     ProfileTokenVault vaultClone = (ProfileTokenVault)super.clone();
     return vaultClone;

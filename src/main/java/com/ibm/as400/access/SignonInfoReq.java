@@ -13,14 +13,16 @@
 
 package com.ibm.as400.access;
 
+import java.io.CharConversionException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 class SignonInfoReq extends ClientAccessDataStream
 {
-    SignonInfoReq(byte[] userIDbytes, byte[] authenticationBytes, int byteType, int serverLevel)
+    SignonInfoReq(byte[] userIDbytes, byte[] authenticationBytes, int byteType,  int serverLevel, char[] additionalAuthenticationFactor)
     {
-        super(new byte[37 + authenticationBytes.length + (userIDbytes == null ? 0 : 16) + (serverLevel < 5 ? 0 : 7)]);
+        super(new byte[37 + authenticationBytes.length + (userIDbytes == null ? 0 : 16) + (serverLevel < 5 ? 0 : 7) + (serverLevel >= 18 && null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length ? 10 + additionalAuthenticationFactor.length :0)]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);
@@ -92,10 +94,37 @@ class SignonInfoReq extends ClientAccessDataStream
             // Set return error messages.
             //   LL
             set32bit(7, offset);
+            offset += 4;
             //   CP
-            set16bit(0x1128, offset + 4);
+            set16bit(0x1128, offset);
+            offset += 2;
             //   Data.
-            data_[offset + 6] = 0x01;
+            data_[offset] = 0x01;
+            offset += 1;
+                    
+            if (serverLevel >= 18 && null != additionalAuthenticationFactor
+                    && 0 < additionalAuthenticationFactor.length) {
+                try {
+                    int ccsid = 37;
+                    CharConverter c = new CharConverter(ccsid);
+                    byte[] aafBytes = c.stringToByteArray(new String(additionalAuthenticationFactor));
+
+                    //LL
+                    set32bit(aafBytes.length + 4 + 2 + 4, offset);
+                    offset += 4;
+                    // CP
+                    set16bit(0x112F, offset);
+                    offset += 2;
+                    // CCSID
+                    set32bit(ccsid, offset);
+                    offset += 4;
+                    // data 
+                    System.arraycopy(aafBytes, 0, data_, offset, aafBytes.length);
+                } catch (UnsupportedEncodingException e) {
+                    if (Trace.traceOn_)
+                        Trace.log(Trace.DIAGNOSTIC, e);
+                }
+            }
         }
     }
 

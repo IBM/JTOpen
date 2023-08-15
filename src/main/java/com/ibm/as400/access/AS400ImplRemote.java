@@ -134,6 +134,8 @@ public class AS400ImplRemote implements AS400Impl {
   private SignonInfo signonInfo_;
   // EBCDIC bytes of sign-on server job name, held until Job CCSID is returned.
   private byte[] signonJobBytes_;
+  // Additional authentication factor indicator
+  private byte additionalAuthenticationIndicator_ = 0x00;
   // String form of sign-on server job name.
   private String signonJobString_;
 
@@ -1106,6 +1108,16 @@ public class AS400ImplRemote implements AS400Impl {
       signonServer_ = null;
       throw e;
     } 
+  }
+
+  public static byte getAdditionalAuthenticationIndicator(String systemName) throws AS400SecurityException, IOException { 
+      AS400ImplRemote implRemote = new AS400ImplRemote(); 
+      implRemote.systemName_ = systemName; 
+      implRemote.socketProperties_ = new SocketProperties();
+      implRemote.signonConnect(); 
+      byte indicator = implRemote.additionalAuthenticationIndicator_; 
+      implRemote.signonDisconnect(); 
+      return indicator; 
   }
 
   // Get either the user's CCSID, the signon server CCSID, or our best guess.
@@ -3324,12 +3336,22 @@ public class AS400ImplRemote implements AS400Impl {
       // so we satisfy this expectation by re-encoding here.
       tempVault.storeEncodedUsingExternalSeeds(proxySeed_, remoteSeed_);
     }
-    return signon(systemName, systemNameLocal, userId, tempVault, gssName_);
+    return signon(systemName, systemNameLocal, userId, tempVault, gssName_,(char[]) null);
   }
 
   // Exchange sign-on flows with sign-on server.
+  @Override
   public SignonInfo signon(String systemName, boolean systemNameLocal,
       String userId, CredentialVault vault, String gssName)
+      throws AS400SecurityException, IOException // @mds
+  {
+      return signon(systemName, systemNameLocal, userId, vault, gssName, null);
+  }
+
+  // Exchange sign-on flows with sign-on server.
+  @Override
+  public SignonInfo signon(String systemName, boolean systemNameLocal,
+      String userId, CredentialVault vault, String gssName, char[] additionalAuthenticationFactor)
       throws AS400SecurityException, IOException // @mds
   {
     systemName_ = systemName;
@@ -3425,7 +3447,7 @@ public class AS400ImplRemote implements AS400Impl {
         }
 
         SignonInfoReq signonReq = new SignonInfoReq(userIDbytes,
-            encryptedPassword, credVault_.getType(), serverLevel_);
+            encryptedPassword, credVault_.getType(), serverLevel_, additionalAuthenticationFactor);
         CredentialVault.clearArray(encryptedPassword);
         SignonInfoRep signonRep = (SignonInfoRep) signonServer_
             .sendAndReceive(signonReq);
@@ -3433,8 +3455,11 @@ public class AS400ImplRemote implements AS400Impl {
         
         if (Trace.traceOn_)
           Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
-
+        
         int rc = signonRep.getRC();
+        if(0x00 == this.additionalAuthenticationIndicator_ && null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length) {
+          Trace.log(Trace.INFORMATION, "An additional authentication factor was provided, but the server does not support this mechanism. The additional factor will be ignored.");
+        }
         if (rc != 0) {
           byte[] rcBytes = new byte[4];
           BinaryConverter.intToByteArray(rc, rcBytes, 0);
@@ -3657,6 +3682,7 @@ public class AS400ImplRemote implements AS400Impl {
         isPasswordTypeSet_ = true;
         serverSeed_ = attrRep.getServerSeed();
         signonJobBytes_ = attrRep.getJobNameBytes();
+        additionalAuthenticationIndicator_ = attrRep.getAdditionalAuthenticationIndicator();
         connectedSuccessfully = true;
 
         if (Trace.traceOn_) {

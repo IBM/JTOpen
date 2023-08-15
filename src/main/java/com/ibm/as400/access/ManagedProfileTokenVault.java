@@ -211,7 +211,7 @@ class ManagedProfileTokenVault extends ProfileTokenVault implements Cloneable, S
    *         characteristics as this one, but with its own uniquely
    *         generated profile token.
    */
-  public Object clone()
+  public ManagedProfileTokenVault clone()
   {
     ManagedProfileTokenVault vaultClone = (ManagedProfileTokenVault)super.clone();
 

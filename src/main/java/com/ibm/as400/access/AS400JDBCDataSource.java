@@ -618,6 +618,20 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     **/
     public Connection getConnection(String user, char[] password) throws SQLException
     {
+        return getConnection(user, password, (char[])null);
+    }
+
+
+    /**
+    *  Returns the database connection using the specified <i>user</i> and <i>password</i>.
+    *  @param user The database user.
+    *  @param password The database password.
+    *  @param additionalAuthenticationFactor The additional authentication factor, or null if not providing one
+    *  @return The connection
+    *  @exception SQLException If a database error occurs.
+    **/
+    public Connection getConnection(String user, char[] password, char[] additionalAuthenticationFactor) throws SQLException
+    {
         // Validate the parameters.
         //@pw3 Add way to get old behavior allowing "" (!but also need to allow new behavior of allowing null is/passwd so customers can slowly migrate)
         String secureCurrentUser = SystemProperties.getProperty (SystemProperties.JDBC_SECURE_CURRENT_USER); //@pw3
@@ -2180,6 +2194,15 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, property + ": " + access);  //@A8C
+    }
+
+    /**
+     * Sets the additional authentication factor used to connect to the system. The {@link #getConnection()}
+     * method must be called as soon as possible, since the additional authentication factor may soon expire.
+     * @param additionalAuthenticationFactor the additional authentication factor, or null if not providing one
+     */
+    public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor) {
+
     }
  
       //@AC1
@@ -4077,6 +4100,19 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
          setServerTraceCategories(traceCategories);
      }
 
+    
+     /**
+      * Set the stay-alive interval. When enabled, a request is sent at the specified milliseconds interval to all currently opened
+      * connections to help keep the connections alive. This is sometimes needed to prevent firewalls from dropping stale connections.
+      * The use of this method applies only to connections created after this method is called. 
+      * @param  milliseconds  The number of milliseconds between requests to the server.  If set to zero, then this stay-alive
+    *                         capability will not be used.
+     **/
+    public void setStayAlive(long milliseconds)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting stay-alive: " + milliseconds);
+        //TODO: implement
+    }
    
      /**
      * Sets the describe option property.
