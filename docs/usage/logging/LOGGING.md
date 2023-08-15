@@ -288,6 +288,7 @@ It is sometimes preferrable to comment out those lines because it makes it easy 
 
 Alternatively the tracing can be enabled in RDi in "Run Configurations". Place the toolbox properties in the Arguments tab.
 Now when you run the Java application the trace is stored in the Trace file that was specified.
+![0 6F50](https://github.com/IBM/JTOpen/assets/17914061/ade744dd-1df0-4f33-8c4a-6af234a74b00)
 
 
 
