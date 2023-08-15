@@ -594,7 +594,7 @@ class JDPackageManager
     }
 
     else if (error_.equalsIgnoreCase (JDProperties.PACKAGE_ERROR_WARNING))
-      connection_.postWarning (JDError.getSQLWarning (sqlState));
+      connection_.postWarningSQLState (sqlState);
   }
 
 
@@ -623,7 +623,7 @@ class JDPackageManager
     }
 
     else if (error_.equalsIgnoreCase (JDProperties.PACKAGE_ERROR_WARNING))
-      connection_.postWarning (JDError.getSQLWarning (connection, id, errorClass, returnCode));
+      connection_.postWarning ( id, errorClass, returnCode);
   }
 
 

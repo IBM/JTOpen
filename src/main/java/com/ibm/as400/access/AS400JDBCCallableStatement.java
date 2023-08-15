@@ -3238,7 +3238,7 @@ implements CallableStatement
     {
         if(wasDataMappingError_)
         {
-            postWarning(new DataTruncation(parameterIndex, true, true, -1, -1));
+            postDataTruncationWarning(parameterIndex, true, true, -1, -1);
         }
 
         if(data != null)
@@ -3253,7 +3253,7 @@ implements CallableStatement
                   }
               }                                                                    //@trunc
                 int actualSize = data.getActualSize();
-                postWarning(new DataTruncation(parameterIndex, true, true, actualSize, actualSize - truncated));
+                postDataTruncationWarning(parameterIndex, true, true, actualSize, actualSize - truncated);
             }
         }
     }
