@@ -40,10 +40,14 @@ public class AS400Varchar implements AS400DataType {
             Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
             throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
-        if (varlensize < 0)
-        {
-            Trace.log(Trace.ERROR, "Value of parameter 'varlensize' is not valid:", length);
-            throw new ExtendedIllegalArgumentException("varlensize (" + varlensize + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        if (2 != varlensize && 4 != varlensize) {
+            Trace.log(Trace.ERROR, "Value of parameter 'varlensize' is not valid (must be 4 or 2):", length);
+            throw new ExtendedIllegalArgumentException("varlensize (" + varlensize + ") must be 4 or 2", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        if (2 == varlensize && 65535 < length) {
+            Trace.log(Trace.ERROR, "Two-byte 'varlensize' is not valid for length:", length);
+            throw new ExtendedIllegalArgumentException("Data is too large for a two-byte varchar length",
+                    ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         varlensize_ = varlensize;
         length_ = length;
@@ -57,23 +61,12 @@ public class AS400Varchar implements AS400DataType {
     **/
    public AS400Varchar(int varlensize, int length, int ccsid)
    {
-       if (length < 0)
-       {
-           Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
-           throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-       }
+       this(varlensize, length);
        if (ccsid < 0)
        {
            Trace.log(Trace.ERROR, "Value of parameter 'ccsid' is not valid:", ccsid);
            throw new ExtendedIllegalArgumentException("ccsid (" + ccsid + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
        }
-       if (varlensize < 0)
-       {
-           Trace.log(Trace.ERROR, "Value of parameter 'varlensize' is not valid:", length);
-           throw new ExtendedIllegalArgumentException("varlensize (" + varlensize + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-       }
-       varlensize_ = varlensize;
-       length_ = length;
        ccsid_ = ccsid;
    }
     
@@ -85,23 +78,12 @@ public class AS400Varchar implements AS400DataType {
     **/
    public AS400Varchar(int varlensize, int length, String encoding)
    {
-       if (length < 0)
-       {
-           Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
-           throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-       }
+       this(varlensize, length);
        if (encoding == null)
        {
            Trace.log(Trace.ERROR, "Parameter 'encoding' is null.");
            throw new NullPointerException("encoding");
        }
-       if (varlensize < 0)
-       {
-           Trace.log(Trace.ERROR, "Value of parameter 'varlensize' is not valid:", length);
-           throw new ExtendedIllegalArgumentException("varlensize (" + varlensize + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-       }
-       varlensize_ = varlensize;
-       length_ = length;
        encoding_ = encoding;
    }
    
@@ -125,11 +107,7 @@ public class AS400Varchar implements AS400DataType {
     */
    public AS400Varchar(int varlensize, int length, int ccsid, AS400 system)
    {
-       if (length < 0)
-       {
-           Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
-           throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-       }
+       this(varlensize, length);
        if (ccsid < 0)
        {
            Trace.log(Trace.ERROR, "Value of parameter 'ccsid' is not valid:", ccsid);
@@ -140,13 +118,6 @@ public class AS400Varchar implements AS400DataType {
            Trace.log(Trace.ERROR, "Parameter 'system' is null.");
            throw new NullPointerException("system");
        }
-       if (varlensize < 0)
-       {
-           Trace.log(Trace.ERROR, "Value of parameter 'varlensize' is not valid:", length);
-           throw new ExtendedIllegalArgumentException("varlensize (" + varlensize + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-       }
-       varlensize_ = varlensize;
-       length_ = length;
        ccsid_ = ccsid;
        system_ = system;
    }
@@ -178,11 +149,7 @@ public class AS400Varchar implements AS400DataType {
     // Package scope constructor for use on the proxy server.  Note that this constructor is only used in AS400FileRecordDescriptionImplRemote.  It is expected that the client code (AS400FileRecordDescription) will call fillInConverter() on each AS400Varchar object returned.
     AS400Varchar(int varlensize, int length, int ccsid, AS400Impl system)
     {
-        if (length < 0)
-        {
-            Trace.log(Trace.ERROR, "Value of parameter 'length' is not valid:", length);
-            throw new ExtendedIllegalArgumentException("length (" + length + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
+       this(varlensize, length);
         if (ccsid < 0)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'ccsid' is not valid:", ccsid);
@@ -193,13 +160,6 @@ public class AS400Varchar implements AS400DataType {
             Trace.log(Trace.ERROR, "Parameter 'system' is null.");
             throw new NullPointerException("system");
         }
-        if (varlensize < 0)
-        {
-            Trace.log(Trace.ERROR, "Value of parameter 'varlensize' is not valid:", length);
-            throw new ExtendedIllegalArgumentException("varlensize (" + varlensize + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
-        varlensize_ = varlensize;
-        length_ = length;
         ccsid_ = ccsid;
         // Notice that we have not filled in the Converter object.  We can't do that because we don't know if this object will in the end be used on the public side (Converter) or on the IBM i side (ConverterImpl).
         // We also can't do that yet since the Converter ctor will connect to the system.
@@ -370,19 +330,19 @@ public class AS400Varchar implements AS400DataType {
 
     /**
      Converts the specified Java object to IBM i format.
-     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
+     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.
      @return  The IBM i representation of the data type.
      **/
     public byte[] toBytes(Object javaValue)
     {
         byte[] serverValue = new byte[length_ + varlensize_];
-        toBytes(javaValue, serverValue, 2);
+        toBytes(javaValue, serverValue, 0);
         return serverValue;
     }
 
     /**
      Converts the specified Java object into IBM i format in the specified byte array.
-     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
+     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.
      @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
      @return  The number of bytes in the IBM i representation of the data type.
      **/
@@ -393,7 +353,7 @@ public class AS400Varchar implements AS400DataType {
 
     /**
      Converts the specified Java object into IBM i format in the specified byte array.
-     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
+     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.
      @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
      @param  offset  The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
      @return  The number of bytes in the IBM i representation of the data type.
@@ -413,7 +373,7 @@ public class AS400Varchar implements AS400DataType {
 
     /**
      Converts the specified Java object into IBM i format in the specified byte array.
-     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
+     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.
      @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
      @param  offset  The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
      @param  type  The bidi string type, as defined by the CDRA (Character Data Representation Architecture).  See <a href="BidiStringType.html"> BidiStringType</a> for more information and valid values.
@@ -427,7 +387,7 @@ public class AS400Varchar implements AS400DataType {
 
     /**
      Converts the specified Java object into IBM i format in the specified byte array.
-     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.  If the provided string is not long enough to fill the return array, the remaining bytes will be padded with space bytes (EBCDIC 0x40, ASCII 0x20, or Unicode 0x0020).
+     @param  javaValue  The object corresponding to the data type.  It must be an instance of String, and the converted text length must be less than or equal to the byte length of this data type.
      @param  serverValue  The array to receive the data type in IBM i format.  There must be enough space to hold the IBM i value.
      @param  offset  The offset into the byte array for the start of the IBM i value.  It must be greater than or equal to zero.
      @param  properties  The bidi conversion properties.
@@ -461,9 +421,9 @@ public class AS400Varchar implements AS400DataType {
         //Set String length in byte array.
         int varOffset = offset + varlensize_;
         if (varlensize_ == 2) {
-        	BinaryConverter.shortToByteArray((short)eValueLength, serverValue, 0);	
+            BinaryConverter.shortToByteArray((short) eValueLength, serverValue, offset);
         } else {
-        	BinaryConverter.intToByteArray(eValueLength, serverValue, 0);
+        	BinaryConverter.intToByteArray(eValueLength, serverValue, offset);
         }
 
         // Let this line throw ArrayIndexException.
