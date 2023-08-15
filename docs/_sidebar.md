@@ -9,7 +9,7 @@
       * [IFS File](usage/examples/IFS_FILE.md)
       * [Program Call](usage/examples/PROGRAM_CALL.md)
       * [JDBC](usage/examples/JDBC.md)
-      * [Apache Camel](usage/examples/JDBC.md)
+      * [Apache Camel](usage/examples/APACHE_CAMEL.md)
    * [Logging](usage/logging/LOGGING.md)
       * [RDi](usage/logging/RDI_LOGGING.md)
       * [WildFly](usage/logging/WILDFLY_LOGGING.md)
