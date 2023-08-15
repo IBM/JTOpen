@@ -11,6 +11,7 @@
       * [JDBC](usage/examples/JDBC.md)
       * [Apache Camel](usage/examples/JDBC.md)
    * [Logging](usage/logging/LOGGING.md)
+      * [WebSphere](usage/logging/WAS_LOGGING.md)
 * [Major Changes](MAJOR_CHANGES.md)
 * [Compatibility Matrix](COMPAT_MATRIX.md)
 * [Further Reading](FURTHER_READING.md)
