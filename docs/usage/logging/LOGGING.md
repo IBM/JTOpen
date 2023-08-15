@@ -33,14 +33,15 @@ If it is determined that server-side traces are required, the value of the prope
 each server trace that is wanted. The server traces available, and their assigned values, are listed in the following table:
 
 **Table 2**
-| Server Trace 	             | Option Value  | Description | 
+
+| Server Trace               | Option Value  | Description | 
 | -------------------------- | ------------- | ------------ |
-| Database Monitor           | 2             | Start the database monitor on the JDBC server job.
-| Debug Job                  | 4             | Start debug on the JDBC server job.
-| Save Joblog                | 8 	           | Save the job log when the JDBC server job ends.
-| Job Trace                  | 16 	         | Start job trace on the JDBC server job.
-| Save SQL                   | 32            | Print a spooled file containing SQL statements for the job when the JDBC server job ends.
-| Database Host Server Trace | 64            | Start a trace for the database host server component.
+| Database Monitor           | 2             | Start the database monitor on the JDBC server job. |
+| Debug Job                  | 4             | Start debug on the JDBC server job. |
+| Save Joblog                | 8             | Save the job log when the JDBC server job ends. |
+| Job Trace                  | 16            | Start job trace on the JDBC server job. |
+| Save SQL                   | 32            | Print a spooled file containing SQL statements for the job when the JDBC server job ends. |
+| Database Host Server Trace | 64            | Start a trace for the database host server component. |
 
 When you use the server trace options, the user profile used to make the JDBC connection must have the proper authority to the commands
 used or the trace cannot start. For example, to use the option to start a database monitor, the profile must have use authority to the
@@ -63,11 +64,12 @@ added. In a stand-alone Java application, JVM properties might be passed as argu
 properties defined by toolbox, the purpose of each, and the allowed values.
 
 **Table 3**
+
 | Property                                | Description                                                    | Allowed Values |
 | --------------------------------------- | -------------------------------------------------------------- | -------------- |
-| `com.ibm.as400.access.Trace.category`   | Turns on tracing for specific toolbox categories. 	           | Comma-delimited list of [categories](#toolbox-trace-categories)
-| `com.ibm.as400.access.Trace.file`       | Directs the output of the toolbox trace to the specified file. | Any path that is valid for the platform where the JVM is run. Directory must exist; however, the file does not need to exist.
-| `com.ibm.as400.access.ServerTrace.JDBC` | Turns on the available server-side traces for the JDBC driver. | Any number produced by summing the values of the wanted options in Table 2.
+| `com.ibm.as400.access.Trace.category`   | Turns on tracing for specific toolbox categories.              | Comma-delimited list of [categories](#toolbox-trace-categories) |
+| `com.ibm.as400.access.Trace.file`       | Directs the output of the toolbox trace to the specified file. | Any path that is valid for the platform where the JVM is run. Directory must exist; however, the file does not need to exist. |
+| `com.ibm.as400.access.ServerTrace.JDBC` | Turns on the available server-side traces for the JDBC driver. | Any number produced by summing the values of the wanted options in Table 2. |
  
 
 ## JDBC Data Source Properties
@@ -77,11 +79,12 @@ programmatically (uncommon) or by using the administration of an application ser
 there is no provision for directing the trace output. One of the other techniques must be used to direct tracing to a file.
 
 **Table 4**
+
 | Data Source Property                    | Description                                                          | Allowed Values |
 | --------------------------------------- | -------------------------------------------------------------------- | -------------- |
-| `toolboxTrace`                          | Turns on tracing for specific toolbox categories.                    | Comma-delimited list of the categories listed in Table 1.
-| `trace`                                 | Turns on JDBC specific tracing. Same as the "jdbc" toolbox category. | True or false.
-| `serverTraceCategories`                 | Turns on the available server-side traces for the JDBC driver.       | Any number produced by summing the values of the wanted options in Table 2.
+| `toolboxTrace`                          | Turns on tracing for specific toolbox categories.                    | Comma-delimited list of the categories listed in Table 1. |
+| `trace`                                 | Turns on JDBC specific tracing. Same as the "jdbc" toolbox category. | True or false. |
+| `serverTraceCategories`                 | Turns on the available server-side traces for the JDBC driver.       | Any number produced by summing the values of the wanted options in Table 2. |
  
 ## JDBC Connection String
 
@@ -90,11 +93,12 @@ be used to enable toolbox tracing and the server-side traces. As with data sourc
 specific file.
 
 **Table 5**
+
 | Connection Keyword      | Description                              | Allowed Values |
 | ----------------------- | ---------------------------------------- | -------------- |
-| `toolbox trace`         | Turns on tracing for specific toolbox categories. | Comma-delimited list of the categories listed in Table 1.
-| `trace`                 | Turns on JDBC specific tracing. Same as the "jdbc" toolbox category. | True or false.
-| `server trace`          | Turns on the available server-side traces for the JDBC driver.       | Any number produced by summing the values of the wanted options in Table 2.
+| `toolbox trace`         | Turns on tracing for specific toolbox categories. | Comma-delimited list of the categories listed in Table 1. |
+| `trace`                 | Turns on JDBC specific tracing. Same as the "jdbc" toolbox category. | True or false. |
+| `server trace`          | Turns on the available server-side traces for the JDBC driver.       | Any number produced by summing the values of the wanted options in Table 2. |
 
 The following is an example of a connection string that could be used to turn on toolbox tracing and server traces.
 ```pascal
@@ -149,24 +153,27 @@ For more information about database monitor impacts, see:
 The following table shows the available methods in the Trace class for starting traces:
 
 **Table 6**
-| General Trace Method        | 	Purpose | 
-| --------------------------- | ----------|
-| `Trace.setTraceOn(boolean)` | Turns tracing for all currently enabled categories on or off.
-| `Trace.setFileName(String)` | Directs toolbox trace output to the specified file.
 
-| Trace Category Method       |  	Purpose | 
+| General Trace Method        |   Purpose | 
 | --------------------------- | ----------|
-| `Trace.setTraceAllOn(boolean)`         | Turns all categories of toolbox tracing on or off.
-| `Trace.setTraceConversionOn(boolean)`  | Turns the "conversion" toolbox trace category on or off.
-| `Trace.setTraceDatastreamOn(boolean)`  | Turns the "datastream" toolbox trace category.
-| `Trace.setTraceDiagnosticOn(boolean)`  | Turns the "diagnostic" toolbox trace category.
-| `Trace.setTraceErrorOn(boolean)`       | Turns the "error" toolbox trace category on or off.
-| `Trace.setTraceInformationOn(boolean)` | Turns the "information" toolbox trace category on or off.
-| `Trace.setTraceJDBCOn(boolean)`        | Turns the "jdbc" toolbox trace category on or off.
-| `Trace.setTracePCMLOn(boolean)`        | Turns the "pcml" toolbox trace category on or off.
-| `Trace.setTraceProxyOn(boolean)`       | Turns the "proxy" toolbox trace category on or off.
-| `Trace.setTraceThreadOn(boolean)`      | Turns the "thread" toolbox trace category on or off.
-| `Trace.setTraceWarningOn(boolean)`     | Turns the "warning" toolbox trace category on or off.
+| `Trace.setTraceOn(boolean)` | Turns tracing for all currently enabled categories on or off. |
+| `Trace.setFileName(String)` | Directs toolbox trace output to the specified file. |
+
+**Table 6b**
+
+| Trace Category Method       |    Purpose | 
+| --------------------------- | ----------|
+| `Trace.setTraceAllOn(boolean)`         | Turns all categories of toolbox tracing on or off. |
+| `Trace.setTraceConversionOn(boolean)`  | Turns the "conversion" toolbox trace category on or off. |
+| `Trace.setTraceDatastreamOn(boolean)`  | Turns the "datastream" toolbox trace category. |
+| `Trace.setTraceDiagnosticOn(boolean)`  | Turns the "diagnostic" toolbox trace category. |
+| `Trace.setTraceErrorOn(boolean)`       | Turns the "error" toolbox trace category on or off. |
+| `Trace.setTraceInformationOn(boolean)` | Turns the "information" toolbox trace category on or off. |
+| `Trace.setTraceJDBCOn(boolean)`        | Turns the "jdbc" toolbox trace category on or off. |
+| `Trace.setTracePCMLOn(boolean)`        | Turns the "pcml" toolbox trace category on or off. |
+| `Trace.setTraceProxyOn(boolean)`       | Turns the "proxy" toolbox trace category on or off. |
+| `Trace.setTraceThreadOn(boolean)`      | Turns the "thread" toolbox trace category on or off. |
+| `Trace.setTraceWarningOn(boolean)`     | Turns the "warning" toolbox trace category on or off. |
 
 Note: most commonly, trace is gathered for all categories. The programmer must use both the general
 trace method (to turn on trace) as well as a category method. That is, most use cases will contain the
@@ -197,15 +204,16 @@ Trace.setTraceOn(false);
 The following table lists where to find the traces that are produced by the toolbox and Server Trace options.
 
 **Table 7**
-| Trace Type 	               | Output | 
+
+| Trace Type                  | Output | 
 | -------------------------- | -------- |
-| Toolbox Trace              | Defaults to Java standard output stream, unless trace file is specified.* 
-| Database Monitor (DBMON)   | Monitor file created named QUSRSYS/QJTxxxxxx, where xxxxxx is the job number of the QZDASOINIT server job. For more information about database monitor impacts, see: [Impact of collecting a DBMON trace - Start Database Monitor - STRDBMON](https://www.ibm.com/support/pages/node/882914)
-| Debug Job                  | Debug messages are posted to the job log of the QZDASOINIT server job.
-| Save Joblog                | Spooled file named QPJOBLOG generated at disconnect time. Associated with the QZDASOINIT server job and the user profile that established the connection.
-| Job Trace                  | Spooled file named QPSRVTRCJ generated at disconnect time. Associated with the QZDASOINIT server job and the user profile that established the connection.
-| Save SQL                   | Spooled file named JOBSQL generated at disconnect time. Associated with the QZDASOINIT server job and the user profile that established the connection.
-| Database Host Server Trace | Same as Job Trace. If both are active, trace points are logged to the same spooled file.
+| Toolbox Trace              | Defaults to Java standard output stream, unless trace file is specified._*_ |
+| Database Monitor (DBMON)   | Monitor file created named QUSRSYS/QJTxxxxxx, where xxxxxx is the job number of the QZDASOINIT server job. For more information about database monitor impacts, see: [Impact of collecting a DBMON trace - Start Database Monitor - STRDBMON](https://www.ibm.com/support/pages/node/882914) |
+| Debug Job                  | Debug messages are posted to the job log of the QZDASOINIT server job. |
+| Save Joblog                | Spooled file named QPJOBLOG generated at disconnect time. Associated with the QZDASOINIT server job and the user profile that established the connection. |
+| Job Trace                  | Spooled file named QPSRVTRCJ generated at disconnect time. Associated with the QZDASOINIT server job and the user profile that established the connection. |
+| Save SQL                   | Spooled file named JOBSQL generated at disconnect time. Associated with the QZDASOINIT server job and the user profile that established the connection. |
+| Database Host Server Trace | Same as Job Trace. If both are active, trace points are logged to the same spooled file. |
 
 _*The toolbox trace defaults to the standard output stream. In a console application, this information would typically
 be sent back to the screen. In WebSphere, it would be directed to the SystemOut.log. In most cases, it is recommended
