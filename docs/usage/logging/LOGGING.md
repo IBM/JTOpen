@@ -8,20 +8,21 @@ of toolbox tracing goes to standard out; however, there is an option to direct t
 for more details. The categories are listed in the following table:
 
 **Table 1**
+
 | Category        | Description   |
 | --------------- | ------------- |
-| conversion      | This category is used by toolbox classes to log character set conversions between Unicode and native code pages.
-| datastream      | This category is used by toolbox classes to log data flow between the local host and the remote system.
-| diagnostic      | This category is used to log object state information.
-| error           | This category is used to log errors that cause an exception.
-| information     | This category is used to track the flow of control through the code.
-| jdbc            | This category is used to include JDBC data in the standard toolbox trace.
-| pcml            | This category is used to determine how PCML interprets the data that is sent to and from the system.
-| proxy           | This category is used by toolbox classes to log data flow between the client and the proxy server.
-| thread          | This category adds thread information to trace points from other categories.
-| warning         | This category is used to log errors that are recoverable.
-| all             | This category enables all other categories.
-| none            | This category disables all tracing.
+| conversion      | This category is used by toolbox classes to log character set conversions between Unicode and native code pages. |
+| datastream      | This category is used by toolbox classes to log data flow between the local host and the remote system. |
+| diagnostic      | This category is used to log object state information. |
+| error           | This category is used to log errors that cause an exception. |
+| information     | This category is used to track the flow of control through the code. |
+| jdbc            | This category is used to include JDBC data in the standard toolbox trace. |
+| pcml            | This category is used to determine how PCML interprets the data that is sent to and from the system. |
+| proxy           | This category is used by toolbox classes to log data flow between the client and the proxy server. |
+| thread          | This category adds thread information to trace points from other categories. |
+| warning         | This category is used to log errors that are recoverable. |
+| all             | This category enables all other categories. |
+| none            | This category disables all tracing. |
 
 
 ## Server Trace Options
