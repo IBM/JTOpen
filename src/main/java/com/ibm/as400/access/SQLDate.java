@@ -36,11 +36,6 @@ extends SQLDataBase
 {
     static final String copyright = "Copyright (C) 1997-2002 International Business Machines Corporation and others.";
 
-    static boolean jdk14 = false;
-    static {
-      jdk14 = JVMInfo.isJDK14();
-    }
-
     // Private data.
     private int			    dateFormat_;	// @550A
     private int                     year_;
@@ -185,8 +180,7 @@ extends SQLDataBase
 
         try //@dat1
         {
-        	long millis;
-        	if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        	long millis = calendar.getTimeInMillis();
             return new Date(millis);
         }catch(Exception e){
             if (JDTrace.isTraceOn()) JDTrace.logException((Object)null, "Error parsing date "+s, e); //@dat1
@@ -658,8 +652,7 @@ endif */
 
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        long millis;
-        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        long millis = calendar.getTimeInMillis();
         return new Date(millis);
     }
 
@@ -712,8 +705,7 @@ endif */
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        long millis;
-        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        long millis = calendar.getTimeInMillis();
         Date d = new Date(millis);
         return dateToString(d, settings_, calendar);
     }
@@ -736,8 +728,7 @@ endif */
 
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        long millis;
-        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        long millis = calendar.getTimeInMillis();
         Timestamp ts = new Timestamp(millis);
         ts.setNanos(0);
         return ts;
@@ -751,8 +742,7 @@ endif */
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.set(year_, month_, day_, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        long millis;
-        if (jdk14) { millis =calendar.getTimeInMillis(); } else { millis = calendar.getTime().getTime(); }
+        long millis = calendar.getTimeInMillis();
         Date d = new Date(millis);
         return dateToString(d, settings_, calendar);
     }

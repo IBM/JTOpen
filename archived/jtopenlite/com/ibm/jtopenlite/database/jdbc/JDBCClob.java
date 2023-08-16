@@ -81,9 +81,7 @@ public class JDBCClob implements Clob
     }
     catch (UnsupportedEncodingException uee)
     {
-      SQLException sql = new SQLException(uee.toString());
-      sql.initCause(uee);
-      throw sql;
+      throw new SQLException(uee);
     }
   }
 
@@ -98,9 +96,7 @@ public class JDBCClob implements Clob
     }
     catch (UnsupportedEncodingException uee)
     {
-      SQLException sql = new SQLException(uee.toString());
-      sql.initCause(uee);
-      throw sql;
+      throw new SQLException(uee);
     }
   }
 
@@ -119,9 +115,7 @@ public class JDBCClob implements Clob
     }
     catch (UnsupportedEncodingException uee)
     {
-      SQLException sql = new SQLException(uee.toString());
-      sql.initCause(uee);
-      throw sql;
+      throw new SQLException(uee);
     }
   }
 
@@ -159,9 +153,7 @@ public class JDBCClob implements Clob
     }
     catch (UnsupportedEncodingException uee)
     {
-      SQLException sql = new SQLException(uee.toString());
-      sql.initCause(uee);
-      throw sql;
+      throw new SQLException(uee);
     }
   }
 
@@ -199,9 +191,7 @@ public class JDBCClob implements Clob
     }
     catch (UnsupportedEncodingException uee)
     {
-      SQLException sql = new SQLException(uee.toString());
-      sql.initCause(uee);
-      throw sql;
+      throw new SQLException(uee);
     }
   }
 

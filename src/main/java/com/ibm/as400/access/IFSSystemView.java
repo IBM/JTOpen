@@ -131,21 +131,6 @@ public class IFSSystemView extends FileSystemView
       else return file;
     }
 
-
-    // Note: The method createFileSystemRoot() was added to the FileSystemView class in JDK 1.4.
-    // We provide an implementation here to swallow the NoSuchMethodError if running on an older JDK.
-    protected File createFileSystemRoot(File f) {
-      try {
-        return super.createFileSystemRoot(f);
-      }
-      catch (NoSuchMethodError e) {  // method added in JDK 1.4
-        if (Trace.isTraceOn()) {
-          Trace.log(Trace.DIAGNOSTIC, e);
-        }
-        return f;
-      }
-    }
-
     /**
      Creates a new folder with a default name.
      <br>Note: In the context of this class, "folder" is synonymous with "directory".

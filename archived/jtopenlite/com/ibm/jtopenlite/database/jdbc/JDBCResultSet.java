@@ -1012,9 +1012,7 @@ public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
     }
     catch (UnsupportedEncodingException uee)
     {
-      SQLException sql = new SQLException(uee.toString());
-      sql.initCause(uee);
-      throw sql;
+      throw new SQLException(uee);
     }
   }
 
@@ -1031,9 +1029,7 @@ public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
     }
     catch (UnsupportedEncodingException uee)
     {
-      SQLException sql = new SQLException(uee.toString());
-      sql.initCause(uee);
-      throw sql;
+      throw new SQLException(uee);
     }
   }
 
@@ -1047,9 +1043,7 @@ public class JDBCResultSet implements ResultSet, DatabaseFetchCallback
     }
     catch (MalformedURLException e)
     {
-      SQLException sql = new SQLException("Data conversion error");
-      sql.initCause(e);
-      throw sql;
+      throw new SQLException("Data conversion error", e);
     }
   }
 

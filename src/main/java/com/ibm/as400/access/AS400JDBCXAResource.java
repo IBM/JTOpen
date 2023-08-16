@@ -964,10 +964,8 @@ specified.
     {
       JDTrace.logException(this, "throwing XAException(XAER_RMFAIL) because of", e); 
     }
-    XAException xaex = new XAException(XAException.XAER_RMFAIL);
-    try { 
-      xaex.initCause(e);
-    } catch (Throwable t) {}
+    XAException xaex = new XAException(XAException.XAER_RMFAIL); 
+    xaex.initCause(e);
     throw xaex; 
   }
 

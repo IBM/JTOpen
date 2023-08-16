@@ -210,9 +210,7 @@ static
     }
     catch (SQLException sql)
     {
-      RuntimeException re = new RuntimeException("Error registering driver: "+sql.toString());
-      re.initCause(sql);
-      throw re;
+      throw new RuntimeException("Error registering driver: "+sql.toString(), sql);
     }
   }
 

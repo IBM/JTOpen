@@ -28,18 +28,6 @@ class ToolboxLogger
   private static Logger[] parentLoggers_ = null;
   private final static Object loggerLock_ = new Object();
 
-  private static boolean JDK14_OR_HIGHER;
-  static
-  {
-    try {
-      Class.forName("java.util.logging.LogManager"); // Class added in JDK 1.4.
-      JDK14_OR_HIGHER = true;  // If we got this far, we're on JDK 1.4 or higher.
-    }
-    catch (Throwable e) {      // We're not on JDK 1.4 or higher,
-      JDK14_OR_HIGHER = false; // so don't even try to get the Toolbox Logger.
-    }
-  }
-
   // Private constructor to prevent instantiation by other classes.
   private ToolboxLogger() {}
 
@@ -56,7 +44,7 @@ class ToolboxLogger
    **/
   static final ToolboxLogger getLogger()
   {
-    if (logger_ == null && JDK14_OR_HIGHER)
+    if (logger_ == null)
     {
       synchronized (loggerLock_)
       {

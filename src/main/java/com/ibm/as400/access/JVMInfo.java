@@ -21,35 +21,24 @@ public class JVMInfo
 {
 
   static String javaVersion = null;
-  static boolean jdk14;
   static boolean jdk16;
 
   protected static void initializeJavaVersion() {
     String version = System.getProperty("java.version");
     if (version != null) {
       if (version.length() > 2) {
-        if (version.charAt(0) == '1' && version.charAt(2) < '4') {
-          jdk14 = false;
+        if (version.charAt(0) == '1' && version.charAt(2) < '6') {
           jdk16 = false;
         } else {
-          if (version.charAt(0) == '1' && version.charAt(2) < '6') {
-            jdk14 = true;
-            jdk16 = false;
-          } else {
-            jdk14 = true;
-            jdk16 = true;
-
-          }
+          jdk16 = true;
         }
       } else {
         // Android JVM returns 0 and runs with JDK 1.5
         if ("0".equals(version)) {
-          jdk14 = true;
           jdk16 = false;
         }
         // Java 9 return 9 
         if ("9".equals(version)) {
-          jdk14 = true;
           jdk16 = true;
         }
       }
@@ -57,16 +46,6 @@ public class JVMInfo
 
 
 
-  }
-
-  /*
-   * Is the JVM running JDK 1.4 or later.
-   */
-  public static boolean isJDK14() {
-    if (javaVersion == null) {
-      initializeJavaVersion();
-    }
-    return jdk14;
   }
 
   /*

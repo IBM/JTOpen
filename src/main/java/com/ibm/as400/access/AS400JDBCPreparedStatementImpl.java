@@ -1753,12 +1753,7 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
         }
         BatchUpdateException batchUpdateException = new BatchUpdateException(
             e.getMessage(), e.getSQLState(), e.getErrorCode(), counts);
-        // Attempt to set the cause, ignoring any failures (i.e. in Pre JDK 1.4)
-        // /*@DAA*/
-        try {
-          batchUpdateException.initCause(e);
-        } catch (java.lang.NoSuchMethodError e2) {
-        }
+        batchUpdateException.initCause(e);
 
         throw batchUpdateException;
       } finally {

@@ -91,9 +91,7 @@ public final class JDBCBlobLocator implements Blob, DatabaseLOBDataCallback
     }
     catch (IOException io)
     {
-      SQLException sql = new SQLException(io.toString());
-      sql.initCause(io);
-      throw sql;
+      throw new SQLException(io);
     }
   }
 
@@ -121,9 +119,7 @@ public final class JDBCBlobLocator implements Blob, DatabaseLOBDataCallback
       }
       catch (IOException io)
       {
-        SQLException sql = new SQLException(io.toString());
-        sql.initCause(io);
-        throw sql;
+        throw new SQLException(io);
       }
     }
     return length_;

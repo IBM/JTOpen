@@ -109,9 +109,8 @@ Constructs a ProxyException object.
     **/
         ProxyException (int returnCode, Throwable e)
         {
-            super (ResourceBundleLoader.getText (getMRIKey (returnCode)));
+            super (ResourceBundleLoader.getText (getMRIKey (returnCode)), e);
             returnCode_ = returnCode;
-            initCause(e); 
         }
 
 

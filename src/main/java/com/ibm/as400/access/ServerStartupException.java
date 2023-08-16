@@ -152,6 +152,16 @@ public class ServerStartupException extends IOException implements ReturnCodeExc
         rc_ =  returnCode;
     }
 
+    // Constructs a ServerStartupException object.  It indicates that the host server can not be started.  Exception message will look like this: Unable to connect to the port.
+    // @param  returnCode  The return code which identifies the message to be returned.
+    // @param  cause  The cause
+    ServerStartupException(int returnCode, Throwable cause)
+    {
+        // Create the message.
+        super(ResourceBundleLoader.getText(getMRIKey(returnCode)), cause);
+        rc_ =  returnCode;
+    }
+
     // Returns the text associated with the return code.
     // @param  returnCode  The return code associated with this exception.
     // @return  The text string which describes the error.

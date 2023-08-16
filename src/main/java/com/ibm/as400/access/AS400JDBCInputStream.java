@@ -288,11 +288,7 @@ exception is thrown.
         //@pdd e.printStackTrace(DriverManager.getLogStream());
         closed_ = true;                                   
       }
-      IOException throwException = new IOException(e.getMessage());
-      try { 
-        throwException.initCause(e); 
-      } catch (Throwable t) {}
-      throw throwException;
+      throw new IOException(e);
     }
   }
 

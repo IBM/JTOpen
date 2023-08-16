@@ -103,11 +103,6 @@ final class JDError
   // threads are running @Q4D
   // static String       lastServerSQLState_             = null;
 
-  static boolean jdk14 = false;
-  static {
-    jdk14 = JVMInfo.isJDK14();
-  }
-
 /**
 Private constructor to prevent instantiation.  All methods in
 this class are static.
@@ -626,12 +621,10 @@ trace for debugging purposes.
     }                                                                   // @J3a
 
     //
-    // Set the cause for JDK 1.4 and later
+    // Set the cause
     //
-    if (jdk14) {
-      if (e != null) { 
-    	  e2.initCause(e);
-      }
+    if (e != null) { 
+      e2.initCause(e);
     }
     throw e2;
   }

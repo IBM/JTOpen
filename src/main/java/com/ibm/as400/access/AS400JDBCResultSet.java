@@ -6075,7 +6075,7 @@ void postWarningSQLState(String sqlState)  {
             
             //if above cannot determine holdability, then do best guess
             if(connection_ instanceof AS400JDBCConnection && connection_ != null)        //@cur
-                return ((AS400JDBCConnection) connection_).getHoldability();             //@cur  CAST needed for JDK 1.3 
+                return connection_.getHoldability();                                     //@cur
             else                                                                         //@cur
                 return ResultSet.CLOSE_CURSORS_AT_COMMIT;                                //@cur (if no statment exists for this, then safest is to return close at commit to prevent cursor reuse errors)
         }

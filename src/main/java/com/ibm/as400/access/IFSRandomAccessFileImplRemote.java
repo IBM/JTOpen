@@ -111,11 +111,7 @@ implements IFSRandomAccessFileImpl
       fd_.flush();  // @B2C
     }
     catch (AS400SecurityException e) {
-      IOException throwException = new IOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new IOException(e);
     }
   }
 
@@ -173,9 +169,7 @@ implements IFSRandomAccessFileImpl
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -224,9 +218,7 @@ implements IFSRandomAccessFileImpl
         {
           Trace.log(Trace.ERROR, "Interrupted", e);
           InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
+          throwException.initCause(e);
           throw throwException;
         }
       }
@@ -270,11 +262,7 @@ implements IFSRandomAccessFileImpl
       return fd_.lock(offset,length);  // @B2C
     }
     catch (AS400SecurityException e) {
-      IOException throwException = new IOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new IOException(e);
     }
   }
 
@@ -361,9 +349,7 @@ implements IFSRandomAccessFileImpl
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e); 
       throw throwException;
     }
 
@@ -508,11 +494,7 @@ implements IFSRandomAccessFileImpl
       }
     }
     catch (AS400SecurityException e) {
-      IOException throwException = new IOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new IOException(e);
     }
   }
 
@@ -533,11 +515,7 @@ implements IFSRandomAccessFileImpl
         readCacheLength_ = read(readCache_, 0, readCache_.length);
       }
       catch (AS400SecurityException e) {
-        IOException throwException = new IOException(e.getMessage());
-        try {
-          throwException.initCause(e); 
-        } catch (Throwable t) {} 
-        throw throwException;
+        throw new IOException(e);
       }
       if (readCacheLength_ == -1)
       {
@@ -727,11 +705,7 @@ implements IFSRandomAccessFileImpl
       return sb.toString();
     }
     catch (AS400SecurityException e) {
-      IOException throwException = new IOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new IOException(e);
     }
   }
 
@@ -811,11 +785,7 @@ implements IFSRandomAccessFileImpl
       fd_.setLength(length);
     }
     catch (AS400SecurityException e) {
-      IOException throwException = new IOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new IOException(e);
     }
   }
 
@@ -863,11 +833,7 @@ implements IFSRandomAccessFileImpl
       fd_.unlock(key);  // @B2C
     }
     catch (AS400SecurityException e) {
-      IOException throwException = new IOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new IOException(e);
     }
   }
 
@@ -898,11 +864,7 @@ implements IFSRandomAccessFileImpl
       fd_.writeBytes(data, dataOffset, length, forceToStorage_);  // @B2C
     }
     catch (AS400SecurityException e) {
-      IOException throwException = new IOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new IOException(e);
     }
   }
 

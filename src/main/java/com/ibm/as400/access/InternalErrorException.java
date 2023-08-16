@@ -142,16 +142,7 @@ implements ReturnCodeException {
       instead 
     **/
     InternalErrorException(int returnCode, String text, Throwable exception) {
-        super(loader_.getText(getMRIKey(returnCode)) + " " + text);
-        //
-        // Set the cause, catching the error if not JDK 1.4
-        // 
-        if (exception != null) { 
-        try {
-          initCause(exception); 
-        } catch (Throwable t) { 
-        }
-        }
+        super(loader_.getText(getMRIKey(returnCode)) + " " + text, exception);
         rc_ = returnCode;
     }
 
@@ -164,14 +155,7 @@ implements ReturnCodeException {
                  Note: This parameter does not get translated.
   **/
   InternalErrorException(int returnCode, Throwable exception ) {
-      super(loader_.getText(getMRIKey(returnCode)) + " " + exception.getMessage());
-      //
-      // Set the cause, catching the error if not JDK 1.4
-      //
-      try {
-        initCause(exception); 
-      } catch (Throwable t) { 
-      }
+      super(loader_.getText(getMRIKey(returnCode)) + " " + exception.getMessage(), exception);
       rc_ = returnCode;
   }
 

@@ -831,9 +831,7 @@ enableSeamlessFailover .setShortDescription(AS400JDBCDriver.getResource("ENABLE_
         }
         catch(Exception e)
         { 
-            Error error = new Error(e.toString());
-            error.initCause(e);
-            throw error ;
+            throw new Error(e) ;
         }
     }
 

@@ -167,9 +167,7 @@ implements IFSFileDescriptorImpl
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -274,9 +272,7 @@ implements IFSFileDescriptorImpl
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
     if (ds instanceof IFSReturnCodeRep)
@@ -357,9 +353,7 @@ implements IFSFileDescriptorImpl
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -461,9 +455,7 @@ implements IFSFileDescriptorImpl
                   system_.disconnectServer(server_);
                   server_ = null;
                   InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-                  try {
-                    throwException.initCause(e); 
-                  } catch (Throwable t) {} 
+                  throwException.initCause(e);
                   throw throwException;
               }
               catch(IOException e)
@@ -613,9 +605,7 @@ implements IFSFileDescriptorImpl
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -766,9 +756,7 @@ implements IFSFileDescriptorImpl
         {
           Trace.log(Trace.ERROR, "Interrupted");
           InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
+          throwException.initCause(e);
           throw throwException;
         }
 
@@ -925,9 +913,7 @@ implements IFSFileDescriptorImpl
     {
       Trace.log(Trace.ERROR, "Interrupted");
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -985,9 +971,7 @@ implements IFSFileDescriptorImpl
         {
           Trace.log(Trace.ERROR, "Interrupted");
           InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
+          throwException.initCause(e);
           throw throwException;
         }
       }
@@ -1147,9 +1131,7 @@ implements IFSFileDescriptorImpl
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -1242,9 +1224,7 @@ implements IFSFileDescriptorImpl
       {
         Trace.log(Trace.ERROR, "Interrupted", e);
         InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-        try {
-          throwException.initCause(e); 
-        } catch (Throwable t) {} 
+        throwException.initCause(e);
         throw throwException;
       }
 
@@ -1317,9 +1297,7 @@ implements IFSFileDescriptorImpl
           {
             Trace.log(Trace.ERROR, "Interrupted", e);
             InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-            try {
-              throwException.initCause(e); 
-            } catch (Throwable t) {} 
+            throwException.initCause(e);
             throw throwException;
           }
         }
@@ -1396,9 +1374,7 @@ implements IFSFileDescriptorImpl
     {
       Trace.log(Trace.ERROR, "Interrupted");
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
     finally {
@@ -1550,9 +1526,7 @@ implements IFSFileDescriptorImpl
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -1642,9 +1616,7 @@ implements IFSFileDescriptorImpl
       {
         Trace.log(Trace.ERROR, "Interrupted", e);
         InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-        try {
-          throwException.initCause(e); 
-        } catch (Throwable t) {} 
+        throwException.initCause(e);
         throw throwException;
       }
 
@@ -1714,9 +1686,7 @@ implements IFSFileDescriptorImpl
     {
       Trace.log(Trace.ERROR, "Interrupted");
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
     // Verify that we got a handle back.
@@ -1754,9 +1724,7 @@ implements IFSFileDescriptorImpl
     } catch (InterruptedException e) {
       Trace.log(Trace.ERROR, "Interrupted");
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -1841,9 +1809,7 @@ implements IFSFileDescriptorImpl
         {
           Trace.log(Trace.ERROR, "Interrupted");
           InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
+          throwException.initCause(e);
           throw throwException;
         }
 
@@ -1924,9 +1890,7 @@ implements IFSFileDescriptorImpl
       {
         Trace.log(Trace.ERROR, "Interrupted");
         InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-        try {
-          throwException.initCause(e); 
-        } catch (Throwable t) {} 
+        throwException.initCause(e);
         throw throwException;
       }
 
@@ -2005,9 +1969,7 @@ implements IFSFileDescriptorImpl
         {
           Trace.log(Trace.ERROR, "Interrupted");
           InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
+          throwException.initCause(e);
           throw throwException;
         }
 
@@ -2054,7 +2016,7 @@ implements IFSFileDescriptorImpl
           Trace.log(Trace.ERROR, "Interrupted");
           InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
           try {
-            throwException.initCause(e); 
+            throwException.initCause(e);
           } catch (Throwable t) {} 
           throw throwException;
         }
@@ -2133,9 +2095,7 @@ implements IFSFileDescriptorImpl
 	        {
 	          Trace.log(Trace.ERROR, "Interrupted");
 	          InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-	          try {
-	            throwException.initCause(e); 
-	          } catch (Throwable t) {} 
+	          throwException.initCause(e);
 	          throw throwException;
 	        }
 

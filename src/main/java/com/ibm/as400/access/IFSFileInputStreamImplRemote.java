@@ -150,9 +150,7 @@ implements IFSFileInputStreamImpl
     {
       Trace.log(Trace.ERROR, "Interrupted.", e);
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -201,9 +199,7 @@ implements IFSFileInputStreamImpl
         {
           Trace.log(Trace.ERROR, "Interrupted", e);
           InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
+          throwException.initCause(e);
           throw throwException;
         }
       }
@@ -249,11 +245,7 @@ implements IFSFileInputStreamImpl
       return fd_.lock(length);  // @B2C
     }
     catch (AS400SecurityException e) {
-      IOException throwException = new IOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new IOException(e);
     }
   }
 
@@ -320,9 +312,7 @@ implements IFSFileInputStreamImpl
     {
       Trace.log(Trace.ERROR, "Interrupted", e);
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -431,11 +421,7 @@ implements IFSFileInputStreamImpl
       return fd_.read(data, dataOffset, length);  // @B2C
     }
     catch (AS400SecurityException e) {
-      IOException throwException = new IOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new IOException(e);
     }
   }
 
@@ -554,11 +540,7 @@ implements IFSFileInputStreamImpl
       fd_.unlock(key);  // @B2C
     }
     catch (AS400SecurityException e) {
-      IOException throwException = new IOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new IOException(e);
     }
   }
 

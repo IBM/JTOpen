@@ -24,10 +24,6 @@ import java.util.Vector;
 // Contains static methods for setting and getting system values from the system.  Used by the SystemValue, SystemValueGroup, and SystemValueList classes.
 class SystemValueUtility
 {
-  static boolean jdk14 = false;
-  static {
-    jdk14 = JVMInfo.isJDK14();
-  }
 
     // Parses the data stream returned by the Program Call.  Extracts the system value information tables from the data stream.
     // @return  A Vector of Java objects corresponding to the values retrieved from the data stream.
@@ -112,8 +108,7 @@ class SystemValueUtility
                 String stringValue = value.toString();
                 Calendar cal = AS400Calendar.getGregorianInstance();
                 cal.set(1900 + (100 * Integer.parseInt(stringValue.substring(0, 1))) + Integer.parseInt(stringValue.substring(1, 3)), Integer.parseInt(stringValue.substring(3, 5)) - 1, Integer.parseInt(stringValue.substring(5, 7)));
-                long millis;
-                if (jdk14) { millis =cal.getTimeInMillis(); } else { millis = cal.getTime().getTime(); }
+                long millis = cal.getTimeInMillis();
                 value = new java.sql.Date(millis);
             }
             else if (obj.name_.equals("QTIME"))
@@ -125,8 +120,7 @@ class SystemValueUtility
                 cal.set(Calendar.MINUTE, Integer.parseInt(stringValue.substring(2, 4)));
                 cal.set(Calendar.SECOND, Integer.parseInt(stringValue.substring(4, 6)));
                 cal.set(Calendar.MILLISECOND, Integer.parseInt(stringValue.substring(6, 9)));
-                long millis;
-                if (jdk14) { millis =cal.getTimeInMillis(); } else { millis = cal.getTime().getTime(); }
+                long millis = cal.getTimeInMillis();
                 value = new Time(millis);
             }
 
