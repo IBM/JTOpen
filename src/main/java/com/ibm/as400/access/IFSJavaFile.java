@@ -330,12 +330,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (IOException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
-
+      throw new SecurityException(e);
     }
   }
 
@@ -357,11 +352,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (IOException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
   }
 
@@ -382,11 +373,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (IOException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
   }
 
@@ -552,11 +539,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -614,11 +597,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -723,11 +702,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -753,11 +728,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -787,11 +758,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -992,11 +959,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1029,11 +992,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1060,11 +1019,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
      }
      catch (AS400SecurityException e)
      {
-       SecurityException throwException = new SecurityException(e.getMessage());
-       try {
-         throwException.initCause(e); 
-       } catch (Throwable t) {} 
-       throw throwException;
+       throw new SecurityException(e);
      }
      catch (IOException e)
      {
@@ -1092,11 +1047,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1129,11 +1080,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1164,11 +1111,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1224,11 +1167,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1305,11 +1244,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1352,11 +1287,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1395,11 +1326,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1480,11 +1407,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1570,11 +1493,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1695,11 +1614,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1794,11 +1709,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1828,11 +1739,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -1871,11 +1778,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (PropertyVetoException e) {}  // will never happen
     catch (IOException e)
@@ -1931,11 +1834,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
      catch (AS400SecurityException e)
      {
        Trace.log(Trace.ERROR, e);
-       SecurityException throwException = new SecurityException(e.getMessage());
-       try {
-         throwException.initCause(e); 
-       } catch (Throwable t) {} 
-       throw throwException;
+       throw new SecurityException(e);
      }
      catch (IOException e)
      {
@@ -1964,11 +1863,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
      catch (AS400SecurityException e)
      {
        Trace.log(Trace.ERROR, e);
-       SecurityException throwException = new SecurityException(e.getMessage());
-       try {
-         throwException.initCause(e); 
-       } catch (Throwable t) {} 
-       throw throwException;
+       throw new SecurityException(e);
      }
      catch (IOException e)
      {
@@ -2037,11 +1932,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
      catch (AS400SecurityException e)
      {
        Trace.log(Trace.ERROR, e);
-       SecurityException throwException = new SecurityException(e.getMessage());
-       try {
-         throwException.initCause(e); 
-       } catch (Throwable t) {} 
-       throw throwException;
+       throw new SecurityException(e);
      }
      catch (IOException e)
      {
@@ -2113,11 +2004,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -2164,11 +2051,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {
@@ -2215,11 +2098,7 @@ public class IFSJavaFile extends java.io.File implements java.io.Serializable
     catch (AS400SecurityException e)
     {
       Trace.log(Trace.ERROR, e);
-      SecurityException throwException = new SecurityException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new SecurityException(e);
     }
     catch (IOException e)
     {

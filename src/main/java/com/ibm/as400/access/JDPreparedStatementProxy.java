@@ -189,11 +189,7 @@ implements PreparedStatement
           iStream = new SerializableInputStream (parameterValue);
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
       }
       callMethod ("setAsciiStream",
@@ -231,11 +227,7 @@ implements PreparedStatement
           iStream = new SerializableInputStream (parameterValue);
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
       }
       callMethod ("setBinaryStream",
@@ -321,11 +313,7 @@ implements PreparedStatement
                                    Integer.valueOf(length) });
       }
       catch (java.io.IOException e) {
-        SQLException throwException = new SQLException(e.getMessage());
-        try {
-          throwException.initCause(e); 
-        } catch (Throwable t) {} 
-        throw throwException;
+        throw new SQLException(e);
       }
     }
 
@@ -619,11 +607,7 @@ implements PreparedStatement
           iStream = new SerializableInputStream (parameterValue);
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
       }
       callMethod ("setUnicodeStream",
@@ -682,11 +666,7 @@ implements PreparedStatement
                     Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
     
@@ -729,11 +709,7 @@ implements PreparedStatement
                     Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
     
@@ -749,11 +725,7 @@ implements PreparedStatement
                 iStream = new SerializableInputStream (inputStream);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setBlob",
@@ -781,11 +753,7 @@ implements PreparedStatement
                     Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
     
@@ -827,11 +795,7 @@ implements PreparedStatement
                 iStream = new SerializableInputStream (x);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setAsciiStream",
@@ -854,11 +818,7 @@ implements PreparedStatement
                 iStream = new SerializableInputStream (x);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setBinaryStream",
@@ -886,11 +846,7 @@ implements PreparedStatement
                     Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
 
@@ -906,11 +862,7 @@ implements PreparedStatement
                 iStream = new SerializableInputStream (x);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setAsciiStream",
@@ -932,11 +884,7 @@ implements PreparedStatement
                 iStream = new SerializableInputStream (x);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setBinaryStream",
@@ -958,11 +906,7 @@ implements PreparedStatement
                 iStream = new SerializableInputStream (inputStream);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setBlob",
@@ -987,11 +931,7 @@ implements PreparedStatement
                     serialReader });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
 
@@ -1011,11 +951,7 @@ implements PreparedStatement
                     serialReader });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
 
@@ -1035,11 +971,7 @@ implements PreparedStatement
                     serialReader });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
 
@@ -1059,11 +991,7 @@ implements PreparedStatement
                     serialReader });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
     

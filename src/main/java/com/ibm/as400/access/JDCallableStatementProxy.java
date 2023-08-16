@@ -892,12 +892,7 @@ implements CallableStatement
                 iStream = new SerializableInputStream (parameterValue);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
-
+              throw new SQLException(e);
             }
         }
         callMethod ("setAsciiStream",
@@ -938,11 +933,7 @@ implements CallableStatement
                 iStream = new SerializableInputStream (parameterValue);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setBinaryStream",
@@ -1012,11 +1003,7 @@ implements CallableStatement
                             Integer.valueOf(length)});
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
 
@@ -1476,11 +1463,7 @@ implements CallableStatement
                 iStream = new SerializableInputStream (x);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setAsciiStream",
@@ -1503,11 +1486,7 @@ implements CallableStatement
                 iStream = new SerializableInputStream (x);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setBinaryStream",
@@ -1546,11 +1525,7 @@ implements CallableStatement
                 iStream = new SerializableInputStream (inputStream);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setBlob",
@@ -1578,11 +1553,7 @@ implements CallableStatement
                     Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
     
@@ -1619,11 +1590,7 @@ implements CallableStatement
                     Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
     
@@ -1644,11 +1611,7 @@ implements CallableStatement
                     Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
     
@@ -1688,11 +1651,7 @@ implements CallableStatement
                     Long.valueOf(length) });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }
     }
     
@@ -1742,11 +1701,7 @@ implements CallableStatement
                 iStream = new SerializableInputStream (x);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setAsciiStream",
@@ -1767,11 +1722,7 @@ implements CallableStatement
                 iStream = new SerializableInputStream (x);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setBinaryStream",
@@ -1792,11 +1743,7 @@ implements CallableStatement
                 iStream = new SerializableInputStream (inputStream);
             }
             catch (java.io.IOException e) {
-              SQLException throwException = new SQLException(e.getMessage());
-              try {
-                throwException.initCause(e); 
-              } catch (Throwable t) {} 
-              throw throwException;
+              throw new SQLException(e);
             }
         }
         callMethod ("setBlob",
@@ -1820,11 +1767,7 @@ implements CallableStatement
                     serialRreader });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }    
     }
 
@@ -1843,11 +1786,7 @@ implements CallableStatement
                     serialRreader });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }    
     }
 
@@ -1866,11 +1805,7 @@ implements CallableStatement
                     serialRreader });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }    
     }
 
@@ -1889,11 +1824,7 @@ implements CallableStatement
                     serialRreader });
         }
         catch (java.io.IOException e) {
-          SQLException throwException = new SQLException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
-          throw throwException;
+          throw new SQLException(e);
         }    
     }
     

@@ -71,13 +71,7 @@ public class ExtendedIllegalArgumentException  extends IllegalArgumentException 
     public ExtendedIllegalArgumentException(String argument, int returnCode, Exception e)
     {
         // Create the message
-  super(argument + ": " + ResourceBundleLoader.getCoreText(getMRIKey(returnCode)));
-  //
-  // Set the cause, catching exception if JDK 1.3 or earlier
-  // 
-  try {
-    initCause(e); 
-  } catch (Throwable t) { }
+  super(argument + ": " + ResourceBundleLoader.getCoreText(getMRIKey(returnCode)), e);
   rc_ =  returnCode;
     }
 

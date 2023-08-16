@@ -530,12 +530,7 @@ implements IFSFileImpl
         if (e instanceof IOException) { 
            throw (IOException) e;
         } else {
-           IOException ioEx = new IOException(e.toString());
-           // initCause was added in JDK 1.4.  Ignore exception if it does not exist. 
-           try {
-             ioEx.initCause(e); 
-           } catch (Throwable e2) {} 
-           throw ioEx;
+           throw new IOException(e);
         }
       }
     }
@@ -556,9 +551,7 @@ implements IFSFileImpl
     {
       Trace.log(Trace.ERROR, "Interrupted");
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -863,9 +856,7 @@ implements IFSFileImpl
       {
         Trace.log(Trace.ERROR, "Interrupted");
         InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-        try {
-          throwException.initCause(e); 
-        } catch (Throwable t) {} 
+        throwException.initCause(e);
         throw throwException;
       }
 
@@ -912,9 +903,7 @@ implements IFSFileImpl
     {
       Trace.log(Trace.ERROR, "Interrupted");
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -2235,9 +2224,7 @@ implements IFSFileImpl
     {
       Trace.log(Trace.ERROR, "Interrupted");
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -2343,9 +2330,7 @@ implements IFSFileImpl
     {
       Trace.log(Trace.ERROR, "Interrupted");
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -2434,9 +2419,7 @@ implements IFSFileImpl
     {
       Trace.log(Trace.ERROR, "Interrupted");
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -2509,9 +2492,7 @@ implements IFSFileImpl
     {
       Trace.log(Trace.ERROR, "Interrupted");
       InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
+      throwException.initCause(e);
       throw throwException;
     }
 
@@ -2613,9 +2594,7 @@ implements IFSFileImpl
           {
              Trace.log(Trace.ERROR, "Interrupted");
              InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-             try {
-               throwException.initCause(e); 
-             } catch (Throwable t) {} 
+             throwException.initCause(e);
              throw throwException;
           }
 
@@ -2735,9 +2714,7 @@ implements IFSFileImpl
         {
           Trace.log(Trace.ERROR, "Interrupted");
           InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-          try {
-            throwException.initCause(e); 
-          } catch (Throwable t) {} 
+          throwException.initCause(e);
           throw throwException;
         }
 
@@ -2908,9 +2885,7 @@ implements IFSFileImpl
           {
              Trace.log(Trace.ERROR, "Interrupted");
              InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-             try {
-               throwException.initCause(e); 
-             } catch (Throwable t) {} 
+             throwException.initCause(e);
              throw throwException;
           }
 

@@ -162,11 +162,7 @@ public class JavaProgram implements Serializable
       catch (Exception e) {
         if (Trace.isTraceOn())
           Trace.log(Trace.ERROR, "Error when checking system VRM.", e);
-        UnsupportedOperationException throwException = new UnsupportedOperationException(e.getMessage());
-        try {
-          throwException.initCause(e); 
-        } catch (Throwable t) {} 
-        throw throwException;
+        throw new UnsupportedOperationException(e);
 
       }
     }

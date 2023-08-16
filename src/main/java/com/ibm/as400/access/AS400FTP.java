@@ -313,11 +313,7 @@ public class AS400FTP
              if (Trace.isTraceOn())
                 Trace.log(Trace.DIAGNOSTIC,"Security exception in getVRM()", e);
 
-             IOException throwException = new IOException(e.getMessage());
-             try { 
-               throwException.initCause(e); 
-             } catch (Throwable t) {}
-             throw throwException;
+             throw new IOException(e);
           }
 
           AS400ImplRemote systemImpl = (AS400ImplRemote)system_.getImpl();                               // @D2a
@@ -942,11 +938,7 @@ public class AS400FTP
                {
                   if (Trace.isTraceOn())
                      Trace.log(Trace.DIAGNOSTIC,"IO Exception running command call ", e);
-                  IOException throwException = new IOException(e.getMessage());
-                  try { 
-                    throwException.initCause(e); 
-                  } catch (Throwable t) {}
-                  throw throwException;
+                  throw new IOException(e);
 
                }
 

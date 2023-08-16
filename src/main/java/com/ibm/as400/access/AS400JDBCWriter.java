@@ -176,11 +176,7 @@ class AS400JDBCWriter extends Writer
         JDTrace.logException(this, "Exception caught", e); 
       }
       closed_ = true;
-      IOException throwException = new IOException(e.getMessage());
-      try {
-        throwException.initCause(e); 
-      } catch (Throwable t) {} 
-      throw throwException;
+      throw new IOException(e);
     }
   }
 }

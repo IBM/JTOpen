@@ -46,9 +46,7 @@ final class EncryptPassword
     }
     catch (NoSuchAlgorithmException e)
     {
-      IOException io = new IOException("Error loading SHA encryption: "+e);
-      io.initCause(e);
-      throw io;
+      throw new IOException("Error loading SHA encryption: " + e, e);
     }
   }
 

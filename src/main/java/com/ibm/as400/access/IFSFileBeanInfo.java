@@ -124,9 +124,7 @@ public class IFSFileBeanInfo extends SimpleBeanInfo
      }
     catch(Exception e)
     {
-      Error error = new Error(e.toString());
-      error.initCause(e); 
-      throw error; 
+      throw new Error(e); 
     }
   }
 

@@ -311,20 +311,11 @@ public class Trace implements Runnable
   // Design note: We needed to segregate the Logger logic into a separate class.  The Java logging package doesn't exist prior to JDK 1.4, so if we're executing in an older JVM, we get SecurityException's if the JVM sees _any_ runtime reference to a java.util.logging class.
   private static ToolboxLogger logger_ = null;
   private static boolean firstCallToFindLogger_ = true;
-  private static boolean JDK14_OR_HIGHER;
   private static PrintWriter globalPw = null;
 
   // @D0A
   static
   {
-    try {
-      Class.forName("java.util.logging.LogManager"); // Class added in JDK 1.4.
-      JDK14_OR_HIGHER = true;  // If we got this far, we're on JDK 1.4 or higher.
-    }
-    catch (Throwable e) {      // We're not on JDK 1.4 or higher,
-      JDK14_OR_HIGHER = false; // so don't even try to get the Toolbox Logger.
-    }
-
     loadTraceProperties ();
   }
 
@@ -1824,7 +1815,7 @@ private static final void log(int category, Object source, String message, byte[
     if (firstCallToFindLogger_)  // Just do the following checking the first time.
     {
       firstCallToFindLogger_ = false;
-      if ((logger_ == null) && JDK14_OR_HIGHER)
+      if (logger_ == null)
       {
         logger_ = ToolboxLogger.getLogger(); // returns null if no Logger activated
         if (logger_ != null && logger_.isLoggingOn())

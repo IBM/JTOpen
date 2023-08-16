@@ -360,12 +360,8 @@ public class AS400SecurityException extends Exception implements ReturnCodeExcep
     /*@M4A*/
    protected AS400SecurityException(int returnCode, Throwable e)
    {
-       super(ResourceBundleLoader.getText(getMRIKey(returnCode)));
+       super(ResourceBundleLoader.getText(getMRIKey(returnCode)), e);
        rc_ =  returnCode;
-       // Remember the cause of the exception
-       try { 
-         initCause(e); 
-       } catch (Throwable t) { } 
    }
 
     // Constructs an AS400SecurityException object. 

@@ -2511,9 +2511,7 @@ implements Statement
                 batch_.removeAllElements ();
                 BatchUpdateException throwException = new BatchUpdateException (e.getMessage (),
                     e.getSQLState (), e.getErrorCode (), updateCounts2);
-                try { 
-                  throwException.initCause(e); 
-                } catch (Throwable t) {}
+                throwException.initCause(e);
                 throw throwException;
                 }
 

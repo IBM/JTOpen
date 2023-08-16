@@ -188,11 +188,7 @@ public class JobQueue implements Serializable {
 	    catch (RuntimeException e) { throw e; }
 	    catch (Exception e) {
 	      Trace.log(Trace.ERROR, "Exception rethrown by loadInformation():", e);
-	      IllegalStateException throwException = new IllegalStateException(e.getMessage());
-	      try {
-	        throwException.initCause(e); 
-	      } catch (Throwable t) {} 
-	      throw throwException;
+	      throw new IllegalStateException(e);
 	    }
 	  }
 	  

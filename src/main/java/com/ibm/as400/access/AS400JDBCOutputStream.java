@@ -107,11 +107,7 @@ abstract class AS400JDBCOutputStream extends OutputStream
         JDTrace.logException(this, "Exception caught", e);
       }
       closed_ = true;
-      IOException throwException = new IOException(e.getMessage());
-      try { 
-        throwException.initCause(e); 
-      } catch (Throwable t) {}
-      throw throwException;
+      throw new IOException(e);
 
     }
   }
@@ -144,11 +140,7 @@ abstract class AS400JDBCOutputStream extends OutputStream
         JDTrace.logException(this, "Exception caught", e);
       }
       closed_ = true;
-      IOException throwException = new IOException(e.getMessage());
-      try { 
-        throwException.initCause(e); 
-      } catch (Throwable t) {}
-      throw throwException;
+      throw new IOException(e);
     }
   }
 

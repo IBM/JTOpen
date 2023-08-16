@@ -94,14 +94,10 @@ public class BASE64Decoder {
            if (cause instanceof Error) {
              throw (Error) cause;
            } else {
-             Error error = new Error("UNEXPECTED EXCEPTION");
-             error.initCause(e);
-             throw error;
+             throw new Error("UNEXPECTED EXCEPTION", e);
            }
          } else {
-           Error error = new Error("UNEXPECTED EXCEPTION");
-           error.initCause(e);
-           throw error;
+           throw new Error("UNEXPECTED EXCEPTION", e);
          }
        }
      } else {

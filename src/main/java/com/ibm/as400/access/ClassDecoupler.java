@@ -106,10 +106,7 @@ public class ClassDecoupler
           keyPair = DDMTerm.getAESKeyPair();
         }
       } catch (GeneralSecurityException e) {
-        ServerStartupException serverStartupException = new ServerStartupException(
-            ServerStartupException.CONNECTION_NOT_ESTABLISHED);
-        serverStartupException.initCause(e);
-        throw serverStartupException; 
+        throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED, e);
       }
     } else {
       requestByteType = byteType_; 
@@ -145,10 +142,7 @@ public class ClassDecoupler
               keyPair = DDMTerm.getAESKeyPair(); 
             }
         } catch (GeneralSecurityException e) {
-          ServerStartupException serverStartupException = new ServerStartupException(
-              ServerStartupException.CONNECTION_NOT_ESTABLISHED);
-          serverStartupException.initCause(e);
-          throw serverStartupException; 
+          throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED, e);
         }
 
         ACCSECReq = new DDMACCSECRequestDataStream(aesEncryption, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
@@ -167,10 +161,7 @@ public class ClassDecoupler
               keyPair = DDMTerm.getAESKeyPair();
               forceAES = true; 
           } catch (GeneralSecurityException e) {
-            ServerStartupException serverStartupException = new ServerStartupException(
-                ServerStartupException.CONNECTION_NOT_ESTABLISHED);
-            serverStartupException.initCause(e);
-            throw serverStartupException; 
+            throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED, e);
           }
           
           ACCSECReq = new DDMACCSECRequestDataStream(aesEncryption, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.
@@ -201,10 +192,7 @@ public class ClassDecoupler
                 keyPair = DDMTerm.getAESKeyPair();
                 forceAES = true; 
             } catch (GeneralSecurityException e) {
-              ServerStartupException serverStartupException = new ServerStartupException(
-                  ServerStartupException.CONNECTION_NOT_ESTABLISHED);
-              serverStartupException.initCause(e);
-              throw serverStartupException; 
+              throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED, e);
             }
             
             ACCSECReq = new DDMACCSECRequestDataStream(aesEncryption, requestByteType, null, keyPair, forceAES); // We currently don't need to pass the IASP to the ACCSEC, but may in the future.

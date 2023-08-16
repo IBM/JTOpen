@@ -650,22 +650,18 @@ implements Connection
         if (JDTrace.isTraceOn ()) {
           JDTrace.logException(this, "Security Exception caught", e); 
         }
-        SQLException sqlex = new SQLException (
+        throw new SQLException (
                 AS400JDBCDriver.getResource("JD" + EXC_CONNECTION_REJECTED,null),
-                EXC_CONNECTION_REJECTED, -99999);
-        sqlex.initCause(e); 
-        throw sqlex; 
+                EXC_CONNECTION_REJECTED, -99999, e);
       }
       catch (java.io.IOException e) {                                //@A0C
         // Avoid dragging in JDError:
         if (JDTrace.isTraceOn ()) {
           JDTrace.logException(this,  "IOException caught", e); 
         }
-        SQLException sqlex = new SQLException (
+        throw new SQLException (
                 AS400JDBCDriver.getResource("JD" + EXC_CONNECTION_UNABLE,null),
-                EXC_CONNECTION_UNABLE, -99999);
-        sqlex.initCause(e); 
-        throw sqlex; 
+                EXC_CONNECTION_UNABLE, -99999, e);
       }
     }
         else

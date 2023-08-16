@@ -656,10 +656,7 @@ public class AS400ImplRemote implements AS400Impl {
         Trace.log(Trace.ERROR, "Interrupted");
         InterruptedIOException throwException = new InterruptedIOException(
             e.getMessage());
-        try {
-          throwException.initCause(e);
-        } catch (Throwable t) {
-        }
+        throwException.initCause(e);
         throw throwException;
       }
       // Verify that we got a handle back.
@@ -691,10 +688,7 @@ public class AS400ImplRemote implements AS400Impl {
         Trace.log(Trace.ERROR, "Interrupted");
         InterruptedIOException throwException = new InterruptedIOException(
             e.getMessage());
-        try {
-          throwException.initCause(e);
-        } catch (Throwable t) {
-        }
+        throwException.initCause(e);
         throw throwException;
       }
 
@@ -4692,10 +4686,7 @@ public class AS400ImplRemote implements AS400Impl {
 	        Trace.log(Trace.ERROR, "Interrupted");
 	        InterruptedIOException throwException = new InterruptedIOException(
 	            e.getMessage());
-	        try {
-	          throwException.initCause(e);
-	        } catch (Throwable t) {
-	        }
+	        throwException.initCause(e);
 	        throw throwException;
 	      } catch (Throwable e) {
 	          Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);

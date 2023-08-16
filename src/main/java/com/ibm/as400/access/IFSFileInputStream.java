@@ -779,8 +779,7 @@ public class IFSFileInputStream extends InputStream
   {
     if (fd_.isClosed()) {
       Trace.log(Trace.ERROR, "The stream has been closed.");
-      //throw new java.nio.channels.ClosedChannelException();  // requires JDK 1.4
-      throw new IOException();
+      throw new java.nio.channels.ClosedChannelException();
     }
     rewind();
   }
