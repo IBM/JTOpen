@@ -19,6 +19,9 @@ import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 class AS400NoThreadServer extends AS400Server
 {
@@ -38,10 +41,9 @@ class AS400NoThreadServer extends AS400Server
     private DataStream exchangeAttrReply_ = null;
     private Vector replyList_ = new Vector(5);
     private Vector discardList_ = new Vector();
-    private int lastCorrelationId_ = 0;
-    private class CorrelationIdLock extends Object {}          //@C7A
+    private AtomicInteger lastCorrelationId_ = new AtomicInteger();
 
-    private CorrelationIdLock correlationIdLock_ = new CorrelationIdLock(); //@C7C
+    private final Lock thisLock = new ReentrantLock();
 
     private boolean closed_ = false;
 
@@ -139,11 +141,7 @@ class AS400NoThreadServer extends AS400Server
 
     int newCorrelationId()
     {
-        synchronized (correlationIdLock_)
-        {
-          if (++lastCorrelationId_ == 0) lastCorrelationId_ = 1; //@P0C
-          return lastCorrelationId_; //@P0C
-        }
+        return lastCorrelationId_.incrementAndGet();
     }
 
     void send(DataStream requestStream, int correlationId) throws IOException
@@ -158,11 +156,12 @@ class AS400NoThreadServer extends AS400Server
 
     synchronized DataStream receive(int correlationId) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "AS400Server receive"); //@pdc
-        DataStream reply = null;
-        do
-        {
-            synchronized (replyList_)
+        try {
+            thisLock.lock();
+
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "AS400Server receive"); //@pdc
+            DataStream reply = null;
+            do
             {
                 if (!replyList_.isEmpty())
                 {
@@ -177,7 +176,6 @@ class AS400NoThreadServer extends AS400Server
                         }
                     }
                 }
-            }
 
             if (reply == null)
             {
@@ -218,10 +216,13 @@ class AS400NoThreadServer extends AS400Server
             else
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "received(): valid reply received...", correlationId); //@pdc
+            	}
             }
+            while (reply == null);
+            return reply;
+        } finally {
+            thisLock.unlock();
         }
-        while (reply == null);
-        return reply;
     }
 
     void forceDisconnect()

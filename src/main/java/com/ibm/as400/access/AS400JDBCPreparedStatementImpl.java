@@ -378,7 +378,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    *              been set.
    **/
   public void addBatch() throws SQLException {
-    synchronized (internalLock_) {
+      try 
+      {
+          internalLock.lock();
       checkOpen();
       Object[] parameters = new Object[parameterCount_];
       for (int i = 0; i < parameterCount_; ++i) {
@@ -449,6 +451,10 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       if (JDTrace.isTraceOn())
         JDTrace.logInformation(this, "addBatch()");
       batch_.addElement(parameters);
+    }
+    finally
+    {
+        internalLock.unlock();
     }
   }
 
@@ -607,7 +613,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    *              If the statement is not open.
    **/
   public void clearParameters() throws SQLException {
-    synchronized (internalLock_) { // @F1A
+      try 
+      {
+          internalLock.lock();
       checkOpen();
 
       for (int i = 0; i < parameterCount_; ++i) {
@@ -623,7 +631,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
       if (useReturnValueParameter_) // @F2A
         returnValueParameter_.set(0); // @F2A
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
 
   /**
@@ -634,7 +646,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    *              If an error occurs.
    **/
   public void close() throws SQLException {
-    synchronized (internalLock_) { // @F1A
+      try 
+      {
+          internalLock.lock();
       // If this is already closed, then just do nothing.
       //
       // The spec does not define what happens when a connection
@@ -680,7 +694,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       }
 
       super.close();
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
 
   /**
@@ -1423,7 +1441,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    *              exceeded, or an error occurs.
    **/
   public boolean execute() throws SQLException {
-    synchronized (internalLock_) {
+      try 
+      {
+          internalLock.lock();
       checkOpen();
 
       if (!prepared_) {
@@ -1435,7 +1455,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       executed_ = true;
 
       return (resultSet_ != null);
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
 
   /**
@@ -1526,7 +1550,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    *              statement returns a result set, or an error occurs.
    **/
   public int[] executeBatch() throws SQLException {
-    synchronized (internalLock_) { // @F1A
+      try 
+      {
+          internalLock.lock();
       checkOpen();
 
       if (batch_ == null || batch_.size() == 0)
@@ -1768,7 +1794,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
           JDTrace.logInformation(this, "Done batching.");
       }
       return updateCounts;
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
 
   /**
@@ -1783,7 +1813,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    *              parameter has not been set, or an error occurs.
    **/
   public ResultSet executeQuery() throws SQLException {
-    synchronized (internalLock_) {
+      try 
+      {
+          internalLock.lock();
       checkOpen();
 
       if (!prepared_) {
@@ -1799,7 +1831,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       }
 
       return resultSet_;
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
 
   /**
@@ -1841,7 +1877,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    *              parameter has not been set, or an error occurs.
    **/
   public int executeUpdate() throws SQLException {
-    synchronized (internalLock_) {
+      try 
+      {
+          internalLock.lock();
       checkOpen();
 
       // Prepare and execute. Check for a result set in both
@@ -1867,7 +1905,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       }
 
       return updateCount_;
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
 
   /**
@@ -1953,7 +1995,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    *              If the statement is not open.
    **/
   public ResultSetMetaData getMetaData() throws SQLException {
-    synchronized (internalLock_) { // @F1A
+      try 
+      {
+          internalLock.lock();
       checkOpen();
 
       if (resultRow_ == null) // @H6a
@@ -1971,7 +2015,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       return new AS400JDBCResultSetMetaData(connection_.getCatalog(),
           resultSetConcurrency_, cursor_.getName(), resultRow_,
           extendedDescriptors, convTable, connection_); // @in1 // @G6A
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
 
   /* Validate the parameter index for this PreparedStatement object */
@@ -1996,7 +2044,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
   String getParameterClassName(int param) throws SQLException {
     validatePSParameterIndex(param);
     
-    synchronized (internalLock_) {
+    try 
+    {
+        internalLock.lock();
       checkOpen();
 
       if (useReturnValueParameter_) // @G8a
@@ -2011,18 +2061,28 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
       return parameterRow_.getSQLData(param).getJavaClassName();
     }
+    finally
+    {
+        internalLock.unlock();
+    }
   }
 
   // @G4A
   // Return the parameter count for ParameterMetaData support.
   int getParameterCount() throws SQLException {
-    synchronized (internalLock_) {
+      try 
+      {
+          internalLock.lock();
       checkOpen();
       if (useReturnValueParameter_) {
         return parameterCount_ + 1;
       }
       return parameterCount_;
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
 
   // @G4A JDBC 3.0
@@ -2037,17 +2097,25 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    * @since Modification 5
    **/
   public ParameterMetaData getParameterMetaData() throws SQLException {
-    synchronized (internalLock_) {
+      try 
+      {
+          internalLock.lock();
       checkOpen();
       return (ParameterMetaData) (Object) new AS400JDBCParameterMetaData(this);
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
 
   // @G4A
   // Return the mode of a parameter for ParameterMetaData support.
   int getParameterMode(int param) throws SQLException {
     validatePSParameterIndex(param);
-    synchronized (internalLock_) {
+    try 
+    {
+        internalLock.lock();
       checkOpen();
 
       if (useReturnValueParameter_) // @G8a
@@ -2072,13 +2140,19 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       } else
         return ParameterMetaData.parameterModeUnknown;
     }
+    finally
+    {
+        internalLock.unlock();
+    }
   }
 
   // @G4A
   // Return the type of a parameter for ParameterMetaData support.
   int getParameterType(int param) throws SQLException {
     validatePSParameterIndex(param);
-    synchronized (internalLock_) {
+    try 
+    {
+        internalLock.lock();
       checkOpen();
 
       if (useReturnValueParameter_) // @G8a
@@ -2093,6 +2167,10 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
       return parameterRow_.getSQLData(param).getType();
     }
+    finally
+    {
+        internalLock.unlock();
+    }
   }
 
   //
@@ -2100,7 +2178,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
   // @V8A
   int getParameterCcsid(int param) throws SQLException {
     validatePSParameterIndex(param);
-    synchronized (internalLock_) {
+    try 
+    {
+        internalLock.lock();
       checkOpen();
 
       if (useReturnValueParameter_) // @G8a
@@ -2115,6 +2195,10 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
       return parameterRow_.getCCSID(param);
     }
+    finally
+    {
+        internalLock.unlock();
+    }
   }
 
 
@@ -2124,7 +2208,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
   // Return the type name of a parameter for ParameterMetaData support.
   String getParameterTypeName(int param) throws SQLException {
     validatePSParameterIndex(param);
-    synchronized (internalLock_) {
+    try 
+    {
+        internalLock.lock();
       checkOpen();
 
       if (useReturnValueParameter_) // @G8a
@@ -2139,13 +2225,19 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
       return parameterRow_.getSQLData(param).getTypeName();
     }
+    finally
+    {
+        internalLock.unlock();
+    }
   }
 
   // @G4A
   // Return the precision of a parameter for ParameterMetaData support.
   int getPrecision(int param) throws SQLException {
     validatePSParameterIndex(param);
-    synchronized (internalLock_) {
+    try 
+    {
+        internalLock.lock();
       checkOpen();
 
       if (useReturnValueParameter_) // @G8a
@@ -2160,13 +2252,19 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
       return parameterRow_.getSQLData(param).getPrecision();
     }
+    finally
+    {
+        internalLock.unlock();
+    }
   }
 
   // @G4A
   // Return the scale of a parameter for ParameterMetaData support.
   int getScale(int param) throws SQLException {
     validatePSParameterIndex(param);
-    synchronized (internalLock_) {
+    try 
+    {
+        internalLock.lock();
       checkOpen();
 
       if (useReturnValueParameter_) // @G8a
@@ -2181,13 +2279,19 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
       return parameterRow_.getSQLData(param).getScale();
     }
+    finally
+    {
+        internalLock.unlock();
+    }
   }
 
   // @G4A
   // Return whether a parameter is nullable for ParameterMetaData support.
   int isNullable(int param) throws SQLException {
     validatePSParameterIndex(param);
-    synchronized (internalLock_) {
+    try 
+    {
+        internalLock.lock();
       checkOpen();
 
       if (useReturnValueParameter_) // @G8a
@@ -2202,13 +2306,19 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
       return parameterRow_.isNullable(param);
     }
+    finally
+    {
+        internalLock.unlock();
+    }
   }
 
   // @G4A
   // Return whether a parameter is signed for ParameterMetaData support.
   boolean isSigned(int param) throws SQLException {
     validatePSParameterIndex(param);
-    synchronized (internalLock_) {
+    try 
+    {
+        internalLock.lock();
       checkOpen();
 
       if (useReturnValueParameter_) // @G8a
@@ -2222,6 +2332,10 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       } // @G8a
 
       return parameterRow_.getSQLData(param).isSigned();
+    }
+    finally
+    {
+        internalLock.unlock();
     }
   }
 
@@ -2291,7 +2405,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
     // @J0A added the code from setValue in this method because streams and
     // readers are handled specially
-    synchronized (internalLock_) {
+    try 
+    {
+        internalLock.lock();
       checkOpen();
 
       // Validate the parameter index.
@@ -2360,6 +2476,10 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       parameterUnassigned_[parameterIndex - 1] = false; // @EIA
       parameterSet_[parameterIndex - 1] = true;
 
+    }
+    finally
+    {
+        internalLock.unlock();
     }
 
     // @J0M setValue (parameterIndex,
@@ -2437,8 +2557,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
     // @J0A added the code from setValue in this method because streams and
     // readers are handled specially
-    synchronized (internalLock_) // @KKC Removed comment brace
+    try 
     {
+        internalLock.lock();
       checkOpen();
 
       // Validate the parameter index.
@@ -2492,6 +2613,10 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       parameterUnassigned_[parameterIndex - 1] = false; // @EIA
       parameterSet_[parameterIndex - 1] = true;
 
+    }
+    finally
+    {
+        internalLock.unlock();
     }
     // @KKC */
     // @KKC setValue(parameterIndex, parameterValue, null, length);
@@ -2664,7 +2789,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
     // @J0A added the code from setValue in this method because streams and
     // readers are handled specially
-    synchronized (internalLock_) {
+    try 
+    {
+        internalLock.lock();
       checkOpen();
 
       // Validate the parameter index.
@@ -2729,6 +2856,10 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       parameterUnassigned_[parameterIndex - 1] = false; // @EIA
       parameterSet_[parameterIndex - 1] = true;
 
+    }
+    finally
+    {
+        internalLock.unlock();
     }
 
     // @J0D setValue (parameterIndex,
@@ -3482,7 +3613,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
 
     // @J0A added the code from setValue in this method because streams and
     // readers are handled specially
-    synchronized (internalLock_) {
+    try 
+    {
+        internalLock.lock();
       checkOpen();
 
       // Validate the parameter index.
@@ -3554,6 +3687,10 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       parameterSet_[parameterIndex - 1] = true;
 
     }
+    finally
+    {
+        internalLock.unlock();
+    }
 
     // @J0D setValue (parameterIndex,
     // @J0D (parameterValue == null) ? null : JDUtilities.streamToString
@@ -3609,7 +3746,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
   void setValue(int parameterIndex, Object parameterValue, Calendar calendar,
       int scale) throws SQLException {
 
-    synchronized (internalLock_) { // @F1A
+      try 
+      {
+          internalLock.lock();
       checkOpen();
 
       validatePSParameterIndex(parameterIndex);
@@ -3662,7 +3801,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       parameterDefaults_[parameterIndex - 1] = false; // @EIA
       parameterUnassigned_[parameterIndex - 1] = false; // @EIA
       parameterSet_[parameterIndex - 1] = true;
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
 
   // @EIA new method
@@ -3685,7 +3828,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    **/
   void setValueExtendedIndicator(int parameterIndex, int parameterValue)
       throws SQLException {
-    synchronized (internalLock_) {
+      try 
+      {
+          internalLock.lock();
       checkOpen();
       
       validatePSParameterIndex(parameterIndex);
@@ -3712,7 +3857,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       parameterUnassigned_[parameterIndex - 1] = parameterValue == 2 ? true
           : false;
       parameterSet_[parameterIndex - 1] = true;
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
 
   /**
@@ -4370,7 +4519,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    * @throws SQLException  If a database error occurs.
    */
   public String getDB2ParameterName(int parm) throws SQLException {
-    synchronized (internalLock_) {
+      try 
+      {
+          internalLock.lock();
       checkOpen();
       validatePSParameterIndex(parm); 
       parm = parm - 1;
@@ -4386,7 +4537,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
         JDError.throwSQLException(this, JDError.EXC_DESCRIPTOR_INDEX_INVALID,"INTERNAL_ERROR");
         return null;
       }
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
   
   // @PDA jdbc40 move from callableStatement
@@ -4404,7 +4559,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       throws SQLException {
     // @J0A added the code from setValue in this method because streams and
     // readers are handled specially
-    synchronized (internalLock_) {
+      try 
+      {
+          internalLock.lock();
       checkOpen();
 
       // Validate the parameter index.
@@ -4463,7 +4620,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       parameterNulls_[parameterIndex - 1] = (x == null);
       parameterSet_[parameterIndex - 1] = true;
 
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
   }
 
   // @PDA jdbc40
@@ -4565,7 +4726,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
   private void setReader(int parameterIndex, Reader reader) throws SQLException {
     // @J0A added the code from setValue in this method because streams and
     // readers are handled specially
-    synchronized (internalLock_) {
+      try 
+      {
+          internalLock.lock();
       checkOpen();
 
       // Validate the parameter index.
@@ -4623,7 +4786,11 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
       parameterNulls_[parameterIndex - 1] = (reader == null);
       parameterSet_[parameterIndex - 1] = true;
 
-    }
+      }
+      finally
+      {
+          internalLock.unlock();
+      }
 
   }
 
