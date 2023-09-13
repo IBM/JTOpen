@@ -329,7 +329,15 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     }
 
     // Sign-on.
+    @Override
     public SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException
+    {
+        return signon(systemName, systemNameLocal, userId, vault, gssName, null);
+    }
+
+    // Sign-on.
+    @Override
+    public SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
     {
         try
         {

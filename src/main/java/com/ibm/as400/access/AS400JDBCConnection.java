@@ -807,11 +807,20 @@ implements Connection
     /**
     Posts a warning for the connection.
 
-    @param   sqlWarning  The warning.
+    @param   id          The id used to create the warning
+    @param   errorClass  The error class used to create the warning
+    @param   returnCode  The return code used to create the warning
     **/
-     abstract void postWarning (SQLWarning sqlWarning)
+     abstract void postWarning (int id, int errorClass, int returnCode)
     throws SQLException;
 
+     /**
+     Posts a warning for the connection.
+
+     @param   sqlState  The SQL state for the warning.
+     **/
+      abstract void postWarningSQLState (String sqlState)
+     throws SQLException;
 
 
     /**
@@ -1440,7 +1449,6 @@ implements Connection
  
     /* Should the warning be ignored  @Q1A*/
     abstract boolean ignoreWarning(String sqlState);
-    abstract boolean ignoreWarning(SQLWarning warning);
     //@A3A - This logic formerly resided in the ctor.
     abstract void setProperties (JDDataSourceURL dataSourceUrl, JDProperties properties, AS400Impl as400, boolean newServer, boolean skipSignonServer)
     throws SQLException;

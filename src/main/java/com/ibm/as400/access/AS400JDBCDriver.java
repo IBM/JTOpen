@@ -234,13 +234,36 @@ endif */
   public java.sql.Connection connect (String url, String userid, char[] password)
   throws SQLException
   {
+    return connect(url, userid, password, (char[])null); 
+  }
+
+
+  /**
+  Connects to the database named by the specified URL using the 
+  specified userid, password, and additional authentication factor. 
+  
+  @param  url       The URL for the database.
+  @param  userid    The userid for the connection
+  @param  password  The password for the connection. The caller should clear the
+                    password from the array after the method returns. 
+  @param  additionalAuthenticationFactor The additional authentication factor, or null
+                    if not providing one
+  @return           The connection to the database or null if
+                    the driver does not understand how to connect
+                    to the database.
+  
+  @exception SQLException If the driver is unable to make the connection.
+  **/
+  public java.sql.Connection connect (String url, String userid, char[] password, char[] additionalAuthenticationFactor)
+  throws SQLException
+  {
     Properties properties = new Properties(); 
     properties.put("user",  userid); 
     return connect(url, properties, password); 
   }
-
-
-	/**
+	
+ 
+  /**
   Connects to the database named by the specified URL.
   There are many optional properties that can be specified.
   Properties can be specified either as part of the URL or in
@@ -287,6 +310,37 @@ endif */
 	public java.sql.Connection connect (String url,
 										Properties info,
 										char[] password)
+	throws SQLException
+	{
+		return connect(url, info, password, (char[])null);
+	}
+
+
+	/**
+	Connects to the database named by the specified URL.
+	There are many optional properties that can be specified.
+	Properties can be specified either as part of the URL or in
+	a java.util.Properties object.  See
+<a href="doc-files/JDBCProperties.html" target="_blank">JDBC properties</a>
+	for a complete list of properties
+	supported by this driver.
+	
+    @param  url     The URL for the database.
+    @param  info    The connection properties.
+    @param  password  The password as a char array.  The caller should clear the
+	                 char array after returning. 
+    @param  additionalAuthenticationFactor The additional authentication factor (or null
+	                 if not providing one)
+	@return         The connection to the database or null if
+					the driver does not understand how to connect
+					to the database.
+	
+	@exception SQLException If the driver is unable to make the connection.
+	**/
+	public java.sql.Connection connect (String url,
+										Properties info,
+										char[] password,
+										char[] additionalAuthenticationFactor)
 	throws SQLException
 	{
 		// Check first thing to see if the trace property is

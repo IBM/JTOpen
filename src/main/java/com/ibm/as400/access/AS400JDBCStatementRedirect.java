@@ -399,8 +399,8 @@ extends AS400JDBCStatement {
     stmt_.notifyClose(); 
  }
   
-  void postWarning(SQLWarning sqlWarning) { 
-    stmt_.postWarning(sqlWarning);
+  void postWarningSQLState(String sqlState) { 
+    stmt_.postWarningSQLState(sqlState);
   }
 
   public void setCursorName(String name) throws SQLException {

@@ -85,7 +85,7 @@ abstract class CredentialVault implements Cloneable, Serializable
    *
    * @return A newly created credential vault that is a copy of this one
    */
-  public Object clone()
+  public CredentialVault clone()
   {
     if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "CredentialVault clone called");
 

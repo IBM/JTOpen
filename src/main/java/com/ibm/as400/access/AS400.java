@@ -345,6 +345,9 @@ public class AS400 implements Serializable, AutoCloseable
     // you must provide a copy of the credential vault.  This is achieved using
     // the clone() method provided by the CredentialVault class.
     private transient CredentialVault credVault_;  // never null after construction
+
+    // Additional authentication factor
+    private char[] additionalAuthenticationFactor_;
     
     // GSS Credential object, for Kerberos.  Type set to Object to prevent dependency on 1.4 JDK.
     private transient GSSCredential gssCredential_ = null;
@@ -628,6 +631,25 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
+     Constructs an AS400 object.  It uses the specified system name, user ID, password, and additional authentication
+     factor.  No sign-on prompt is displayed unless the sign-on fails.
+     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+     @param  password  The user profile password to use to authenticate to the system.
+     @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
+     The caller is responsible for clearing the password array to keep the password from residing in memory. 
+                     
+     **/
+    public AS400(String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
+    {
+        this(systemName, userId, password);
+        additionalAuthenticationFactor_ = additionalAuthenticationFactor;
+        if (null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length ) {
+            validateSignon(userId, password, additionalAuthenticationFactor);
+        }
+    }
+
+    /**
      Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
      @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
      @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
@@ -843,6 +865,12 @@ public class AS400 implements Serializable, AutoCloseable
     // Used by password cache and password verification code.
     private AS400(String systemName, String userId, CredentialVault pwVault)
     {
+        this(systemName, userId, pwVault, (char[]) null);
+    }
+    // Private constructor for use when a new object is needed and the password is already twiddled.
+    // Used by password cache and password verification code.
+    private AS400(String systemName, String userId, CredentialVault pwVault, char[] additionalAuthenticationFactor)
+    {
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing internal AS400 object, system name: '" + systemName + "' user ID: '" + userId + "'");
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, pwVault.trace());
@@ -879,7 +907,8 @@ public class AS400 implements Serializable, AutoCloseable
         // objects can both share the same password credential).  So we must maintain
         // that behavior, but we need to do so using two different credential vaults,
         // because each AS400 object must always have its very own credential vault.
-        credVault_ = (CredentialVault)pwVault.clone();
+        credVault_ = pwVault.clone();
+        additionalAuthenticationFactor_ = additionalAuthenticationFactor;
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
@@ -1196,6 +1225,18 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if properties are frozen:", propertiesFrozen_);
         return propertiesFrozen_;
+    }
+
+    /**
+     Checks whether an additional authentication factor is accepted for the given system
+     @param  systemName  The IP address or hostname of the target system
+     @return  whether the server accepts the additional authentication factor
+     @exception  IOException  If an error occurs while communicating with the system.
+     @throws AS400SecurityException  If an error occurs exchanging client/server information
+     **/
+    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
+        byte indicator = AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName);
+        return indicator > 0; 
     }
 
     /**
@@ -3724,7 +3765,7 @@ public class AS400 implements Serializable, AutoCloseable
         // If using GSS tokens, don't bother encoding the authentication info.
         if (credVault_.getType() == AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
-            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, credVault_, gssName_);  // @mds
+            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, credVault_, gssName_, null);  // @mds
 
             if (gssCredential_ != null) impl_.setGSSCredential(gssCredential_);
             credVault_.empty();  // GSSToken is single use only.    @mds
@@ -3743,7 +3784,7 @@ public class AS400 implements Serializable, AutoCloseable
           if (skipSignonServer) {   /*@V1A*/
           signonInfo_ = impl_.skipSignon(systemName_, systemNameLocal_, userId_, tempVault, gssName_);  // @mds
           } else {
-            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, tempVault, gssName_);  // @mds
+            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, tempVault, gssName_, additionalAuthenticationFactor_);  // @mds
           }
         }
         if (userId_.length() == 0) userId_ = signonInfo_.userId;
@@ -3772,6 +3813,10 @@ public class AS400 implements Serializable, AutoCloseable
         }
     }
 
+
+    public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor) {
+        additionalAuthenticationFactor_ = additionalAuthenticationFactor;
+    }
     // Store information in password cache.
     private static void setCacheEntry(String systemName, String userId, CredentialVault pwVault) // @mds
     {
@@ -4379,6 +4424,21 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
+     Set the stay-alve interval. When enabled, a request is sent at the specified milliseconds interval to all currently opened
+     connections to help keep the connections alive. This is sometimes needed to prevent firewalls from dropping stale connections.
+     The use of this method applies only to connections created after this method is called. This stay-alive functionality 
+     only applies to connections to the following host servers: {@link #COMMAND COMMAND}, {@link #DATABASE DATABASE},
+     {@link #DATAQUEUE DATAQUEUE}, {@link #FILE FILE}, and {@link #PRINT PRINT}.
+     @param  milliseconds  The number of milliseconds between requests to the server.  If set to zero, then this stay-alive
+                           capability will not be used.
+     **/
+    public void setStayAlive(long milliseconds)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting stay-alive: " + milliseconds);
+        //TODO: implement
+    }
+
+    /**
      Sets the socket options the IBM Toolbox for Java will set on its client side sockets.  The socket properties cannot be changed once a connection to the system has been established.
      @param  socketProperties  The set of socket options to set.  The options are copied from this object, not shared.
      **/
@@ -4747,7 +4807,7 @@ public class AS400 implements Serializable, AutoCloseable
             Trace.log(Trace.ERROR, "Cannot validate signon before user ID is set.");
             throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
-        return validateSignon(userId_, credVault_);
+        return validateSignon(userId_, credVault_, additionalAuthenticationFactor_);
     }
 
     /**
@@ -4892,7 +4952,7 @@ public class AS400 implements Serializable, AutoCloseable
         	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
         //@W9 End
-        return validateSignon(userId.toUpperCase(), tempVault);
+        return validateSignon(userId.toUpperCase(), tempVault, additionalAuthenticationFactor_);
     }
 
 
@@ -4906,6 +4966,21 @@ public class AS400 implements Serializable, AutoCloseable
      @exception  IOException  If an error occurs while communicating with the system.
      **/
     public boolean validateSignon(String userId, char[] password) throws AS400SecurityException, IOException
+    {
+        return validateSignon(userId, password, null);
+    }
+
+        /**
+     Validates the user ID and password on the system but does not add to the signed-on list.  The system name needs to be set prior to calling this method.
+     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
+     @param  userId  The user profile name to validate.
+     @param  password  The user profile password to validate.
+     @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
+     @return  true if successful.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     **/
+    public boolean validateSignon(String userId, char[] password, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating signon, user ID: '" + userId + "'");
 
@@ -4932,48 +5007,54 @@ public class AS400 implements Serializable, AutoCloseable
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
         //@W9 End
-        return validateSignon(userId.toUpperCase(), tempVault);
+        return validateSignon(userId.toUpperCase(), tempVault, additionalAuthenticationFactor);
     }
 
-
-    
     // Internal version of validate sign-on; takes checked user ID and twiddled password bytes.
     // If the signon info is not valid, an exception is thrown.
     private boolean validateSignon(String userId, CredentialVault pwVault) throws AS400SecurityException, IOException
     {
-      if (Trace.traceOn_) {
-        Trace.log(Trace.DIAGNOSTIC, "Creating temporary connection for validating signon info.");
-      }
-        AS400 validationSystem = new AS400(systemName_, userId, pwVault);
-        validationSystem.proxyServer_ = proxyServer_;
-        // proxyClientConnection_ is not needed.
-        validationSystem.guiAvailable_ = false;
-        validationSystem.usePasswordCache_ = false;
-        validationSystem.useDefaultUser_ = false;
-        // showCheckboxes_ is not needed.
-        validationSystem.useSSLConnection_ = useSSLConnection_;
-        validationSystem.mustUseSockets_ = true;  // force the use of the Signon Server
-        validationSystem.mustUseNetSockets_ = mustUseNetSockets_;
-        validationSystem.mustUseSuppliedProfile_ = mustUseSuppliedProfile_;
-        // threadUsed_ is not needed.
-        // locale_ in not needed.
-        // nlv_ in not needed.
-        validationSystem.socketProperties_ = socketProperties_;
-        //@Z6A Start set socket timeout for validatesignon AS400 object
-        if (validateSignonTimeOut_ > 0)
-        	validationSystem.socketProperties_.setSoTimeout(validateSignonTimeOut_);
-        //@Z6A End
-        // ccsid_ is not needed.
-        // connectionListeners_ is not needed.
-        // dispatcher_ is not needed.
-        // propertyChangeListeners_ is not needed.
-        // vetoableChangeListeners_ is not needed.
-        // propertiesFrozen_ is not needed.
-        // impl_ is not copied.
-        // signonInfo_ is not copied.
+        return validateSignon(userId, pwVault, additionalAuthenticationFactor_);
+    }
+    
+    // Internal version of validate sign-on; takes checked user ID and twiddled password bytes.
+    // If the signon info is not valid, an exception is thrown.
+    private boolean validateSignon(String userId, CredentialVault pwVault, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) {
+            Trace.log(Trace.DIAGNOSTIC, "Creating temporary connection for validating signon info.");
+        }
+        try (AS400 validationSystem = new AS400(systemName_, userId, pwVault, additionalAuthenticationFactor)) {
+            validationSystem.proxyServer_ = proxyServer_;
+            // proxyClientConnection_ is not needed.
+            validationSystem.guiAvailable_ = false;
+            validationSystem.usePasswordCache_ = false;
+            validationSystem.useDefaultUser_ = false;
+            // showCheckboxes_ is not needed.
+            validationSystem.useSSLConnection_ = useSSLConnection_;
+            validationSystem.mustUseSockets_ = true; // force the use of the Signon Server
+            validationSystem.mustUseNetSockets_ = mustUseNetSockets_;
+            validationSystem.mustUseSuppliedProfile_ = mustUseSuppliedProfile_;
+            // threadUsed_ is not needed.
+            // locale_ in not needed.
+            // nlv_ in not needed.
+            validationSystem.socketProperties_ = socketProperties_;
+            // @Z6A Start set socket timeout for validatesignon AS400 object
+            if (validateSignonTimeOut_ > 0)
+                validationSystem.socketProperties_.setSoTimeout(validateSignonTimeOut_);
+            // @Z6A End
+            // ccsid_ is not needed.
+            // connectionListeners_ is not needed.
+            // dispatcher_ is not needed.
+            // propertyChangeListeners_ is not needed.
+            // vetoableChangeListeners_ is not needed.
+            // propertiesFrozen_ is not needed.
+            // impl_ is not copied.
+            // signonInfo_ is not copied.
 
-        validationSystem.signon(false); // signon(false) calls disconnect() when done
-        return true;
+            validationSystem.signon(false); // signon(false) calls disconnect() when done
+            return true;
+        }
     }
 
     //@prompt new method
@@ -5084,7 +5165,7 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         disconnectAllServices();
     }
 }

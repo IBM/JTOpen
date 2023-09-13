@@ -143,7 +143,22 @@ public class SecureAS400 extends AS400
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
         construct();
     }
-
+    /**
+     Constructs a SecureAS400 object.  It uses the specified system name, user ID, , and additional authentication
+     factor.  No sign-on prompt is displayed unless the sign-on fails.
+     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+     @param  password  The user profile password to use to authenticate to the system.
+     @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
+     The caller is responsible for clearing the password array to keep the password from residing in memory. 
+                     
+     **/
+    public SecureAS400(String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws IOException, AS400SecurityException
+    {
+        super(systemName, userId, password, additionalAuthenticationFactor);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
+        construct();
+    }
     /**
      Constructs a SecureAS400 object.  It uses the specified system, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
      @param  systemName  The name of the system.
