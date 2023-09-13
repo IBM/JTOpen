@@ -273,6 +273,18 @@ public class SecureAS400 extends AS400
     }
 
     /**
+     Checks whether an additional authentication factor is accepted for the given system
+     @param  systemName  The IP address or hostname of the target system
+     @return  whether the server accepts the additional authentication factor
+     @exception  IOException  If an error occurs while communicating with the system.
+     @throws AS400SecurityException  If an error occurs exchanging client/server information
+     **/
+    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
+        byte indicator = AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName, true);
+        return indicator > 0; 
+    }
+
+    /**
      Returns the key ring class name used for SSL communications with the system.  The class <i>com.ibm.as400.access.KeyRing</i> is the default and will be returned if not overridden.
      @return  The key ring class name.
      @deprecated
