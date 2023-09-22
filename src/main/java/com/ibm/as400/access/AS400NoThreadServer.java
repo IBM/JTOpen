@@ -154,7 +154,7 @@ class AS400NoThreadServer extends AS400Server
         requestStream.write(outStream_);
     }
 
-    synchronized DataStream receive(int correlationId) throws IOException
+    DataStream receive(int correlationId) throws IOException
     {
         try {
             thisLock.lock();
