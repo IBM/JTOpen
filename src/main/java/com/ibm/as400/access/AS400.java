@@ -1235,7 +1235,7 @@ public class AS400 implements Serializable, AutoCloseable
      @throws AS400SecurityException  If an error occurs exchanging client/server information
      **/
     public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
-        byte indicator = AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName);
+        byte indicator = AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName, false);
         return indicator > 0; 
     }
 

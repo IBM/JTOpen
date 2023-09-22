@@ -1110,10 +1110,11 @@ public class AS400ImplRemote implements AS400Impl {
     } 
   }
 
-  public static byte getAdditionalAuthenticationIndicator(String systemName) throws AS400SecurityException, IOException { 
+  public static byte getAdditionalAuthenticationIndicator(String systemName, boolean _useSSL) throws AS400SecurityException, IOException { 
       AS400ImplRemote implRemote = new AS400ImplRemote(); 
       implRemote.systemName_ = systemName; 
       implRemote.socketProperties_ = new SocketProperties();
+      implRemote.useSSLConnection_ = _useSSL ? new SSLOptions()  : null;
       implRemote.signonConnect(); 
       byte indicator = implRemote.additionalAuthenticationIndicator_; 
       implRemote.signonDisconnect(); 
