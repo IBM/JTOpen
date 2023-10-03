@@ -272,7 +272,7 @@ Returns the SQL state for the last operation on the IBM i system.
 @param  id          Id for the last operation.
 @return             The SQL state.
 **/
-  private static String getSQLState (AS400JDBCConnection connection,
+  static String getSQLState (AS400JDBCConnection connection,
                                      int id)
   {
     // If the SQL state was retrieved by a previous call to

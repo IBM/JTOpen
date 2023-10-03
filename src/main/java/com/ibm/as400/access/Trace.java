@@ -1857,6 +1857,12 @@ private static final void log(int category, Object source, String message, byte[
       traceOn_ = traceOn;
       mostRecentTracingChange_ = (traceOn ? TURNED_TRACE_ON : TURNED_TRACE_OFF);
       findLogger();
+      if (! userSpecifiedDestination_) {
+    	  // reset destination to current System.out. 
+    	  // This is useful for when System.out has been changed
+    	  // after the class was initialized.
+    	  destination_=new PrintWriter(System.out, true); 
+      }
       if (traceOn_ &&                                    //$D1A
           (logger_ == null || userSpecifiedDestination_)) {
         synchronized (destination_) {

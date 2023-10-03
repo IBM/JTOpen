@@ -44,7 +44,7 @@ class IdentityTokenVault extends CredentialVault implements Cloneable, Serializa
    *
    * @return A newly created IdentityTokenVault that is a copy of this one
    */
-  public Object clone() {
+  public IdentityTokenVault clone() {
     IdentityTokenVault vaultClone = (IdentityTokenVault)super.clone();
     return vaultClone;
   }

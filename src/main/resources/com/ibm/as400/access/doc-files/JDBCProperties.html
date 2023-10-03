@@ -1252,11 +1252,12 @@ it throws an SQLException indicating the first error seen using the connection.<
     <TD HEADERS="cat6">&quot;ignore warnings&quot;</TD>
     <TD HEADERS="cat6t2">Specifies a list of SQL states for which the driver should not create warning objects. 
       By default, the Toolbox JDBC driver will internally create a java.sql.SQLWarning 
-      object for each warning returned by the database.  For example, a warning with
+      object for each warning returned by the database.  The special value <b>all</b> may be used to ignore all warnings. 
+      For example, a warning with
       the SQLSTATE 0100C is created every time a result set is returned from a stored procedure.  This 
       warning can be safely ignored to improve the performance of applications that call stored procedures.</TD>
     <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat6t4">A comma separated list of SQL states that should be ignored</TD>
+    <TD HEADERS="cat6t4"><b>all</b> or a comma separated list of SQL states that should be ignored</TD>
     <TD HEADERS="cat6t5">&quot;&quot; </TD>
   </TR>
   <TR VALIGN="TOP"> 

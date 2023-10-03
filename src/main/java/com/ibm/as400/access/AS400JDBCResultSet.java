@@ -891,27 +891,93 @@ implements ResultSet
     /**
     Posts a warning for this result set.
     
-    @param   sqlWarning  The warning.
+    @param   id          The id used to create the warning
+    @param   errorClass  The error class used to create the warning
+    @param   returnCode  The return code used to create the warning
+
+     * @throws SQLException 
     **/
-  void postWarning(SQLWarning sqlWarning) {
+  void postWarning(AS400JDBCConnection connection, int id, int errorClass, int returnCode) throws SQLException {
     /* Check to see if the warning should be ignored @Q1A */
     try {
+      String sqlState  = JDError.getSQLState (connection, id);
       if ((statement_ != null)
           && (statement_.getConnection() != null)
           && (((AS400JDBCConnection) statement_.getConnection())
-              .ignoreWarning(sqlWarning))) {
+              .ignoreWarning(sqlState))) {
         return;
       }
 
     } catch (SQLException e) {
       // Ignore errors from getting connection.
     }
-    if (sqlWarning_ == null)
-      sqlWarning_ = sqlWarning;
-    else
-      sqlWarning_.setNextWarning(sqlWarning);
-
+    SQLWarning sqlWarning= JDError.getSQLWarning (connection, id, errorClass, returnCode); 
+    postCheckedWarning(sqlWarning); 
   }
+
+  void postCheckedWarning(SQLWarning sqlWarning) { 
+	    if (sqlWarning_ == null)
+	        sqlWarning_ = sqlWarning;
+	      else
+	        sqlWarning_.setNextWarning(sqlWarning);
+  }
+   
+  /**
+  Posts a warning for this result set.
+  
+  @param   sqlWarning  The warning.
+   * @throws SQLException 
+  **/
+void postDataTruncationWarning(int index, boolean parameter, boolean read, int dataSize, int transferSize) throws SQLException {
+  /* Check to see if the warning should be ignored @Q1A */
+  try {
+    String sqlState;
+    if (read)
+    	sqlState = "01004";
+    else 
+    	sqlState = "22001"; 
+    if ((statement_ != null)
+        && (statement_.getConnection() != null)
+        && (((AS400JDBCConnection) statement_.getConnection())
+            .ignoreWarning(sqlState))) {
+      return;
+    }
+
+  } catch (SQLException e) {
+    // Ignore errors from getting connection.
+  }
+  SQLWarning sqlWarning= new DataTruncation(index, parameter, read, dataSize, transferSize); 
+  postCheckedWarning(sqlWarning); 
+
+}
+
+  
+  /**
+  Posts a warning for this result set.
+  Usually not a good way to do this since the SQLWarning object has already been created
+  
+  @param   sqlState  The SQL state for the warning.
+   * @throws SQLException 
+  **/
+void postWarningSQLState(String sqlState)  {
+  try {
+    if ((statement_ != null)
+        && (statement_.getConnection() != null)
+        && (((AS400JDBCConnection) statement_.getConnection())
+            .ignoreWarning(sqlState))) {
+      return;
+    }
+
+  } catch (SQLException e) {
+    // Ignore errors from getting connection.
+  }
+  SQLWarning sqlWarning = JDError.getSQLWarning(sqlState);
+  if (sqlWarning_ == null)
+    sqlWarning_ = sqlWarning;
+  else
+    sqlWarning_.setNextWarning(sqlWarning);
+
+}
 
 
     // JDBC 2.0
@@ -3829,7 +3895,7 @@ implements ResultSet
     {
         if(wasDataMappingError_)
         {
-            postWarning(new DataTruncation(columnIndex, false, true, -1, -1));
+            postDataTruncationWarning(columnIndex, false, true, -1, -1);
         }
 
         if(data != null)
@@ -3844,8 +3910,8 @@ implements ResultSet
                     JDError.throwSQLException(this, JDError.EXC_DATA_TYPE_MISMATCH, "C#="+columnIndex); //@trunc
                 }                                                                    //@trunc
                 int actualSize = data.getActualSize ();
-                postWarning (new DataTruncation (columnIndex, false, true,
-                                                 actualSize, actualSize - truncated));
+                postDataTruncationWarning (columnIndex, false, true,
+                                                 actualSize, actualSize - truncated);
             }
         }
     }
@@ -4097,7 +4163,7 @@ implements ResultSet
             insertStatement.executeUpdate ();
             SQLWarning warnings = insertStatement.getWarnings ();
             if(warnings != null)
-                postWarning (warnings); // The whole link gets added.
+                postCheckedWarning (warnings); // The whole link gets added.
             insertStatement.close ();
 
             rowCache_.flush ();
@@ -5609,7 +5675,7 @@ implements ResultSet
                 updateStatement.executeUpdate ();
                 SQLWarning warnings = updateStatement.getWarnings ();
                 if(warnings != null)
-                    postWarning (warnings); // The whole link gets added.
+                    postCheckedWarning (warnings); // The whole link gets added.
             }
             finally{
                 //Always close the statement - Fix for JTOpen Bug 4148

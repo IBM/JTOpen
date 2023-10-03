@@ -360,12 +360,12 @@ Fetches a block of data from the system.
            } else  {                                                                     // @D1a
               // Post the warning to the resultSet, not the connection @D9A
              if (resultSet_ != null) { 
-               resultSet_.postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode)); // @D1a
+               resultSet_.postWarning (connection_, id_, errorClass, returnCode); // @D1a
              } else {
                if (JDTrace.isTraceOn ())           {
                  JDTrace.logInformation(connection_, "posting warning to connection");                
                }
-               connection_.postWarning (JDError.getSQLWarning (connection_, id_, errorClass, returnCode)); // @D1a
+               connection_.postWarning ( id_, errorClass, returnCode); // @D1a
              }
              
            }

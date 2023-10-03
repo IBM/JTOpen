@@ -143,7 +143,22 @@ public class SecureAS400 extends AS400
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
         construct();
     }
-
+    /**
+     Constructs a SecureAS400 object.  It uses the specified system name, user ID, , and additional authentication
+     factor.  No sign-on prompt is displayed unless the sign-on fails.
+     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+     @param  password  The user profile password to use to authenticate to the system.
+     @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
+     The caller is responsible for clearing the password array to keep the password from residing in memory. 
+                     
+     **/
+    public SecureAS400(String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws IOException, AS400SecurityException
+    {
+        super(systemName, userId, password, additionalAuthenticationFactor);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
+        construct();
+    }
     /**
      Constructs a SecureAS400 object.  It uses the specified system, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
      @param  systemName  The name of the system.
@@ -255,6 +270,18 @@ public class SecureAS400 extends AS400
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
         addPasswordCacheEntry(new SecureAS400(systemName, userId, password, proxyServer));
+    }
+
+    /**
+     Checks whether an additional authentication factor is accepted for the given system
+     @param  systemName  The IP address or hostname of the target system
+     @return  whether the server accepts the additional authentication factor
+     @exception  IOException  If an error occurs while communicating with the system.
+     @throws AS400SecurityException  If an error occurs exchanging client/server information
+     **/
+    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
+        byte indicator = AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName, true);
+        return indicator > 0; 
     }
 
     /**
