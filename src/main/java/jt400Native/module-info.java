@@ -1,5 +1,5 @@
 /* ifdef JAVA9
-module jt400Native {
+module jt400 {
     requires java.datatransfer;
     requires java.security.jgss;
 
