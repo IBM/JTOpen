@@ -570,7 +570,7 @@ public class AS400ImplRemote implements AS400Impl {
         SignonInfo returnInfo = signon2(systemName, systemNameLocal, userId,
             CredentialVault.encode(tempSeed, exchangeSeed(tempSeed),
             		newPasswordByteArray),
-            AS400.AUTHENTICATION_SCHEME_PASSWORD); // @mds
+            AS400.AUTHENTICATION_SCHEME_PASSWORD, additionalAuthenticationFactor); // @mds
         
         CredentialVault.clearArray(newPasswordByteArray); //@AI9A
         
@@ -3295,7 +3295,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   private SignonInfo signon2(String systemName, boolean systemNameLocal,
-      String userId, byte[] bytes, int byteType) throws AS400SecurityException,
+      String userId, byte[] bytes, int byteType, char[] additionalAuthenticationFactor) throws AS400SecurityException,
       IOException {
     CredentialVault tempVault;
 
@@ -3337,7 +3337,7 @@ public class AS400ImplRemote implements AS400Impl {
       // so we satisfy this expectation by re-encoding here.
       tempVault.storeEncodedUsingExternalSeeds(proxySeed_, remoteSeed_);
     }
-    return signon(systemName, systemNameLocal, userId, tempVault, gssName_,(char[]) null);
+    return signon(systemName, systemNameLocal, userId, tempVault, gssName_,additionalAuthenticationFactor);
   }
 
   // Exchange sign-on flows with sign-on server.
