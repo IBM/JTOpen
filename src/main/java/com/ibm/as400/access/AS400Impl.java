@@ -30,6 +30,8 @@ interface AS400Impl
     String ccsidToEncoding(int ccsid);
     // Change password.
     SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException;
+    // Change password with AAF
+    SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException;
     // Connect to service.
     void connect(int service, int overridePort, boolean skipSignonServer) throws AS400SecurityException, IOException;  /*@V1C*/
     // Connect to service.

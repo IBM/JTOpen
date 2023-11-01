@@ -1444,6 +1444,19 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public void changePassword(char[] oldPassword, char[] newPassword) throws AS400SecurityException, IOException
     {
+        changePassword(oldPassword, newPassword, null);
+    }
+
+    
+        /**
+     Changes the user profile password.  The system name and user profile name need to be set prior to calling this method.
+     @param  oldPassword  The old user profile password.
+     @param  newPassword  The new user profile password.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     **/
+    public void changePassword(char[] oldPassword, char[] newPassword, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
+    {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Changing password.");
         if (PASSWORD_TRACE)
         {
@@ -1498,7 +1511,8 @@ public class AS400 implements Serializable, AutoCloseable
             signonInfo_ = impl_.changePassword(systemName_, 
                 systemNameLocal_, userId_, 
                 encodeOldBytes, 
-                encodeNewBytes);  //@AI9C
+                encodeNewBytes, 
+                additionalAuthenticationFactor);  //@AI9C
 
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Password changed successfully.");
 

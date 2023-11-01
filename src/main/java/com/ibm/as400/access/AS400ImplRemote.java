@@ -291,10 +291,16 @@ public class AS400ImplRemote implements AS400Impl {
     }
     return protectedPassword;
   }
-
   // Change password.
   public SignonInfo changePassword(String systemName, boolean systemNameLocal,
       String userId, byte[] oldBytes, byte[] newBytes)
+      throws AS400SecurityException, IOException {
+        return changePassword(systemName, systemNameLocal, userId, oldBytes, newBytes, null);
+  }
+
+  // Change password.
+  public SignonInfo changePassword(String systemName, boolean systemNameLocal,
+      String userId, byte[] oldBytes, byte[] newBytes, char[] additionalAuthenticationFactor)
       throws AS400SecurityException, IOException {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC,
