@@ -552,7 +552,7 @@ public class AS400ImplRemote implements AS400Impl {
 
       ChangePasswordReq chgReq = new ChangePasswordReq(userIdEbcdic,
           encryptedPassword, oldProtected, oldPassword.length * 2,
-          newProtected, newPassword.length * 2, serverLevel_);
+          newProtected, newPassword.length * 2, serverLevel_, additionalAuthenticationFactor);
       ChangePasswordRep chgRep = (ChangePasswordRep) signonServer_
           .sendAndReceive(chgReq);
       int rc = chgRep.getRC();
