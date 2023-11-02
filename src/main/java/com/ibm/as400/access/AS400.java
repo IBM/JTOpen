@@ -1452,6 +1452,7 @@ public class AS400 implements Serializable, AutoCloseable
      Changes the user profile password.  The system name and user profile name need to be set prior to calling this method.
      @param  oldPassword  The old user profile password.
      @param  newPassword  The new user profile password.
+     @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      **/
