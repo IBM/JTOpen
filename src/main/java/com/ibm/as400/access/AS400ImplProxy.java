@@ -60,6 +60,11 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     // Change password.
     public SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes) throws AS400SecurityException, IOException
     {
+        return changePassword(systemName, systemNameLocal, userId, oldBytes, newBytes, null);
+    }
+    // Change password.
+    public SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
+    {
         try
         {
             return (SignonInfo)connection_.callMethod(pxId_, "changePassword", new Class[] { String.class, Boolean.TYPE, String.class, byte[].class, byte[].class }, new Object[] { systemName, Boolean.valueOf(systemNameLocal), userId, oldBytes, newBytes }).getReturnValue();

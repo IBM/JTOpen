@@ -291,10 +291,16 @@ public class AS400ImplRemote implements AS400Impl {
     }
     return protectedPassword;
   }
-
   // Change password.
   public SignonInfo changePassword(String systemName, boolean systemNameLocal,
       String userId, byte[] oldBytes, byte[] newBytes)
+      throws AS400SecurityException, IOException {
+        return changePassword(systemName, systemNameLocal, userId, oldBytes, newBytes, null);
+  }
+
+  // Change password.
+  public SignonInfo changePassword(String systemName, boolean systemNameLocal,
+      String userId, byte[] oldBytes, byte[] newBytes, char[] additionalAuthenticationFactor)
       throws AS400SecurityException, IOException {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC,
@@ -546,7 +552,7 @@ public class AS400ImplRemote implements AS400Impl {
 
       ChangePasswordReq chgReq = new ChangePasswordReq(userIdEbcdic,
           encryptedPassword, oldProtected, oldPassword.length * 2,
-          newProtected, newPassword.length * 2, serverLevel_);
+          newProtected, newPassword.length * 2, serverLevel_, additionalAuthenticationFactor);
       ChangePasswordRep chgRep = (ChangePasswordRep) signonServer_
           .sendAndReceive(chgReq);
       int rc = chgRep.getRC();
@@ -564,7 +570,7 @@ public class AS400ImplRemote implements AS400Impl {
         SignonInfo returnInfo = signon2(systemName, systemNameLocal, userId,
             CredentialVault.encode(tempSeed, exchangeSeed(tempSeed),
             		newPasswordByteArray),
-            AS400.AUTHENTICATION_SCHEME_PASSWORD); // @mds
+            AS400.AUTHENTICATION_SCHEME_PASSWORD, additionalAuthenticationFactor); // @mds
         
         CredentialVault.clearArray(newPasswordByteArray); //@AI9A
         
@@ -3289,7 +3295,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   private SignonInfo signon2(String systemName, boolean systemNameLocal,
-      String userId, byte[] bytes, int byteType) throws AS400SecurityException,
+      String userId, byte[] bytes, int byteType, char[] additionalAuthenticationFactor) throws AS400SecurityException,
       IOException {
     CredentialVault tempVault;
 
@@ -3331,7 +3337,7 @@ public class AS400ImplRemote implements AS400Impl {
       // so we satisfy this expectation by re-encoding here.
       tempVault.storeEncodedUsingExternalSeeds(proxySeed_, remoteSeed_);
     }
-    return signon(systemName, systemNameLocal, userId, tempVault, gssName_,(char[]) null);
+    return signon(systemName, systemNameLocal, userId, tempVault, gssName_,additionalAuthenticationFactor);
   }
 
   // Exchange sign-on flows with sign-on server.
