@@ -425,9 +425,10 @@ public class AspOpenList extends OpenList {
      CharConverter conv = new CharConverter(system_.getCcsid(), system_);
      
      AspListItem[] aspList = new AspListItem[recordsReturned];
-     int offset = 0;
+     int recordOffset = 0;
      for (int i = 0; i < recordsReturned; ++i)
      {
+    	 int offset = recordOffset;
     	 int aspNumber = BinaryConverter.byteArrayToInt(data, offset);
     	 offset += 4;
     	 if (format_ == 1) {
@@ -622,6 +623,7 @@ public class AspOpenList extends OpenList {
          	
          	aspList[i] = new AspListItem( aspNumber, useIdentification, jobName, jobUserName, jobNumber, threadIdentifier, threadStatus);
          }
+    	 recordOffset += recordLength;
      }
      
      return aspList;
