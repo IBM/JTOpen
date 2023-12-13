@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.beans.PropertyVetoException;	// @B9A
+import java.io.IOException;
 import java.net.InetAddress;				// @C2A
 import java.sql.Connection;
 import java.sql.Driver;
@@ -259,7 +260,7 @@ endif */
   {
     Properties properties = new Properties(); 
     properties.put("user",  userid); 
-    return connect(url, properties, password); 
+    return connect(url, properties, password, additionalAuthenticationFactor); 
   }
 	
  
@@ -502,7 +503,7 @@ endif */
       JDTrace.logInformation (this,"connect called with URL: "+traceUrl);  
     }
 
-		JDProperties jdProperties = new JDProperties (urlProperties, info, password);
+		JDProperties jdProperties = new JDProperties (urlProperties, info, password, additionalAuthenticationFactor);
 
 		// Initialize the connection if the URL is valid.
 		Connection connection = null;										 //@A0C
@@ -999,7 +1000,7 @@ endif */
 		DriverPropertyInfo[] dpi = null;
 		if (dataSourceUrl.isValid ())
 		{
-			JDProperties properties = new JDProperties (dataSourceUrl.getProperties(), info, null);
+			JDProperties properties = new JDProperties (dataSourceUrl.getProperties(), info, null, null);
 			dpi = properties.getInfo ();
 		}
 
@@ -1096,6 +1097,7 @@ endif */
 		String serverName = dataSourceUrl.getServerName();
 		String userName   = jdProperties.getString (JDProperties.USER);
 		char[] clearPassword   = jdProperties.getClearPassword(); 
+		char[] additionalAuthenticationFactor = jdProperties.getAdditionalAuthenticationFactor(); 
 		String prompt     = jdProperties.getString (JDProperties.PROMPT);	// @B8C
 		boolean secure    = jdProperties.getBoolean (JDProperties.SECURE);
 		boolean useThreads = jdProperties.getBoolean(JDProperties.THREAD_USED);
@@ -1183,6 +1185,7 @@ endif */
         
 		// Create the AS400 object, so we can create a Connection via loadImpl2.
 		AS400 as400 = null;
+		try { 
 		if (secure)
 		{
 			if (serverName.length() == 0)
@@ -1192,7 +1195,7 @@ endif */
 			else if (clearPassword == null )
 				as400 = new SecureAS400 (serverName, userName);
 			else
-				as400 = new SecureAS400 (serverName, userName, clearPassword);
+				as400 = new SecureAS400 (serverName, userName, clearPassword, additionalAuthenticationFactor);
 			
 		}
 		else
@@ -1204,9 +1207,18 @@ endif */
 			else if (clearPassword == null )
 				as400 = new AS400 (serverName, userName);
 			else
-				as400 = new AS400 (serverName, userName, clearPassword);
+				// Note:  If additionalAuthenticationFactor is specified then a connection to the
+				// signon server will immediately be established. 
+				as400 = new AS400 (serverName, userName, clearPassword, additionalAuthenticationFactor);
 		}
-
+		} catch (AS400SecurityException e)
+        {                           
+          JDError.throwSQLException (as400, JDError.EXC_CONNECTION_REJECTED, e);
+        }
+        catch (IOException e)
+        {                                      
+          JDError.throwSQLException (as400, JDError.EXC_CONNECTION_UNABLE, e);
+        }
 		if (clearPassword != null) { 
 		  CredentialVault.clearArray(clearPassword);
 		}
@@ -1369,7 +1381,7 @@ endif */
 	{
 		JDDataSourceURL dataSourceUrl = new JDDataSourceURL(null);
 		Properties info = new Properties();
-		JDProperties jdProperties = new JDProperties(null, info, null);
+		JDProperties jdProperties = new JDProperties(null, info, null, null);
 
 		//@B6C Moved common code to prepareConnection.
 		return prepareConnection(as400, dataSourceUrl, jdProperties); 
@@ -1389,7 +1401,7 @@ endif */
 			url	= "jdbc:as400://" + as400.getSystemName();		//@B6A
 		JDDataSourceURL dataSourceUrl = new JDDataSourceURL(url);
 
-		JDProperties jdProperties = new JDProperties(null, info, null);
+		JDProperties jdProperties = new JDProperties(null, info, null, null);
 
 		if (JDTrace.isTraceOn())
 			JDTrace.logInformation (this, "Using IBM Toolbox for Java JDBC driver implementation");
