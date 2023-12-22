@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.*;
 import java.util.Calendar;
+import java.util.concurrent.locks.Lock;
 
 // 
 // This extends AS400JDBCPrepareStatement for compatibility reasons only
@@ -361,7 +362,7 @@ public class AS400JDBCPreparedStatementRedirect  extends AS400JDBCPreparedStatem
      return stmt_.getCursor(); 
    }
    
-   AS400JDBCStatementLock getInternalLock() {
+   Lock getInternalLock() {
      return stmt_.getInternalLock(); 
    }
 
