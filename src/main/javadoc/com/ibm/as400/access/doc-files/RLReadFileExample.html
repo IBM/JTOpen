@@ -1,5 +1,5 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<HTML>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<HTML lang="en">
 <HEAD>
 <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-1">
 <TITLE>IBM Toolbox for Java Example: Using Record-level Access Classes</TITLE>
@@ -41,7 +41,7 @@ public class RLReadFile extends Object
 
       // Continue only if a system name was specified.
 
-      if (parameters.length >= 1)
+      if (parameters.length &gt;= 1)
       {
 
          try
@@ -156,7 +156,7 @@ public class RLReadFile extends Object
                // from the record it is converted from i5/OS format to
                // Java format.
 
-               if (((BigDecimal)data.getField(&quot;BALDUE&quot;)).floatValue() > 0.0)
+               if (((BigDecimal)data.getField(&quot;BALDUE&quot;)).floatValue() &gt; 0.0)
                {
                   System.out.print((String) data.getField(&quot;INIT&quot;) + &quot;  &quot;);
                   System.out.print((String) data.getField(&quot;LSTNAM&quot;) + &quot;  &quot;);

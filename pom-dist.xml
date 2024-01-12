@@ -648,13 +648,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>3.6.3</version>
         <configuration>
           <encoding>UTF-8</encoding>
           <sourcepath>${basedir}/target/sources_java8</sourcepath>
           <additionalOptions>-html4 -Xmaxwarns 1</additionalOptions>
           <docfilessubdirs>true</docfilessubdirs>
-          <doclint>none</doclint>
         </configuration>
         <executions>
           <execution>

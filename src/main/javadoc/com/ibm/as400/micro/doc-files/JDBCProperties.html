@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//w3c//dtd html 3.2 final//en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML lang="en">
 <HEAD>
 <TITLE>IBM Toolbox for Java: JDBC properties</TITLE>
@@ -35,7 +35,7 @@ attributes. The tables organize the properties into the following categories:</P
 <p>General properties are system attributes that specify the user, password, and 
   whether a prompt is necessary to connect to the system.</p>
 
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="General properties">
   <TR VALIGN="bottom" CLASS="hilightbar">
     <TH ID="cat1">General property</TH>
     <TH ID="cat1t2">Description</TH>
@@ -78,7 +78,7 @@ attributes. The tables organize the properties into the following categories:</P
 <h3>System properties</h3>
 <p>System properties specify attributes that govern transactions, libraries, and 
   databases.</p>
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="System properties">
   <TR VALIGN="bottom" CLASS="hilightbar"> 
     <TH ID="cat2">System property</TH>
     <TH ID="cat2t2">Description</TH>
@@ -87,7 +87,7 @@ attributes. The tables organize the properties into the following categories:</P
     <TH ID="cat2t5">Default</TH>
   </TR>
   <TR VALIGN="TOP"> 
-    <TD HEADERS="cat2"><a name="auto commit">&quot;auto commit&quot;</a></TD>
+    <TD HEADERS="cat2"><a name="autocommit">&quot;auto commit&quot;</a></TD>
     <TD HEADERS="cat2t2">Specifies whether auto-commit mode is the default connection 
       mode for new connections. Calling AS400JDBCConnection.setAutoCommit(boolean) 
       will override this property on a per-connection basis. Note that, in order 
@@ -123,7 +123,7 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat2"><a name="cursorsensitivity">&quot;cursor sensitivity&quot;</a></TD>
-    <TD HEADERS="cat2t2"><p></p>Specifies the cursor sensitivity to request from the database. The behavior depends on the resultSetType:</p>
+    <TD HEADERS="cat2t2"><p>Specifies the cursor sensitivity to request from the database. The behavior depends on the resultSetType:</p>
 	<ul>
 	<li>ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE means that the value of this property controls what cursor sensitivity the Java program requests from the database.</li>
 	<li>ResultSet.TYPE_SCROLL_INSENSITIVE causes this property to be ignored.</li>
@@ -167,7 +167,7 @@ attributes. The tables organize the properties into the following categories:</P
     <TD HEADERS="cat2">&quot;decfloat rounding mode&quot;</TD>
     <TD HEADERS="cat2t2"> 
       <p>Specifies the rounding mode to use when working with decfloat data type. 
-      Note, this property is ignored when connecting to systems running IBM i V5R4 and earlier.
+      Note, this property is ignored when connecting to systems running IBM i V5R4 and earlier.</p>
     </TD>
     <TD HEADERS="cat2t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat2t4">&quot;half even&quot;<BR>
@@ -323,7 +323,7 @@ attributes. The tables organize the properties into the following categories:</P
 <h3>Format properties</h3>
 <p>Format properties specify date and time formats, date and decimal separators, 
   and table naming conventions used within SQL statements.</p>
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="Format properties">
   <TR VALIGN="bottom" CLASS="hilightbar">
     <TH ID="cat3">Format property</TH>
     <TH ID="cat3t2">Description</TH>
@@ -403,7 +403,7 @@ attributes. The tables organize the properties into the following categories:</P
 <h3>Performance properties</h3>
 <p>Performance properties are attributes that include caching, data conversion, 
   data compression, and prefetching that affect performance.</p>
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="Performance properties">
   <TR VALIGN="bottom" CLASS="hilightbar"> 
     <TH ID="cat4">Performance property</TH>
     <TH ID="cat4t2">Description</TH>
@@ -646,7 +646,7 @@ attributes. The tables organize the properties into the following categories:</P
 <A NAME="sort"></A>
 <h3>Sort properties</h3>
 <p>Sort properties specify how the system performs stores and performs sorts.</p>
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="Sort properties">
   <TR VALIGN="bottom" CLASS="hilightbar">
     <TH ID="cat5">Sort property</TH>
     <TH ID="cat5t2">Description</TH>
@@ -701,7 +701,7 @@ attributes. The tables organize the properties into the following categories:</P
 <p>Other properties are those properties not easily categorized. These properties 
   determine which JDBC driver is used, and specify options related to level of 
   database access, bidirectional string type, data truncation and so on.</p>
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="Other properties">
   <TR VALIGN="bottom" CLASS="hilightbar"> 
     <TH ID="cat6">Other property</TH>
     <TH ID="cat6t2">Description</TH>
