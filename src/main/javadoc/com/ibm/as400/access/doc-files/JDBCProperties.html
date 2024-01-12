@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//w3c//dtd html 3.2 final//en">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <HTML lang="en">
 <HEAD>
 <TITLE>IBM Toolbox for Java: JDBC properties</TITLE>
@@ -40,7 +40,7 @@ attributes. The tables organize the properties into the following categories:</P
 <p>General properties are system attributes that specify the user, password, and 
   whether a prompt is necessary to connect to the system.</p>
 
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="General properties">
   <TR VALIGN="bottom" CLASS="hilightbar">
     <TH ID="cat1">General property</TH>
     <TH ID="cat1t2">Description</TH>
@@ -103,7 +103,7 @@ attributes. The tables organize the properties into the following categories:</P
 <h3>System properties</h3>
 <p>System properties specify attributes that govern transactions, libraries, and 
   databases.</p>
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="System properties">
   <TR VALIGN="bottom" CLASS="hilightbar"> 
     <TH ID="cat2">System property</TH>
     <TH ID="cat2t2">Description</TH>
@@ -112,7 +112,7 @@ attributes. The tables organize the properties into the following categories:</P
     <TH ID="cat2t5">Default</TH>
   </TR>
   <TR VALIGN="TOP"> 
-    <TD HEADERS="cat2"><a name="auto commit">&quot;auto commit&quot;</a></TD>
+    <TD HEADERS="cat2"><a name="autocommit">&quot;auto commit&quot;</a></TD>
     <TD HEADERS="cat2t2">Specifies whether auto-commit mode is the default connection 
       mode for new connections. Calling AS400JDBCConnection.setAutoCommit(boolean) 
       will override this property on a per-connection basis. Note that, in order 
@@ -148,7 +148,7 @@ attributes. The tables organize the properties into the following categories:</P
   </TR>
   <TR VALIGN="TOP"> 
     <TD HEADERS="cat2"><a name="cursorsensitivity">&quot;cursor sensitivity&quot;</a></TD>
-    <TD HEADERS="cat2t2"><p></p>Specifies the cursor sensitivity to request from the database. The behavior 
+    <TD HEADERS="cat2t2"><p>Specifies the cursor sensitivity to request from the database. The behavior 
     depends on the resultSetType:</p>
 	<ul>
 	<li>ResultSet.TYPE_FORWARD_ONLY or ResultSet.TYPE_SCROLL_SENSITIVE means that 
@@ -362,7 +362,7 @@ attributes. The tables organize the properties into the following categories:</P
 <h3>Format properties</h3>
 <p>Format properties specify date and time formats, date and decimal separators, 
   and table naming conventions used within SQL statements.</p>
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="Format properties">
   <TR VALIGN="bottom" CLASS="hilightbar">
     <TH ID="cat3">Format property</TH>
     <TH ID="cat3t2">Description</TH>
@@ -442,7 +442,7 @@ attributes. The tables organize the properties into the following categories:</P
 <h3>Performance properties</h3>
 <p>Performance properties are attributes that include caching, data conversion, 
   data compression, and prefetching that affect performance.</p>
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="Performance properties">
   <TR VALIGN="bottom" CLASS="hilightbar"> 
     <TH ID="cat4">Performance property</TH>
     <TH ID="cat4t2">Description</TH>
@@ -725,7 +725,7 @@ You must have *JOBCTL special authority to use qaqqinilib.</TD>
 <A NAME="sort"></A>
 <h3>Sort properties</h3>
 <p>Sort properties specify how the system performs stores and performs sorts.</p>
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="Sort properties">
   <TR VALIGN="bottom" CLASS="hilightbar">
     <TH ID="cat5">Sort property</TH>
     <TH ID="cat5t2">Description</TH>
@@ -829,7 +829,7 @@ SET statements executed by the JDBC driver.   The JDBC driver will not
 preserve those setting that are changed 
 using other methods, including a stored procedure call.</p>
 
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="Alternate server properties">
   <TR VALIGN="bottom" CLASS="hilightbar"> 
     <TH ID="cat7">Property</TH>
     <TH ID="cat7t2">Description</TH>
@@ -943,10 +943,10 @@ property is set to 1.</p>
 not throw an SQLException with SQL error code -4498 after a failed connection has 
 been successfully re-established if the following conditions are true:</p>
 <ul> 
-<li>The connection was not being used for a transaction at the time the failure occurred.</p>
+<li>The connection was not being used for a transaction at the time the failure occurred.</li>
 <li>There are no outstanding global resources, such as global temporary tables or 
 open, held cursors, or connection states that prevent a seamless failover to another
-server.</p>
+server.</li>
 </ul>
 <p>When seamless failover occurs, after the connection to a new server has been 
 established, the driver re-issues the SQL statement that was being processed when 
@@ -975,48 +975,48 @@ it throws an SQLException indicating the first error seen using the connection.<
 <h3>Network properties</h3>
 <p>Network properties control the behavior of the TCP/IP connection to the server</p>
 
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="Network properties">
   <TR VALIGN="bottom" CLASS="hilightbar"> 
-    <TH ID="cat6">Other property</TH>
-    <TH ID="cat6t2">Description</TH>
-    <TH ID="cat6t3">Required</TH>
-    <TH ID="cat6t4">Choices</TH>
-    <TH ID="cat6t5">Default</TH>
+    <TH ID="cat8">Network property</TH>
+    <TH ID="cat8t2">Description</TH>
+    <TH ID="cat8t3">Required</TH>
+    <TH ID="cat8t4">Choices</TH>
+    <TH ID="cat8t5">Default</TH>
   </TR>
 
 
 
   <TR VALIGN="TOP"> 
-    <TD HEADERS="cat4">&quot;login timeout&quot;</TD>
-    <TD HEADERS="cat4t2">The login timeout specifies the number of milliseconds that the JDBC driver 
+    <TD HEADERS="cat8">&quot;login timeout&quot;</TD>
+    <TD HEADERS="cat8t2">The login timeout specifies the number of milliseconds that the JDBC driver 
     will wait for a new socket to the database host server to be established.  A value of zero indicates that JDBC
     driver will wait indefinitely for the socket to be established.</TD>
-    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat4t4">&quot;0&quot; (no timeout)</TD>
-    <TD HEADERS="cat4t5">&quot;0&quot;</TD>
+    <TD HEADERS="cat8t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat8t4">&quot;0&quot; (no timeout)</TD>
+    <TD HEADERS="cat8t5">&quot;0&quot;</TD>
   </TR>
 
   <TR VALIGN="TOP"> 
-    <TD HEADERS="cat4">&quot;receive buffer size&quot;</TD>
-    <TD HEADERS="cat4t2">Specifies the buffer size used to receive data through the socket connection 
+    <TD HEADERS="cat8">&quot;receive buffer size&quot;</TD>
+    <TD HEADERS="cat8t2">Specifies the buffer size used to receive data through the socket connection 
     between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the actual receive buffer size. 
      It is only used as a hint by the underlying socket code.</TD>
-    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat4t4">&quot;1&quot; (max size)</TD>
-    <TD HEADERS="cat4t5">(platform dependent)</TD>
+    <TD HEADERS="cat8t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat8t4">&quot;1&quot; (max size)</TD>
+    <TD HEADERS="cat8t5">(platform dependent)</TD>
   </TR>
   <TR VALIGN="TOP"> 
-    <TD HEADERS="cat4">&quot;send buffer size&quot;</TD>
-    <TD HEADERS="cat4t2">Specifies the buffer size used to send data through the socket connection 
+    <TD HEADERS="cat8">&quot;send buffer size&quot;</TD>
+    <TD HEADERS="cat8t2">Specifies the buffer size used to send data through the socket connection 
     between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the 
     actual send buffer size.  It is only used as a hint by the underlying socket code.</TD>
-    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat4t4">&quot;1&quot; (max size)</TD>
-    <TD HEADERS="cat4t5">(platform dependent)</TD>
+    <TD HEADERS="cat8t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat8t4">&quot;1&quot; (max size)</TD>
+    <TD HEADERS="cat8t5">(platform dependent)</TD>
   </TR>
   <TR VALIGN="TOP"> 
-    <TD HEADERS="cat4">&quot;socket timeout&quot;</TD>
-    <TD HEADERS="cat4t2">Sets the millisecond timeout used by the network socket. 
+    <TD HEADERS="cat8">&quot;socket timeout&quot;</TD>
+    <TD HEADERS="cat8t2">Sets the millisecond timeout used by the network socket. 
     This determines the maximum number of milliseconds a JDBC connection will block on a read operation 
     while waiting for a server response.
     <br>NOTE1: If the timeout occurs, then the connection becomes unusable. 
@@ -1027,20 +1027,20 @@ it throws an SQLException indicating the first error seen using the connection.<
     server response, and a connection idle longer than the socket timeout will drop the connection.
      
     </TD>
-    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat4t4">&quot;0&quot; (no timeout)</TD>
-    <TD HEADERS="cat4t5">&quot;0&quot;</TD>
+    <TD HEADERS="cat8t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat8t4">&quot;0&quot; (no timeout)</TD>
+    <TD HEADERS="cat8t5">&quot;0&quot;</TD>
   </TR>
 
   <TR VALIGN="TOP"> 
-    <TD HEADERS="cat4">&quot;tcp no delay&quot;</TD>
-    <TD HEADERS="cat4t2">Sets the TCP no delay used by the network socket. To minimize response time, this
+    <TD HEADERS="cat8">&quot;tcp no delay&quot;</TD>
+    <TD HEADERS="cat8t2">Sets the TCP no delay used by the network socket. To minimize response time, this
     should be set to true on Windows systems that use Nagle's algorithm to reduce network load. 
      
     </TD>
-    <TD HEADERS="cat4t3" ALIGN="CENTER">no</TD>
-    <TD HEADERS="cat4t4">&quot;true<br>false&quot; (no timeout)</TD>
-    <TD HEADERS="cat4t5">&quot;false&quot;</TD>
+    <TD HEADERS="cat8t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat8t4">&quot;true<br>false&quot; (no timeout)</TD>
+    <TD HEADERS="cat8t5">&quot;false&quot;</TD>
   </TR>
 
 
@@ -1054,7 +1054,7 @@ it throws an SQLException indicating the first error seen using the connection.<
 <p>Other properties are those properties not easily categorized. These properties 
   determine which JDBC driver is used, and specify options related to level of 
   database access, bidirectional string type, data truncation and so on.</p>
-<TABLE BORDER="1">
+<TABLE BORDER="1" SUMMARY="Other properties">
   <TR VALIGN="bottom" CLASS="hilightbar"> 
     <TH ID="cat6">Other property</TH>
     <TH ID="cat6t2">Description</TH>
@@ -1306,23 +1306,23 @@ it throws an SQLException indicating the first error seen using the connection.<
     <TD HEADERS="cat6t5">&quot;0&quot; (V6R1 and earlier) &quot;1&quot; (post V6R1)</TD>
   </TR>
   
- :   <TR VALIGN="TOP"> 
+  <TR VALIGN="TOP"> 
     <TD HEADERS="cat6"><a name="numericrangeerror">&quot;numeric range error&quot;</a></TD>
     <TD HEADERS="cat6t2"> 
-      <p>Specifies how numeric range errors are handled.   Possible values are the following.  
+      <p>Specifies how numeric range errors are handled.   Possible values are the following.</p>  
       <ul>
       	<li>default  -- A numeric range error that occurs when writing to the database 
       	always throws an error.  A numeric range error that occurs when processing a 
       	query  always posts a warning.  When a warning occurs, the maximum possible 
       	numeric value is sent for overflow and the minimum possible numeric value 
-      	is sent for underflow.  
+      	is sent for underflow.</li>
       	<li>warning -- A numeric range error always posts a warning.   
       	When a warning occurs, the maximum possible numeric value is sent for 
-      	overflow and the minimum possible numeric value is sent for underflow.    
+      	overflow and the minimum possible numeric value is sent for underflow.</li> 
       	<li> none -- No warnings or errors are reported for numeric range error. 
       	The maximum possible numeric value is sent for overflow and the 
-      	minimum possible numeric value is sent for underflow.    
-      </p>
+      	minimum possible numeric value is sent for underflow.</li> 
+      </ul>
     </TD>
     <TD HEADERS="cat6t3" ALIGN="CENTER">no</TD>
     <TD HEADERS="cat6t4">&quot;true&quot;<BR>
