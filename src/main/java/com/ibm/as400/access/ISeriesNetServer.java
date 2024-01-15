@@ -21,6 +21,7 @@ package com.ibm.as400.access;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.io.ObjectInputStream;
 import java.beans.PropertyVetoException;
 
@@ -219,6 +220,8 @@ implements Serializable
   private final static int ZLSL0101_MAX_RECORD_LENGTH = 1221; // Max path length is 1024 bytes.
   private final static int ZLSL0101_MAX_RECORD_LENGTH_74 = 1223; // Max path length is 1024 bytes.  //@AE3A
   private final static int ZLSL0101_MAX_RECORD_LENGTH_75 = 1233; // Max path length is 1024 bytes.  //@AE3A
+  
+  private final static int ZLSL0900_MAX_RECORD_LENGTH = 10000;	// Space to return 1000 disabled users. //MJS
 
   // Tables of "in effect" and "pending" attribute values.
 
@@ -1512,6 +1515,137 @@ implements Serializable
   }
 
 
+  /**
+   Enables a set of users for NetServer
+   <br>This method requires *IOSYSCFG special authority and authority to the user profiles on the system.
+   @param users  An array of user profiles to enable for NetServer 
+   @exception  AS400SecurityException  If a security or authority error occurs.
+   @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   @exception  InterruptedException  If this thread is interrupted.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
+   **/
+  public void enableUsers(String[] users) throws AS400SecurityException, IOException, InterruptedException, AS400Exception, ErrorCompletingRequestException, ObjectDoesNotExistException 
+  {
+    final int ccsid = system_.getCcsid();
+	final AS400Text text8 = new AS400Text(8, ccsid);
+	int numberOfUsers = users.length;
+	// Assuming that we don't take open CCSID encoding into account and make byte array larger than necessary
+	int maxListLenInChars = 10 * numberOfUsers; 
+	AS400DataType[] zlss0200DataType = 
+	{
+	  new AS400Bin4(),
+      new AS400Text(maxListLenInChars, ccsid)
+	};
+	AS400Structure zlss0200Struct = new AS400Structure(zlss0200DataType);
+	StringBuilder sb = new StringBuilder();
+	for (int i=0; i < numberOfUsers; i++) 
+	{
+	  sb.append(String.format("%1$-"+10+"s", users[i].toUpperCase()));
+	}
+	Object[] requestData = 
+	{
+	  Integer.valueOf(numberOfUsers),
+	  sb.toString()
+	};
+	ProgramParameter[] parms = new ProgramParameter[4];
+	parms[0] = new ProgramParameter(zlss0200Struct.toBytes(requestData));
+	parms[1] = new ProgramParameter(new AS400Bin4().toBytes(4 + maxListLenInChars));
+	parms[2] = new ProgramParameter(text8.toBytes("ZLSS0200"));
+	parms[3] = new ErrorCodeParameter();
+
+	ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSCHSI.PGM", parms);
+	if (!pc.run())
+	{
+	  throw new AS400Exception(pc.getMessageList());
+	}
+  }
+
+  
+  /**
+   Enable a single user for NetServer
+   @param user
+   @exception  AS400SecurityException  If a security or authority error occurs.
+   @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   @exception  InterruptedException  If this thread is interrupted.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
+   **/
+  public void enableUser(String user) throws AS400SecurityException, IOException, InterruptedException, AS400Exception, ErrorCompletingRequestException, ObjectDoesNotExistException 
+  {
+    enableUsers(new String[] {user});
+  }
+
+
+  /**
+   Return a list of users that are disabled for NetServer
+   <br>This method requires *IOSYSCFG special authority on the system.
+   @return  Array of Strings, each element is a disabled NetServer user
+   @exception  AS400SecurityException  If a security or authority error occurs.
+   @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+   @exception  InterruptedException  If this thread is interrupted.
+   @exception  IOException  If an error occurs while communicating with the system.
+   @exception  ObjectDoesNotExistException  If the system object does not exist.
+   **/
+  public String[] getDisabledUsers() throws PropertyVetoException, AS400Exception, AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException 
+  {
+    final int ccsid = system_.getCcsid();
+    final AS400Text text8 = new AS400Text(8, ccsid);
+	final AS400Text text10 = new AS400Text(10, ccsid);
+
+	ArrayList<String> disabledUsers = new ArrayList<String>();
+	AS400DataType[] disabledUserStruct = 
+	{
+	  new AS400Text(10)
+	};
+	AS400Structure disabledUsersCvtr = new AS400Structure(disabledUserStruct);
+	AS400DataType[] listInfoStruct = 
+	{
+	  new AS400Bin4(),	// Total records
+      new AS400Bin4(),	// Records returned
+      new AS400Bin4(),	// Record length
+      new AS400Bin4(),	// Length of information returned
+      new AS400Text(1),	// Information complete indicator
+						//    C - complete information returned
+						//    I - incomplete information
+      new AS400Text(13),// Date and time created
+						// 1  Century where 0 means 19xx, 1 means 20xx
+						// 2-7 Date in YYMMDD format
+						// 8-13 Time of day in HHMMSS format
+      new AS400Text(34)	// Reserved
+    };
+	AS400Structure listInfoCvtr = new AS400Structure(listInfoStruct);
+
+	int lenListInfo = 64;
+	ProgramParameter[] parms = new ProgramParameter[6];
+	parms[0] = new ProgramParameter(ZLSL0900_MAX_RECORD_LENGTH);
+	parms[1] = new ProgramParameter(BinaryConverter.unsignedShortToByteArray(ZLSL0900_MAX_RECORD_LENGTH));
+	parms[2] = new ProgramParameter(lenListInfo);
+	parms[3] = new ProgramParameter(text8.toBytes("ZLSL0900"));
+	parms[4] = new ProgramParameter(text10.toBytes("          "));
+	parms[5] = new ErrorCodeParameter();
+
+	ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QZLSOLST.PGM", parms);
+	if (!pc.run()) 
+	{
+	  throw new AS400Exception(pc.getMessageList());
+	} 
+	else 
+	{
+	  Object[] listInfoData = (Object[])listInfoCvtr.toObject(parms[2].getOutputData());
+	  Integer returnedRecordCount = (Integer)listInfoData[1];
+	  // Build the array of disabled users
+	  AS400Array rcvrArray = new AS400Array(disabledUsersCvtr, returnedRecordCount.intValue());
+	  Object[] rcvrData = (Object[])rcvrArray.toObject(parms[0].getOutputData());
+	  for (int i = 0; i < returnedRecordCount.intValue(); i++) 
+	  {
+        disabledUsers.add((String)((Object[])rcvrData[i])[0]);
+      }
+	}
+	return (String[]) disabledUsers.toArray(new String[disabledUsers.size()]);
+  }
+
+  
   /**
    Returns the value of the "domain name" attribute.
    This attribute represents the domain name of the NetServer.
