@@ -281,7 +281,7 @@
             <phase>process-classes</phase>
             <configuration>
               <target name="source-pcml">
-                <echo> Processing PCML files...</echo>
+                <echo> Processing NetServer PCML files...</echo>
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${project.build.outputDirectory}/com/ibm/as400/access"
@@ -319,10 +319,10 @@
             <phase>process-classes</phase>
             <configuration>
               <target name="source-pcml">
-                <echo> Processing PCML files...</echo>
+                <echo> Processing NetServer PCML files for Java 8...</echo>
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
-                  destdir="${basedir}/target/sources_java8/com/ibm/as400/access"
+                  destdir="${project.build.outputDirectory}_java8/com/ibm/as400/access"
                   srcdir="${basedir}/pcml"
                   includes="**/NetServer.pcml"
                   classpath="${project.build.outputDirectory}:${basedir}/pcml"
@@ -338,10 +338,10 @@
             <phase>process-classes</phase>
             <configuration>
               <target name="source-pcml-resources">
-                <echo> Processing PCML files...</echo>
+                <echo> Processing PCML files for Java 8...</echo>
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
-                  destdir="${basedir}/target/sources_java8/com/ibm/as400/resource"
+                  destdir="${project.build.outputDirectory}_java8/com/ibm/as400/resource"
                   srcdir="${basedir}/pcml"
                   includes="**/R*.pcml"
                   classpath="${project.build.outputDirectory}:${basedir}/pcml"
@@ -357,10 +357,10 @@
             <phase>process-classes</phase>
             <configuration>
               <target name="source-pcml">
-                <echo> Processing PCML files...</echo>
+                <echo> Processing NetServer PCML files for Java 11...</echo>
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
-                  destdir="${basedir}/target/sources_java11/com/ibm/as400/access"
+                  destdir="${project.build.outputDirectory}_java11/com/ibm/as400/access"
                   srcdir="${basedir}/pcml"
                   includes="**/NetServer.pcml"
                   classpath="${project.build.outputDirectory}:${basedir}/pcml"
@@ -376,10 +376,124 @@
             <phase>process-classes</phase>
             <configuration>
               <target name="source-pcml-resources">
-                <echo> Processing PCML files...</echo>
+                <echo> Processing PCML files for Java 11...</echo>
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
-                  destdir="${basedir}/target/sources_java11/com/ibm/as400/resource"
+                  destdir="${project.build.outputDirectory}_java11/com/ibm/as400/resource"
+                  srcdir="${basedir}/pcml"
+                  includes="**/R*.pcml"
+                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-NetServer-native</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml">
+                <echo> Processing NetServer PCML files for Native...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
+                <pcml
+                  destdir="${project.build.outputDirectory}_native/com/ibm/as400/access"
+                  srcdir="${basedir}/pcml"
+                  includes="**/NetServer.pcml"
+                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-resource-native</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml-resources">
+                <echo> Processing PCML files for Native...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
+                <pcml
+                  destdir="${project.build.outputDirectory}_native/com/ibm/as400/resource"
+                  srcdir="${basedir}/pcml"
+                  includes="**/R*.pcml"
+                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-NetServer-java8-native</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml">
+                <echo> Processing NetServer PCML files for Native Java 8...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
+                <pcml
+                  destdir="${project.build.outputDirectory}_java8_native/com/ibm/as400/access"
+                  srcdir="${basedir}/pcml"
+                  includes="**/NetServer.pcml"
+                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-resource-java8-native</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml-resources">
+                <echo> Processing PCML files for Native Java 8...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
+                <pcml
+                  destdir="${project.build.outputDirectory}_java8_native/com/ibm/as400/resource"
+                  srcdir="${basedir}/pcml"
+                  includes="**/R*.pcml"
+                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-NetServer-java11-native</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml">
+                <echo> Processing NetServer PCML files for Native Java 11...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
+                <pcml
+                  destdir="${project.build.outputDirectory}_java11_native/com/ibm/as400/access"
+                  srcdir="${basedir}/pcml"
+                  includes="**/NetServer.pcml"
+                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-resource-java11-native</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml-resources">
+                <echo> Processing PCML files for Native Java 11...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
+                <pcml
+                  destdir="${project.build.outputDirectory}_java11_native/com/ibm/as400/resource"
                   srcdir="${basedir}/pcml"
                   includes="**/R*.pcml"
                   classpath="${project.build.outputDirectory}:${basedir}/pcml"
