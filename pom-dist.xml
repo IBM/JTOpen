@@ -497,6 +497,53 @@
               <outputDirectory>${project.build.outputDirectory}_native</outputDirectory>
             </configuration>
           </execution>
+          
+          <execution>
+            <id>Compile Native JDK 8</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <source>8</source>
+              <target>8</target>
+              <release>8</release>
+              <fork>true</fork>
+              <compileSourceRoots>
+                <compileSourceRoot>${basedir}/target/sources_java8
+                </compileSourceRoot>
+              </compileSourceRoots>
+              <excludes>
+                <exclude>**/module-info.java</exclude>
+              </excludes>
+              <outputDirectory>${project.build.outputDirectory}_java8_native</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>Compile Native JDK 11</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <source>11</source>
+              <target>11</target>
+              <release>11</release>
+              <fork>true</fork>
+              <compileSourceRoots>
+                <compileSourceRoot>${basedir}/target/sources_java11
+                </compileSourceRoot>
+              </compileSourceRoots>
+              <excludes>
+                <exclude>jt400/module-info.java</exclude>
+                <exclude>jt400Servlet/module-info.java</exclude>
+                <exclude>com/ibm/as400/util/html/**</exclude>
+                <exclude>com/ibm/as400/util/servlet/**</exclude>
+                <exclude>com/ibm/as400/access/TunnelProxyServer.java</exclude>
+              </excludes>
+              <outputDirectory>${project.build.outputDirectory}_java11_native</outputDirectory>
+            </configuration>
+          </execution>
           <execution>
             <id>default-compile</id>
             <phase>compile</phase>
@@ -608,6 +655,34 @@
             <configuration>
               <classesDirectory>${project.build.outputDirectory}_native</classesDirectory>
               <classifier>native</classifier>
+              <archive>
+                <manifestFile>${project.build.outputDirectory}/../manifests/jt400Native_manifest.txt</manifestFile>
+              </archive>
+            </configuration>
+          </execution>
+          <execution>
+            <id>jt400Native-java8</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classesDirectory>${project.build.outputDirectory}_java8_native</classesDirectory>
+              <classifier>native-java8</classifier>
+              <archive>
+                <manifestFile>${project.build.outputDirectory}/../manifests/jt400Native_manifest.txt</manifestFile>
+              </archive>
+            </configuration>
+          </execution>
+          <execution>
+            <id>jt400Native-java11</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classesDirectory>${project.build.outputDirectory}_java11_native</classesDirectory>
+              <classifier>native-java11</classifier>
               <archive>
                 <manifestFile>${project.build.outputDirectory}/../manifests/jt400Native_manifest.txt</manifestFile>
               </archive>
