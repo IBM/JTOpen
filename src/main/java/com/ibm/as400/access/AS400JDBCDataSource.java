@@ -3832,9 +3832,11 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             else if (propIndex == JDProperties.USER)
                 setUser(propertyValue);
             else if (propIndex == JDProperties.PASSWORD) {
-              char[] clearPassword = properties_.getClearPassword(); 
+              char[] clearPassword = propertyValue.toCharArray(); 
               setPassword(clearPassword);
               CredentialVault.clearArray(clearPassword);
+              if (JDTrace.isTraceOn()) 
+                  JDTrace.logInformation (this, "Use of password property not recommended:  using setPassword(char[]) instead");  
             } else if (propIndex == JDProperties.SECURE)
                 setSecure(propertyValue.equals(TRUE_) ? true : false);
             else if (propIndex == JDProperties.KEEP_ALIVE)
