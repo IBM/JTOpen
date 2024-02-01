@@ -804,6 +804,9 @@
               <archive>
                 <manifestFile>${project.build.outputDirectory}/../manifests/jt400Native_manifest.txt</manifestFile>
               </archive>
+              <excludes>
+                <exclude>**/com/ibm/as400/vaccess/**</exclude>
+              </excludes>
             </configuration>
           </execution>
           <execution>
@@ -818,6 +821,9 @@
               <archive>
                 <manifestFile>${project.build.outputDirectory}/../manifests/jt400Native_manifest.txt</manifestFile>
               </archive>
+              <excludes>
+                <exclude>**/com/ibm/as400/vaccess/**</exclude>
+              </excludes>
             </configuration>
           </execution>
           <execution>
@@ -832,6 +838,9 @@
               <archive>
                 <manifestFile>${project.build.outputDirectory}/../manifests/jt400Native_manifest.txt</manifestFile>
               </archive>
+              <excludes>
+                <exclude>**/com/ibm/as400/vaccess/**</exclude>
+              </excludes>
             </configuration>
           </execution>
           <execution>
