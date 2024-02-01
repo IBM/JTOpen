@@ -160,9 +160,7 @@ void printCurrentSort(ResourceList resourceList) throws ResourceException
 
 <p>Use {@link com.ibm.as400.vaccess.ResourceListDetailsPane ResourceListDetailsPane }
 or {@link com.ibm.as400.vaccess.ResourceListPane ResourceListPane }
-to present a ResourceList in a graphical user interface.  Use
-{@link com.ibm.as400.util.servlet.ResourceListRowData ResourceListRowData }
-to present a ResourceList in a servlet.
+to present a ResourceList in a graphical user interface.
 
 <a name="subclass"><b>Subclass notes:</b></a>
 <p>If you are extending this class to override the mechanism for getting
