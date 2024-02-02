@@ -596,6 +596,7 @@
               </compileSourceRoots>
               <excludes>
                 <exclude>**/module-info.java</exclude>
+                <exclude>**/package-info.java</exclude>
               </excludes>
               <outputDirectory>${project.build.outputDirectory}_java8</outputDirectory>
             </configuration>
@@ -638,6 +639,7 @@
               <fork>true</fork>
               <excludes>
                 <exclude>**/module-info.java</exclude>
+                <exclude>**/package-info.java</exclude>
               </excludes>
               <outputDirectory>${project.build.outputDirectory}_native</outputDirectory>
             </configuration>
@@ -660,6 +662,7 @@
               </compileSourceRoots>
               <excludes>
                 <exclude>**/module-info.java</exclude>
+                <exclude>**/package-info.java</exclude>
               </excludes>
               <outputDirectory>${project.build.outputDirectory}_java8_native</outputDirectory>
             </configuration>
@@ -703,6 +706,7 @@
               <fork>true</fork>
               <excludes>
                 <exclude>**/module-info.java</exclude>
+                <exclude>**/package-info.java</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -758,7 +762,6 @@
                 <exclude>**/com/ibm/as400/access/UnixSocketInputStream.class</exclude>
                 <exclude>**/com/ibm/as400/access/UnixSocketOutputStream.class</exclude>
                 <exclude>**/com/ibm/as400/access/UnixSocketUser.class</exclude>
-                <exclude>**/package-info.class</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -789,7 +792,6 @@
                 <exclude>**/com/ibm/as400/access/UnixSocketInputStream.class</exclude>
                 <exclude>**/com/ibm/as400/access/UnixSocketOutputStream.class</exclude>
                 <exclude>**/com/ibm/as400/access/UnixSocketUser.class</exclude>
-                <exclude>**/package-info.class</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -807,7 +809,6 @@
               </archive>
               <excludes>
                 <exclude>**/com/ibm/as400/vaccess/**</exclude>
-                <exclude>**/package-info.class</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -825,7 +826,6 @@
               </archive>
               <excludes>
                 <exclude>**/com/ibm/as400/vaccess/**</exclude>
-                <exclude>**/package-info.class</exclude>
               </excludes>
             </configuration>
           </execution>
