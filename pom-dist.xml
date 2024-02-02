@@ -759,6 +759,7 @@
                 <exclude>**/com/ibm/as400/access/UnixSocketInputStream.class</exclude>
                 <exclude>**/com/ibm/as400/access/UnixSocketOutputStream.class</exclude>
                 <exclude>**/com/ibm/as400/access/UnixSocketUser.class</exclude>
+                <exclude>**/package-info.class</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -789,6 +790,7 @@
                 <exclude>**/com/ibm/as400/access/UnixSocketInputStream.class</exclude>
                 <exclude>**/com/ibm/as400/access/UnixSocketOutputStream.class</exclude>
                 <exclude>**/com/ibm/as400/access/UnixSocketUser.class</exclude>
+                <exclude>**/package-info.class</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -806,6 +808,7 @@
               </archive>
               <excludes>
                 <exclude>**/com/ibm/as400/vaccess/**</exclude>
+                <exclude>**/package-info.class</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -823,6 +826,7 @@
               </archive>
               <excludes>
                 <exclude>**/com/ibm/as400/vaccess/**</exclude>
+                <exclude>**/package-info.class</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -840,7 +844,6 @@
               </archive>
               <excludes>
                 <exclude>**/com/ibm/as400/vaccess/**</exclude>
-                <exclude>**/utilites/*.class</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -872,7 +875,6 @@
                 <exclude>**/com/ibm/as400/access/UnixSocketOutputStream.class</exclude>
                 <exclude>**/com/ibm/as400/access/UnixSocketUser.class</exclude>
                 <exclude>**/com/ibm/as400/vaccess/**</exclude>
-                <exclude>**/utilites/*.class</exclude>
               </excludes>
             </configuration>
           </execution>
