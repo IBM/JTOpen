@@ -619,8 +619,7 @@
               <excludes>
                 <exclude>jt400Native/module-info.java</exclude>
                 <exclude>jt400Servlet/module-info.java</exclude>
-                <exclude>com/ibm/as400/util/html/**</exclude>
-                <exclude>com/ibm/as400/util/servlet/**</exclude>
+                <exclude>utilities/**</exclude>
                 <exclude>com/ibm/as400/access/TunnelProxyServer.java</exclude>
               </excludes>
               <outputDirectory>${project.build.outputDirectory}_java11</outputDirectory>
@@ -844,6 +843,7 @@
               </archive>
               <excludes>
                 <exclude>**/com/ibm/as400/vaccess/**</exclude>
+                <exclude>utilities/**</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -875,6 +875,7 @@
                 <exclude>**/com/ibm/as400/access/UnixSocketOutputStream.class</exclude>
                 <exclude>**/com/ibm/as400/access/UnixSocketUser.class</exclude>
                 <exclude>**/com/ibm/as400/vaccess/**</exclude>
+                <exclude>utilities/**</exclude>
               </excludes>
             </configuration>
           </execution>
