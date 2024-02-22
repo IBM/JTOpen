@@ -102,6 +102,12 @@ public class AS400 implements Serializable, AutoCloseable
      Constant indicating the Sign-on service.
      **/
     public static final int SIGNON = 7;
+    /**
+     Constant indicating the HCS.
+     */
+    public static final int CONNECTION = 8;
+    
+    public static final int CONNECTION2 = 9;
     // Constants 8-15 reserved for SSL versions of the above services.
 
     /**
@@ -165,7 +171,7 @@ public class AS400 implements Serializable, AutoCloseable
     // Default setting for threadUsed property.
     private static boolean defaultThreadUsed_ = true;
     
-    boolean skipSignonServer = false;             /*@V1A*/
+    boolean skipSignonServer  = false;             /*@V1A*/
     public String currentLib_ = "*CURUSR";
     public String librariesForThread_ = "*CURUSR";
     static
@@ -407,7 +413,7 @@ public class AS400 implements Serializable, AutoCloseable
     transient boolean propertiesFrozen_ = false;
 
     // Implementation object.
-    private transient AS400Impl impl_ = null;
+    public transient AS400Impl impl_ = null;
 
     // This object is created by the initial sign-on process.  It contains the information from the retrieve sign-on information flow with the sign-on server.
     private transient SignonInfo signonInfo_ = null;
@@ -1621,7 +1627,22 @@ public class AS400 implements Serializable, AutoCloseable
     **/
    public void connectService(int service) throws AS400SecurityException, IOException
    {
-     connectService(service, -1); 
+     connectService(service, -1, false, new int[0]);
+   }
+   
+   public void connectService(int service, int overridePort) throws AS400SecurityException, IOException
+   {
+     connectService(service, overridePort, false, new int[0]); 
+   }
+   
+   public void connectService(int service, int overridePort, int[] reqdServices) throws AS400SecurityException, IOException
+   {
+     connectService(service, overridePort, false, reqdServices); 
+   }
+   
+   public void connectService(int service, int overridePort, boolean connectViaHCS) throws AS400SecurityException, IOException
+   {
+     connectService(service, overridePort, connectViaHCS, new int[0]);
    }
     
     /**
@@ -1643,11 +1664,11 @@ public class AS400 implements Serializable, AutoCloseable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      **/
-    public void connectService(int service, int overridePort) throws AS400SecurityException, IOException
+    public void connectService(int service, int overridePort, boolean connectViaHCS, int[] requestedServices) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connecting service:", service);
         // Validate parameter.
-        if (service < 0 || service > 7)
+        if (service < 0 || service > 9)
         {
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
@@ -1666,7 +1687,7 @@ public class AS400 implements Serializable, AutoCloseable
         try {
           signon(service == AS400.SIGNON);
          
-          impl_.connect(service, overridePort, skipSignonServer);
+          impl_.connect(service, overridePort, skipSignonServer, connectViaHCS, requestedServices);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connected:", AS400.getServerName(service));
         } finally {
           // After the thread to connect server, notify the thread to refresh profile token credential.
@@ -2621,6 +2642,10 @@ public class AS400 implements Serializable, AutoCloseable
                 return "as-ddm";
             case AS400.CENTRAL:
                 return "as-central";
+            case AS400.CONNECTION:
+                return "as-hostcnn-s";
+            case AS400.CONNECTION2:
+              return "";
             case AS400.SIGNON:
                 return "as-signon";
             default:
