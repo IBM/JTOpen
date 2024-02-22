@@ -53,7 +53,8 @@ class PortMapper
             9471, // 12 Secure Database.
             448,  // 13 Secure Record Level Access.
             9470, // 14 Secure Central.
-            9476  // 15 Secure Sign-on.
+            9476, // 15 Secure Sign-on.
+            9480, // 16 Secure Connection.
         };
         systemList.put(systemName, newPortList);
     }
@@ -81,7 +82,8 @@ class PortMapper
                 AS400.USE_PORT_MAPPER, // 12 Secure Database.
                 448,                   // 13 Secure Record Level Access.
                 AS400.USE_PORT_MAPPER, // 14 Secure Central.
-                AS400.USE_PORT_MAPPER  // 15 Secure Sign-on.
+                AS400.USE_PORT_MAPPER, // 15 Secure Sign-on.
+                9480
             };
             newPortList[service] = port;
             systemList.put(systemName, newPortList);

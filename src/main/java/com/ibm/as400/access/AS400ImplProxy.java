@@ -78,9 +78,9 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     // Connect to service.
     public void connect(int service) throws AS400SecurityException, IOException
     {
-      connect(service, -1, false); 
+      connect(service, -1, false, false, new int[0]); 
     }
-    public void connect(int service, int overridePort, boolean skipSignonServer) throws AS400SecurityException, IOException
+    public void connect(int service, int overridePort, boolean skipSignonServer, boolean connectViaHCS, int[] reqdServices) throws AS400SecurityException, IOException
     {
         try
         {

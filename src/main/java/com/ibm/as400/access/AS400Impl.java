@@ -33,7 +33,7 @@ interface AS400Impl
     // Change password with AAF
     SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException;
     // Connect to service.
-    void connect(int service, int overridePort, boolean skipSignonServer) throws AS400SecurityException, IOException;  /*@V1C*/
+    void connect(int service, int overridePort, boolean skipSignonServer, boolean connectViaHCS, int[] reqdServices) throws AS400SecurityException, IOException;  /*@V1C*/
     // Connect to service.
     void connect(int service) throws AS400SecurityException, IOException;  
     // Establish a DHCP connection to the specified port.

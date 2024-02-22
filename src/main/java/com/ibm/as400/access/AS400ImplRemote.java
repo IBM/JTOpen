@@ -66,9 +66,9 @@ public class AS400ImplRemote implements AS400Impl {
   private static final int UNINITIALIZED = -1;// @S5A
 
   // The pool of systems. The systems are in service constant order: FILE,
-  // PRINT, COMMAND, DATAQUEUE, DATABASE, RECORDACCESS, CENTRAL.
-  private Vector[] serverPool_ = { new Vector(), new Vector(), new Vector(),
-      new Vector(), new Vector(), new Vector(), new Vector() };
+  // PRINT, COMMAND, DATAQUEUE, DATABASE, RECORDACCESS, CONNECTION2.
+  public Vector[] serverPool_ = { new Vector(), new Vector(), new Vector(),
+      new Vector(), new Vector(), new Vector(), new Vector(), null, null, new Vector()};
 
   // System name.
   private String systemName_ = "";
@@ -152,12 +152,18 @@ public class AS400ImplRemote implements AS400Impl {
 
   // Connection to the sign-on server.
   AS400NoThreadServer signonServer_;
+  
+  AS400NoThreadServer HCSAuthdServer_;
   // Sign-on server server seed, held from sign-on connection until sign-on
   // disconnect.
   byte[] serverSeed_;
   // Sign-on server client seed, held from sign-on connection until sign-on
   // disconnect.
   byte[] clientSeed_;
+  
+  HCSRequestedService[] reqdServices_;
+  AS400Server reqdServiceServer_;
+  private char[] additionalAuthenticationFactorTOTP;
   
   private int UserHandle2_ = UNINITIALIZED;
 
@@ -611,15 +617,15 @@ public class AS400ImplRemote implements AS400Impl {
 
   // Implementation for connect.
   public void connect(int service) throws AS400SecurityException, IOException {
-    connect(service, -1, false);
+    connect(service, -1, false, false, new int[0]);
   }
 
-  public void connect(int service, int overridePort, boolean skipSignonServer)
+  public void connect(int service, int overridePort, boolean skipSignonServer, boolean connectViaHCS, int[] reqdServices)
       throws AS400SecurityException, IOException {
     if (service == AS400.SIGNON) {
       signonConnect();
     } else {
-      getConnection(service, overridePort, false, skipSignonServer);
+      getConnection(service, overridePort, false, skipSignonServer, connectViaHCS, reqdServices);
     }
   }
 
@@ -1474,20 +1480,21 @@ public class AS400ImplRemote implements AS400Impl {
 
   public AS400Server getConnection(int service, boolean forceNewConnection)
       throws AS400SecurityException, IOException {
-    return getConnection(service, forceNewConnection, false /*Skip signon server */ );
+    return getConnection(service, forceNewConnection, false /*Skip signon server */);
   }
 
-  // Get AS400Server object connected to indicated service. You can get either
-  // an existing connection or ask for a new connection.
   AS400Server getConnection(int service, boolean forceNewConnection,
       boolean skipSignonServer) throws AS400SecurityException, IOException {
-    return getConnection(service, -1, forceNewConnection, skipSignonServer);
+    return getConnection(service, -1, forceNewConnection, skipSignonServer, false, new int[0]);
+  }
+  
+  AS400Server getConnection(int service, int overridePort, boolean forceNewConnection,
+      boolean skipSignonServer) throws AS400SecurityException, IOException {
+    return getConnection(service, overridePort, forceNewConnection, skipSignonServer, false, new int[0]);
   }
 
-  // Get AS400Server object connected to indicated service. You can get either
-  // an existing connection or ask for a new connection.
   synchronized AS400Server getConnection(int service, int overridePort,
-      boolean forceNewConnection, boolean skipSignonServer )
+      boolean forceNewConnection, boolean skipSignonServer, boolean connectViaHCS, int[] reqdServices)
       throws AS400SecurityException, IOException {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC,
@@ -1501,171 +1508,327 @@ public class AS400ImplRemote implements AS400Impl {
         signonDisconnect();
       }
     }
-
-    AS400Server server = null;
-    // Get the list of systems associated with this service.
-    Vector serverList = serverPool_[service];
-    synchronized (serverList) {
-      if (!forceNewConnection && !serverList.isEmpty()) {
-        // System exists, get the first available system to reuse.
-        server = (AS400Server) serverList.firstElement();
-        if (Trace.traceOn_)
-          Trace.log(Trace.DIAGNOSTIC, "Reusing previous server object...");
-
-        // Return the connected system.
-        return server;
+    
+    if (reqdServices != null && reqdServices.length > 0 && reqdServices_ == null)
+    {
+      reqdServices_ = new HCSRequestedService[reqdServices.length];
+      for(int i = 0; i < reqdServices.length; ++i)
+      {
+        reqdServices_[i] = new HCSRequestedService(reqdServices[i]);
       }
     }
-
-    SocketContainer socketContainer = PortMapper.getServerSocket(
+    
+    AS400Server server              = null;
+    Vector serverList               = null;
+    SocketContainer socketContainer = null;
+    if (service != AS400.CONNECTION && HCSAuthdServer_ != null && reqdServiceServer_ == null && connectViaHCS)
+    {
+      server = HCSAuthdServer_;
+      if (Trace.traceOn_)
+        Trace.log(Trace.DIAGNOSTIC, "Reusing previous server object...");
+      
+      socketContainer = server.getSocket();
+    }
+    else if (service == AS400.CONNECTION && HCSAuthdServer_ == null)
+    {
+      ;
+    }
+    else
+    {
+      server     = null;
+      serverList = serverPool_[service];
+      synchronized (serverList) {
+        if (!forceNewConnection && !serverList.isEmpty()) {
+          // System exists, get the first available system to reuse.
+          server = (AS400Server) serverList.firstElement();
+          if (Trace.traceOn_)
+            Trace.log(Trace.DIAGNOSTIC, "Reusing previous server object...");
+  
+          // Return the connected system.
+          return server;
+        }
+      }
+    }
+    
+    if (socketContainer == null) {
+      socketContainer = PortMapper.getServerSocket(
         (systemNameLocal_) ? "localhost" : systemName_, service, overridePort, 
         useSSLConnection_, socketProperties_, mustUseNetSockets_);
+    }
+    
     int connectionID = socketContainer.hashCode();
     String jobString = "";
 
     try {
       InputStream inStream = socketContainer.getInputStream();
       OutputStream outStream = socketContainer.getOutputStream();
-      byte[] jobBytes = null;
-      int byteType = credVault_.getType();
-      if (service == AS400.RECORDACCESS) {
-        Object[] returnVals = ClassDecoupler.connectDDMPhase1(outStream,
-            inStream, (passwordLevel_ >= 2), byteType, connectionID);
-        byte[] clientSeed = (byte[]) returnVals[0];
-        byte[] serverSeed = (byte[]) returnVals[1];
-        jobBytes = (byte[]) returnVals[2];
-        /* @U4A */
-        byte[] sharedKeyBytes = null;
-        boolean encryptUserId = (returnVals[3] != null);
-        KeyPair keyPair = (KeyPair) returnVals[4];
-
-        if (keyPair != null) {
-          try {
-            sharedKeyBytes = DDMTerm.getSharedKey(keyPair, serverSeed);
-          } catch (GeneralSecurityException e) {
-            ServerStartupException serverStartupException = new ServerStartupException(
-                ServerStartupException.CONNECTION_NOT_ESTABLISHED);
-            serverStartupException.initCause(e);
-            throw serverStartupException;
-          }
-
-        }
-        byte[] userIDbytes;
-        byte[] ddmSubstitutePassword;
-        if (encryptUserId) {
-          byteType = AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD;
-
-          userIDbytes = getEncryptedUserid(sharedKeyBytes, serverSeed);
-          ddmSubstitutePassword = getDdmEncryptedPassword(sharedKeyBytes,
-              serverSeed);
-        } else {
-          userIDbytes = SignonConverter.stringToByteArray(userId_);
-          // Get the substitute password.
-          ddmSubstitutePassword = getPassword(clientSeed, serverSeed);
-        }
-
-        if (PASSWORD_TRACE) {
-          Trace.log(Trace.DATASTREAM, "Sending DDM SECCHK request...");
-          Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
-          Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
-          Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
-          Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
-          Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:",
-              ddmSubstitutePassword);
-        }
-        byte[] iaspBytes = null;
-        if (ddmRDB_ != null) {
-          AS400Text text18 = new AS400Text(18, signonInfo_.serverCCSID);
-          iaspBytes = text18.toBytes(ddmRDB_);
-        }
-        ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes,
-            ddmSubstitutePassword, iaspBytes, byteType, ddmRDB_, systemName_,
-            connectionID);
-      } else // service != RECORDACCESS
+      
+      if (!connectViaHCS)
       {
-        // The first request we send is "exchange random seeds"...
-        int serverId = AS400Server.getServerId(service);
-        AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId);
-        if (Trace.traceOn_)
-          xChgReq.setConnectionID(connectionID);
-        xChgReq.write(outStream);
-
-        AS400XChgRandSeedReplyDS xChgReply = new AS400XChgRandSeedReplyDS();
-        if (Trace.traceOn_)
-          xChgReply.setConnectionID(connectionID);
-        xChgReply.read(inStream);
-
-        if (xChgReply.getRC() != 0) {
-          byte[] rcBytes = new byte[4];
-          BinaryConverter.intToByteArray(xChgReply.getRC(), rcBytes, 0);
-          Trace.log(Trace.ERROR,
-              "Exchange of random seeds failed with return code:", rcBytes);
-          throw AS400ImplRemote.returnSecurityException(xChgReply.getRC(),
-              null, userId_);
+        byte[] jobBytes = null;
+        int byteType = credVault_.getType();
+        if (service == AS400.RECORDACCESS) 
+        {
+          Object[] returnVals = ClassDecoupler.connectDDMPhase1(outStream,
+              inStream, (passwordLevel_ >= 2), byteType, connectionID);
+          byte[] clientSeed = (byte[]) returnVals[0];
+          byte[] serverSeed = (byte[]) returnVals[1];
+          jobBytes = (byte[]) returnVals[2];
+          /* @U4A */
+          byte[] sharedKeyBytes = null;
+          boolean encryptUserId = (returnVals[3] != null);
+          KeyPair keyPair = (KeyPair) returnVals[4];
+  
+          if (keyPair != null) {
+            try {
+              sharedKeyBytes = DDMTerm.getSharedKey(keyPair, serverSeed);
+            } catch (GeneralSecurityException e) {
+              ServerStartupException serverStartupException = new ServerStartupException(
+                  ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+              serverStartupException.initCause(e);
+              throw serverStartupException;
+            }
+  
+          }
+          byte[] userIDbytes;
+          byte[] ddmSubstitutePassword;
+          if (encryptUserId) {
+            byteType = AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD;
+  
+            userIDbytes = getEncryptedUserid(sharedKeyBytes, serverSeed);
+            ddmSubstitutePassword = getDdmEncryptedPassword(sharedKeyBytes,
+                serverSeed);
+          } else {
+            userIDbytes = SignonConverter.stringToByteArray(userId_);
+            // Get the substitute password.
+            ddmSubstitutePassword = getPassword(clientSeed, serverSeed);
+          }
+  
+          if (PASSWORD_TRACE) {
+            Trace.log(Trace.DATASTREAM, "Sending DDM SECCHK request...");
+            Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
+            Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
+            Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
+            Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
+            Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:",
+                ddmSubstitutePassword);
+          }
+          byte[] iaspBytes = null;
+          if (ddmRDB_ != null) {
+            AS400Text text18 = new AS400Text(18, signonInfo_.serverCCSID);
+            iaspBytes = text18.toBytes(ddmRDB_);
+          }
+          ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes,
+              ddmSubstitutePassword, iaspBytes, byteType, ddmRDB_, systemName_,
+              connectionID);
+        } 
+        else if (service != AS400.CONNECTION2) // service != RECORDACCESS
+        {
+          // The first request we send is "exchange random seeds"...
+          int serverId = AS400Server.getServerId(service);
+          AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId);
+          if (service == AS400.CONNECTION || service == AS400.CONNECTION2) xChgReq = new AS400XChgRandSeedDS(serverId, true);
+          if (Trace.traceOn_)
+            xChgReq.setConnectionID(connectionID);
+          xChgReq.write(outStream);
+  
+          AS400XChgRandSeedReplyDS xChgReply = new AS400XChgRandSeedReplyDS();
+          if (Trace.traceOn_)
+            xChgReply.setConnectionID(connectionID);
+          xChgReply.read(inStream);
+  
+          if (xChgReply.getRC() != 0) {
+            byte[] rcBytes = new byte[4];
+            BinaryConverter.intToByteArray(xChgReply.getRC(), rcBytes, 0);
+            Trace.log(Trace.ERROR,
+                "Exchange of random seeds failed with return code:", rcBytes);
+            throw AS400ImplRemote.returnSecurityException(xChgReply.getRC(),
+                null, userId_);
+          }
+          if (Trace.traceOn_)
+            Trace.log(Trace.DIAGNOSTIC, "Exchange of random seeds successful.");
+  
+          // Next we send the "start server job" request...
+          byte[] clientSeed = xChgReq.getClientSeed();
+          if (service == AS400.CONNECTION || service == AS400.CONNECTION2) clientSeed = xChgReq.getHCSClientSeed();
+          byte[] serverSeed = xChgReply.getServerSeed();
+          if (service == AS400.CONNECTION || service == AS400.CONNECTION2) serverSeed = xChgReply.getHCSServerSeed();
+          if (skipSignonServer) {
+            // If the signon server was skipped, get the password level
+            // from the current response. 
+            passwordLevel_ = xChgReply.getServerAttributes(); 
+          }
+          byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
+          byte[] encryptedPassword = getPassword(clientSeed, serverSeed);
+          if (PASSWORD_TRACE) {
+            Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
+            Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
+            Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
+            Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
+            Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
+            Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:",
+                encryptedPassword);
+            Trace.log(Trace.DIAGNOSTIC, "  Password level: ", passwordLevel_); 
+          }
+          
+          AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes,
+              encryptedPassword, credVault_.getType(), additionalAuthenticationFactorTOTP); 
+          if (Trace.traceOn_)
+            req.setConnectionID(connectionID);
+          req.write(outStream);
+  
+          AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
+          if (Trace.traceOn_)
+            reply.setConnectionID(connectionID);
+          reply.read(inStream);
+  
+          if (reply.getRC() != 0) {
+            byte[] rcBytes = new byte[4];
+            BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
+            Trace.log(Trace.ERROR, "Start server failed with return code:",
+                rcBytes);
+            throw AS400ImplRemote.returnSecurityException(reply.getRC(), null,
+                userId_);
+          }
+  
+          jobBytes = reply.getJobNameBytes();
+          
+          // Obtain the job identifier for the connection.
+          // The name is always invariant, we we can use CCSID 37. /*@V1C*/
+          ConverterImplRemote converter = ConverterImplRemote
+              .getConverter(37, this);
+          // @Bidi-HCG3 jobString = converter.byteArrayToString(jobBytes);
+          // @Bidi-HCG3 start
+          // Perform Bidi transformation for data only
+          jobString = AS400BidiTransform.SQL_statement_reordering(jobString,
+              bidiStringType, converter.table_.bidiStringType_);
+          // this is a trick to prevent Bidi transformation
+          jobString = converter.byteArrayToString(jobBytes, 0, jobBytes.length,
+              converter.table_.bidiStringType_);
+          // @Bidi-HCG3 end
+          if (Trace.traceOn_)
+            Trace.log(Trace.DIAGNOSTIC, "System job:", jobString);
+          
+          if (service == AS400.CONNECTION)
+          {
+            HCSAuthdServer_ = new AS400NoThreadServer(this, 
+                                                      service,
+                                                      socketContainer,
+                                                      jobString);
+            for (int i = 0; i < reqdServices_.length; ++i)
+            {
+              int requestedServerID = AS400Server.getServerId(reqdServices_[i].getRequestedServiceID());
+              
+              HCSPrepareNewConnDS HCSPrepDS = new HCSPrepareNewConnDS(requestedServerID);
+              if (Trace.traceOn_)
+                HCSPrepDS.setConnectionID(connectionID);
+              HCSPrepDS.write(outStream); 
+              
+              HCSPrepareNewConnReplyDS HCSPrepReply = new HCSPrepareNewConnReplyDS();
+              if (Trace.traceOn_)
+                HCSPrepReply.setConnectionID(connectionID);
+              HCSPrepReply.read(inStream);
+              
+              if (HCSPrepReply.getRC() != 0) {
+                byte[] rcBytes = new byte[4];
+                BinaryConverter.intToByteArray(HCSPrepReply.getRC(), rcBytes, 0);
+                Trace.log(Trace.ERROR, "Route prepare connection failed with return code:",
+                    rcBytes);
+                throw AS400ImplRemote.returnSecurityException(HCSPrepReply.getRC(), null,
+                    userId_);
+              }
+              reqdServices_[i].setConnReqID(HCSPrepReply.getConnReqID());
+            }
+            
+            return HCSAuthdServer_;
+          }
         }
-        if (Trace.traceOn_)
-          Trace.log(Trace.DIAGNOSTIC, "Exchange of random seeds successful.");
-
-        // Next we send the "start server job" request...
-        byte[] clientSeed = xChgReq.getClientSeed();
-        byte[] serverSeed = xChgReply.getServerSeed();
-        if (skipSignonServer) {
-          // If the signon server was skipped, get the password level
-          // from the current response. 
-          passwordLevel_ = xChgReply.getServerAttributes(); 
+        else 
+        {
+          for (int i = 0; i < reqdServices_.length; ++i)
+          {
+            HCSGetNewConnDS HCSGetDS = new HCSGetNewConnDS(reqdServices_[i].getConnReqID());
+            if (Trace.traceOn_)
+              HCSGetDS.setConnectionID(connectionID);
+            HCSGetDS.write(outStream); 
+            
+            HCSGetNewConnReplyDS HCSGetReply = new HCSGetNewConnReplyDS();
+            if (Trace.traceOn_)
+              HCSGetReply.setConnectionID(connectionID);
+            HCSGetReply.read(inStream);
+            
+            if (HCSGetReply.getRC() != 0) {
+              byte[] rcBytes = new byte[4];
+              BinaryConverter.intToByteArray(HCSGetReply.getRC(), rcBytes, 0);
+              Trace.log(Trace.ERROR, "Get new connection failed with return code:",
+                  rcBytes);
+              throw AS400ImplRemote.returnSecurityException(HCSGetReply.getRC(), null,
+                  userId_);
+            }
+            
+            reqdServices_[i].setHSConnectionSockets(socketContainer);
+            if (i < (reqdServices_.length - 1))
+            {
+              socketContainer = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, 
+                                                           service,
+                                                           overridePort, 
+                                                           useSSLConnection_,
+                                                           socketProperties_,
+                                                           mustUseNetSockets_);
+              
+              connectionID = socketContainer.hashCode();
+              inStream     = socketContainer.getInputStream();
+              outStream    = socketContainer.getOutputStream();
+            }
+          }
         }
-        byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
-        byte[] encryptedPassword = getPassword(clientSeed, serverSeed);
-        if (PASSWORD_TRACE) {
-          Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
-          Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
-          Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
-          Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
-          Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
-          Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:",
-              encryptedPassword);
-          Trace.log(Trace.DIAGNOSTIC, "  Password level: ", passwordLevel_); 
-           
-        }
-
-        AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes,
-            encryptedPassword, credVault_.getType());
-        if (Trace.traceOn_)
-          req.setConnectionID(connectionID);
-        req.write(outStream);
-
-        AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
-        if (Trace.traceOn_)
-          reply.setConnectionID(connectionID);
-        reply.read(inStream);
-
-        if (reply.getRC() != 0) {
-          byte[] rcBytes = new byte[4];
-          BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
-          Trace.log(Trace.ERROR, "Start server failed with return code:",
-              rcBytes);
-          throw AS400ImplRemote.returnSecurityException(reply.getRC(), null,
-              userId_);
-        }
-
-        jobBytes = reply.getJobNameBytes();
       }
-
-      // Obtain the job identifier for the connection.
-      // The name is always invariant, we we can use CCSID 37. /*@V1C*/
-      ConverterImplRemote converter = ConverterImplRemote
-          .getConverter(37, this);
-      // @Bidi-HCG3 jobString = converter.byteArrayToString(jobBytes);
-      // @Bidi-HCG3 start
-      // Perform Bidi transformation for data only
-      jobString = AS400BidiTransform.SQL_statement_reordering(jobString,
-          bidiStringType, converter.table_.bidiStringType_);
-      // this is a trick to prevent Bidi transformation
-      jobString = converter.byteArrayToString(jobBytes, 0, jobBytes.length,
-          converter.table_.bidiStringType_);
-      // @Bidi-HCG3 end
-      if (Trace.traceOn_)
-        Trace.log(Trace.DIAGNOSTIC, "System job:", jobString);
+      else
+      {
+        for (int i = 0; i < reqdServices_.length; ++i)
+        {
+          HCSRouteNewConnDS HCSRouteDS = new HCSRouteNewConnDS(reqdServices_[i].getConnReqID());
+          if (Trace.traceOn_)
+            HCSRouteDS.setConnectionID(connectionID);
+          HCSRouteDS.write(outStream); 
+          
+          HCSRouteNewConnReplyDS HCSRouteReply = new HCSRouteNewConnReplyDS();
+          if (Trace.traceOn_)
+            HCSRouteReply.setConnectionID(connectionID);
+          HCSRouteReply.read(inStream);
+          
+          if (HCSRouteReply.getRC() != 0) {
+            byte[] rcBytes = new byte[4];
+            BinaryConverter.intToByteArray(HCSRouteReply.getRC(), rcBytes, 0);
+            Trace.log(Trace.ERROR, "Route new connection failed with return code:",
+                rcBytes);
+            throw AS400ImplRemote.returnSecurityException(HCSRouteReply.getRC(), null,
+                userId_);
+          }
+          
+          serverList = serverPool_[reqdServices_[i].getRequestedServiceID()];
+          if (threadUsed_) {
+            server = new AS400ThreadedServer(this,
+                                             reqdServices_[i].getRequestedServiceID(),
+                                             reqdServices_[i].getHSConnectionSockets(),
+                                             jobString);
+          } else {
+            server = new AS400NoThreadServer(this,
+                                             reqdServices_[i].getRequestedServiceID(),
+                                             reqdServices_[i].getHSConnectionSockets(),
+                                             jobString);
+          }
+          
+          serverList.addElement(server);
+          fireConnectEvent(true, service);
+          
+          if (reqdServiceServer_ == null)
+            reqdServiceServer_ = server;
+        }
+        
+        return reqdServiceServer_;
+      }
+      
     } catch (IOException e) {
       forceDisconnect(e, server, socketContainer);
       throw e;
@@ -1679,19 +1842,26 @@ public class AS400ImplRemote implements AS400Impl {
 
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC, "Server started successfully.");
+    
+    if (service == AS400.CONNECTION && HCSAuthdServer_ != null)
+      return HCSAuthdServer_;
 
     // At this point the Socket connection is established. Now we need to set up
     // the AS400Server object before passing it back to the caller.
 
     // Construct a new server...
     if (threadUsed_) {
-      server = new AS400ThreadedServer(this, service, socketContainer,
-          jobString);
+      server = new AS400ThreadedServer(this,
+                                       service,
+                                       socketContainer,
+                                       jobString);
     } else {
-      server = new AS400NoThreadServer(this, service, socketContainer,
-          jobString);
+      server = new AS400NoThreadServer(this,
+                                       service,
+                                       socketContainer,
+                                       jobString);
     }
-
+    
     // Add the system to our list so we can return it on a subsequent
     // connect()...
     serverList.addElement(server);
@@ -3475,6 +3645,8 @@ public class AS400ImplRemote implements AS400Impl {
 
         if (Trace.traceOn_)
           Trace.log(Trace.DIAGNOSTIC, "Security validated successfully.");
+        
+        additionalAuthenticationFactorTOTP = additionalAuthenticationFactor;
 
         signonInfo_ = new SignonInfo();
         signonInfo_.currentSignonDate = signonRep.getCurrentSignonDate();

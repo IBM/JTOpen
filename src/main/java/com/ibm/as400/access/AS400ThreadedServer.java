@@ -28,7 +28,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     private String jobString_;
     private boolean disconnecting_ = false;
 
-    private SocketContainer socket_;
+    public SocketContainer socket_;
     private InputStream inStream_;
     private OutputStream outStream_;
 
@@ -509,5 +509,15 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
 
     void setSoTimeout(int timeout) throws SocketException {
       socket_.setSoTimeout(timeout);
+    }
+    
+    @Override
+    public void setExchangeAttrReply(DataStream xChgAttrReply) {
+      exchangeAttrReply_ = xChgAttrReply;
+    }
+
+    @Override
+    public SocketContainer getSocket() {
+      return socket_;
     }
 }
