@@ -1124,7 +1124,7 @@ public class AS400 implements Serializable, AutoCloseable
      @param  password  The user profile password.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, boolean useSSL) instead    
+     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password) instead    
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password) throws AS400SecurityException, IOException
     {
@@ -1138,7 +1138,6 @@ public class AS400 implements Serializable, AutoCloseable
      @param  password  The user profile password.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, boolean useSSL) instead
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, char[] password) throws AS400SecurityException, IOException
     {
@@ -1168,7 +1167,7 @@ public class AS400 implements Serializable, AutoCloseable
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer, boolean useSSL) instead. 
+     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) instead. 
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException
     {
@@ -1181,10 +1180,8 @@ public class AS400 implements Serializable, AutoCloseable
     @param  userId  The user profile name.
     @param  password  The user profile password.
     @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
-    @param  useSSL  Whether or not to use secure connection.
     @exception  AS400SecurityException  If a security or authority error occurs.
     @exception  IOException  If an error occurs while communicating with the system.
-    @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer, boolean useSSL) instead. 
     **/
    public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) throws AS400SecurityException, IOException
    {
@@ -1270,10 +1267,9 @@ public class AS400 implements Serializable, AutoCloseable
     @exception  IOException  If an error occurs while communicating with the system.
     @throws AS400SecurityException  If an error occurs exchanging client/server information
     **/
-   public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
-       byte indicator = AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName, false);
-       return indicator > 0; 
-   }
+    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
+       return isAdditionalAuthenticationFactorAccepted(systemName, false);
+    }
    
     /**
      Checks whether an additional authentication factor is accepted for the given system
