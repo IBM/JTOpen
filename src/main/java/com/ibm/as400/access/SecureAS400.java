@@ -17,9 +17,7 @@
 
 package com.ibm.as400.access;
 
-import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.lang.reflect.Method;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
@@ -193,7 +191,6 @@ public class SecureAS400 extends AS400
      @param  password  The user profile password.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, boolean useSSL) instead    
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, char[] password) throws AS400SecurityException, IOException
     {
@@ -209,7 +206,7 @@ public class SecureAS400 extends AS400
      @param  proxyServer  The name and port in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer, boolean useSSL) instead. 
+     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) instead. 
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException
     {
@@ -224,10 +221,20 @@ public class SecureAS400 extends AS400
      @param  proxyServer  The name and port in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer, boolean useSSL) instead. 
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) throws AS400SecurityException, IOException
     {
         addPasswordCacheEntry(systemName, userId, password, proxyServer, true);
+    }
+    
+    /**
+    Checks whether an additional authentication factor is accepted for the given system. 
+    @param  systemName  The IP address or hostname of the target system
+    @return  whether the server accepts the additional authentication factor
+    @exception  IOException  If an error occurs while communicating with the system.
+    @throws AS400SecurityException  If an error occurs exchanging client/server information
+    **/
+    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
+       return isAdditionalAuthenticationFactorAccepted(systemName, true);
     }
 }
