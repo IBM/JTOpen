@@ -1776,7 +1776,22 @@ public class IFSFile
     }
     return subType_;
   }
+  private boolean isInFileSystem(String _fs) {
+    String lowercasePath = path_.toLowerCase().replaceAll("//+","/");
+    return lowercasePath.equals("/"+_fs.toLowerCase()) || lowercasePath.startsWith("/"+_fs.toLowerCase()+"/");
 
+  }
+
+  public boolean isInQOpenSys() {
+    return isInFileSystem("QOpenSys");
+  }
+
+  public boolean isInQsys() {
+    return isInFileSystem("qsys.lib");
+  }
+  public boolean isInQDLS() {
+    return isInFileSystem("qdls");
+  }
 
   /**
    Determines if the file is an IBM i "source physical file".
