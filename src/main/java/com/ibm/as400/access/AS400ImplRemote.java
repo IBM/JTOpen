@@ -67,8 +67,9 @@ public class AS400ImplRemote implements AS400Impl {
 
   // The pool of systems. The systems are in service constant order: FILE,
   // PRINT, COMMAND, DATAQUEUE, DATABASE, RECORDACCESS, CENTRAL.
-  private Vector[] serverPool_ = { new Vector(), new Vector(), new Vector(),
-      new Vector(), new Vector(), new Vector(), new Vector() };
+  private Vector[] serverPool_ = { 
+     new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector()
+  };
 
   // System name.
   private String systemName_ = "";
@@ -480,7 +481,7 @@ public class AS400ImplRemote implements AS400Impl {
         CredentialVault.clearArray(oldPasswordBytes);
       } //@AF2 password level >= 4 QPWDLVL4
       else {
-    	  if (oldPassword.length == 0) {
+          if (oldPassword.length == 0) {
               Trace.log(Trace.ERROR, "Parameter 'oldPassword' is empty.");
               throw new AS400SecurityException(
                   AS400SecurityException.SIGNON_CHAR_NOT_VALID);
@@ -507,9 +508,9 @@ public class AS400ImplRemote implements AS400Impl {
        * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
        * uses a sequence number of 1.
       */
-	      byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
-	      	     
-	     char[] trimmedOldPassword = trimUnicodeSpace(oldPassword);
+          byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+                   
+         char[] trimmedOldPassword = trimUnicodeSpace(oldPassword);
         if (oldPassword != trimmedOldPassword) { 
           CredentialVault.clearArray(oldPassword);
           oldPassword = trimmedOldPassword; 
@@ -521,23 +522,23 @@ public class AS400ImplRemote implements AS400Impl {
           newPassword = trimmedNewPassword;
         }
         
-	      byte[] oldPasswordBytes = BinaryConverter
-	              .charArrayToByteArray(oldPassword);
-	      byte[] newPasswordBytes = BinaryConverter
-	              .charArrayToByteArray(newPassword);
-	  
-	      byte[] token = generatePwdTokenForPasswordLevel4(userId_, oldPassword);
-		  encryptedPassword = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
-		  
-		  newProtected = generateSha512Protected(newPasswordBytes, token, serverSeed_, clientSeed_, userId, sequence);
-		  
-		  byte[] newToken = generatePwdTokenForPasswordLevel4(userId, newPassword);
-		  
-		  oldProtected = generateSha512Protected(oldPasswordBytes, newToken, serverSeed_, clientSeed_, userId, sequence);
-		  
-		  //@AI9A
-	      CredentialVault.clearArray(newPasswordBytes);
-	      CredentialVault.clearArray(oldPasswordBytes);
+          byte[] oldPasswordBytes = BinaryConverter
+                  .charArrayToByteArray(oldPassword);
+          byte[] newPasswordBytes = BinaryConverter
+                  .charArrayToByteArray(newPassword);
+      
+          byte[] token = generatePwdTokenForPasswordLevel4(userId_, oldPassword);
+          encryptedPassword = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
+          
+          newProtected = generateSha512Protected(newPasswordBytes, token, serverSeed_, clientSeed_, userId, sequence);
+          
+          byte[] newToken = generatePwdTokenForPasswordLevel4(userId, newPassword);
+          
+          oldProtected = generateSha512Protected(oldPasswordBytes, newToken, serverSeed_, clientSeed_, userId, sequence);
+          
+          //@AI9A
+          CredentialVault.clearArray(newPasswordBytes);
+          CredentialVault.clearArray(oldPasswordBytes);
   }
   //@AF2 End
 
@@ -569,7 +570,7 @@ public class AS400ImplRemote implements AS400Impl {
         byte[] newPasswordByteArray = BinaryConverter.charArrayToByteArray(newPassword); //@AI9A
         SignonInfo returnInfo = signon2(systemName, systemNameLocal, userId,
             CredentialVault.encode(tempSeed, exchangeSeed(tempSeed),
-            		newPasswordByteArray),
+                    newPasswordByteArray),
             AS400.AUTHENTICATION_SCHEME_PASSWORD, additionalAuthenticationFactor); // @mds
         
         CredentialVault.clearArray(newPasswordByteArray); //@AI9A
@@ -590,22 +591,22 @@ public class AS400ImplRemote implements AS400Impl {
     } catch (IOException e) {
       Trace.log(Trace.ERROR, "Change password failed:", e);
       if (signonServer_ != null) { 
-    	  signonServer_.forceDisconnect();
+          signonServer_.forceDisconnect();
       }
       signonServer_ = null;
       throw e;
     } catch (AS400SecurityException e) {
       Trace.log(Trace.ERROR, "Change password failed:", e);
       if (signonServer_ != null) {
-    	  signonServer_.forceDisconnect();
+          signonServer_.forceDisconnect();
       }
       signonServer_ = null;
       throw e;
     } finally { //@AI9A
-    	if (newPassword != null && newPassword.length>0)
-    		CredentialVault.clearArray(newPassword);
-    	if (oldPassword != null && oldPassword.length>0)
-    		CredentialVault.clearArray(oldPassword);
+        if (newPassword != null && newPassword.length>0)
+            CredentialVault.clearArray(newPassword);
+        if (oldPassword != null && oldPassword.length>0)
+            CredentialVault.clearArray(oldPassword);
     }
   }
 
@@ -643,7 +644,7 @@ public class AS400ImplRemote implements AS400Impl {
     
     //@ACAA Start
     if (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) {
-    	return createUserHandle2();
+        return createUserHandle2();
     }
     //@ACAA End
     
@@ -949,7 +950,7 @@ public class AS400ImplRemote implements AS400Impl {
         // @mds should we null out the seeds here
         break;
       default: // Password.
-    	byte[] passwordByte = vault.decode(proxySeed_, remoteSeed_); //@AI9A
+        byte[] passwordByte = vault.decode(proxySeed_, remoteSeed_); //@AI9A
         char[] password = BinaryConverter.byteArrayToCharArray(passwordByte); // @mds
         CredentialVault.clearArray(passwordByte);  //@AI9A
         proxySeed_ = null;
@@ -1032,7 +1033,7 @@ public class AS400ImplRemote implements AS400Impl {
           authenticationBytes = generateShaSubstitute(token, serverSeed_,
               clientSeed_, userIdBytes, sequence);
         } else { //@AF6A Start
-        	if (password.length == 0) {
+            if (password.length == 0) {
                 Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
                 throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
             }
@@ -1046,8 +1047,8 @@ public class AS400ImplRemote implements AS400Impl {
              * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
              * uses a sequence number of 1.
             */
-      	  byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
-      	  //Generate salt for password level 4
+            byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+            //Generate salt for password level 4
             /*
              * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
              * 1. Convert the 10-character blank padded user ID to upper case.
@@ -1066,9 +1067,9 @@ public class AS400ImplRemote implements AS400Impl {
              *    Initialization vector length = 32
              *    Initialization vector (salt) = value generated in Step #4.
              */
-  	      byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
-  	      CredentialVault.clearArray(password); //@AI9A
-  	      authenticationBytes = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
+            byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
+            CredentialVault.clearArray(password); //@AI9A
+            authenticationBytes = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
         }//@AF6A End
       }
 
@@ -1110,11 +1111,11 @@ public class AS400ImplRemote implements AS400Impl {
     } 
   }
 
-  public static byte getAdditionalAuthenticationIndicator(String systemName, boolean _useSSL) throws AS400SecurityException, IOException { 
+  public static byte getAdditionalAuthenticationIndicator(String systemName, boolean useSSL) throws AS400SecurityException, IOException { 
       AS400ImplRemote implRemote = new AS400ImplRemote(); 
       implRemote.systemName_ = systemName; 
       implRemote.socketProperties_ = new SocketProperties();
-      implRemote.useSSLConnection_ = _useSSL ? new SSLOptions()  : null;
+      implRemote.useSSLConnection_ = useSSL ? new SSLOptions()  : null;
       implRemote.signonConnect(); 
       byte indicator = implRemote.additionalAuthenticationIndicator_; 
       implRemote.signonDisconnect(); 
@@ -1225,7 +1226,7 @@ public class AS400ImplRemote implements AS400Impl {
       readFTPLine(reader);
       writer.print("PASS " 
               + new String(BinaryConverter.byteArrayToCharArray(credVault_
-            		  .getClearCredential())) + "\r\n"); //@AI1
+                      .getClearCredential())) + "\r\n"); //@AI1
       writer.flush(); //@AI1
       
       if (!readFTPLine(reader).startsWith("230"))
@@ -1869,7 +1870,7 @@ public class AS400ImplRemote implements AS400Impl {
             clientSeed, userIdBytes, sequence);
         //@AF2A Start
       } else {
-    	  if (password.length == 0) {
+          if (password.length == 0) {
               Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
               throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
           }
@@ -1883,8 +1884,8 @@ public class AS400ImplRemote implements AS400Impl {
            * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
            * uses a sequence number of 1.
           */
-    	  byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
-    	  //Generate salt for password level 4
+          byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+          //Generate salt for password level 4
           /*
            * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
            * 1. Convert the 10-character blank padded user ID to upper case.
@@ -1903,8 +1904,8 @@ public class AS400ImplRemote implements AS400Impl {
            *    Initialization vector length = 32
            *    Initialization vector (salt) = value generated in Step #4.
            */
-	      byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
-		  encryptedPassword = generateSha512Substitute(userId_, token, serverSeed, clientSeed, sequence);
+          byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
+          encryptedPassword = generateSha512Substitute(userId_, token, serverSeed, clientSeed, sequence);
       } //@AF2A End
     }
 
@@ -3767,7 +3768,7 @@ public class AS400ImplRemote implements AS400Impl {
       // Map native exception to AS400SecurityException.
       throw mapNativeSecurityException(e);
     } finally {
-    	CredentialVault.clearArray(temp); //@AI9A
+        CredentialVault.clearArray(temp); //@AI9A
     }
     return true;
   }
@@ -4676,56 +4677,56 @@ public class AS400ImplRemote implements AS400Impl {
   
   //@ACAA Start
   public int createUserHandle2() throws AS400SecurityException, IOException {
-	    if (UserHandle2_ != UNINITIALIZED) {
-	      return UserHandle2_;
-	    }
-	    ClientAccessDataStream ds = null;
-	    
-	    AS400Server connectedServer = getConnectedServer(new int[] { AS400.FILE });
-	    if (connectedServer != null) {
-	      try {
-	          byte[] authenticationBytes = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) 
-	        		  : TokenManager2.getGSSToken(systemName_, gssCredential_);	    
-	    	IFSUserHandle2Req req = new IFSUserHandle2Req(authenticationBytes);
-	        ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
-	      } catch (InterruptedException e) {
-	        Trace.log(Trace.ERROR, "Interrupted");
-	        InterruptedIOException throwException = new InterruptedIOException(
-	            e.getMessage());
-	        throwException.initCause(e);
-	        throw throwException;
-	      } catch (Throwable e) {
-	          Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-	          // @M4C
-	          throw new AS400SecurityException(
-	              AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
-	      }
-	      int rc = 0;
-	      // Verify the reply.
-	      if (ds instanceof IFSCreateUserHandleRep) {
-	        rc = ((IFSCreateUserHandleRep) ds).getReturnCode();
-	        if (rc != IFSReturnCodeRep.SUCCESS) {
-	          Trace.log(Trace.ERROR, "IFSCreateUserHandleRep return code", rc);
-	        }
-	        UserHandle2_ = ((IFSCreateUserHandleRep) ds).getHandle();
+        if (UserHandle2_ != UNINITIALIZED) {
+          return UserHandle2_;
+        }
+        ClientAccessDataStream ds = null;
+        
+        AS400Server connectedServer = getConnectedServer(new int[] { AS400.FILE });
+        if (connectedServer != null) {
+          try {
+              byte[] authenticationBytes = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) 
+                      : TokenManager2.getGSSToken(systemName_, gssCredential_);        
+            IFSUserHandle2Req req = new IFSUserHandle2Req(authenticationBytes);
+            ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
+          } catch (InterruptedException e) {
+            Trace.log(Trace.ERROR, "Interrupted");
+            InterruptedIOException throwException = new InterruptedIOException(
+                e.getMessage());
+            throwException.initCause(e);
+            throw throwException;
+          } catch (Throwable e) {
+              Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+              // @M4C
+              throw new AS400SecurityException(
+                  AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
+          }
+          int rc = 0;
+          // Verify the reply.
+          if (ds instanceof IFSCreateUserHandleRep) {
+            rc = ((IFSCreateUserHandleRep) ds).getReturnCode();
+            if (rc != IFSReturnCodeRep.SUCCESS) {
+              Trace.log(Trace.ERROR, "IFSCreateUserHandleRep return code", rc);
+            }
+            UserHandle2_ = ((IFSCreateUserHandleRep) ds).getHandle();
 
-	      } else if (ds instanceof IFSReturnCodeRep) {
-	        rc = ((IFSReturnCodeRep) ds).getReturnCode();
-	        if (rc != IFSReturnCodeRep.SUCCESS) {
-	          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
-	        }
-	        throw new ExtendedIOException(rc);
-	      } else {
-	        // Unknown data stream.
-	        Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
-	        throw new InternalErrorException(
-	            InternalErrorException.DATA_STREAM_UNKNOWN, Integer.toHexString(ds
-	                .getReqRepID()), null);
-	      }
-	    }
-	    setUserHandle(UserHandle2_);
-	    return UserHandle2_;
-	  }
+          } else if (ds instanceof IFSReturnCodeRep) {
+            rc = ((IFSReturnCodeRep) ds).getReturnCode();
+            if (rc != IFSReturnCodeRep.SUCCESS) {
+              Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+            }
+            throw new ExtendedIOException(rc);
+          } else {
+            // Unknown data stream.
+            Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
+            throw new InternalErrorException(
+                InternalErrorException.DATA_STREAM_UNKNOWN, Integer.toHexString(ds
+                    .getReqRepID()), null);
+          }
+        }
+        setUserHandle(UserHandle2_);
+        return UserHandle2_;
+      }
     //@ACAA End
   
   //@AF2 Start
@@ -4749,7 +4750,7 @@ public class AS400ImplRemote implements AS400Impl {
    *    Initialization vector (salt) = value generated in Step #4.
    */
   private byte[] generateSaltForPasswordLevel4(String userId, char[] password) {
-  	// leftmost 10 chars of userid blank-padded to exactly 10...
+      // leftmost 10 chars of userid blank-padded to exactly 10...
       // ...and rightmost 4 chars of password blank-padded to 4, ...
       // ...produces 14 characters (28 bytes)
       final char[] saltCharArray = new char[14];
@@ -4767,16 +4768,16 @@ public class AS400ImplRemote implements AS400Impl {
       final ByteBuffer saltByteBuffer = Charset.forName("utf-16be").encode(saltCharBuffer);
       MessageDigest saltDigest;
       byte[] salt = null;
-		try {
-			saltDigest = MessageDigest.getInstance("SHA-256");
-			saltDigest.update(saltByteBuffer.array());
-	        salt = saltDigest.digest(); // returns a 32 byte array
-	        Arrays.fill(saltCharArray, ' ');
-	        Arrays.fill(saltByteBuffer.array(), (byte) 0);
-		} catch (NoSuchAlgorithmException e) {
-			Trace.log(Trace.ERROR, "Error getting instance of SHA-256 algorithm:", e);
-		    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-		}
+        try {
+            saltDigest = MessageDigest.getInstance("SHA-256");
+            saltDigest.update(saltByteBuffer.array());
+            salt = saltDigest.digest(); // returns a 32 byte array
+            Arrays.fill(saltCharArray, ' ');
+            Arrays.fill(saltByteBuffer.array(), (byte) 0);
+        } catch (NoSuchAlgorithmException e) {
+            Trace.log(Trace.ERROR, "Error getting instance of SHA-256 algorithm:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+        }
       return salt;
   }
   //Generates a 64-byte password token "PW_TOKEN" as described by the security team for the QPWDLVL4 algorithm.
@@ -4784,78 +4785,78 @@ public class AS400ImplRemote implements AS400Impl {
       final byte[] salt = generateSaltForPasswordLevel4(userProfile_, passwd_);
       final KeySpec spec = new PBEKeySpec(passwd_, salt, 10022, 64 * 8); // takes a bit length so *8
       SecretKeyFactory factory;
-		try {
-			factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-			return factory.generateSecret(spec).getEncoded();
-		} catch (NoSuchAlgorithmException e) {
-			Trace.log(Trace.ERROR, "Error getting instance of PBKDF2WithHmacSHA512 algorithm:", e);
-		      throw new InternalErrorException(
-		          InternalErrorException.UNEXPECTED_EXCEPTION, e);
-		} catch (InvalidKeySpecException e) {
-			Trace.log(Trace.ERROR, "Invalid Key Spec Exception:", e);
-		      throw new InternalErrorException(
-		          InternalErrorException.UNEXPECTED_EXCEPTION, e);
-		}
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+            return factory.generateSecret(spec).getEncoded();
+        } catch (NoSuchAlgorithmException e) {
+            Trace.log(Trace.ERROR, "Error getting instance of PBKDF2WithHmacSHA512 algorithm:", e);
+              throw new InternalErrorException(
+                  InternalErrorException.UNEXPECTED_EXCEPTION, e);
+        } catch (InvalidKeySpecException e) {
+            Trace.log(Trace.ERROR, "Invalid Key Spec Exception:", e);
+              throw new InternalErrorException(
+                  InternalErrorException.UNEXPECTED_EXCEPTION, e);
+        }
   }
   
   //Generates a 64-byte password substitute "PW_SUB" as follows: PW_SUB = SHA-2 512(PW_TOKEN, RDr, RDs, ID, PWSEQs)
   static byte[] generateSha512Substitute(final String userProfile_, final byte[] passwdToken_, final byte[] serverSeed_, final byte[] clientSeed_, final byte[] sequence_){
       MessageDigest messageDigest;
-		try {
-			messageDigest = MessageDigest.getInstance("SHA-512");
-			messageDigest.update(passwdToken_);
-	        messageDigest.update(serverSeed_);
-	        messageDigest.update(clientSeed_);
-			messageDigest.update((userProfile_ + "          ").substring(0, 10).getBytes("utf-16be"));
-	        messageDigest.update(sequence_);
-	        return messageDigest.digest();
-		} catch (NoSuchAlgorithmException e) {
-			Trace.log(Trace.ERROR, "Error getting instance of SHA-512 algorithm:", e);
-		    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-		} catch (UnsupportedEncodingException e) {
-			Trace.log(Trace.ERROR, "Unsupported Encoding Exception:", e);
-		    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-		}
+        try {
+            messageDigest = MessageDigest.getInstance("SHA-512");
+            messageDigest.update(passwdToken_);
+            messageDigest.update(serverSeed_);
+            messageDigest.update(clientSeed_);
+            messageDigest.update((userProfile_ + "          ").substring(0, 10).getBytes("utf-16be"));
+            messageDigest.update(sequence_);
+            return messageDigest.digest();
+        } catch (NoSuchAlgorithmException e) {
+            Trace.log(Trace.ERROR, "Error getting instance of SHA-512 algorithm:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+        } catch (UnsupportedEncodingException e) {
+            Trace.log(Trace.ERROR, "Unsupported Encoding Exception:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+        }
   }
 
   //Generate 32 bytes hash with algorithmType
   private static byte[] generateShabytes(byte[] data, String algorithmType) {
       try {
-  	    MessageDigest md = MessageDigest.getInstance(algorithmType);
-  	    md.update(data);
-  	    byte[] result = md.digest();
-  	    
-  	    //@AI9A Clear data
-  	    byte[] empty = new byte[data.length];
+          MessageDigest md = MessageDigest.getInstance(algorithmType);
+          md.update(data);
+          byte[] result = md.digest();
+          
+          //@AI9A Clear data
+          byte[] empty = new byte[data.length];
         Arrays.fill(empty, (byte)0);
         md.update(empty);
-  	    
-  	    return result;
-  	} catch (NoSuchAlgorithmException e) {
-  	    Trace.log(Trace.ERROR, "Error getting instance of " + algorithmType + " algorithm:", e);
-  	    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-  	}
+          
+          return result;
+      } catch (NoSuchAlgorithmException e) {
+          Trace.log(Trace.ERROR, "Error getting instance of " + algorithmType + " algorithm:", e);
+          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+      }
   }
   
   private static byte[] generateSha512Protected(byte[] bytes, byte[] token,
-	      byte[] serverSeed, byte[] clientSeed, String userId, byte[] sequence) {
-	    // Protected length will be rounded up to next 64.
-	    int protectedLength = (((bytes.length - 1) / 64) + 1) * 64;
-	    byte[] protectedPassword = new byte[protectedLength];
-	    for (int i = 0; i < protectedLength; i += 64) {
-	      incrementString(sequence);
-	      byte[] encryptedSection = generateSha512Substitute(userId, token, serverSeed,
-	          clientSeed, sequence);
-	      for (int ii = 0; ii < 64; ++ii) {
-	        if (i + ii < bytes.length) {
-	          protectedPassword[i + ii] = (byte) (encryptedSection[ii] ^ bytes[i
-	              + ii]);
-	        } else {
-	          protectedPassword[i + ii] = encryptedSection[ii];
-	        }
-	      }
-	    }
-	    return protectedPassword;
-	  }
+          byte[] serverSeed, byte[] clientSeed, String userId, byte[] sequence) {
+        // Protected length will be rounded up to next 64.
+        int protectedLength = (((bytes.length - 1) / 64) + 1) * 64;
+        byte[] protectedPassword = new byte[protectedLength];
+        for (int i = 0; i < protectedLength; i += 64) {
+          incrementString(sequence);
+          byte[] encryptedSection = generateSha512Substitute(userId, token, serverSeed,
+              clientSeed, sequence);
+          for (int ii = 0; ii < 64; ++ii) {
+            if (i + ii < bytes.length) {
+              protectedPassword[i + ii] = (byte) (encryptedSection[ii] ^ bytes[i
+                  + ii]);
+            } else {
+              protectedPassword[i + ii] = encryptedSection[ii];
+            }
+          }
+        }
+        return protectedPassword;
+      }
   //@AF2 End
 }
