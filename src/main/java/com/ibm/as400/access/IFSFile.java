@@ -892,6 +892,36 @@ public class IFSFile
   public boolean delete()
     throws IOException
   {
+    // If it looks like it's in QSYS, then the stream file operation to the host server will likely not work. For
+    // files and members, though, we can handle specially here. 
+    if(isInQsys()) {
+      AS400File tmpPF = null;
+      ObjectDescription objectDescription = new ObjectDescription(system_, path_.replaceAll("//+", "/"));
+      try {
+        String type = objectDescription.getType();
+        switch (type) {
+          case "FILE": //note: includes *SAVF objects
+            tmpPF = new SequentialFile(system_, objectDescription.getPath());
+            tmpPF.delete();
+            return true;
+          case "MBR":
+            tmpPF = new SequentialFile(system_, objectDescription.getPath());
+            tmpPF.deleteMember();
+            return true;
+        }
+      } catch (AS400SecurityException | InterruptedException | IOException | ErrorCompletingRequestException e) {
+        Trace.log(
+            Trace.WARNING, "Unable to delete QSYS file using classic techniques. Will try host server stream file operations."+path_, e);
+      } finally {
+        if(null != tmpPF) { 
+          try {
+            tmpPF.close();
+          } catch (AS400Exception | AS400SecurityException | InterruptedException | IOException e) {
+            Trace.log(Trace.ERROR, "Unexpected error closing file "+path_, e);
+          }
+        }
+      }
+    }
     int returnCode = IFSReturnCodeRep.FILE_NOT_FOUND;
     try
     {
