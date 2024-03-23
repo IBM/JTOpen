@@ -1259,6 +1259,20 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if properties are frozen:", propertiesFrozen_);
         return propertiesFrozen_;
     }
+    
+    /**
+    Checks whether an additional authentication factor is accepted for the given system.  
+    The communications with the host server is done over a secure channel if the AS400 object
+    was created to use SSL; otherwise, the communications with the host server is done over
+    an unsecure channel. 
+    @return  whether the server accepts the additional authentication factor
+    @exception  IOException  If an error occurs while communicating with the system.
+    @throws AS400SecurityException  If an error occurs exchanging client/server information
+    **/
+    public boolean isAdditionalAuthenticationFactorAccepted() throws IOException, AS400SecurityException
+    {
+       return  isAdditionalAuthenticationFactorAccepted(getSystemName(), (useSSLConnection_ != null));
+    }
 
     /**
     Checks whether an additional authentication factor is accepted for the given system
