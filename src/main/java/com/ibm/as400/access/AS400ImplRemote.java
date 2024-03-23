@@ -1111,6 +1111,13 @@ public class AS400ImplRemote implements AS400Impl {
     } 
   }
 
+  public static byte getAdditionalAuthenticationIndicator(AS400 sys) throws AS400SecurityException, IOException
+  { 
+      // TODO determine if we can use the AS400 object 
+      
+      return getAdditionalAuthenticationIndicator(sys.getSystemName(), sys.useSSLConnection_ != null);
+  }
+  
   public static byte getAdditionalAuthenticationIndicator(String systemName, boolean useSSL) throws AS400SecurityException, IOException { 
       AS400ImplRemote implRemote = new AS400ImplRemote(); 
       implRemote.systemName_ = systemName; 

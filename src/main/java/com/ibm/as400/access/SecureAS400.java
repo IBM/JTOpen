@@ -229,6 +229,7 @@ public class SecureAS400 extends AS400
     
     /**
     Checks whether an additional authentication factor is accepted for the given system. 
+    The communications with the host server is performed over a secure connection. 
     @param  systemName  The IP address or hostname of the target system
     @return  whether the server accepts the additional authentication factor
     @exception  IOException  If an error occurs while communicating with the system.
