@@ -1115,7 +1115,7 @@ public class AS400ImplRemote implements AS400Impl {
   { 
       // TODO determine if we can use the AS400 object 
       
-      return getAdditionalAuthenticationIndicator(sys.getSystemName(), sys.useSSLConnection_ != null);
+      return getAdditionalAuthenticationIndicator(sys.getSystemName(), sys.isSecure());
   }
   
   public static byte getAdditionalAuthenticationIndicator(String systemName, boolean useSSL) throws AS400SecurityException, IOException { 
