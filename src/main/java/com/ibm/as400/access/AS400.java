@@ -1271,11 +1271,12 @@ public class AS400 implements Serializable, AutoCloseable
     **/
     public boolean isAdditionalAuthenticationFactorAccepted() throws IOException, AS400SecurityException
     {
-       return  isAdditionalAuthenticationFactorAccepted(getSystemName(), (useSSLConnection_ != null));
+        return AS400ImplRemote.getAdditionalAuthenticationIndicator(this) > 0;
     }
 
     /**
-    Checks whether an additional authentication factor is accepted for the given system
+    Checks whether an additional authentication factor is accepted for the given system.
+    The communications with the host server is performed over an unsecure connection. 
     @param  systemName  The IP address or hostname of the target system
     @return  whether the server accepts the additional authentication factor
     @exception  IOException  If an error occurs while communicating with the system.
@@ -1288,14 +1289,13 @@ public class AS400 implements Serializable, AutoCloseable
     /**
      Checks whether an additional authentication factor is accepted for the given system
      @param  systemName  The IP address or hostname of the target system
-     @param  useSSL  Whether or not to use secure connection.
+     @param  useSSL  Whether or not to use a secure connection.
      @return  whether the server accepts the additional authentication factor
      @exception  IOException  If an error occurs while communicating with the system.
      @throws AS400SecurityException  If an error occurs exchanging client/server information
      **/
-    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName, boolean useSSL) throws IOException, AS400SecurityException {
-        byte indicator = AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName, useSSL);
-        return indicator > 0; 
+    protected static boolean  isAdditionalAuthenticationFactorAccepted(String systemName, boolean useSSL) throws IOException, AS400SecurityException {
+        return (AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName, useSSL) > 0);
     }
 
     /**
@@ -5085,6 +5085,15 @@ public class AS400 implements Serializable, AutoCloseable
             Trace.log(Trace.ERROR, "Cannot perform opertation on non-secure AS400 object. ");
             throw new ExtendedIllegalStateException(ExtendedIllegalStateException.IMPLEMENTATION_NOT_FOUND);
         }
+    }
+    
+    /**
+    Returns true if host server communications is performed over a secure channel. 
+    @return  true if communications is done over secure channel; otherwise false.
+    **/
+    public boolean isSecure() 
+    {
+        return (this instanceof SecureAS400);
     }
     
     // ======== START =================
