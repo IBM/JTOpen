@@ -665,7 +665,6 @@ public class AS400 implements Serializable, AutoCloseable
      @param  password  The user profile password to use to authenticate to the system.
      @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
      The caller is responsible for clearing the password array to keep the password from residing in memory. 
-                     
      **/
     public AS400(String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
     {
@@ -1079,6 +1078,73 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
+    Returns a new instance of an AS400 object.  It uses the specified system name.
+    <p>If running on IBM i to another system or to itself, the user ID and password of the current job are used.
+    <p>If running on another operating system, the user may be prompted for the user ID and password if a default user has not been established for this system name.
+    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
+    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+    **/
+    public static AS400 newInstance(boolean useSSL, String systemName)
+    {
+        return (useSSL) ? new SecureAS400(systemName) 
+                        : new AS400(systemName);
+    }
+
+    /**
+    Returns a new instance of an AS400 object.  It uses the specified system name, user ID, password, and additional authentication
+    factor.  No sign-on prompt is displayed unless the sign-on fails.
+    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
+    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+    @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+    @param  password  The user profile password to use to authenticate to the system.
+            The caller is responsible for clearing the password array to keep the password from residing in memory. 
+    @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
+    **/
+    public static AS400 newInstance(boolean useSSL, String systemName, String userid, char[] password, char[] additionalAuthenticationFactor) throws IOException, AS400SecurityException
+    {
+        return (useSSL) ? new SecureAS400(systemName, userid, password, additionalAuthenticationFactor) 
+                        : new AS400(systemName, userid, password, additionalAuthenticationFactor);
+    }
+    
+    /**
+    Returns a new instance of an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
+    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
+    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+    @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+    @param  password  The user profile password to use to authenticate to the system.   The caller is responsible fore clearing sensitive data from password after the constructor runs.
+    @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
+    **/
+    public static AS400 newInstance(boolean useSSL, String systemName, String userid, char[] password, String proxyserver)
+    {
+        return (useSSL) ? new SecureAS400(systemName, userid, password, proxyserver) 
+                        : new AS400(systemName, userid, password, proxyserver);
+    }
+    
+    /**
+    Returns a new instance of an AS400 object.  It uses the specified system name and profile token.
+    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
+    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+    @param  profileToken  The profile token to use to authenticate to the system.
+    **/
+    public static AS400 newInstance(boolean useSSL, String systemName, ProfileTokenCredential profileToken)   
+    {
+        return (useSSL) ? new SecureAS400(systemName, profileToken) 
+                        : new AS400(systemName, profileToken);
+    }
+    
+    /**
+    Returns a new instance of an AS400 object.  It uses the same system name and user ID.  This does not create a clone.  
+    The new object has the same behavior, but results in a new set of socket connections.
+    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host server.
+    @param  system  A previously instantiated AS400 object.
+    **/    
+    public static AS400 newInstance(boolean useSSL, AS400 system)   
+    {
+        return (useSSL) ? new SecureAS400(system) 
+                        : new AS400(system);
+    }
+
+    /**
      Adds a listener to be notified when a connection event occurs.
      @param  listener  The listener object.
      **/
@@ -1128,7 +1194,7 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password) throws AS400SecurityException, IOException
     {
-        addPasswordCacheEntry(systemName, userId, password == null ? (char[])null : password.toCharArray(), false);
+        addPasswordCacheEntry(systemName, userId, (password == null) ? (char[])null : password.toCharArray(), false);
     }
 
        /**
@@ -1149,14 +1215,14 @@ public class AS400 implements Serializable, AutoCloseable
      @param  systemName  The name of the IBM i system.
      @param  userId  The user profile name.
      @param  password  The user profile password.
-     @param  useSSL  Whether or not to use secure connection.
+     @param  useSSL  Whether or not secure connections should be used when communicating with the host servers.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
     **/
     public static void addPasswordCacheEntry(String systemName, String userId, char[] password, boolean useSSL) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "'" + " useSSL: " + useSSL);
-        addPasswordCacheEntry(useSSL ? new SecureAS400(systemName, userId, password) : new AS400(systemName, userId, password));
+        addPasswordCacheEntry((useSSL) ? new SecureAS400(systemName, userId, password) : new AS400(systemName, userId, password));
     }    
     
     /**
@@ -1171,7 +1237,7 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException
     {
-        addPasswordCacheEntry(systemName, userId, password == null ? (char[])null : password.toCharArray(), proxyServer, false);
+        addPasswordCacheEntry(systemName, userId, (password == null) ? (char[])null : password.toCharArray(), proxyServer, false);
     }
 
     /**
@@ -1194,14 +1260,14 @@ public class AS400 implements Serializable, AutoCloseable
      @param  userId  The user profile name.
      @param  password  The user profile password.
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
-     @param  useSSL  Whether or not to use secure connection.
+     @param  useSSL  Whether or not secure connections should be used when communicating with the host servers.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer, boolean useSSL) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
-        addPasswordCacheEntry(useSSL ? new SecureAS400(systemName, userId, password, proxyServer) : new AS400(systemName, userId, password, proxyServer));
+        addPasswordCacheEntry((useSSL) ? new SecureAS400(systemName, userId, password, proxyServer) : new AS400(systemName, userId, password, proxyServer));
     }
 
     private static void addPasswordCacheEntry(AS400 system) throws AS400SecurityException, IOException
@@ -1289,7 +1355,7 @@ public class AS400 implements Serializable, AutoCloseable
     /**
      Checks whether an additional authentication factor is accepted for the given system
      @param  systemName  The IP address or hostname of the target system
-     @param  useSSL  Whether or not to use a secure connection.
+     @param  useSSL  Whether or not secure connections should be used when communicating with the host servers.
      @return  whether the server accepts the additional authentication factor
      @exception  IOException  If an error occurs while communicating with the system.
      @throws AS400SecurityException  If an error occurs exchanging client/server information
@@ -1442,8 +1508,8 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public void changePassword(String oldPassword, String newPassword) throws AS400SecurityException, IOException
     {
-        char[] oldPasswordChars = oldPassword == null ? null : oldPassword.toCharArray();
-        char[] newPasswordChars = newPassword == null ? null : newPassword.toCharArray();
+        char[] oldPasswordChars = (oldPassword == null) ? null : oldPassword.toCharArray();
+        char[] newPasswordChars = (newPassword == null) ? null : newPassword.toCharArray();
 
         try {
             changePassword(oldPasswordChars, newPasswordChars, null);
@@ -3155,8 +3221,8 @@ public class AS400 implements Serializable, AutoCloseable
                     String loadPath = loadUrl.getPath();
                     Trace.log(Trace.DIAGNOSTIC, "Path of AS400 class:", thisPath);
                     Trace.log(Trace.DIAGNOSTIC, "Path of loaded impl class:", loadPath);
-                    String thisDirPath = thisPath.length() <= thisFileName.length() ? "" : thisPath.substring(0, thisPath.length() - thisFileName.length() - 1);
-                    String loadDirPath = loadPath.length() <= loadFileName.length() ? "" : loadPath.substring(0, loadPath.length() - loadFileName.length() - 1);
+                    String thisDirPath = (thisPath.length() <= thisFileName.length()) ? "" : thisPath.substring(0, thisPath.length() - thisFileName.length() - 1);
+                    String loadDirPath = (loadPath.length() <= loadFileName.length()) ? "" : loadPath.substring(0, loadPath.length() - loadFileName.length() - 1);
                     if (!thisDirPath.equals(loadDirPath))
                     {
                       Trace.log(Trace.WARNING, "Toolbox classes found in two different locations: " + thisDirPath + " and " + loadDirPath);
@@ -3879,7 +3945,7 @@ public class AS400 implements Serializable, AutoCloseable
         {
             throw new ExtendedIllegalStateException("ddmRDB", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
-        ddmRDB_ = (ddmRDB == null ? null : ddmRDB.toUpperCase());
+        ddmRDB_ = ((ddmRDB == null) ? null : ddmRDB.toUpperCase());
     }
 
     /**
@@ -4211,7 +4277,7 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public void setPassword(String password)
     {
-        char[] passwordChars = password == null ? null : password.toCharArray(); 
+        char[] passwordChars = (password == null) ? null : password.toCharArray(); 
         
         try {
             setPassword(passwordChars);
@@ -4779,7 +4845,7 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public boolean validateSignon(String password) throws AS400SecurityException, IOException
     {
-        char[] passwordChars = password == null ? null : password.toCharArray();
+        char[] passwordChars = (password == null) ? null : password.toCharArray();
         
         try {
            return validateSignon(passwordChars);
@@ -4856,7 +4922,7 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public boolean validateSignon(String userId, String password) throws AS400SecurityException, IOException
     {
-        char[] passwordChars = password == null ? null : password.toCharArray();
+        char[] passwordChars = (password == null) ? null : password.toCharArray();
         
         try {
             return validateSignon(userId, passwordChars, null);
