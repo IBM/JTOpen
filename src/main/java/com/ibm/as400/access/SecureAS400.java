@@ -177,7 +177,7 @@ public class SecureAS400 extends AS400
      @param  password  The user profile password.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, boolean useSSL) instead    
+     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password) instead    
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password) throws AS400SecurityException, IOException
     {
