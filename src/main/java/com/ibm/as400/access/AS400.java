@@ -1360,7 +1360,7 @@ public class AS400 implements Serializable, AutoCloseable
      @exception  IOException  If an error occurs while communicating with the system.
      @throws AS400SecurityException  If an error occurs exchanging client/server information
      **/
-    protected static boolean  isAdditionalAuthenticationFactorAccepted(String systemName, boolean useSSL) throws IOException, AS400SecurityException {
+    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName, boolean useSSL) throws IOException, AS400SecurityException {
         return (AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName, useSSL) > 0);
     }
 
