@@ -1106,7 +1106,7 @@ public class AS400 implements Serializable, AutoCloseable
             The caller is responsible for clearing the password array to keep the password from residing in memory. 
     @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
     **/
-    public static AS400 newInstance(boolean useSSL, String systemName, String userid, char[] password, char[] additionalAuthenticationFactor) throws IOException, AS400SecurityException
+    public static AS400 newInstance(boolean useSSL, String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws IOException, AS400SecurityException
     {
         return (useSSL) ? new SecureAS400(systemName, userid, password, additionalAuthenticationFactor) 
                         : new AS400(systemName, userid, password, additionalAuthenticationFactor);
@@ -1120,7 +1120,7 @@ public class AS400 implements Serializable, AutoCloseable
     @param  password  The user profile password to use to authenticate to the system.   The caller is responsible fore clearing sensitive data from password after the constructor runs.
     @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
     **/
-    public static AS400 newInstance(boolean useSSL, String systemName, String userid, char[] password, String proxyserver)
+    public static AS400 newInstance(boolean useSSL, String systemName, String userId, char[] password, String proxyServer)
     {
         return (useSSL) ? new SecureAS400(systemName, userid, password, proxyserver) 
                         : new AS400(systemName, userid, password, proxyserver);
