@@ -102,6 +102,11 @@ public class AS400 implements Serializable, AutoCloseable
      Constant indicating the Sign-on service.
      **/
     public static final int SIGNON = 7;
+    /**
+     Constant indicating the HCS. Not public
+     */
+    static final int HCS = 8;
+    
     // Constants 8-15 reserved for SSL versions of the above services.
 
     /**
@@ -665,11 +670,12 @@ public class AS400 implements Serializable, AutoCloseable
      @param  password  The user profile password to use to authenticate to the system.
      @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
      The caller is responsible for clearing the password array to keep the password from residing in memory. 
+                     
      **/
     public AS400(String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
     {
         this(systemName, userId, password);
-        additionalAuthenticationFactor_ = additionalAuthenticationFactor;
+        setAdditionalAuthenticationFactor(additionalAuthenticationFactor);
         if (null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length )
             validateSignon(userId, password, additionalAuthenticationFactor);
     }
@@ -923,7 +929,7 @@ public class AS400 implements Serializable, AutoCloseable
         // that behavior, but we need to do so using two different credential vaults,
         // because each AS400 object must always have its very own credential vault.
         credVault_ = pwVault.clone();
-        additionalAuthenticationFactor_ = additionalAuthenticationFactor;
+        setAdditionalAuthenticationFactor(additionalAuthenticationFactor);
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
@@ -1325,7 +1331,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if properties are frozen:", propertiesFrozen_);
         return propertiesFrozen_;
     }
-    
+
     /**
     Checks whether an additional authentication factor is accepted for the given system.  
     The communications with the host server is done over a secure channel if the AS400 object
@@ -1614,7 +1620,9 @@ public class AS400 implements Serializable, AutoCloseable
 
 
 
-    // Choose between remote and proxy implementation objects, set state information into remote implementation object.  Synchronized to protect impl_ and propertiesFrozen_ instance variables.  This method can safely be called multiple times because it checks its state before performing the code.
+    // Choose between remote and proxy implementation objects, set state information into remote implementation object.  
+    // Synchronized to protect impl_ and propertiesFrozen_ instance variables.  This method can safely be called multiple 
+    // times because it checks its state before performing the code.
     private synchronized void chooseImpl()
     {
         if (impl_ == null)
@@ -1858,7 +1866,9 @@ public class AS400 implements Serializable, AutoCloseable
             impl_.disconnect(AS400.RECORDACCESS);
             impl_.disconnect(AS400.CENTRAL);
             impl_.disconnect(AS400.SIGNON);
+            impl_.disconnect(AS400.HCS);
         }
+                
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "All services disconnected.");
     }
 
@@ -2671,6 +2681,8 @@ public class AS400 implements Serializable, AutoCloseable
                 return "as-ddm";
             case AS400.CENTRAL:
                 return "as-central";
+            case AS400.HCS:
+                return "as-hostcnn-s";
             case AS400.SIGNON:
                 return "as-signon";
             default:
@@ -3925,7 +3937,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name corresponds to the independent auxiliary storage pool (IASP) that it is using on the system.  The RDB name cannot be changed while this object is actively connected to the {@link #RECORDACCESS RECORDACCESS} service; you must call {@link #disconnectService(int) AS400.disconnectService(AS400.RECORDACCESS)} first.
+     Sets the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name 
+     corresponds to the independent auxiliary storage pool (IASP) that it is using on the system.  The RDB name 
+     cannot be changed while this object is actively connected to the {@link #RECORDACCESS RECORDACCESS} service;
+     you must call {@link #disconnectService(int) AS400.disconnectService(AS400.RECORDACCESS)} first.
      @param  ddmRDB  The name of the IASP or RDB to use, or null to indicate the default system ASP should be used.
      @see  #isConnected(int)
      @see  #getDDMRDB
@@ -4629,7 +4644,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the user ID for this object.  The user ID cannot be changed once a connection to the system has been established.  If this method is used in conjunction with a Kerberos ticket, profile token, or identity token, the user profile associated with the authentication token must match this user ID.
+     Sets the user ID for this object.  The user ID cannot be changed once a connection to the system has been established.  If this 
+     method is used in conjunction with a Kerberos ticket, profile token, or identity token, the user profile associated with 
+     the authentication token must match this user ID.
      @param  userId  The user profile name.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
