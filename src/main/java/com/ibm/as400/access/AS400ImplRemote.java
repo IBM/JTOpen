@@ -24,6 +24,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -1870,19 +1871,26 @@ public class AS400ImplRemote implements AS400Impl {
       if (HCSAuthdServer_ != null)
           return;
       
-      SocketContainer socketContainer = PortMapper.getServerSocket(
-              (systemNameLocal_) ? "localhost" : systemName_, AS400.HCS, -1, 
-              useSSLConnection_, socketProperties_, mustUseNetSockets_);
-      
-      int connectionID = socketContainer.hashCode();
+      SocketContainer socketContainer  = null;
+      int connectionID;
       String jobString = "";
 
       try 
       {
+          socketContainer = PortMapper.getServerSocket(
+                  (systemNameLocal_) ? "localhost" : systemName_, AS400.HCS, -1, 
+                  useSSLConnection_, socketProperties_, mustUseNetSockets_);
+          
+          connectionID = socketContainer.hashCode();
+
           InputStream inStream = socketContainer.getInputStream();
           OutputStream outStream = socketContainer.getOutputStream();
 
+          // -------
           // The first request we send is "exchange random seeds"...
+          // -------
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "HCS daemon - exchange random seeds");
+
           int serverId = AS400Server.getServerId(AS400.HCS);
           AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId, true);
           if (Trace.traceOn_)
@@ -1904,7 +1912,12 @@ public class AS400ImplRemote implements AS400Impl {
           if (Trace.traceOn_)
               Trace.log(Trace.DIAGNOSTIC, "Exchange of random seeds successful.");
 
+          // -------
           // Next we send the "start server job" request...
+          // -------
+          
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "HCS daemon - start server job");
+
           byte[] clientSeed = xChgReq.getHCSClientSeed();
           byte[] serverSeed = xChgReply.getHCSServerSeed();
           if (skipSignonServer)
@@ -1945,6 +1958,10 @@ public class AS400ImplRemote implements AS400Impl {
               throw AS400ImplRemote.returnSecurityException(reply.getRC(), null, userId_);
           }
 
+          // -------
+          // Bookeeping...
+          // -------
+
           byte[] jobBytes = reply.getJobNameBytes();;
       
           // Obtain the job identifier for the connection.
@@ -1958,6 +1975,11 @@ public class AS400ImplRemote implements AS400Impl {
             Trace.log(Trace.DIAGNOSTIC, "System job:", jobString);
           
           HCSAuthdServer_ = new AS400NoThreadServer(this,  AS400.HCS, socketContainer, jobString);
+      } 
+      catch (ConnectException  e)
+      {
+          forceDisconnect(e, HCSAuthdServer_, socketContainer);
+          HCSAuthdServer_ = null;
       } 
       catch (IOException | AS400SecurityException | RuntimeException e)
       {
