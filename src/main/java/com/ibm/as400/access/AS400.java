@@ -1108,8 +1108,8 @@ public class AS400 implements Serializable, AutoCloseable
     **/
     public static AS400 newInstance(boolean useSSL, String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws IOException, AS400SecurityException
     {
-        return (useSSL) ? new SecureAS400(systemName, userid, password, additionalAuthenticationFactor) 
-                        : new AS400(systemName, userid, password, additionalAuthenticationFactor);
+        return (useSSL) ? new SecureAS400(systemName, userId, password, additionalAuthenticationFactor) 
+                        : new AS400(systemName, userId, password, additionalAuthenticationFactor);
     }
     
     /**
@@ -1122,8 +1122,8 @@ public class AS400 implements Serializable, AutoCloseable
     **/
     public static AS400 newInstance(boolean useSSL, String systemName, String userId, char[] password, String proxyServer)
     {
-        return (useSSL) ? new SecureAS400(systemName, userid, password, proxyserver) 
-                        : new AS400(systemName, userid, password, proxyserver);
+        return (useSSL) ? new SecureAS400(systemName, userId, password, proxyServer) 
+                        : new AS400(systemName, userId, password, proxyServer);
     }
     
     /**
