@@ -28,39 +28,19 @@ public class SecureAS400 extends AS400
 {
     static final long serialVersionUID = 4L;
 
-
-    private void construct()
-    {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
-
-        useSSLConnection_ = new SSLOptions();
-
-        // Check for proxy encryption mode system property, if not set or not valid retain default of 3.
-        String prop = SystemProperties.getProperty(SystemProperties.SECUREAS400_PROXY_ENCRYPTION_MODE);
-        if (prop != null && (prop.equals("1") || prop.equals("2")))
-        {
-            useSSLConnection_.proxyEncryptionMode_ = Integer.parseInt(prop);
-        }
-
-    }
-
     /**
      Constructs a SecureAS400 object.
      **/
-    public SecureAS400()
-    {
+    public SecureAS400() {
         super();
-        construct();
     }
 
     /**
      Constructs a SecureAS400 object.  It uses the specified system name.
      @param  systemName  The name of the system.
      **/
-    public SecureAS400(String systemName)
-    {
+    public SecureAS400(String systemName) {
         super(systemName);
-        construct();
     }
 
     /**
@@ -68,10 +48,8 @@ public class SecureAS400 extends AS400
      @param  systemName  The name of the system.
      @param  userId  The user profile name to use to authenticate to the system.
      **/
-    public SecureAS400(String systemName, String userId)
-    {
+    public SecureAS400(String systemName, String userId) {
         super(systemName, userId);
-        construct();
     }
 
     /**
@@ -79,10 +57,8 @@ public class SecureAS400 extends AS400
      @param  systemName  The name of the system.  Use localhost to access data locally.
      @param  profileToken  The profile token to use to authenticate to the system.
      **/
-    public SecureAS400(String systemName, ProfileTokenCredential profileToken)
-    {
+    public SecureAS400(String systemName, ProfileTokenCredential profileToken) {
         super(systemName, profileToken);
-        construct();
     }
 
     /**
@@ -92,10 +68,8 @@ public class SecureAS400 extends AS400
      @param  password  The user profile password to use to authenticate to the system.
      @deprecated
      **/
-    public SecureAS400(String systemName, String userId, String password)
-    {
+    public SecureAS400(String systemName, String userId, String password) {
         super(systemName, userId, password);
-        construct();
     }
 
         /**
@@ -105,10 +79,8 @@ public class SecureAS400 extends AS400
      @param  password  The user profile password to use to authenticate to the system.
     
      **/
-    public SecureAS400(String systemName, String userId, char[] password)
-    {
+    public SecureAS400(String systemName, String userId, char[] password) {
         super(systemName, userId, password);
-        construct();
     }
     /**
      Constructs a SecureAS400 object.  It uses the specified system name, user ID, , and additional authentication
@@ -120,10 +92,8 @@ public class SecureAS400 extends AS400
      The caller is responsible for clearing the password array to keep the password from residing in memory. 
                      
      **/
-    public SecureAS400(String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws IOException, AS400SecurityException
-    {
+    public SecureAS400(String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws IOException, AS400SecurityException {
         super(systemName, userId, password, additionalAuthenticationFactor);
-        construct();
     }
     /**
      Constructs a SecureAS400 object.  It uses the specified system, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
@@ -133,12 +103,9 @@ public class SecureAS400 extends AS400
      @param  proxyServer  The name and port in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
      @deprecated
      **/
-    public SecureAS400(String systemName, String userId, String password, String proxyServer)
-    {
+    public SecureAS400(String systemName, String userId, String password, String proxyServer) {
         super(systemName, userId, password, proxyServer);
-        construct();
     }
-
 
         /**
      Constructs a SecureAS400 object.  It uses the specified system, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
@@ -148,26 +115,16 @@ public class SecureAS400 extends AS400
      @param  proxyServer  The name and port in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
 
      **/
-    public SecureAS400(String systemName, String userId, char[] password, String proxyServer)
-    {
+    public SecureAS400(String systemName, String userId, char[] password, String proxyServer) {
         super(systemName, userId, password, proxyServer);
-        construct();
     }
     
     /**
      Constructs a SecureAS400 object.  It uses the same system name and user ID.  This does not create a clone.  The new SecureAS400 object has the same behavior, but results in a new set of socket connections.
      @param  system  A previously instantiated AS400 or SecureAS400 object.
      **/
-    public SecureAS400(AS400 system)
-    {
+    public SecureAS400(AS400 system) {
         super(system);
-        construct();
-
-        // If passed in system has SSL options, deep copy them.
-        if (system.useSSLConnection_ != null)
-        {
-            useSSLConnection_.proxyEncryptionMode_ = system.useSSLConnection_.proxyEncryptionMode_;
-        }
     }
 
     /**

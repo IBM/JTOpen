@@ -1060,7 +1060,10 @@ public class AS400 implements Serializable, AutoCloseable
         useDefaultUser_ = system.useDefaultUser_;
         showCheckboxes_ = system.showCheckboxes_;
 
-        // useSSLConnection_ is handled by SecureAS400 subclass.
+        // If passed in system has SSL options, deep copy them if this instance is secure
+        if (isSecure() && system.isSecure())
+            useSSLConnection_.proxyEncryptionMode_ = system.useSSLConnection_.proxyEncryptionMode_;
+        
         mustAddLanguageLibrary_ = system.mustAddLanguageLibrary_;
         mustUseSockets_ = system.mustUseSockets_;
         mustUseNetSockets_ = system.mustUseNetSockets_;
@@ -1823,6 +1826,18 @@ public class AS400 implements Serializable, AutoCloseable
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running on IBM i.");
             // Running on IBM i, don't prompt.
             guiAvailable_ = false;
+        }
+        
+        if (isSecure())
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
+
+            useSSLConnection_ = new SSLOptions();
+
+            // Check for proxy encryption mode system property, if not set or not valid retain default of 3.
+            String prop = SystemProperties.getProperty(SystemProperties.SECUREAS400_PROXY_ENCRYPTION_MODE);
+            if (prop != null && (prop.equals("1") || prop.equals("2")))
+                useSSLConnection_.proxyEncryptionMode_ = Integer.parseInt(prop);
         }
     }
     
@@ -5174,9 +5189,8 @@ public class AS400 implements Serializable, AutoCloseable
     Returns true if host server communications is performed over a secure channel. 
     @return  true if communications is done over secure channel; otherwise false.
     **/
-    public boolean isSecure() 
-    {
-        return (this instanceof SecureAS400);
+    public boolean isSecure() {
+        return (useSSLConnection_ != null);
     }
     
     // ======== START =================
