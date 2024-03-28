@@ -1275,7 +1275,7 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer, boolean useSSL) throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'" + "' useSSL: '" + useSSL);
         addPasswordCacheEntry((useSSL) ? new SecureAS400(systemName, userId, password, proxyServer) : new AS400(systemName, userId, password, proxyServer));
     }
 
