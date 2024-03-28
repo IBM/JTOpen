@@ -259,4 +259,14 @@ class AS400NoThreadServer extends AS400Server
       socket_.setSoTimeout(timeout); 
       
     }
+
+    @Override
+    public void setExchangeAttrReply(DataStream xChgAttrReply) {
+      exchangeAttrReply_ = xChgAttrReply;
+    }
+
+    @Override
+    public SocketContainer getSocket() {
+      return socket_;
+    }
 }

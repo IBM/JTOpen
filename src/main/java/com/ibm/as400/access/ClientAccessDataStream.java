@@ -22,7 +22,7 @@ import java.util.Hashtable;
  * Provides methods to access common client access data stream header.
  * 
  */
-public class ClientAccessDataStream extends DataStream
+class ClientAccessDataStream extends DataStream
 {
   static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 

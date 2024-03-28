@@ -42,6 +42,28 @@ class AS400XChgRandSeedReplyDS extends ClientAccessDataStream
         System.arraycopy(data_, 24, seed, 0, 8);
         return seed;
     }
+    
+    int findCP(int cp)
+    {
+      int offset = 24;
+      while (offset < data_.length - 1)
+      {
+        int LLCP = get16bit(offset + 4);
+        if (LLCP == cp) return offset;
+        offset += get32bit(offset);
+      }
+      return -1;
+    }
+    
+    byte[] getHCSServerSeed()
+    {
+      int offset = findCP(0x1103);
+      if (offset == -1) return new byte[0];
+
+      byte[] seed = new byte[8];
+      System.arraycopy(data_, offset + 6, seed, 0, 8);
+      return seed;
+    }
 
     void read(InputStream in) throws IOException
     {

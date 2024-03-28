@@ -510,4 +510,14 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     void setSoTimeout(int timeout) throws SocketException {
       socket_.setSoTimeout(timeout);
     }
+    
+    @Override
+    public void setExchangeAttrReply(DataStream xChgAttrReply) {
+      exchangeAttrReply_ = xChgAttrReply;
+    }
+
+    @Override
+    public SocketContainer getSocket() {
+      return socket_;
+    }
 }

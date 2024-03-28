@@ -28,7 +28,7 @@ class SSLOptions implements Serializable
     // Data from keyring class.
     String keyRingData_ = null;
     // Legs of proxy server communications that should be encrypted.  Default is to encrypt all legs.
-    int proxyEncryptionMode_ = SecureAS400.CLINT_TO_SERVER;
+    int proxyEncryptionMode_ = SecureAS400.CLIENT_TO_SERVER;
     // Sslight removed 
     boolean useSslight_ = false;
 }

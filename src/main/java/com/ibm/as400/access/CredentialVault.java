@@ -193,7 +193,7 @@ abstract class CredentialVault implements Cloneable, Serializable
     }
 
     if (!isEmpty()) {
-    	byte[] clearCredential = getClearCredential(); //@AI9A
+        byte[] clearCredential = getClearCredential(); //@AI9A
       encodedCredential_ = CredentialVault.encode(firstSeed, secondSeed, clearCredential);
       clearArray(clearCredential);  //@AI9A
     }
@@ -416,15 +416,18 @@ abstract class CredentialVault implements Cloneable, Serializable
   }
 
   public static void clearArray(char[] passwordChars) {
-    Arrays.fill(passwordChars,'\0');
-   
+      if (passwordChars != null)
+          Arrays.fill(passwordChars,'\0');
   }
   
   public static void clearArray(byte[] bytes) {
-      for (int i = 0; i < bytes.length; i++) {
-        bytes[i]=(byte) 0; 
+      if (bytes != null)
+      {
+          for (int i = 0; i < bytes.length; i++) {
+            bytes[i]=(byte) 0; 
+          }
       }
-    }
+  }
 
   public static boolean isStarCurrent(char[] password) {
     if ((password.length == 8)  &&
