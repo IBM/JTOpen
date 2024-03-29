@@ -22,7 +22,8 @@ import java.io.IOException;
 import com.ibm.as400.security.auth.ProfileTokenCredential;
 
 /**
- Represents a secure system sign-on.  Secure Sockets Layer (SSL) connections are used to provide encrypted communications.  This function requires an SSL capable system at release V4R4 or later.
+ Represents a secure system sign-on.  Secure Sockets Layer (SSL) connections are used to provide encrypted communications.  
+ This function requires an SSL capable system at release V4R4 or later.
  **/
 public class SecureAS400 extends AS400
 {
@@ -44,7 +45,8 @@ public class SecureAS400 extends AS400
     }
 
     /**
-     Constructs a SecureAS400 object. It uses the specified system name and user ID.  When the sign-on prompt is displayed, the user is able to specify the password.  Note that the user ID may be overridden.
+     Constructs a SecureAS400 object. It uses the specified system name and user ID.  When the sign-on prompt is displayed, 
+     the user is able to specify the password.  Note that the user ID may be overridden.
      @param  systemName  The name of the system.
      @param  userId  The user profile name to use to authenticate to the system.
      **/
@@ -72,16 +74,16 @@ public class SecureAS400 extends AS400
         super(systemName, userId, password);
     }
 
-        /**
+    /**
      Constructs a SecureAS400 object. It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
      @param  systemName  The name of the system.
      @param  userId  The user profile name to use to authenticate to the system.
      @param  password  The user profile password to use to authenticate to the system.
-    
      **/
     public SecureAS400(String systemName, String userId, char[] password) {
         super(systemName, userId, password);
     }
+    
     /**
      Constructs a SecureAS400 object.  It uses the specified system name, user ID, , and additional authentication
      factor.  No sign-on prompt is displayed unless the sign-on fails.
@@ -89,12 +91,12 @@ public class SecureAS400 extends AS400
      @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
      @param  password  The user profile password to use to authenticate to the system.
      @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
-     The caller is responsible for clearing the password array to keep the password from residing in memory. 
-                     
+     The caller is responsible for clearing the password array to keep the password from residing in memory.            
      **/
     public SecureAS400(String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws IOException, AS400SecurityException {
         super(systemName, userId, password, additionalAuthenticationFactor);
     }
+    
     /**
      Constructs a SecureAS400 object.  It uses the specified system, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
      @param  systemName  The name of the system.
@@ -107,20 +109,20 @@ public class SecureAS400 extends AS400
         super(systemName, userId, password, proxyServer);
     }
 
-        /**
+    /**
      Constructs a SecureAS400 object.  It uses the specified system, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
      @param  systemName  The name of the system.
      @param  userId  The user profile name to use to authenticate to the system.
      @param  password  The user profile password to use to authenticate to the system.
      @param  proxyServer  The name and port in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
-
      **/
     public SecureAS400(String systemName, String userId, char[] password, String proxyServer) {
         super(systemName, userId, password, proxyServer);
     }
     
     /**
-     Constructs a SecureAS400 object.  It uses the same system name and user ID.  This does not create a clone.  The new SecureAS400 object has the same behavior, but results in a new set of socket connections.
+     Constructs a SecureAS400 object.  It uses the same system name and user ID.  This does not create a clone.  The new SecureAS400 object 
+     has the same behavior, but results in a new set of socket connections.
      @param  system  A previously instantiated AS400 or SecureAS400 object.
      **/
     public SecureAS400(AS400 system) {
@@ -136,12 +138,11 @@ public class SecureAS400 extends AS400
      @exception  IOException  If an error occurs while communicating with the system.
      @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password) instead    
      **/
-    public static void addPasswordCacheEntry(String systemName, String userId, String password) throws AS400SecurityException, IOException
-    {
+    public static void addPasswordCacheEntry(String systemName, String userId, String password) throws AS400SecurityException, IOException {
         addPasswordCacheEntry(systemName, userId, password == null ? (char[])null : password.toCharArray(), true);
     }
 
-        /**
+    /**
      Validates the user ID and password against the system, and if successful, adds the information to the password cache.
      @param  systemName  The name of the system.
      @param  userId  The user profile name.
@@ -149,11 +150,9 @@ public class SecureAS400 extends AS400
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      **/
-    public static void addPasswordCacheEntry(String systemName, String userId, char[] password) throws AS400SecurityException, IOException
-    {
+    public static void addPasswordCacheEntry(String systemName, String userId, char[] password) throws AS400SecurityException, IOException {
         addPasswordCacheEntry(systemName, userId, password, true);
     }
-
 
     /**
      Validates the user ID and password against the system, and if successful, adds the information to the password cache.
@@ -165,8 +164,7 @@ public class SecureAS400 extends AS400
      @exception  IOException  If an error occurs while communicating with the system.
      @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) instead. 
      **/
-    public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException
-    {
+    public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException {
         addPasswordCacheEntry(systemName, userId, password == null ? (char[])null : password.toCharArray(), proxyServer, true);
     }
 
@@ -179,8 +177,7 @@ public class SecureAS400 extends AS400
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      **/
-    public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) throws AS400SecurityException, IOException
-    {
+    public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) throws AS400SecurityException, IOException {
         addPasswordCacheEntry(systemName, userId, password, proxyServer, true);
     }
     
