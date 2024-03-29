@@ -1771,6 +1771,11 @@ implements IFSFileImpl
 
     return result;
   }
+  
+  private boolean isInQsys() {
+    String lowercasePath = fd_.path_.toLowerCase().replaceAll("//+","/");
+    return lowercasePath.equals("/qsys.lib") || lowercasePath.startsWith("/qsys.lib/");
+  }
 
   /**
    Determines if the integrated file system object represented by this
@@ -1827,6 +1832,12 @@ implements IFSFileImpl
     //
     if (!determinedIsSymbolicLink_)
     {
+      // QSYS doesn't support symbolic links, so no need to check
+      if(isInQsys()) {
+        isSymbolicLink_ = false;
+        determinedIsSymbolicLink_ = true;
+        return isSymbolicLink_;
+      }
       // Note: As of V5R3, we can't get accurate symbolic link info by querying the attrs of a specific file.
       // Instead, we must query the contents of the parent directory.
       int pathLen = fd_.path_.length();
