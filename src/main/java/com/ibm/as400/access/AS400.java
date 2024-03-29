@@ -411,8 +411,6 @@ public class AS400 implements Serializable, AutoCloseable
     // SSL options, null value indicates SSL is not to be used.  Options set in SecureAS400 subclass.
     SSLOptions useSSLConnection_ = null;
     
-    
-    
     // Flag that indicates if we must add the secondary language library to the library list.
     private boolean mustAddLanguageLibrary_ = defaultMustAddLanguageLibrary_;
     // Flag that indicates if we must use the host servers and no native optimizations.
@@ -5179,7 +5177,7 @@ public class AS400 implements Serializable, AutoCloseable
     // Method to ensure operations for secure AS400 instances are enforced.
     private void ensureSecureInstance()
     {
-        if (useSSLConnection_ == null)
+        if (!isSecure())
         {
             Trace.log(Trace.ERROR, "Cannot perform opertation on non-secure AS400 object. ");
             throw new ExtendedIllegalStateException(ExtendedIllegalStateException.IMPLEMENTATION_NOT_FOUND);
@@ -5191,7 +5189,7 @@ public class AS400 implements Serializable, AutoCloseable
     @return  true if communications is done over secure channel; otherwise false.
     **/
     public boolean isSecure() {
-        return (useSSLConnection_ != null);
+        return (this instanceof SecureAS400);
     }
     
     // ======== START =================
