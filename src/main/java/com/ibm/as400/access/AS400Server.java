@@ -47,6 +47,7 @@ public abstract class AS400Server
         if ("as-dtaq".equals(serviceName)) return 0xE007;
         if ("as-rmtcmd".equals(serviceName)) return 0xE008;
         if ("as-signon".equals(serviceName)) return 0xE009;
+        if ("as-hostcnn-s".equals(serviceName)) return AS400.HOSTCNN;
 
         Trace.log(Trace.ERROR, "Invalid service name: " + serviceName);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
@@ -70,6 +71,7 @@ public abstract class AS400Server
             case AS400.DATAQUEUE: return 0xE007;
             case AS400.COMMAND:   return 0xE008;
             case AS400.SIGNON:    return 0xE009;
+            case AS400.HOSTCNN:   return 0xE00B;
         }
         Trace.log(Trace.ERROR, "Invalid service:", service);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
@@ -86,13 +88,14 @@ public abstract class AS400Server
         if (serviceName.equals("as-database")) return AS400.DATABASE;
         if (serviceName.equals("as-central")) return AS400.CENTRAL;
         if (serviceName.equals("as-signon")) return AS400.SIGNON;
+        if (serviceName.equals("as-hostcnn-s")) return AS400.HOSTCNN;
 
         Trace.log(Trace.ERROR, "Invalid service: " + serviceName);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
     }
 
     // The following static array holds the reply streams hash tables for all server daemons.  These Hashtables are populated by the access classes using the addReplyStream(...) method.
-    static Hashtable[] replyStreamsHashTables =  { new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable() };
+    static Hashtable[] replyStreamsHashTables =  { new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable(), new Hashtable() };
 
     // Add a prototype reply data stream to the collection of reply prototypes.  There must be a prototype reply for every type of reply that must be constructed automatically on receipt.  This method detects an attempt to add the same prototype reply more than once and ignores redundant attempts.
     // @param  replyStream  The prototype reply data stream to be added.
@@ -106,11 +109,12 @@ public abstract class AS400Server
         replyStreamsHashTables[service].put(replyStream, replyStream);
     }
 
-
+    public abstract SocketContainer getSocket();
     abstract int getService();
     abstract String getJobString();
     abstract boolean isConnected();
     public abstract DataStream getExchangeAttrReply();
+    public abstract void setExchangeAttrReply(DataStream xChgAttrReply);
     public abstract DataStream sendExchangeAttrRequest(DataStream req) throws IOException, InterruptedException;
     abstract void addInstanceReplyStream(DataStream replyStream);
     abstract void clearInstanceReplyStreams();

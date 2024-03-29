@@ -20,7 +20,8 @@ import java.io.OutputStream;
 class AS400XChgRandSeedDS extends ClientAccessDataStream
 {
   private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
+  private byte[] seed;
+  
     AS400XChgRandSeedDS(int serverId)
     {
         super(new byte[28]);
@@ -53,12 +54,52 @@ class AS400XChgRandSeedDS extends ClientAccessDataStream
         data_[26] = (byte)(low >>> 8);
         data_[27] = (byte)low;
     }
+    
+    AS400XChgRandSeedDS(int serverId, boolean isHCS)
+    {
+      super(new byte[34]);
+      setLength(34);
+      setHeaderID(0x00000000);
+      setServerID(serverId);
+      setTemplateLen(0);
+      setReqRepID(0x7103);
+      
+      // Optional Parameters
+      set32bit(14, 20);
+      set16bit(0x1103, 24);
+
+      // We generate a "random" seed using the current time in milliseconds.
+      // This seed will be used to encrypt the password.
+      long t = System.currentTimeMillis();
+
+      // Performance: break into 2 ints first and avoid long temporaries.
+      int high = (int)(t >>> 32);
+      int low = (int)t;
+
+      data_[26] = (byte)(high >>> 24);
+      data_[27] = (byte)(high >>> 16);
+      data_[28] = (byte)(high >>> 8);
+      data_[29] = (byte)high;
+
+      data_[30] = (byte)(low >>> 24);
+      data_[31] = (byte)(low >>> 16);
+      data_[32] = (byte)(low >>> 8);
+      data_[33] = (byte)low;
+      
+      seed = new byte[8];
+      System.arraycopy(data_, 26, seed, 0, 8);
+    }
 
     byte[] getClientSeed()
     {
         byte[] seed = new byte[8];
         System.arraycopy(data_, 20, seed, 0, 8);
         return seed;
+    }
+    
+    byte[] getHCSClientSeed()
+    {
+      return seed;
     }
 
     void write(OutputStream out) throws IOException

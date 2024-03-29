@@ -61,11 +61,13 @@ class AS400NoThreadServer extends AS400Server
         replyStreams_ = AS400Server.replyStreamsHashTables[service];
     }
 
+    @Override
     int getService()
     {
         return service_;
     }
 
+    @Override
     String getJobString()
     {
         return jobString_;
@@ -76,16 +78,19 @@ class AS400NoThreadServer extends AS400Server
         jobString_ = jobString;
     }
 
+    @Override
     boolean isConnected()
     {
         return closed_ == false;
     }
 
+    @Override
     public DataStream getExchangeAttrReply()
     {
         return exchangeAttrReply_;
     }
 
+    @Override
     public synchronized DataStream sendExchangeAttrRequest(DataStream req) throws IOException
     {
         if (exchangeAttrReply_ == null)
@@ -95,16 +100,19 @@ class AS400NoThreadServer extends AS400Server
         return exchangeAttrReply_;
     }
 
+    @Override
     void addInstanceReplyStream(DataStream replyStream)
     {
         instanceReplyStreams_.put(replyStream, replyStream);
     }
 
+    @Override
     void clearInstanceReplyStreams()
     {
         instanceReplyStreams_.clear();
     }
 
+    @Override
     public DataStream sendAndReceive(DataStream requestStream) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and receive(): ..."); //@pdc 
@@ -112,6 +120,7 @@ class AS400NoThreadServer extends AS400Server
         return receive(correlationID);
     }
 
+    @Override
     void sendAndDiscardReply(DataStream requestStream) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and discard(): ..."); //@pdc
@@ -119,7 +128,7 @@ class AS400NoThreadServer extends AS400Server
         discardList_.addElement(Integer.valueOf(correlationID));
     }
 
-    //@M8a
+    @Override
     final void sendAndDiscardReply(DataStream requestStream,int correlationID) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and discard(): ...");
@@ -127,6 +136,7 @@ class AS400NoThreadServer extends AS400Server
         discardList_.addElement(Integer.valueOf(correlationID));
     }
     
+    @Override
     int send(DataStream requestStream) throws IOException
     {
       if (Trace.traceOn_) {
@@ -139,11 +149,13 @@ class AS400NoThreadServer extends AS400Server
         return correlationID;
     }
 
+    @Override
     int newCorrelationId()
     {
         return lastCorrelationId_.incrementAndGet();
     }
 
+    @Override
     void send(DataStream requestStream, int correlationId) throws IOException
     {
       if (Trace.traceOn_) {
@@ -154,6 +166,7 @@ class AS400NoThreadServer extends AS400Server
         requestStream.write(outStream_);
     }
 
+    @Override
     DataStream receive(int correlationId) throws IOException
     {
         try {
@@ -225,6 +238,7 @@ class AS400NoThreadServer extends AS400Server
         }
     }
 
+    @Override
     void forceDisconnect()
     {
         closed_ = true;
@@ -251,12 +265,24 @@ class AS400NoThreadServer extends AS400Server
         }
     }
 
+    @Override
     int getSoTimeout() throws SocketException {
       return socket_.getSoTimeout(); 
     }
 
+    @Override
     void setSoTimeout(int timeout) throws SocketException {
       socket_.setSoTimeout(timeout); 
       
+    }
+
+    @Override
+    public void setExchangeAttrReply(DataStream xChgAttrReply) {
+      exchangeAttrReply_ = xChgAttrReply;
+    }
+
+    @Override
+    public SocketContainer getSocket() {
+      return socket_;
     }
 }
