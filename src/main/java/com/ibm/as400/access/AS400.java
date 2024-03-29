@@ -3395,7 +3395,9 @@ public class AS400 implements Serializable, AutoCloseable
             SignonHandler soHandler = getSignonHandler();
 
             // If something isn't set, go to prompt state.
-            if (credVault_.getType() == AUTHENTICATION_SCHEME_PASSWORD && (systemName_.length() == 0 || userId_.length() == 0 || credVault_.isEmpty() || !(soHandler instanceof ToolboxSignonHandler) || forcePrompt_))  //@prompt   @mds
+            if (credVault_.getType() == AUTHENTICATION_SCHEME_PASSWORD 
+                    && (systemName_.length() == 0 || userId_.length() == 0 || credVault_.isEmpty() 
+                          || !(soHandler instanceof ToolboxSignonHandler) || forcePrompt_))
             {
                 pwState = PROMPT;
             }
