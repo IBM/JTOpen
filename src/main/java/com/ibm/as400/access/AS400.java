@@ -103,9 +103,9 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public static final int SIGNON = 7;
     /**
-     Constant indicating the HCS. Not public
+     Constant indicating the Host connection service.
      */
-    static final int HCS = 8;
+    public static final int HOSTCNN = 8;
     
     // Constants 8-15 reserved for SSL versions of the above services.
 
@@ -676,8 +676,8 @@ public class AS400 implements Serializable, AutoCloseable
     {
         this(systemName, userId, password);
         setAdditionalAuthenticationFactor(additionalAuthenticationFactor);
-        if (null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length )
-            validateSignon(userId, password, additionalAuthenticationFactor);
+        if (null != additionalAuthenticationFactor_)
+            validateSignon(userId, password, additionalAuthenticationFactor_);
     }
 
     /**
@@ -1746,7 +1746,8 @@ public class AS400 implements Serializable, AutoCloseable
     public void connectService(int service, int overridePort) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connecting service:", service);
-        // Validate parameter.
+        
+        // Validate parameter. HOSTCNN connection is for internal use, do not allow explicit connect requests. 
         if (service < 0 || service > 7)
         {
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -1754,15 +1755,12 @@ public class AS400 implements Serializable, AutoCloseable
 
         chooseImpl();
 
-        //@D3A - Start
         // Before the thread to connect server, block the thread to refresh profile token credential.
         if (credVault_ instanceof ProfileTokenVault) {
           if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Before service connected, block the thread of refreshing profile token credential");
           ((ProfileTokenVault) credVault_).preventRefresh();
         }
-        //@D3A - End
 
-        //@D3C - Start
         try {
           signon(service == AS400.SIGNON);
          
@@ -1775,7 +1773,6 @@ public class AS400 implements Serializable, AutoCloseable
             ((ProfileTokenVault) credVault_).allowRefresh();
           }
         }
-        //@D3C - Start
     }
 
     /**
@@ -1881,7 +1878,7 @@ public class AS400 implements Serializable, AutoCloseable
             impl_.disconnect(AS400.RECORDACCESS);
             impl_.disconnect(AS400.CENTRAL);
             impl_.disconnect(AS400.SIGNON);
-            impl_.disconnect(AS400.HCS);
+            // Note that HOSTCNN is never disconnected here unless explicitly disconnected.
         }
                 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "All services disconnected.");
@@ -1899,13 +1896,14 @@ public class AS400 implements Serializable, AutoCloseable
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
      <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
+     <li>{@link #HOSTCNN HOSTCNN} - host-connection class.
      </ul>
      **/
     public void disconnectService(int service)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Disconnecting service:", service);
-        // Validate parameter.
-        if (service < 0 || service > 7)
+        // Validate parameter. Will allow users to disconnect HOSTCNN. 
+        if (service < 0 || service > 8)
         {
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
@@ -2182,7 +2180,8 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns an array of Job objects representing the jobs to which this object is connected.  This information is only available when connecting to i5/OS V5R2M0 and later systems.  The array will be of length zero if no connections are currently active.
+     Returns an array of Job objects representing the jobs to which this object is connected.  This information 
+     is only available when connecting to i5/OS V5R2M0 and later systems.  The array will be of length zero if no connections are currently active.
      @param  service  The name of the service.  Valid services are:
      <ul>
      <li>{@link #FILE FILE} - IFS file classes.
@@ -2200,7 +2199,7 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting jobs, service:", service);
         // Validate parameter.
-        if (service < 0 || service > 7)
+        if (service < 0 || service > 8)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'service' is not valid:", service);
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -2696,7 +2695,7 @@ public class AS400 implements Serializable, AutoCloseable
                 return "as-ddm";
             case AS400.CENTRAL:
                 return "as-central";
-            case AS400.HCS:
+            case AS400.HOSTCNN:
                 return "as-hostcnn-s";
             case AS400.SIGNON:
                 return "as-signon";
@@ -2724,7 +2723,7 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting service port, service:", service);
         // Validate parameter.
-        if (service < 0 || service > 7)
+        if (service < 0 || service > 8)
         {
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
@@ -3891,7 +3890,9 @@ public class AS400 implements Serializable, AutoCloseable
 
 
     public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor) {
-        additionalAuthenticationFactor_ = additionalAuthenticationFactor;
+        additionalAuthenticationFactor_ = null;
+        if (null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length )
+            additionalAuthenticationFactor_ = additionalAuthenticationFactor;
     }
     
     // Store information in password cache.

@@ -47,7 +47,7 @@ public abstract class AS400Server
         if ("as-dtaq".equals(serviceName)) return 0xE007;
         if ("as-rmtcmd".equals(serviceName)) return 0xE008;
         if ("as-signon".equals(serviceName)) return 0xE009;
-        if ("as-hostcnn-s".equals(serviceName)) return AS400.HCS;
+        if ("as-hostcnn-s".equals(serviceName)) return AS400.HOSTCNN;
 
         Trace.log(Trace.ERROR, "Invalid service name: " + serviceName);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
@@ -71,7 +71,7 @@ public abstract class AS400Server
             case AS400.DATAQUEUE: return 0xE007;
             case AS400.COMMAND:   return 0xE008;
             case AS400.SIGNON:    return 0xE009;
-            case AS400.HCS:       return 0xE00B;
+            case AS400.HOSTCNN:   return 0xE00B;
         }
         Trace.log(Trace.ERROR, "Invalid service:", service);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
@@ -88,7 +88,7 @@ public abstract class AS400Server
         if (serviceName.equals("as-database")) return AS400.DATABASE;
         if (serviceName.equals("as-central")) return AS400.CENTRAL;
         if (serviceName.equals("as-signon")) return AS400.SIGNON;
-        if (serviceName.equals("as-hostcnn-s")) return AS400.HCS;
+        if (serviceName.equals("as-hostcnn-s")) return AS400.HOSTCNN;
 
         Trace.log(Trace.ERROR, "Invalid service: " + serviceName);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);

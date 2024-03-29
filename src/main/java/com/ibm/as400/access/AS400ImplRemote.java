@@ -69,7 +69,8 @@ public class AS400ImplRemote implements AS400Impl {
   // The pool of systems. The systems are in service constant order: FILE,
   // PRINT, COMMAND, DATAQUEUE, DATABASE, RECORDACCESS, CENTRAL.
   private Vector[] serverPool_ = { 
-  new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector(), new Vector()
+  new Vector<AS400Server>(), new Vector<AS400Server>(), new Vector<AS400Server>(), 
+  new Vector<AS400Server>(), new Vector<AS400Server>(), new Vector<AS400Server>(), new Vector<AS400Server>()
   };
 
   // System name.
@@ -190,6 +191,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Set the connection event dispatcher.
+  @Override
   public void addConnectionListener(ConnectionListener listener) {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC, "Adding implementation connection listener.");
@@ -203,6 +205,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Map from CCSID to encoding string.
+  @Override
   public String ccsidToEncoding(int ccsid) {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC, "Mapping to encoding implementation, CCSID:",
@@ -297,7 +300,9 @@ public class AS400ImplRemote implements AS400Impl {
     }
     return protectedPassword;
   }
+  
   // Change password.
+  @Override
   public SignonInfo changePassword(String systemName, boolean systemNameLocal,
       String userId, byte[] oldBytes, byte[] newBytes)
       throws AS400SecurityException, IOException {
@@ -305,6 +310,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Change password.
+  @Override
   public SignonInfo changePassword(String systemName, boolean systemNameLocal,
       String userId, byte[] oldBytes, byte[] newBytes, char[] additionalAuthenticationFactor)
       throws AS400SecurityException, IOException {
@@ -616,10 +622,12 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Implementation for connect.
+  @Override
   public void connect(int service) throws AS400SecurityException, IOException {
     connect(service, -1, false);
   }
 
+  @Override
   public void connect(int service, int overridePort, boolean skipSignonServer)
       throws AS400SecurityException, IOException {
     if (service == AS400.SIGNON) {
@@ -629,6 +637,7 @@ public class AS400ImplRemote implements AS400Impl {
     }
   }
 
+  @Override
   public Socket connectToPort(int port) throws AS400SecurityException,
       IOException {
     return getConnection(0, port, false);
@@ -636,6 +645,7 @@ public class AS400ImplRemote implements AS400Impl {
 
   // @N5A Establish a DHCP connection to the specified port. Add this interface
   // for L1C for DHCP already listens on 942 of localhost for STRTCPSVR
+  @Override
   public Socket connectToPort(int port, boolean forceNonLocalhost)
       throws AS400SecurityException, IOException {
     return getConnection(0, port, forceNonLocalhost);
@@ -754,9 +764,10 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Implementation for disconnect.
+  @Override
   public void disconnect(int service)
   {
-      if (service == AS400.HCS) {
+      if (service == AS400.HOSTCNN) {
           hcsDaemonDisconnect();
       }
       else if (service == AS400.SIGNON) {
@@ -798,7 +809,6 @@ public class AS400ImplRemote implements AS400Impl {
     disconnect(AS400.RECORDACCESS);
     disconnect(AS400.CENTRAL);
     disconnect(AS400.SIGNON);
-    disconnect(AS400.HCS);
 
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC, "All services disconnected implementation.");
@@ -809,7 +819,7 @@ public class AS400ImplRemote implements AS400Impl {
   public void disconnectServer(AS400Server server) {
     server.forceDisconnect();
     int service = server.getService();
-    if (service != AS400.SIGNON) {
+    if (service != AS400.SIGNON && service != AS400.HOSTCNN) {
       Vector serverList = serverPool_[service];
       synchronized (serverList) {
         if (!serverList.isEmpty()) {
@@ -844,6 +854,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Cleans up all connections.
+  @Override
   protected void finalize() throws Throwable {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC,
@@ -868,6 +879,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Flow the generate profile token datastream.
+  @Override
    public void generateProfileToken(ProfileTokenCredential profileToken,
       String userIdentity) throws AS400SecurityException, IOException {
     signonConnect();
@@ -1126,9 +1138,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   public static byte getAdditionalAuthenticationIndicator(AS400 sys) throws AS400SecurityException, IOException
-  { 
-      // TODO determine if we can use the AS400 object 
-      
+  {       
       return getAdditionalAuthenticationIndicator(sys.getSystemName(), sys.isSecure());
   }
   
@@ -1474,20 +1484,22 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Gets the jobs with which we are connected.
+  @Override
   public String[] getJobs(int service) {
     if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Getting job names implementation, service:",
-          service);
+      Trace.log(Trace.DIAGNOSTIC, "Getting job names implementation, service:", service);
+    
     if (service == AS400.SIGNON) {
-      return (signonServer_ != null) ? new String[] { signonJobString_ }
-          : new String[0];
+      return (signonServer_ != null) ? new String[] { signonJobString_ } : new String[0];
+    }
+    else if (service == AS400.HOSTCNN) {
+        return (HCSAuthdServer_ != null) ? new String[] { HCSAuthdServer_.getJobString() } : new String[0];
     } else {
       Vector serverList = serverPool_[service];
       String[] jobStrings = new String[serverList.size()];
       synchronized (serverList) {
         for (int i = 0; i < serverList.size(); ++i) {
-          jobStrings[i] = (((AS400Server) serverList.elementAt(i))
-              .getJobString());
+          jobStrings[i] = (((AS400Server) serverList.elementAt(i)).getJobString());
         }
       }
       return jobStrings;
@@ -1536,10 +1548,8 @@ public class AS400ImplRemote implements AS400Impl {
       }
     }
         
-    // If authentication factor and secure, we always attempt to use HCS.
-    boolean connectViaHCS = (    useSSLConnection_ != null 
-                              && additionalAuthenticationFactorTOTP != null 
-                              && additionalAuthenticationFactorTOTP.length > 0);
+    // Will always go to HCS if secure
+    boolean connectViaHCS = (    useSSLConnection_ != null);
     
     SocketContainer socketContainer = null;
     if (connectViaHCS)
@@ -1765,7 +1775,7 @@ public class AS400ImplRemote implements AS400Impl {
 
                         
             svc_socketContainer = PortMapper.getServerSocket((systemNameLocal_) 
-                    ? "localhost" : systemName_,  AS400.HCS, overridePort,  useSSLConnection_, socketProperties_,  mustUseNetSockets_);
+                    ? "localhost" : systemName_,  AS400.HOSTCNN, overridePort,  useSSLConnection_, socketProperties_,  mustUseNetSockets_);
             
             connectionID = svc_socketContainer.hashCode();
             int          svc_connectionID = svc_socketContainer.hashCode();
@@ -1822,7 +1832,7 @@ public class AS400ImplRemote implements AS400Impl {
             
             socketContainer = svc_socketContainer;
           
-          // amra TODO job string probably is not right.
+          // amra TODO HCS still needs to add job string probably is not right.
 //          jobBytes = HCSRouteReply.getJobNameBytes();
 //
 //          // Obtain the job identifier for the connection.
@@ -1878,7 +1888,7 @@ public class AS400ImplRemote implements AS400Impl {
       try 
       {
           socketContainer = PortMapper.getServerSocket(
-                  (systemNameLocal_) ? "localhost" : systemName_, AS400.HCS, -1, 
+                  (systemNameLocal_) ? "localhost" : systemName_, AS400.HOSTCNN, -1, 
                   useSSLConnection_, socketProperties_, mustUseNetSockets_);
           
           connectionID = socketContainer.hashCode();
@@ -1891,7 +1901,7 @@ public class AS400ImplRemote implements AS400Impl {
           // -------
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "HCS daemon - exchange random seeds");
 
-          int serverId = AS400Server.getServerId(AS400.HCS);
+          int serverId = AS400Server.getServerId(AS400.HOSTCNN);
           AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId, true);
           if (Trace.traceOn_)
               xChgReq.setConnectionID(connectionID);
@@ -1974,7 +1984,7 @@ public class AS400ImplRemote implements AS400Impl {
           if (Trace.traceOn_)
             Trace.log(Trace.DIAGNOSTIC, "System job:", jobString);
           
-          HCSAuthdServer_ = new AS400NoThreadServer(this,  AS400.HCS, socketContainer, jobString);
+          HCSAuthdServer_ = new AS400NoThreadServer(this,  AS400.HOSTCNN, socketContainer, jobString);
       } 
       catch (ConnectException  e)
       {
@@ -2562,6 +2572,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Get port number for service.
+  @Override
   public int getServicePort(String systemName, int service) {
     return PortMapper.getServicePort(systemName, service, useSSLConnection_);
   }
@@ -2572,6 +2583,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Get system name.
+  @Override
   public String getSystemName() {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC, "Getting implementation system name: "
@@ -2618,6 +2630,7 @@ public class AS400ImplRemote implements AS400Impl {
 
 
   // Check if service is connected.
+  @Override
   public boolean isConnected(int service) {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC,
@@ -2642,6 +2655,7 @@ public class AS400ImplRemote implements AS400Impl {
   private int priorService_ = NO_PRIOR_SERVICE;
 
   // Check connection's current status.
+  @Override
   public boolean isConnectionAlive() {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC, "Checking connection's current alive status");
@@ -2777,6 +2791,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Check connection's current status, for a specific service.
+  @Override
   public boolean isConnectionAlive(int service) {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC,
@@ -2948,11 +2963,13 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Load a converter object into converter cache.
+  @Override
   public void newConverter(int ccsid) throws UnsupportedEncodingException {
     ConverterImplRemote.getConverter(ccsid, this);
   }
 
   // Remove the connection event dispatcher.
+  @Override
   public void removeConnectionListener(ConnectionListener listener) {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC,
@@ -3501,6 +3518,7 @@ public class AS400ImplRemote implements AS400Impl {
     return message;
   }
 
+  @Override
   public void setGSSCredential(GSSCredential gssCredential) {
     if (Trace.traceOn_)
       Trace.log(Trace.DIAGNOSTIC, "Setting GSS credential into impl: '"
@@ -3527,11 +3545,13 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Set port for service.
+  @Override
   public void setServicePort(String systemName, int service, int port) {
     PortMapper.setServicePort(systemName, service, port, useSSLConnection_);
   }
 
   // Set all the ports for a system name to the defaults.
+  @Override
   public void setServicePortsToDefault(String systemName) {
     PortMapper.setServicePortsToDefault(systemName);
   }
@@ -3545,6 +3565,7 @@ public class AS400ImplRemote implements AS400Impl {
   private boolean mustUseSuppliedProfile_ = false;
 
   // Set the state variables for this implementation object.
+  @Override
   public void setState(SSLOptions useSSLConnection,
       boolean canUseNativeOptimization, boolean threadUsed, int ccsid,
       String nlv, SocketProperties socketProperties, String ddmRDB,
@@ -3814,6 +3835,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Initialize the impl without calling the sign-on server.
+  @Override
   public SignonInfo skipSignon(String systemName, boolean systemNameLocal,
       String userId, CredentialVault vault, String gssName)
       throws AS400SecurityException, IOException // @mds
@@ -4959,6 +4981,7 @@ public class AS400ImplRemote implements AS400Impl {
    * href="BidiStringType.html">BidiStringType</a> for more information and
    * valid values.
    */
+  @Override
   public void setBidiStringType(int bidiStringType) {
     this.bidiStringType = bidiStringType;
   }
@@ -4968,6 +4991,7 @@ public class AS400ImplRemote implements AS400Impl {
    * href="BidiStringType.html">BidiStringType</a> for more information and
    * valid values.
    */
+  @Override
   public int getBidiStringType() {
     return bidiStringType;
   }
