@@ -39,11 +39,11 @@ import java.sql.ResultSetMetaData;
  import java.sql.RowId;
 /* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC42
+/* ifdef JDBC42 */
 import java.sql.SQLType;
 import java.sql.JDBCType;
 
-endif */
+/* endif */ 
 /* ifdef JDBC40 */
  import java.sql.SQLXML;
  import java.sql.SQLFeatureNotSupportedException;
@@ -1437,12 +1437,12 @@ public abstract class AS400JDBCPreparedStatement extends AS400JDBCStatement impl
  */
   public abstract void setObject(int parameterIndex,
         Object x,
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
         SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
 Object
-/* endif */
+ endif */ 
         targetSqlType,
         int scaleOrLength)
  throws SQLException ;
@@ -1463,12 +1463,12 @@ Object
    */
   public abstract void setObject(int parameterIndex,
                          Object x,
-                         /* ifdef JDBC42        
+/* ifdef JDBC42 */
                          SQLType  
-                   endif*/ 
-                   /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
                    Object
-                   /* endif */
+ endif */ 
                          targetSqlType)
                   throws SQLException;
   

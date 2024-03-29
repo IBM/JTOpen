@@ -33,11 +33,11 @@ import java.util.Calendar;
 import java.util.GregorianCalendar; 
 /* endif */ 
 
-/* ifdef JDBC42
+/* ifdef JDBC42 */
 import java.time.LocalTime;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-endif */ 
+/* endif */ 
 
 import java.net.URL;
 
@@ -303,7 +303,7 @@ extends SQLDataBase  implements SQLVariableCompressible
             value = xml.getString();
         }   
 /* endif */ 
-        /* ifdef JDBC42
+/* ifdef JDBC42 */
 
         else if(object instanceof java.time.LocalDate) 
         {    
@@ -317,7 +317,7 @@ extends SQLDataBase  implements SQLVariableCompressible
             value = SQLTimestamp.localDateTimeToStringTrimTrailingZeros((LocalDateTime) object, calendar, settings_); 
 
              
-        endif */ 
+/* endif */ 
 
         if(value == null)           {                                                // @C1C
           if (JDTrace.isTraceOn()) {

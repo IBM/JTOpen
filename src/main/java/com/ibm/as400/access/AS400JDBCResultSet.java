@@ -51,11 +51,11 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-/* ifdef JDBC42
+/* ifdef JDBC42 */
 import java.sql.SQLType; 
 import java.sql.JDBCType; 
 import java.sql.SQLFeatureNotSupportedException;
-endif */
+/* endif */ 
 
 
 /**
@@ -7704,7 +7704,7 @@ void postWarningSQLState(String sqlState)  {
       } else if (type == SQLXML.class){
         return getSQLXML(columnIndex);
 /* endif */ 
-/* ifdef JDBC42 
+/* ifdef JDBC42 */
       } else if (type == java.time.LocalTime.class){
         Time time = getTime(columnIndex);
         if (time != null ) return time.toLocalTime();
@@ -7717,7 +7717,7 @@ void postWarningSQLState(String sqlState)  {
         Timestamp ts = getTimestamp(columnIndex);
         if (ts != null) return ts.toLocalDateTime();
         return null; 
-endif */
+/* endif */ 
         
       } else if (type == Object.class){
         return getObject(columnIndex);
@@ -7810,24 +7810,24 @@ protected void addSavedException(SQLException savedException) {
    */
   
   int mapSQLType(
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
       SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
 Object
-/* endif */
+ endif */ 
       targetSqlType ) throws SQLException {
-     /* ifdef JDBC42 
+/* ifdef JDBC42 */
        
     if (targetSqlType instanceof JDBCType) {
       return targetSqlType.getVendorTypeNumber(); 
     }
       throw new SQLFeatureNotSupportedException("targetSqlType="+targetSqlType);    
  
-      endif */
-    /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
        return 0; 
-    /* endif */ 
+ endif */ 
   }
 
   /**
@@ -7854,12 +7854,12 @@ Object
 
   public void updateObject(int columnIndex,
                             Object x,
-                            /* ifdef JDBC42        
+/* ifdef JDBC42 */
                             SQLType  
-                      endif*/ 
-                      /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
                       Object
-                      /* endif */
+ endif */ 
                             targetSqlType,
                             int scaleOrLength)
                      throws SQLException {
@@ -7891,12 +7891,12 @@ Object
  */
   public  void updateObject(String columnLabel,
                             Object x,
-                            /* ifdef JDBC42        
+/* ifdef JDBC42 */
                             SQLType  
-                      endif*/ 
-                      /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
                       Object
-                      /* endif */
+ endif */ 
                             targetSqlType,
                             int scaleOrLength)
                      throws SQLException {
@@ -7919,12 +7919,12 @@ Object
 
   public void updateObject(int columnIndex,
                             Object x,
-                            /* ifdef JDBC42        
+/* ifdef JDBC42 */
                             SQLType  
-                      endif*/ 
-                      /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
                       Object
-                      /* endif */
+ endif */ 
                             targetSqlType)
                      throws SQLException
   {
@@ -7947,12 +7947,12 @@ Object
    */
   public void updateObject(String columnLabel,
                             Object x,
-                            /* ifdef JDBC42        
+/* ifdef JDBC42 */
                             SQLType  
-                      endif*/ 
-                      /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
                       Object
-                      /* endif */
+ endif */ 
                             targetSqlType)
                      throws SQLException
                      {
