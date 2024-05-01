@@ -121,7 +121,7 @@ class SignonConverter
     
     static byte[] charArrayToByteArray(char[] sourceChars, boolean upperCase, String encoding) throws AS400SecurityException
     {
-        String padded = (new String(sourceChars) + "          ").substring(0, 10);
+        String padded = sourceChars.length < 10 ? (new String(sourceChars) + "          ").substring(0, 10) : new String(sourceChars);
         if(upperCase) padded = padded.toUpperCase();
         try {
             return padded.getBytes(encoding);

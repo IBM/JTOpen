@@ -59,7 +59,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>build-helper-maven-plugin</artifactId>
-        <version>3.4.0</version>
+        <version>3.5.0</version>
         <executions>
           <execution>
             <phase>generate-sources</phase>
@@ -119,8 +119,8 @@
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${project.build.outputDirectory}/com/ibm/as400/access"
-                  srcdir="${basedir}/pcml"
-                  includes="**/NetServer.pcml"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/access"
+                  includes="NetServer.pcml"
                   classpath="${project.build.outputDirectory}:${basedir}/pcml"
                 />
               </target>
@@ -138,8 +138,8 @@
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${project.build.outputDirectory}/com/ibm/as400/resource"
-                  srcdir="${basedir}/pcml"
-                  includes="**/R*.pcml"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/resource"
+                  includes="R*.pcml"
                   classpath="${project.build.outputDirectory}:${basedir}/pcml"
                 />
               </target>
@@ -153,7 +153,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.11.0</version>
+        <version>3.13.0</version>
         <executions>
           <execution>
             <id>ant-compile</id>

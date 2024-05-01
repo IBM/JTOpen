@@ -102,6 +102,11 @@ public class AS400 implements Serializable, AutoCloseable
      Constant indicating the Sign-on service.
      **/
     public static final int SIGNON = 7;
+    /**
+     Constant indicating the Host connection service.
+     */
+    public static final int HOSTCNN = 8;
+    
     // Constants 8-15 reserved for SSL versions of the above services.
 
     /**
@@ -131,19 +136,52 @@ public class AS400 implements Serializable, AutoCloseable
      */
     public static final int AUTHENTICATION_SCHEME_DDM_EUSERIDPWD = 4;
     
-    
     /**
-     Constant indicating that the JGSS framework must be used when no password or authentication token is set.  An object set to this option will not attempt to present a sign-on dialog or use the current user profile information.  A failure to retrieve the GSS token will result in an exception returned to the user.
+     Constant indicating that the JGSS framework must be used when no password or authentication token is set.  
+     An object set to this option will not attempt to present a sign-on dialog or use the current user profile information.  
+     A failure to retrieve the GSS token will result in an exception returned to the user.
      **/
     public static final int GSS_OPTION_MANDATORY = 0;
     /**
-     Constant indicating that the JGSS framework will be attempted when no password or authentication token is set.  An object set to this option will attempt to retrieve a GSS token, if that attempt fails, the object will present a sign-on dialog or use the current user profile information.  This option is the default.
+     Constant indicating that the JGSS framework will be attempted when no password or authentication token is set.  
+     An object set to this option will attempt to retrieve a GSS token, if that attempt fails, the object will present 
+     a sign-on dialog or use the current user profile information.  This option is the default.
      **/
     public static final int GSS_OPTION_FALLBACK = 1;
     /**
-     Constant indicating that the JGSS framework will not be used when no password or authentication token is set.  An object set to this option will only present a sign-on dialog or use the current user profile information.
+     Constant indicating that the JGSS framework will not be used when no password or authentication token is set.  
+     An object set to this option will only present a sign-on dialog or use the current user profile information.
      **/
     public static final int GSS_OPTION_NONE = 2;
+    
+    /**
+    Constant indicating that encryption should only be done on the connection between the client and the proxy server.
+    **/
+   public static final int CLIENT_TO_PROXY_SERVER = 1;
+
+   /**
+    Constant indicating that encryption should only be done on the connection between the proxy server and the system.
+    **/
+   public static final int PROXY_SERVER_TO_SERVER = 2;
+
+   /**
+    @deprecated Use CLIENT_TO_SERVER instead.
+    **/
+   public static final int CLINT_TO_SERVER = 3;
+
+   /**
+    Constant indicating that encryption should be done in both the connection between the client and the proxy server 
+    and the connection between the proxy server and the system.
+    **/
+   public static final int CLIENT_TO_SERVER = 3;
+   
+   /**
+    * Indicate whether the cipher suites changed by the caller. We add this for iNav.
+    */
+    /* @P4A*/
+   public static boolean changeCipherSuites = false;
+   public static String[] newCipherSuites;
+
 
     // Determine if we are running on IBM i.
     static boolean onAS400 = false;
@@ -372,6 +410,7 @@ public class AS400 implements Serializable, AutoCloseable
 
     // SSL options, null value indicates SSL is not to be used.  Options set in SecureAS400 subclass.
     SSLOptions useSSLConnection_ = null;
+    
     // Flag that indicates if we must add the secondary language library to the library list.
     private boolean mustAddLanguageLibrary_ = defaultMustAddLanguageLibrary_;
     // Flag that indicates if we must use the host servers and no native optimizations.
@@ -454,9 +493,8 @@ public class AS400 implements Serializable, AutoCloseable
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "'");
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
@@ -476,26 +514,23 @@ public class AS400 implements Serializable, AutoCloseable
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "'");
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         if (userId == null)
-        {
             throw new NullPointerException("userId");
-        }
+
         if (userId.length() > 10)
-        {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
+
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
-        //@W9 Start
+
         if (isTurkish()) {
-        	userId = userId.toUpperCase(Locale.ENGLISH);
-        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+            userId = userId.toUpperCase(Locale.ENGLISH);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        //@W9 End
+
         userId_ = userId.toUpperCase();
         proxyServer_ = resolveProxyServer(proxyServer_);
 
@@ -515,9 +550,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "profile token: " + profileToken);
 
         if (profileToken == null)
-        {
             throw new NullPointerException("profileToken");
-        }
 
         constructWithProfileToken(systemName, new ProfileTokenVault(profileToken));
     }
@@ -554,18 +587,15 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with a profile token provider, system name: '" + systemName + "'");
 
         if (tokenProvider == null)
-        {
             throw new NullPointerException("tokenProvider");
-        }
+
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "profile token provider:", tokenProvider.getClass().getName());
 
         // Was a refresh threshold specified?
-        if (refreshThreshold != null) {
+        if (refreshThreshold != null)
             constructWithProfileToken(systemName, new ManagedProfileTokenVault(tokenProvider, refreshThreshold.intValue()));
-        }
-        else {
+        else
             constructWithProfileToken(systemName, new ManagedProfileTokenVault(tokenProvider));
-        }
     }
 
     /**
@@ -574,9 +604,8 @@ public class AS400 implements Serializable, AutoCloseable
     private void constructWithProfileToken(String systemName, ProfileTokenVault credVault)
     {
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
@@ -600,31 +629,34 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "'");
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + password + "'");
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         if (userId == null)
-        {
             throw new NullPointerException("userId");
-        }
+
         if (userId.length() > 10)
-        {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
-        checkPasswordNullAndLength(password);
+
+        checkPasswordNullAndLength(password, "password");
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
-        //@W9 Start
+ 
         if (isTurkish()) {
-        	userId = userId.toUpperCase(Locale.ENGLISH);
-        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+            userId = userId.toUpperCase(Locale.ENGLISH);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        //@W9 End
+
         userId_ = userId.toUpperCase();
         char[] passwordChars = password.toCharArray();
-        credVault_ = new PasswordVault(passwordChars);
-        PasswordVault.clearArray(passwordChars);
+        
+        try {
+            credVault_ = new PasswordVault(passwordChars);
+        }
+        finally {
+            PasswordVault.clearArray(passwordChars);
+        }
+        
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
@@ -641,10 +673,9 @@ public class AS400 implements Serializable, AutoCloseable
     public AS400(String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
     {
         this(systemName, userId, password);
-        additionalAuthenticationFactor_ = additionalAuthenticationFactor;
-        if (null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length ) {
-            validateSignon(userId, password, additionalAuthenticationFactor);
-        }
+        setAdditionalAuthenticationFactor(additionalAuthenticationFactor);
+        if (null != additionalAuthenticationFactor_)
+            validateSignon(userId, password, additionalAuthenticationFactor_);
     }
 
     /**
@@ -661,27 +692,24 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "'");
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + new String(password) + "'");
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         if (userId == null)
-        {
             throw new NullPointerException("userId");
-        }
+
         if (userId.length() > 10)
-        {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
+
         checkPasswordNullAndLength(password);
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
-        //@W9 Start
+ 
         if (isTurkish()) {
           userId = userId.toUpperCase(Locale.ENGLISH);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        //@W9 End
+ 
         userId_ = userId.toUpperCase();
         credVault_ = new PasswordVault(password);
         proxyServer_ = resolveProxyServer(proxyServer_);
@@ -713,7 +741,8 @@ public class AS400 implements Serializable, AutoCloseable
      * @throws  InterruptedException  If this thread is interrupted.
      * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
      */
-    public void setIASPGroup(String IASPGroup) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
+    public void setIASPGroup(String IASPGroup) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
+    {
       this.currentLib_ = "*CURUSR";
       this.librariesForThread_ = "*CURUSR";
       String SetASPGrp = "SETASPGRP ASPGRP("+ IASPGroup + ") CURLIB(*CURUSR) USRLIBL(*CURUSR)"; //@P2C Default value *CURSYSBAS will override the user profile/jobd set libs.
@@ -739,7 +768,8 @@ public class AS400 implements Serializable, AutoCloseable
      * @throws  InterruptedException  If this thread is interrupted.
      * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
      */
-    public void setIASPGroup(String IASPGroup, String currentLib) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
+    public void setIASPGroup(String IASPGroup, String currentLib) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
+    {
       if(currentLib==null || currentLib.length()==0)
         currentLib = "*CURUSR";
       else if (currentLib.length() > 10)
@@ -861,12 +891,6 @@ public class AS400 implements Serializable, AutoCloseable
     
     // Private constructor for use when a new object is needed and the password is already twiddled.
     // Used by password cache and password verification code.
-    private AS400(String systemName, String userId, CredentialVault pwVault)
-    {
-        this(systemName, userId, pwVault, (char[]) null);
-    }
-    // Private constructor for use when a new object is needed and the password is already twiddled.
-    // Used by password cache and password verification code.
     private AS400(String systemName, String userId, CredentialVault pwVault, char[] additionalAuthenticationFactor)
     {
         super();
@@ -874,26 +898,23 @@ public class AS400 implements Serializable, AutoCloseable
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, pwVault.trace());
         // System name and user ID validation has been deferred to here.
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         if (userId == null)
-        {
             throw new NullPointerException("userId");
-        }
+
         if (userId.length() > 10)
-        {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
+
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
-        //@W9 Start
+
         if (isTurkish()) {
-        	userId = userId.toUpperCase(Locale.ENGLISH);
-        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+            userId = userId.toUpperCase(Locale.ENGLISH);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        //@W9 End
+
         userId_ = userId.toUpperCase();
 
         // Create a copy of the supplied credential vault.  This allows the AS400
@@ -906,7 +927,7 @@ public class AS400 implements Serializable, AutoCloseable
         // that behavior, but we need to do so using two different credential vaults,
         // because each AS400 object must always have its very own credential vault.
         credVault_ = pwVault.clone();
-        additionalAuthenticationFactor_ = additionalAuthenticationFactor;
+        setAdditionalAuthenticationFactor(additionalAuthenticationFactor);
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
@@ -924,35 +945,37 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + password + "'");
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         if (userId == null)
-        {
             throw new NullPointerException("userId");
-        }
+
         if (userId.length() > 10)
-        {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
-        checkPasswordNullAndLength(password);
+
+        checkPasswordNullAndLength(password, "password");
         if (proxyServer == null)
-        {
             throw new NullPointerException("proxyServer");
-        }
+
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
-        //@W9 Start
+
         if (isTurkish()) {
-        	userId = userId.toUpperCase(Locale.ENGLISH);
-        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+            userId = userId.toUpperCase(Locale.ENGLISH);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        //@W9 End
+
         userId_ = userId.toUpperCase();
         char[] passwordChars = password.toCharArray(); 
-        credVault_ = new PasswordVault(passwordChars);
-        PasswordVault.clearArray(passwordChars);
+        
+        try {
+            credVault_ = new PasswordVault(passwordChars);
+        } 
+        finally {
+            PasswordVault.clearArray(passwordChars);
+        }
+        
         proxyServer_ = resolveProxyServer(proxyServer);
     }
 
@@ -968,31 +991,28 @@ public class AS400 implements Serializable, AutoCloseable
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         if (userId == null)
-        {
             throw new NullPointerException("userId");
-        }
+
         if (userId.length() > 10)
-        {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
+
         checkPasswordNullAndLength(password);
+        
         if (proxyServer == null)
-        {
             throw new NullPointerException("proxyServer");
-        }
+
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
-        //@W9 Start
+
         if (isTurkish()) {
           userId = userId.toUpperCase(Locale.ENGLISH);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        //@W9 End
+
         userId_ = userId.toUpperCase();
         credVault_ = new PasswordVault(password);
         proxyServer_ = resolveProxyServer(proxyServer);
@@ -1008,9 +1028,8 @@ public class AS400 implements Serializable, AutoCloseable
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system: " + system);
         if (system == null)
-        {
             throw new NullPointerException("system");
-        }
+
         construct();
         systemName_ = system.systemName_;
         systemNameLocal_ = system.systemNameLocal_;
@@ -1039,7 +1058,10 @@ public class AS400 implements Serializable, AutoCloseable
         useDefaultUser_ = system.useDefaultUser_;
         showCheckboxes_ = system.showCheckboxes_;
 
-        // useSSLConnection_ is handled by SecureAS400 subclass.
+        // If passed in system has SSL options, deep copy them if this instance is secure
+        if (isSecure() && system.isSecure())
+            useSSLConnection_.proxyEncryptionMode_ = system.useSSLConnection_.proxyEncryptionMode_;
+        
         mustAddLanguageLibrary_ = system.mustAddLanguageLibrary_;
         mustUseSockets_ = system.mustUseSockets_;
         mustUseNetSockets_ = system.mustUseNetSockets_;
@@ -1060,6 +1082,73 @@ public class AS400 implements Serializable, AutoCloseable
         // impl_ is not copied.
         // signonInfo_ is not copied.
         ddmRDB_ = system.ddmRDB_;
+    }
+
+    /**
+    Returns a new instance of an AS400 object.  It uses the specified system name.
+    <p>If running on IBM i to another system or to itself, the user ID and password of the current job are used.
+    <p>If running on another operating system, the user may be prompted for the user ID and password if a default user has not been established for this system name.
+    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
+    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+    **/
+    public static AS400 newInstance(boolean useSSL, String systemName)
+    {
+        return (useSSL) ? new SecureAS400(systemName) 
+                        : new AS400(systemName);
+    }
+
+    /**
+    Returns a new instance of an AS400 object.  It uses the specified system name, user ID, password, and additional authentication
+    factor.  No sign-on prompt is displayed unless the sign-on fails.
+    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
+    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+    @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+    @param  password  The user profile password to use to authenticate to the system.
+            The caller is responsible for clearing the password array to keep the password from residing in memory. 
+    @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
+    **/
+    public static AS400 newInstance(boolean useSSL, String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws IOException, AS400SecurityException
+    {
+        return (useSSL) ? new SecureAS400(systemName, userId, password, additionalAuthenticationFactor) 
+                        : new AS400(systemName, userId, password, additionalAuthenticationFactor);
+    }
+    
+    /**
+    Returns a new instance of an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
+    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
+    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+    @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+    @param  password  The user profile password to use to authenticate to the system.   The caller is responsible fore clearing sensitive data from password after the constructor runs.
+    @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
+    **/
+    public static AS400 newInstance(boolean useSSL, String systemName, String userId, char[] password, String proxyServer)
+    {
+        return (useSSL) ? new SecureAS400(systemName, userId, password, proxyServer) 
+                        : new AS400(systemName, userId, password, proxyServer);
+    }
+    
+    /**
+    Returns a new instance of an AS400 object.  It uses the specified system name and profile token.
+    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
+    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+    @param  profileToken  The profile token to use to authenticate to the system.
+    **/
+    public static AS400 newInstance(boolean useSSL, String systemName, ProfileTokenCredential profileToken)   
+    {
+        return (useSSL) ? new SecureAS400(systemName, profileToken) 
+                        : new AS400(systemName, profileToken);
+    }
+    
+    /**
+    Returns a new instance of an AS400 object.  It uses the same system name and user ID.  This does not create a clone.  
+    The new object has the same behavior, but results in a new set of socket connections.
+    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host server.
+    @param  system  A previously instantiated AS400 object.
+    **/    
+    public static AS400 newInstance(boolean useSSL, AS400 system)   
+    {
+        return (useSSL) ? new SecureAS400(system) 
+                        : new AS400(system);
     }
 
     /**
@@ -1108,16 +1197,13 @@ public class AS400 implements Serializable, AutoCloseable
      @param  password  The user profile password.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password) instead
-    
+     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password) instead    
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password) throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "'");
-        addPasswordCacheEntry(new AS400(systemName, userId, password));
+        addPasswordCacheEntry(systemName, userId, (password == null) ? (char[])null : password.toCharArray(), false);
     }
 
-    
        /**
      Validates the user ID and password, and if successful, adds the information to the password cache.
      @param  systemName  The name of the IBM i system.
@@ -1128,10 +1214,23 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, char[] password) throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "'");
-        addPasswordCacheEntry(new AS400(systemName, userId, password));
+        addPasswordCacheEntry(systemName, userId, password, false);
     }
 
+    /**
+     Validates the user ID and password, and if successful, adds the information to the password cache.
+     @param  systemName  The name of the IBM i system.
+     @param  userId  The user profile name.
+     @param  password  The user profile password.
+     @param  useSSL  Whether or not secure connections should be used when communicating with the host servers.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+    **/
+    public static void addPasswordCacheEntry(String systemName, String userId, char[] password, boolean useSSL) throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "'" + " useSSL: " + useSSL);
+        addPasswordCacheEntry((useSSL) ? new SecureAS400(systemName, userId, password) : new AS400(systemName, userId, password));
+    }    
     
     /**
      Validates the user ID and password, and if successful, adds the information to the password cache.
@@ -1145,27 +1244,40 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
-        addPasswordCacheEntry(new AS400(systemName, userId, password, proxyServer));
+        addPasswordCacheEntry(systemName, userId, (password == null) ? (char[])null : password.toCharArray(), proxyServer, false);
     }
 
+    /**
+    Validates the user ID and password, and if successful, adds the information to the password cache.
+    @param  systemName  The name of the IBM i system.
+    @param  userId  The user profile name.
+    @param  password  The user profile password.
+    @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
+    @exception  AS400SecurityException  If a security or authority error occurs.
+    @exception  IOException  If an error occurs while communicating with the system.
+    **/
+   public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) throws AS400SecurityException, IOException
+   {
+       addPasswordCacheEntry(systemName, userId, password, proxyServer, false);
+   }
+   
     /**
      Validates the user ID and password, and if successful, adds the information to the password cache.
      @param  systemName  The name of the IBM i system.
      @param  userId  The user profile name.
      @param  password  The user profile password.
      @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
+     @param  useSSL  Whether or not secure connections should be used when communicating with the host servers.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      **/
-    public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) throws AS400SecurityException, IOException
+    public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer, boolean useSSL) throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
-        addPasswordCacheEntry(new AS400(systemName, userId, password, proxyServer));
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'" + "' useSSL: '" + useSSL);
+        addPasswordCacheEntry((useSSL) ? new SecureAS400(systemName, userId, password, proxyServer) : new AS400(systemName, userId, password, proxyServer));
     }
 
-    // For use by AS400 and SecureAS400 objects.
-    static void addPasswordCacheEntry(AS400 system) throws AS400SecurityException, IOException
+    private static void addPasswordCacheEntry(AS400 system) throws AS400SecurityException, IOException
     {
         system.validateSignon();  // Exception thrown if info not valid.
         setCacheEntry(system.systemName_, system.userId_, system.credVault_);
@@ -1179,16 +1291,14 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding property change listener.");
         if (listener == null)
-        {
             throw new NullPointerException("listener");
-        }
+
         synchronized (this)
         {
             // If first add.
             if (propertyChangeListeners_ == null)
-            {
                 propertyChangeListeners_ = new PropertyChangeSupport(this);
-            }
+
             propertyChangeListeners_.addPropertyChangeListener(listener);
         }
     }
@@ -1201,16 +1311,14 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding vetoable change listener.");
         if (listener == null)
-        {
             throw new NullPointerException("listener");
-        }
+
         synchronized (this)
         {
             // If first add.
             if (vetoableChangeListeners_ == null)
-            {
                 vetoableChangeListeners_ = new VetoableChangeSupport(this);
-            }
+
             vetoableChangeListeners_.addVetoableChangeListener(listener);
         }
     }
@@ -1226,15 +1334,41 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
+    Checks whether an additional authentication factor is accepted for the given system.  
+    The communications with the host server is done over a secure channel if the AS400 object
+    was created to use SSL; otherwise, the communications with the host server is done over
+    an unsecure channel. 
+    @return  whether the server accepts the additional authentication factor
+    @exception  IOException  If an error occurs while communicating with the system.
+    @throws AS400SecurityException  If an error occurs exchanging client/server information
+    **/
+    public boolean isAdditionalAuthenticationFactorAccepted() throws IOException, AS400SecurityException
+    {
+        return AS400ImplRemote.getAdditionalAuthenticationIndicator(this) > 0;
+    }
+
+    /**
+    Checks whether an additional authentication factor is accepted for the given system.
+    The communications with the host server is performed over an unsecure connection. 
+    @param  systemName  The IP address or hostname of the target system
+    @return  whether the server accepts the additional authentication factor
+    @exception  IOException  If an error occurs while communicating with the system.
+    @throws AS400SecurityException  If an error occurs exchanging client/server information
+    **/
+    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
+       return isAdditionalAuthenticationFactorAccepted(systemName, false);
+    }
+   
+    /**
      Checks whether an additional authentication factor is accepted for the given system
      @param  systemName  The IP address or hostname of the target system
+     @param  useSSL  Whether or not secure connections should be used when communicating with the host servers.
      @return  whether the server accepts the additional authentication factor
      @exception  IOException  If an error occurs while communicating with the system.
      @throws AS400SecurityException  If an error occurs exchanging client/server information
      **/
-    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
-        byte indicator = AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName, false);
-        return indicator > 0; 
+    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName, boolean useSSL) throws IOException, AS400SecurityException {
+        return (AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName, useSSL) > 0);
     }
 
     /**
@@ -1309,7 +1443,8 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public boolean canUseNativeOptimizations()
     {
-        if (AS400.onAS400 && !mustUseSockets_ && systemNameLocal_ && proxyServer_.length() == 0 && credVault_.getType() == AUTHENTICATION_SCHEME_PASSWORD && getNativeVersion() == 2)
+        if (AS400.onAS400 && !mustUseSockets_ && systemNameLocal_ && proxyServer_.length() == 0 
+                && credVault_.getType() == AUTHENTICATION_SCHEME_PASSWORD && getNativeVersion() == 2)
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using native optimizations.");
             return true;
@@ -1380,58 +1515,16 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public void changePassword(String oldPassword, String newPassword) throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Changing password.");
-        if (PASSWORD_TRACE)
-        {
-            Trace.log(Trace.DIAGNOSTIC, "oldPassword: '" + oldPassword + "'");
-            Trace.log(Trace.DIAGNOSTIC, "newPassword: '" + newPassword + "'");
+        char[] oldPasswordChars = (oldPassword == null) ? null : oldPassword.toCharArray();
+        char[] newPasswordChars = (newPassword == null) ? null : newPassword.toCharArray();
+
+        try {
+            changePassword(oldPasswordChars, newPasswordChars, null);
         }
-        checkPasswordNullAndLength(oldPassword, "oldPassword");
-        checkPasswordNullAndLength(newPassword, "newPassword");
-        if (systemName_.length() == 0 && !systemNameLocal_)
-        {
-            Trace.log(Trace.ERROR, "Cannot change password before system name is set.");
-            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        finally {
+            PasswordVault.clearArray(oldPasswordChars);
+            PasswordVault.clearArray(newPasswordChars);  
         }
-        userId_ = resolveUserId(userId_);
-        if (userId_.length() == 0)
-        {
-            Trace.log(Trace.ERROR, "Cannot change password before user ID is set.");
-            throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-        }
-
-        chooseImpl();
-
-        // Synchronize to protect sign-on information.
-        synchronized (this)
-        {
-            byte[] proxySeed = new byte[9];
-            CredentialVault.rng.nextBytes(proxySeed);
-            byte[] remoteSeed = impl_.exchangeSeed(proxySeed);
-
-            if (PASSWORD_TRACE)
-            {
-                Trace.log(Trace.DIAGNOSTIC, "AS400 object proxySeed:", proxySeed);
-                Trace.log(Trace.DIAGNOSTIC, "AS400 object remoteSeed:", remoteSeed);
-            }
-
-            // Note that in this particular case it is OK to just pass byte arrays
-            // instead of credential vaults.  That is because we have the clear text
-            // passwords, so all we need to do is encode them and send them over
-            // to the impl.  After the password has been changed, we will update
-            // our own credential vault with the new password, and create ourselves
-            // the appropriate type of credential vault to store the password in.
-
-            signonInfo_ = impl_.changePassword(systemName_, systemNameLocal_, userId_, CredentialVault.encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(oldPassword.toCharArray())), CredentialVault.encode(proxySeed, remoteSeed, BinaryConverter.charArrayToByteArray(newPassword.toCharArray())));
-
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Password changed successfully.");
-
-            // Update credential vault with new password.
-            credVault_.empty();
-      char[] passwordChars = newPassword.toCharArray();
-      credVault_ = new PasswordVault(passwordChars);
-      PasswordVault.clearArray(passwordChars);
-    }
     }
 
     
@@ -1499,21 +1592,24 @@ public class AS400 implements Serializable, AutoCloseable
             // to the impl.  After the password has been changed, we will update
             // our own credential vault with the new password, and create ourselves
             // the appropriate type of credential vault to store the password in.
-            //@AI9A
-            byte[] oldbytes = BinaryConverter.charArrayToByteArray(oldPassword); 
-            byte[] newbytes = BinaryConverter.charArrayToByteArray(newPassword); 
-            //In case exception when change password, clear old, new bytes.
-            byte[] encodeOldBytes = CredentialVault.encode(proxySeed, remoteSeed, oldbytes);
-            byte[] encodeNewBytes = CredentialVault.encode(proxySeed, remoteSeed, newbytes);
-            CredentialVault.clearArray(oldbytes); 
-            CredentialVault.clearArray(newbytes);
-            //@AI9A End
+  
+            byte[] oldbytes = null;
+            byte[] newbytes = null;
+            try 
+            {
+                oldbytes = BinaryConverter.charArrayToByteArray(oldPassword); 
+                newbytes = BinaryConverter.charArrayToByteArray(newPassword); 
+                
+                byte[] encodeOldBytes = CredentialVault.encode(proxySeed, remoteSeed, oldbytes);
+                byte[] encodeNewBytes = CredentialVault.encode(proxySeed, remoteSeed, newbytes);
 
-            signonInfo_ = impl_.changePassword(systemName_, 
-                systemNameLocal_, userId_, 
-                encodeOldBytes, 
-                encodeNewBytes, 
-                additionalAuthenticationFactor);  //@AI9C
+                signonInfo_ = impl_.changePassword(systemName_,  systemNameLocal_, userId_,  
+                                               encodeOldBytes,  encodeNewBytes,  additionalAuthenticationFactor);
+            }
+            finally {
+                CredentialVault.clearArray(oldbytes); 
+                CredentialVault.clearArray(newbytes);
+            }
 
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Password changed successfully.");
 
@@ -1525,7 +1621,9 @@ public class AS400 implements Serializable, AutoCloseable
 
 
 
-    // Choose between remote and proxy implementation objects, set state information into remote implementation object.  Synchronized to protect impl_ and propertiesFrozen_ instance variables.  This method can safely be called multiple times because it checks its state before performing the code.
+    // Choose between remote and proxy implementation objects, set state information into remote implementation object.  
+    // Synchronized to protect impl_ and propertiesFrozen_ instance variables.  This method can safely be called multiple 
+    // times because it checks its state before performing the code.
     private synchronized void chooseImpl()
     {
         if (impl_ == null)
@@ -1646,7 +1744,8 @@ public class AS400 implements Serializable, AutoCloseable
     public void connectService(int service, int overridePort) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connecting service:", service);
-        // Validate parameter.
+        
+        // Validate parameter. HOSTCNN connection is for internal use, do not allow explicit connect requests. 
         if (service < 0 || service > 7)
         {
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -1654,15 +1753,12 @@ public class AS400 implements Serializable, AutoCloseable
 
         chooseImpl();
 
-        //@D3A - Start
         // Before the thread to connect server, block the thread to refresh profile token credential.
         if (credVault_ instanceof ProfileTokenVault) {
           if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Before service connected, block the thread of refreshing profile token credential");
           ((ProfileTokenVault) credVault_).preventRefresh();
         }
-        //@D3A - End
 
-        //@D3C - Start
         try {
           signon(service == AS400.SIGNON);
          
@@ -1675,7 +1771,6 @@ public class AS400 implements Serializable, AutoCloseable
             ((ProfileTokenVault) credVault_).allowRefresh();
           }
         }
-        //@D3C - Start
     }
 
     /**
@@ -1727,6 +1822,18 @@ public class AS400 implements Serializable, AutoCloseable
             // Running on IBM i, don't prompt.
             guiAvailable_ = false;
         }
+        
+        if (isSecure())
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
+
+            useSSLConnection_ = new SSLOptions();
+
+            // Check for proxy encryption mode system property, if not set or not valid retain default of 3.
+            String prop = SystemProperties.getProperty(SystemProperties.SECUREAS400_PROXY_ENCRYPTION_MODE);
+            if (prop != null && (prop.equals("1") || prop.equals("2")))
+                useSSLConnection_.proxyEncryptionMode_ = Integer.parseInt(prop);
+        }
     }
     
     //@SAA   @V4D Remove the createUserHandle to IFSFileDescriptorImplRemote 
@@ -1769,7 +1876,9 @@ public class AS400 implements Serializable, AutoCloseable
             impl_.disconnect(AS400.RECORDACCESS);
             impl_.disconnect(AS400.CENTRAL);
             impl_.disconnect(AS400.SIGNON);
+            // Note that HOSTCNN is never disconnected here unless explicitly disconnected.
         }
+                
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "All services disconnected.");
     }
 
@@ -1785,13 +1894,14 @@ public class AS400 implements Serializable, AutoCloseable
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
      <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
+     <li>{@link #HOSTCNN HOSTCNN} - host-connection class.
      </ul>
      **/
     public void disconnectService(int service)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Disconnecting service:", service);
-        // Validate parameter.
-        if (service < 0 || service > 7)
+        // Validate parameter. Will allow users to disconnect HOSTCNN. 
+        if (service < 0 || service > 8)
         {
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
@@ -2068,7 +2178,8 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns an array of Job objects representing the jobs to which this object is connected.  This information is only available when connecting to i5/OS V5R2M0 and later systems.  The array will be of length zero if no connections are currently active.
+     Returns an array of Job objects representing the jobs to which this object is connected.  This information 
+     is only available when connecting to i5/OS V5R2M0 and later systems.  The array will be of length zero if no connections are currently active.
      @param  service  The name of the service.  Valid services are:
      <ul>
      <li>{@link #FILE FILE} - IFS file classes.
@@ -2086,7 +2197,7 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting jobs, service:", service);
         // Validate parameter.
-        if (service < 0 || service > 7)
+        if (service < 0 || service > 8)
         {
             Trace.log(Trace.ERROR, "Value of parameter 'service' is not valid:", service);
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
@@ -2458,52 +2569,16 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public ProfileTokenCredential getProfileToken(String userId, String password, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException
     {
-        connectService(AS400.SIGNON);
-
-        // Validate parms.
-        if (userId == null)
+        char[] passwordChars = (password == null) ? null : password.toCharArray();
+        
+        try 
         {
-            throw new NullPointerException("userId");
+            ProfileTokenCredential pt =  getProfileToken(userId, passwordChars, tokenType, timeoutInterval);
+            return pt;
         }
-        if (userId.length() > 10)
-        {
-            throw new ExtendedIllegalArgumentException("userId", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        finally {
+            PasswordVault.clearArray(passwordChars);
         }
-        checkPasswordNullAndLength(password);
- 
-        //@W9 Start
-        if (isTurkish()) {
-        	userId = userId.toUpperCase(Locale.ENGLISH);
-        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
-        }
-        //@W9 End
-        userId = resolveUserId(userId.toUpperCase());
-
-        ProfileTokenCredential profileToken = new ProfileTokenCredential();
-        try
-        {
-            profileToken.setSystem(this);
-            profileToken.setTokenType(tokenType);
-            profileToken.setTimeoutInterval(timeoutInterval);
-        }
-        catch (PropertyVetoException e)
-        {
-            Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
-            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-        }
-
-        byte[] proxySeed = new byte[9];
-        CredentialVault.rng.nextBytes(proxySeed);
-        synchronized (this)
-        {
-      char[] passwordChars = password.toCharArray();
-      PasswordVault tempVault = new PasswordVault(passwordChars);
-      PasswordVault.clearArray(passwordChars);
-      tempVault.storeEncodedUsingExternalSeeds(proxySeed,
-          impl_.exchangeSeed(proxySeed));
-      impl_.generateProfileToken(profileToken, userId, tempVault, gssName_);
-        }
-        return profileToken;
     }
 
     /**
@@ -2531,21 +2606,18 @@ public class AS400 implements Serializable, AutoCloseable
 
         // Validate parms.
         if (userId == null)
-        {
             throw new NullPointerException("userId");
-        }
+
         if (userId.length() > 10)
-        {
             throw new ExtendedIllegalArgumentException("userId", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
+ 
         checkPasswordNullAndLength(password);
       
-        //@W9 Start
         if (isTurkish()) {
           userId = userId.toUpperCase(Locale.ENGLISH);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        //@W9 End
+
         userId = resolveUserId(userId.toUpperCase());
 
         ProfileTokenCredential profileToken = new ProfileTokenCredential();
@@ -2621,6 +2693,8 @@ public class AS400 implements Serializable, AutoCloseable
                 return "as-ddm";
             case AS400.CENTRAL:
                 return "as-central";
+            case AS400.HOSTCNN:
+                return "as-hostcnn-s";
             case AS400.SIGNON:
                 return "as-signon";
             default:
@@ -2647,7 +2721,7 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting service port, service:", service);
         // Validate parameter.
-        if (service < 0 || service > 7)
+        if (service < 0 || service > 8)
         {
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
@@ -3072,27 +3146,24 @@ public class AS400 implements Serializable, AutoCloseable
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System name is 'localhost'.");
             return true;
         }
-        else
-        {
-            try
-            {
-                InetAddress localInet = InetAddress.getLocalHost();
-                InetAddress[] remoteInet = InetAddress.getAllByName(systemName);
 
-                for (int i = 0; i < remoteInet.length; ++i)
-                {
-                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Comparing local address " + localInet + " to " + remoteInet[i]);
-                    if (localInet.equals(remoteInet[i]))
-                    {
-                        return true;
-                    }
-                }
-            }
-            catch (UnknownHostException e)
+        try
+        {
+            InetAddress localInet = InetAddress.getLocalHost();
+            InetAddress[] remoteInet = InetAddress.getAllByName(systemName);
+
+            for (int i = 0; i < remoteInet.length; ++i)
             {
-                Trace.log(Trace.ERROR, "Error retrieving host address information:", e);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Comparing local address " + localInet + " to " + remoteInet[i]);
+                if (localInet.equals(remoteInet[i]))
+                    return true;
             }
         }
+        catch (UnknownHostException e)
+        {
+            Trace.log(Trace.ERROR, "Error retrieving host address information:", e);
+        }
+
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "System name is not local.");
         return false;
     }
@@ -3153,9 +3224,7 @@ public class AS400 implements Serializable, AutoCloseable
     static Object loadImpl(String impl)
     {
         if (impl.indexOf ('.') == -1)
-        {
             impl = "com.ibm.as400.access." + impl;
-        }
 
         if (Trace.traceOn_ && alreadyCheckedForMultipleVersions_++ < 10)
         {
@@ -3176,8 +3245,8 @@ public class AS400 implements Serializable, AutoCloseable
                     String loadPath = loadUrl.getPath();
                     Trace.log(Trace.DIAGNOSTIC, "Path of AS400 class:", thisPath);
                     Trace.log(Trace.DIAGNOSTIC, "Path of loaded impl class:", loadPath);
-                    String thisDirPath = thisPath.length() <= thisFileName.length() ? "" : thisPath.substring(0, thisPath.length() - thisFileName.length() - 1);
-                    String loadDirPath = loadPath.length() <= loadFileName.length() ? "" : loadPath.substring(0, loadPath.length() - loadFileName.length() - 1);
+                    String thisDirPath = (thisPath.length() <= thisFileName.length()) ? "" : thisPath.substring(0, thisPath.length() - thisFileName.length() - 1);
+                    String loadDirPath = (loadPath.length() <= loadFileName.length()) ? "" : loadPath.substring(0, loadPath.length() - loadFileName.length() - 1);
                     if (!thisDirPath.equals(loadDirPath))
                     {
                       Trace.log(Trace.WARNING, "Toolbox classes found in two different locations: " + thisDirPath + " and " + loadDirPath);
@@ -3326,7 +3395,9 @@ public class AS400 implements Serializable, AutoCloseable
             SignonHandler soHandler = getSignonHandler();
 
             // If something isn't set, go to prompt state.
-            if (credVault_.getType() == AUTHENTICATION_SCHEME_PASSWORD && (systemName_.length() == 0 || userId_.length() == 0 || credVault_.isEmpty() || !(soHandler instanceof ToolboxSignonHandler) || forcePrompt_))  //@prompt   @mds
+            if (credVault_.getType() == AUTHENTICATION_SCHEME_PASSWORD 
+                    && (systemName_.length() == 0 || userId_.length() == 0 || credVault_.isEmpty() 
+                          || !(soHandler instanceof ToolboxSignonHandler) || forcePrompt_))
             {
                 pwState = PROMPT;
             }
@@ -3565,8 +3636,8 @@ public class AS400 implements Serializable, AutoCloseable
 
         //@W9 Start
         if (isTurkish()) {
-        	userId = userId.toUpperCase(Locale.ENGLISH);
-        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+            userId = userId.toUpperCase(Locale.ENGLISH);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
         //@W9 End
         userId = resolveUserId(userId.toUpperCase());
@@ -3819,8 +3890,11 @@ public class AS400 implements Serializable, AutoCloseable
 
 
     public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor) {
-        additionalAuthenticationFactor_ = additionalAuthenticationFactor;
+        additionalAuthenticationFactor_ = null;
+        if (null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length )
+            additionalAuthenticationFactor_ = additionalAuthenticationFactor;
     }
+    
     // Store information in password cache.
     private static void setCacheEntry(String systemName, String userId, CredentialVault pwVault) // @mds
     {
@@ -3860,9 +3934,7 @@ public class AS400 implements Serializable, AutoCloseable
         }
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
-        {
             ccsid_ = ccsid;
-        }
         else
         {
             Integer oldValue = Integer.valueOf(ccsid_);
@@ -3881,7 +3953,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name corresponds to the independent auxiliary storage pool (IASP) that it is using on the system.  The RDB name cannot be changed while this object is actively connected to the {@link #RECORDACCESS RECORDACCESS} service; you must call {@link #disconnectService(int) AS400.disconnectService(AS400.RECORDACCESS)} first.
+     Sets the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name 
+     corresponds to the independent auxiliary storage pool (IASP) that it is using on the system.  The RDB name 
+     cannot be changed while this object is actively connected to the {@link #RECORDACCESS RECORDACCESS} service;
+     you must call {@link #disconnectService(int) AS400.disconnectService(AS400.RECORDACCESS)} first.
      @param  ddmRDB  The name of the IASP or RDB to use, or null to indicate the default system ASP should be used.
      @see  #isConnected(int)
      @see  #getDDMRDB
@@ -3901,7 +3976,7 @@ public class AS400 implements Serializable, AutoCloseable
         {
             throw new ExtendedIllegalStateException("ddmRDB", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
-        ddmRDB_ = (ddmRDB == null ? null : ddmRDB.toUpperCase());
+        ddmRDB_ = ((ddmRDB == null) ? null : ddmRDB.toUpperCase());
     }
 
     /**
@@ -3934,25 +4009,23 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting the default user, system name: '" + systemName + "' user ID: '" + userId + "'");
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         if (userId == null)
-        {
             throw new NullPointerException("userId");
-        }
+
         if (userId.length() > 10)
         {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
 
         systemName = resolveSystem(systemName);
-        //@W9 Start
+
         if (isTurkish()) {
-        	userId = userId.toUpperCase(Locale.ENGLISH);
-        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+            userId = userId.toUpperCase(Locale.ENGLISH);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        //@W9 End
+
         userId = resolveUserId(userId.toUpperCase());
 
         synchronized (AS400.defaultUsers)
@@ -3989,9 +4062,7 @@ public class AS400 implements Serializable, AutoCloseable
     public void setGSSCredential(GSSCredential gssCredential)
     {
         if (gssCredential == null)
-        {
             throw new NullPointerException("gssCredential");
-        }
 
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS credential: '" + gssCredential + "'");
 
@@ -4036,9 +4107,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS name: '" + gssName + "'");
 
         if (gssName == null)
-        {
             throw new NullPointerException("gssName");
-        }
 
         synchronized (this)
         {
@@ -4090,9 +4159,8 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting locale: " + locale);
         if (locale == null)
-        {
             throw new NullPointerException("locale");
-        }
+
         if (propertiesFrozen_)
         {
             Trace.log(Trace.ERROR, "Cannot set locale after connection has been made.");
@@ -4124,18 +4192,17 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting locale: " + locale + ", nlv: " + nlv_);
         if (locale == null)
-        {
             throw new NullPointerException("locale");
-        }
+
         if (nlv == null)
-        {
             throw new NullPointerException("nlv");
-        }
+
         if (propertiesFrozen_)
         {
             Trace.log(Trace.ERROR, "Cannot set locale after connection has been made.");
             throw new ExtendedIllegalStateException("locale", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
+        
         locale_ = locale;
         nlv_ = nlv;
     }
@@ -4241,16 +4308,13 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public void setPassword(String password)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting password.");
-
-        checkPasswordNullAndLength(password);
-                synchronized (this)
-        {
-            credVault_.empty();
-         char[] passwordChars = password.toCharArray(); 
-           credVault_ = new PasswordVault(passwordChars);
+        char[] passwordChars = (password == null) ? null : password.toCharArray(); 
+        
+        try {
+            setPassword(passwordChars);
+        }
+        finally {
             PasswordVault.clearArray(passwordChars);
-            signonInfo_ = null;
         }
     }
 
@@ -4294,9 +4358,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting profile token.");
 
         if (profileToken == null)
-        {
             throw new NullPointerException("profileToken");
-        }
 
         synchronized (this)
         {
@@ -4323,9 +4385,7 @@ public class AS400 implements Serializable, AutoCloseable
         }
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
-        {
             proxyServer_ = resolveProxyServer(proxyServer);
-        }
         else
         {
             String oldValue = proxyServer_;
@@ -4524,9 +4584,7 @@ public class AS400 implements Serializable, AutoCloseable
         }
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
-        {
             threadUsed_ = useThreads;
-        }
         else
         {
             Boolean oldValue = Boolean.valueOf(threadUsed_);
@@ -4554,9 +4612,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting use default user:", useDefaultUser);
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
-        {
             useDefaultUser_ = useDefaultUser;
-        }
         else
         {
             Boolean oldValue = Boolean.valueOf(useDefaultUser_);
@@ -4585,9 +4641,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting use password cache:", usePasswordCache);
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
-        {
             usePasswordCache_ = usePasswordCache;
-        }
         else
         {
             Boolean oldValue = Boolean.valueOf(usePasswordCache_);
@@ -4606,7 +4660,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the user ID for this object.  The user ID cannot be changed once a connection to the system has been established.  If this method is used in conjunction with a Kerberos ticket, profile token, or identity token, the user profile associated with the authentication token must match this user ID.
+     Sets the user ID for this object.  The user ID cannot be changed once a connection to the system has been established.  If this 
+     method is used in conjunction with a Kerberos ticket, profile token, or identity token, the user profile associated with 
+     the authentication token must match this user ID.
      @param  userId  The user profile name.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -4614,9 +4670,8 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting user ID: '" + userId + "'");
         if (userId == null)
-        {
             throw new NullPointerException("userId");
-        }
+
         if (userId.equals(userId_)) return;
         if (userId.length() > 10)
         {
@@ -4631,15 +4686,13 @@ public class AS400 implements Serializable, AutoCloseable
         
         //@W9 Start
         if (isTurkish()) {
-        	userId = userId.toUpperCase(Locale.ENGLISH);
-        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+            userId = userId.toUpperCase(Locale.ENGLISH);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
         //@W9 End
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
-        {
             userId_ = userId.toUpperCase();
-        }
         else
         {
             String oldValue = userId_;
@@ -4660,7 +4713,6 @@ public class AS400 implements Serializable, AutoCloseable
     // Initiate sign-on to the system.  This method is synchronized to prevent more than one thread from needlessly signing-on.  This method can safely be called multiple times because it checks for a previous sign-on before performing the sign-on code.
     synchronized void signon(boolean keepConnection) throws AS400SecurityException, IOException
     {
-        
         // If we haven't already signed on.
         if (signonInfo_ == null)
         {
@@ -4706,7 +4758,8 @@ public class AS400 implements Serializable, AutoCloseable
             try
             {
                 // If the system name is set, we're not using proxy, and the password is not set, and the user has not told us not to.
-                if (systemName_.length() != 0 && proxyServer_.length() == 0 && credVault_.isEmpty() && (credVault_.getType() == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ != AS400.GSS_OPTION_NONE))
+                if (systemName_.length() != 0 && proxyServer_.length() == 0 && credVault_.isEmpty() 
+                        && (credVault_.getType() == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ != AS400.GSS_OPTION_NONE))
                 {
                     // Try for Kerberos.
                     byte[] newBytes = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) :
@@ -4825,45 +4878,24 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public boolean validateSignon(String password) throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating Signon, with password.");
-
-        if (password == null)
-        {
-            throw new NullPointerException("password");
+        char[] passwordChars = (password == null) ? null : password.toCharArray();
+        
+        try {
+           return validateSignon(passwordChars);
         }
-        if (password.length() > 128)
-        {
-            throw new ExtendedIllegalArgumentException("password.length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
-
-        if (systemName_.length() == 0 && !systemNameLocal_)
-        {
-            Trace.log(Trace.ERROR, "Cannot validate signon before system name is set.");
-            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-        }
-        userId_ = resolveUserId(userId_);
-        if (userId_.length() == 0)
-        {
-            Trace.log(Trace.ERROR, "Cannot validate signon before user ID is set.");
-            throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-        }
-
-        char[] passwordChars = password.toCharArray(); 
-        PasswordVault tempVault = new PasswordVault(passwordChars);
+        finally {
             PasswordVault.clearArray(passwordChars);
-        return validateSignon(userId_, tempVault);
+        }
     }
 
-     private void  checkPasswordNullAndLength(char [] password) { 
+     private void  checkPasswordNullAndLength(char [] password)
+     { 
         if (password == null)
-        {
             throw new NullPointerException("password");
-        }
+
         if (password.length > 128)
-        {
             throw new ExtendedIllegalArgumentException("password.length {" + password.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
-      }
+     }
 
     /**
      Validates the user ID and password on the system but does not add to the signed-on list.  The user ID and system name need to be set before calling this method.
@@ -4893,30 +4925,24 @@ public class AS400 implements Serializable, AutoCloseable
         return validateSignon(userId_, tempVault);
     }
 
-      private void checkPasswordNullAndLength(String password) { 
-           checkPasswordNullAndLength(password,"password");
-           
-      }
-      private void checkPasswordNullAndLength(String password, String label) { 
+      private void checkPasswordNullAndLength(String password, String label)
+      { 
         if (password == null)
-        {
             throw new NullPointerException(label);
-        }
+
         if (password.length() > 128)
-        {
             throw new ExtendedIllegalArgumentException(label+".length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
       }
-      private void checkPasswordNullAndLength(char[] password, String label) { 
+      
+      private void checkPasswordNullAndLength(char[] password, String label)
+      { 
         if (password == null)
-        {
             throw new NullPointerException(label);
-        }
+
         if (password.length > 128)
-        {
             throw new ExtendedIllegalArgumentException(label+".length {" + password.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
       }
+      
     /**
      Validates the user ID and password on the system but does not add to the signed-on list.  The system name needs to be set prior to calling this method.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
@@ -4929,36 +4955,15 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public boolean validateSignon(String userId, String password) throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating signon, user ID: '" + userId + "'");
-
-        if (userId == null)
-        {
-            throw new NullPointerException("userId");
+        char[] passwordChars = (password == null) ? null : password.toCharArray();
+        
+        try {
+            return validateSignon(userId, passwordChars, null);
         }
-        if (userId.length() > 10)
-        {
-            throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
-        checkPasswordNullAndLength(password);
-
-        if (systemName_.length() == 0 && !systemNameLocal_)
-        {
-            Trace.log(Trace.ERROR, "Cannot validate signon before system name is set.");
-            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-        }
-
-        char[] passwordChars = password.toCharArray(); 
-        PasswordVault tempVault = new PasswordVault(passwordChars);
+        finally {
             PasswordVault.clearArray(passwordChars);
-        //@W9 Start
-        if (isTurkish()) {
-        	userId = userId.toUpperCase(Locale.ENGLISH);
-        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        //@W9 End
-        return validateSignon(userId.toUpperCase(), tempVault, additionalAuthenticationFactor_);
     }
-
 
         /**
      Validates the user ID and password on the system but does not add to the signed-on list.  The system name needs to be set prior to calling this method.
@@ -4989,13 +4994,11 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating signon, user ID: '" + userId + "'");
 
         if (userId == null)
-        {
             throw new NullPointerException("userId");
-        }
+
         if (userId.length() > 10)
-        {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
+
         checkPasswordNullAndLength(password);
  
         if (systemName_.length() == 0 && !systemNameLocal_)
@@ -5005,12 +5008,11 @@ public class AS400 implements Serializable, AutoCloseable
         }
 
         PasswordVault tempVault = new PasswordVault(password);
-        //@W9 Start
+
         if (isTurkish()) {
           userId = userId.toUpperCase(Locale.ENGLISH);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        //@W9 End
         return validateSignon(userId.toUpperCase(), tempVault, additionalAuthenticationFactor);
     }
 
@@ -5028,7 +5030,8 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) {
             Trace.log(Trace.DIAGNOSTIC, "Creating temporary connection for validating signon info.");
         }
-        try (AS400 validationSystem = new AS400(systemName_, userId, pwVault, additionalAuthenticationFactor)) {
+        try (AS400 validationSystem = new AS400(systemName_, userId, pwVault, additionalAuthenticationFactor))
+        {
             validationSystem.proxyServer_ = proxyServer_;
             // proxyClientConnection_ is not needed.
             validationSystem.guiAvailable_ = false;
@@ -5124,22 +5127,22 @@ public class AS400 implements Serializable, AutoCloseable
     //@W9 Start
     //For Turkish
     public static boolean isTurkish() {
-    	Locale defaultLocale = Locale.getDefault();
-    	Locale Turkishlocale = new Locale("tr", "TR", "");
-    	if (defaultLocale.equals(Turkishlocale) ) {return true;
-    	} else {
-    		return false;
-    	}
+        Locale defaultLocale = Locale.getDefault();
+        Locale Turkishlocale = new Locale("tr", "TR", "");
+        if (defaultLocale.equals(Turkishlocale) ) {return true;
+        } else {
+            return false;
+        }
     }
     //@W9 End
     
     //@Z6A Start
     public int getvalidateSignonTimeOut() {
-    	return validateSignonTimeOut_;
+        return validateSignonTimeOut_;
     }
     
     public void setvalidateSignonTimeOut(int validateSignonTimeOut) {
-    	validateSignonTimeOut_ = validateSignonTimeOut;
+        validateSignonTimeOut_ = validateSignonTimeOut;
     }
     //@Z6A End
     
@@ -5161,7 +5164,7 @@ public class AS400 implements Serializable, AutoCloseable
         signon(false);
         int pwdlvl = -1;
         if (impl_ instanceof AS400ImplRemote)
-        	pwdlvl = ((AS400ImplRemote)impl_).getPasswordLevel();
+            pwdlvl = ((AS400ImplRemote)impl_).getPasswordLevel();
         
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Use password level: " + pwdlvl);
 
@@ -5172,4 +5175,165 @@ public class AS400 implements Serializable, AutoCloseable
     public void close() {
         disconnectAllServices();
     }
+    
+    // Method to ensure operations for secure AS400 instances are enforced.
+    private void ensureSecureInstance()
+    {
+        if (!isSecure())
+        {
+            Trace.log(Trace.ERROR, "Cannot perform opertation on non-secure AS400 object. ");
+            throw new ExtendedIllegalStateException(ExtendedIllegalStateException.IMPLEMENTATION_NOT_FOUND);
+        }
+    }
+    
+    /**
+    Returns true if host server communications is performed over a secure channel. 
+    @return  true if communications is done over secure channel; otherwise false.
+    **/
+    public boolean isSecure() {
+        return (this instanceof SecureAS400);
+    }
+    
+    // ======== START =================
+    // Following chunk of code moved from SecureAS400
+    // ======== START =================
+    
+    /**
+    Returns the key ring class name used for SSL communications with the system.  The 
+    class <i>com.ibm.as400.access.KeyRing</i> is the default and will be returned if not overridden.
+     <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    @return  The key ring class name.
+    @deprecated
+    **/
+   public String getKeyRingName()
+   {
+       ensureSecureInstance();
+       
+       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting key ring name: null"    );
+       return null; 
+   }
+
+   /**
+    Returns the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications 
+    between the client, proxy server, and IBM i system are encrypted.
+    <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    @return  The proxy encryption mode.
+    **/
+   public int getProxyEncryptionMode()
+   {
+       ensureSecureInstance();
+       
+       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting proxy encryption mode:", useSSLConnection_.proxyEncryptionMode_);
+       return useSSLConnection_.proxyEncryptionMode_;
+   }
+
+   /**
+    Sets the key ring class name used for SSL communications with the system.  
+    This method is no longer supported because sslight is not longer supported. 
+    <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    @param  keyRingName  The key ring class name.
+    @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+    **/
+   public void setKeyRingName(String keyRingName) throws PropertyVetoException
+   {
+       ensureSecureInstance();
+
+       Trace.log(Trace.ERROR, "Cannot set key ring class name  -- no sslight support ");
+       throw new ExtendedIllegalStateException("keyRingName", ExtendedIllegalStateException.IMPLEMENTATION_NOT_FOUND);
+   }
+
+   /**
+    Sets the key ring class name used for SSL communications with the system.  
+    This method is no longer available since support for sslight has been removed. 
+     <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    @param  keyRingName  The key ring class name.
+    @param  keyRingPassword  The password for the key ring class.
+    @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+    **/
+   public void setKeyRingName(String keyRingName, String keyRingPassword) throws PropertyVetoException
+   {
+     ensureSecureInstance();
+
+     Trace.log(Trace.ERROR, "Cannot set key ring class name  -- no sslight support ");
+     throw new ExtendedIllegalStateException("keyRingName", ExtendedIllegalStateException.IMPLEMENTATION_NOT_FOUND);
+
+   }
+
+   /**
+    Sets the key ring password used for SSL communications with the system.
+     <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    @param  keyRingPassword  The password for the key ring class.
+    @deprecated
+    **/
+   public void setKeyRingPassword(String keyRingPassword)
+   {
+       ensureSecureInstance();
+
+       Trace.log(Trace.ERROR, "Cannot set key ring class password.");
+       throw new ExtendedIllegalStateException("keyRingPassword", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+   }
+
+   /**
+    Sets the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications between the client, proxy server, and IBM i system are encrypted.  The default is to encrypt all communications.  This value is ignored if a proxy server is not used.
+    <br>Valid proxy encryption modes are:
+    <br>{@link #CLIENT_TO_PROXY_SERVER CLIENT_TO_PROXY_SERVER} - encrypt between client and proxy server.
+    <br>{@link #PROXY_SERVER_TO_SERVER PROXY_SERVER_TO_SERVER} - encrypt between proxy server and IBM i system.
+    <br>{@link #CLIENT_TO_SERVER CLIENT_TO_SERVER} - encrypt both portions of connection.
+    <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    @param  proxyEncryptionMode  The proxy encryption mode.
+    @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+    **/
+   public void setProxyEncryptionMode(int proxyEncryptionMode) throws PropertyVetoException
+   {
+       ensureSecureInstance();
+
+       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting proxy encryption mode:", proxyEncryptionMode);
+       
+       // Validate parameter.
+       if (proxyEncryptionMode < CLIENT_TO_PROXY_SERVER ||
+           proxyEncryptionMode > CLIENT_TO_SERVER)
+       {
+           Trace.log(Trace.ERROR, "Value of parameter 'proxyEncryptionMode' is not valid:", proxyEncryptionMode);
+           throw new ExtendedIllegalArgumentException("proxyEncryptionMode (" + proxyEncryptionMode + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+       }
+       if (propertiesFrozen_)
+       {
+           Trace.log(Trace.ERROR, "Cannot set proxy encryption mode after connection has been made.");
+           throw new ExtendedIllegalStateException("proxyEncryptionMode", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+       }
+
+       Integer oldValue = Integer.valueOf(useSSLConnection_.proxyEncryptionMode_);
+       Integer newValue = Integer.valueOf(proxyEncryptionMode);
+       if (vetoableChangeListeners_ != null)
+       {
+         vetoableChangeListeners_.fireVetoableChange("proxyEncryptionMode", oldValue, newValue);
+       }
+
+       useSSLConnection_.proxyEncryptionMode_ = proxyEncryptionMode;
+
+       if (propertyChangeListeners_ != null)
+       {
+         propertyChangeListeners_.firePropertyChange("proxyEncryptionMode", oldValue, newValue);
+       }
+   }
+   
+   /**
+    Set list of cipher suites. 
+    <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    @param suites Array of cipher suites.
+    **/
+    public void setEnabledCipherSuites(String[] suites)
+    {
+        ensureSecureInstance();
+
+        if (suites != null && suites.length > 0)
+        {
+            changeCipherSuites = true;
+            newCipherSuites = suites;
+        }
+    }
+    
+    // ======== END =================
+    // Previous chunk of code moved from SecureAS400
+    // ======== END =================
 }

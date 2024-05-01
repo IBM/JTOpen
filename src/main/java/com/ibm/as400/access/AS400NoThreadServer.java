@@ -19,6 +19,9 @@ import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.Hashtable;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 class AS400NoThreadServer extends AS400Server
 {
@@ -38,10 +41,9 @@ class AS400NoThreadServer extends AS400Server
     private DataStream exchangeAttrReply_ = null;
     private Vector replyList_ = new Vector(5);
     private Vector discardList_ = new Vector();
-    private int lastCorrelationId_ = 0;
-    private class CorrelationIdLock extends Object {}          //@C7A
+    private AtomicInteger lastCorrelationId_ = new AtomicInteger();
 
-    private CorrelationIdLock correlationIdLock_ = new CorrelationIdLock(); //@C7C
+    private final Lock thisLock = new ReentrantLock();
 
     private boolean closed_ = false;
 
@@ -59,11 +61,13 @@ class AS400NoThreadServer extends AS400Server
         replyStreams_ = AS400Server.replyStreamsHashTables[service];
     }
 
+    @Override
     int getService()
     {
         return service_;
     }
 
+    @Override
     String getJobString()
     {
         return jobString_;
@@ -74,16 +78,19 @@ class AS400NoThreadServer extends AS400Server
         jobString_ = jobString;
     }
 
+    @Override
     boolean isConnected()
     {
         return closed_ == false;
     }
 
+    @Override
     public DataStream getExchangeAttrReply()
     {
         return exchangeAttrReply_;
     }
 
+    @Override
     public synchronized DataStream sendExchangeAttrRequest(DataStream req) throws IOException
     {
         if (exchangeAttrReply_ == null)
@@ -93,16 +100,19 @@ class AS400NoThreadServer extends AS400Server
         return exchangeAttrReply_;
     }
 
+    @Override
     void addInstanceReplyStream(DataStream replyStream)
     {
         instanceReplyStreams_.put(replyStream, replyStream);
     }
 
+    @Override
     void clearInstanceReplyStreams()
     {
         instanceReplyStreams_.clear();
     }
 
+    @Override
     public DataStream sendAndReceive(DataStream requestStream) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and receive(): ..."); //@pdc 
@@ -110,6 +120,7 @@ class AS400NoThreadServer extends AS400Server
         return receive(correlationID);
     }
 
+    @Override
     void sendAndDiscardReply(DataStream requestStream) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and discard(): ..."); //@pdc
@@ -117,7 +128,7 @@ class AS400NoThreadServer extends AS400Server
         discardList_.addElement(Integer.valueOf(correlationID));
     }
 
-    //@M8a
+    @Override
     final void sendAndDiscardReply(DataStream requestStream,int correlationID) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and discard(): ...");
@@ -125,6 +136,7 @@ class AS400NoThreadServer extends AS400Server
         discardList_.addElement(Integer.valueOf(correlationID));
     }
     
+    @Override
     int send(DataStream requestStream) throws IOException
     {
       if (Trace.traceOn_) {
@@ -137,15 +149,13 @@ class AS400NoThreadServer extends AS400Server
         return correlationID;
     }
 
+    @Override
     int newCorrelationId()
     {
-        synchronized (correlationIdLock_)
-        {
-          if (++lastCorrelationId_ == 0) lastCorrelationId_ = 1; //@P0C
-          return lastCorrelationId_; //@P0C
-        }
+        return lastCorrelationId_.incrementAndGet();
     }
 
+    @Override
     void send(DataStream requestStream, int correlationId) throws IOException
     {
       if (Trace.traceOn_) {
@@ -156,13 +166,15 @@ class AS400NoThreadServer extends AS400Server
         requestStream.write(outStream_);
     }
 
-    synchronized DataStream receive(int correlationId) throws IOException
+    @Override
+    DataStream receive(int correlationId) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "AS400Server receive"); //@pdc
-        DataStream reply = null;
-        do
-        {
-            synchronized (replyList_)
+        try {
+            thisLock.lock();
+
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "AS400Server receive"); //@pdc
+            DataStream reply = null;
+            do
             {
                 if (!replyList_.isEmpty())
                 {
@@ -177,7 +189,6 @@ class AS400NoThreadServer extends AS400Server
                         }
                     }
                 }
-            }
 
             if (reply == null)
             {
@@ -218,12 +229,16 @@ class AS400NoThreadServer extends AS400Server
             else
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "received(): valid reply received...", correlationId); //@pdc
+            	}
             }
+            while (reply == null);
+            return reply;
+        } finally {
+            thisLock.unlock();
         }
-        while (reply == null);
-        return reply;
     }
 
+    @Override
     void forceDisconnect()
     {
         closed_ = true;
@@ -250,12 +265,24 @@ class AS400NoThreadServer extends AS400Server
         }
     }
 
+    @Override
     int getSoTimeout() throws SocketException {
       return socket_.getSoTimeout(); 
     }
 
+    @Override
     void setSoTimeout(int timeout) throws SocketException {
       socket_.setSoTimeout(timeout); 
       
+    }
+
+    @Override
+    public void setExchangeAttrReply(DataStream xChgAttrReply) {
+      exchangeAttrReply_ = xChgAttrReply;
+    }
+
+    @Override
+    public SocketContainer getSocket() {
+      return socket_;
     }
 }

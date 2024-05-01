@@ -34,6 +34,8 @@ earlier code streams. Key differences include:
    - jt400Android
    - jt400Micro
    - jt400Proxy
+   - jt400Servlet
+   
    If you need these packages, please acquire older versions from the [archive site on sourceforge](http://jt400.sourceforge.net)
    (**breaking change**)
 

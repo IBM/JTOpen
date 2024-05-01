@@ -48,6 +48,8 @@ import java.sql.Types;
 /* endif */ 
 import java.util.Calendar;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /* ifdef JDBC42
 import java.sql.SQLType; 
@@ -211,7 +213,7 @@ implements ResultSet
     private PreparedStatement           deleteStatement_;
     private int                         fetchDirection_;
     private int                         fetchSize_;
-    private AS400JDBCStatementLock      internalLock_;      // @D1A @C7C
+    private Lock                        internalLock;      // @D1A @C7C
     private int                         maxRows_;
     private InputStream                 openInputStream_;
     private Reader                      openReader_;
@@ -292,9 +294,9 @@ implements ResultSet
         fetchDirection_         = fetchDirection;
         fetchSize_              = fetchSize;
         if (statement != null) { 
-          internalLock_ = statement.getInternalLock(); 
+          internalLock = statement.getInternalLock(); 
         } else { 
-          internalLock_  = new AS400JDBCStatementLock();  // @D1A
+          internalLock  = new ReentrantLock();  // @D1A
         }
         maxRows_                = maxRows;
         openInputStream_        = null;
@@ -505,8 +507,9 @@ implements ResultSet
     public void close ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // If this is already closed, then just do nothing.
             // 
             // The spec does not define what happens when a connection
@@ -535,6 +538,8 @@ implements ResultSet
                 JDTrace.logException(this, "Closing info", sqlex);
                 JDTrace.logClose (this);
             }
+        } finally {
+           internalLock.unlock();
         }
     }
 
@@ -576,10 +581,13 @@ implements ResultSet
     public int findColumn (String columnName)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             checkOpen ();
             return row_.findField ((columnName != null) ? columnName : "");
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -601,8 +609,9 @@ implements ResultSet
     public int getConcurrency ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             checkOpen ();
             
             //@cur return value from cursor attribues if exists else return value as done in pre 550
@@ -618,6 +627,8 @@ implements ResultSet
             }                                                                    //@cur
             else                                                                 //@cur
                 return concurrency_;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -644,10 +655,12 @@ implements ResultSet
     public String getCursorName ()
     throws SQLException
     {
-        synchronized(internalLock_)
-        {                                            // @D1A
+    	try {
+    		internalLock.lock();
             checkOpen ();
             return cursorName_;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -672,10 +685,13 @@ implements ResultSet
     public int getFetchDirection ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             checkOpen ();
             return fetchDirection_;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -692,10 +708,13 @@ implements ResultSet
     public int getFetchSize ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             checkOpen ();
             return fetchSize_;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -768,8 +787,9 @@ implements ResultSet
     public int getType ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             checkOpen ();
 
             // Always return FORWARD_ONLY if the application requested forward only
@@ -791,6 +811,8 @@ implements ResultSet
             }                                                                            //@cur
             else                                                                         //@cur
                 return type_;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -814,8 +836,9 @@ implements ResultSet
     public URL getURL (int columnIndex)
     throws SQLException   
     {
-        synchronized(internalLock_)
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             checkOpen ();
             try
             {   String string = getString(columnIndex);
@@ -830,6 +853,8 @@ implements ResultSet
                 JDError.throwSQLException (JDError.EXC_DATA_TYPE_MISMATCH, e);
                 return null;
             }
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1015,8 +1040,9 @@ void postWarningSQLState(String sqlState)  {
     public void setFetchDirection (int fetchDirection)
     throws SQLException
     {
-        synchronized(internalLock_)
-        {                                            // @D1A //@cur
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             if(((fetchDirection != FETCH_FORWARD)
                 && (fetchDirection != FETCH_REVERSE)
                 && (fetchDirection != FETCH_UNKNOWN))
@@ -1029,6 +1055,8 @@ void postWarningSQLState(String sqlState)  {
 
             if(JDTrace.isTraceOn())
                 JDTrace.logProperty (this, "setFetchDirection", "Fetch direction", fetchDirection_);
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1056,8 +1084,9 @@ void postWarningSQLState(String sqlState)  {
     public void setFetchSize (int fetchSize)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             if((fetchSize < 0)
                || ((fetchSize > maxRows_) && (maxRows_ > 0)))
                 JDError.throwSQLException (JDError.EXC_ATTRIBUTE_VALUE_INVALID);
@@ -1073,6 +1102,8 @@ void postWarningSQLState(String sqlState)  {
 
             if(JDTrace.isTraceOn())
                 JDTrace.logProperty (this, "setFetchSize", "Fetch size", fetchSize_);
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1183,8 +1214,9 @@ void postWarningSQLState(String sqlState)  {
     public boolean absolute (int rowNumber)
     throws SQLException
     {
-        synchronized(internalLock_)                                              // @D1A
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             // @E2a absolute(0) moves you to before the first row
             if(rowNumber == 0)                                     // @E2a
             {
@@ -1290,6 +1322,8 @@ void postWarningSQLState(String sqlState)  {
             }
 
             return positionValid_;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1326,10 +1360,13 @@ void postWarningSQLState(String sqlState)  {
         //   New code (note we don't do beforePositioning(true) because that is
         //   done in last())
         //   
-        synchronized(internalLock_)                             
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             last();
             next();
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1365,11 +1402,14 @@ void postWarningSQLState(String sqlState)  {
         //   New code (note we don't do beforePositioning(true) because that is
         //   done in last())
         //   
-        synchronized(internalLock_)                             
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             first();
             previous();
             positionFromLast_ = -1;//@GRA for returning correct value from getRow() after a select and insertRow()
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1505,8 +1545,9 @@ void postWarningSQLState(String sqlState)  {
     public boolean first ()
     throws SQLException
     {
-        synchronized(internalLock_)                                              // @D1A
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             beforePositioning (true);
             rowCache_.first ();
 
@@ -1538,6 +1579,8 @@ void postWarningSQLState(String sqlState)  {
             }
 
             return positionValid_;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1574,8 +1617,9 @@ void postWarningSQLState(String sqlState)  {
     public int getRow ()
     throws SQLException
     {
-        synchronized(internalLock_)                                         // @D1A
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             checkOpen ();
 
             // @E1
@@ -1665,6 +1709,8 @@ void postWarningSQLState(String sqlState)  {
                 JDTrace.logInformation (this, "Could not determine row number in getRow().");
 
             return 0;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1683,13 +1729,16 @@ void postWarningSQLState(String sqlState)  {
     public boolean isAfterLast ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             checkOpen ();
             return((positionFromLast_ == 0)
                    && (positionFromFirst_ != 0)
                    && (positionInsert_ == false)
                    && (! rowCache_.isEmpty ()));
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1708,13 +1757,16 @@ void postWarningSQLState(String sqlState)  {
     public boolean isBeforeFirst ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             checkOpen ();
             return((positionFromFirst_ == 0)
                    && (positionFromLast_ != 0)
                    && (positionInsert_ == false)
                    && (! rowCache_.isEmpty ()));
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1733,10 +1785,13 @@ void postWarningSQLState(String sqlState)  {
     public boolean isFirst ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             checkOpen ();              
             return((positionFromFirst_ == 1) && (positionInsert_ == false));
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1755,8 +1810,9 @@ void postWarningSQLState(String sqlState)  {
     public boolean isLast ()
     throws SQLException
     {
-        synchronized(internalLock_)                                              // @D1A
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             checkOpen ();
             // @E2c -- Problem: if scrolling forward we don't know
             //         if we are on the last row until next() is called.
@@ -1785,6 +1841,8 @@ void postWarningSQLState(String sqlState)  {
             previous();     
 
             return returnValue;                        
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1807,8 +1865,9 @@ void postWarningSQLState(String sqlState)  {
     public boolean last ()
     throws SQLException
     {
-        synchronized(internalLock_)                                              // @D1A
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             beforePositioning (true);         
 
             if(maxRows_ > 0)                                    // @E3a
@@ -1854,6 +1913,8 @@ void postWarningSQLState(String sqlState)  {
             }
 
             return positionValid_;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1877,9 +1938,12 @@ void postWarningSQLState(String sqlState)  {
     public void moveToCurrentRow ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             beforePositioning (true);
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1900,11 +1964,14 @@ void postWarningSQLState(String sqlState)  {
     public void moveToInsertRow ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             beforePositioning (true);
             beforeUpdate ();
             positionInsert_ = true;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -1925,8 +1992,9 @@ void postWarningSQLState(String sqlState)  {
     public boolean next ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Initialization.
             beforePositioning (false);
 
@@ -2006,6 +2074,8 @@ void postWarningSQLState(String sqlState)  {
             }
 
             return positionValid_;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2028,8 +2098,9 @@ void postWarningSQLState(String sqlState)  {
     public boolean previous ()
     throws SQLException
     {
-        synchronized(internalLock_)                                              // @D1A
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             // Initialization.
             beforePositioning (true);
 
@@ -2060,6 +2131,8 @@ void postWarningSQLState(String sqlState)  {
             }
 
             return positionValid_;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2082,8 +2155,9 @@ void postWarningSQLState(String sqlState)  {
     public void refreshRow ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             if(positionInsert_ == true)
                 JDError.throwSQLException (JDError.EXC_CURSOR_STATE_INVALID);
             beforePositioning (true);
@@ -2095,6 +2169,8 @@ void postWarningSQLState(String sqlState)  {
                     updateSet_[i] = false;
 
             rowCache_.refreshRow ();
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2130,8 +2206,9 @@ void postWarningSQLState(String sqlState)  {
     public boolean relative (int rowNumber)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Initialization.
             beforePositioning (true);
             //if((positionFromFirst_ == 0) || (positionFromLast_ == 0))  //@rel1 per javadoc, relative(1) <==> next()
@@ -2192,6 +2269,8 @@ void postWarningSQLState(String sqlState)  {
             }
 
             return positionValid_;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2263,14 +2342,17 @@ void postWarningSQLState(String sqlState)  {
     public InputStream getAsciiStream (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getAsciiStream ();
             openInputStream_ = value;
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2321,13 +2403,16 @@ void postWarningSQLState(String sqlState)  {
     public BigDecimal getBigDecimal (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             BigDecimal value = (data == null) ? null : data.getBigDecimal (-1);
             testDataTruncation (columnIndex, data, false); //@trunc getBigDecimal(int) can set truncation_!=0, but we should not throw an SQLEception
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2386,13 +2471,16 @@ void postWarningSQLState(String sqlState)  {
         if(scale < 0)
             JDError.throwSQLException (JDError.EXC_SCALE_INVALID,""+scale);
 
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             BigDecimal value = (data == null) ? null : data.getBigDecimal (scale);
             testDataTruncation (columnIndex, data, false); //@trunc getBigDecimal(int) can set truncation_!=0, but we should not throw an SQLEception
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2447,14 +2535,17 @@ void postWarningSQLState(String sqlState)  {
     public InputStream getBinaryStream (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getBinaryStream ();
             openInputStream_ = value;
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2503,13 +2594,16 @@ void postWarningSQLState(String sqlState)  {
     public Blob getBlob (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Blob value = (data == null) ? null : data.getBlob ();
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2557,13 +2651,16 @@ void postWarningSQLState(String sqlState)  {
     public boolean getBoolean (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             boolean value = (data == null) ? false : data.getBoolean ();
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2612,13 +2709,16 @@ void postWarningSQLState(String sqlState)  {
     public byte getByte (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             byte value = (data == null) ? 0 : data.getByte ();
             testDataTruncation (columnIndex, data, true); //@trunc
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2670,8 +2770,9 @@ void postWarningSQLState(String sqlState)  {
     public byte[] getBytes (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             int sqlType = 0; 
@@ -2741,6 +2842,8 @@ void postWarningSQLState(String sqlState)  {
                 testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             }                                                                           // @C1A
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2794,14 +2897,17 @@ void postWarningSQLState(String sqlState)  {
     public Reader getCharacterStream (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Reader value = (data == null) ? null : data.getCharacterStream ();
             openReader_ = value;
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2851,13 +2957,16 @@ void postWarningSQLState(String sqlState)  {
     public Clob getClob (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Clob value = (data == null) ? null : data.getClob ();
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -2936,13 +3045,16 @@ void postWarningSQLState(String sqlState)  {
     private Date internalGetDate(int columnIndex, Calendar calendar)
     throws SQLException
     {
-        synchronized(internalLock_)
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Date value = (data == null) ? null : data.getDate (calendar);
             testDataTruncation (columnIndex, data, false); //@trunc getDate() can set truncation_!=0, but we should not throw an SQLEception
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -3026,13 +3138,16 @@ void postWarningSQLState(String sqlState)  {
     public double getDouble (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             double value = (data == null) ? 0 : data.getDouble ();
             testDataTruncation (columnIndex, data, true); //@trunc
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -3081,13 +3196,16 @@ void postWarningSQLState(String sqlState)  {
     public float getFloat (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             float value = (data == null) ? 0 : data.getFloat ();
             testDataTruncation (columnIndex, data, true); //@trunc
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -3136,13 +3254,16 @@ void postWarningSQLState(String sqlState)  {
     public int getInt (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             int value = (data == null) ? 0 : data.getInt ();
             testDataTruncation (columnIndex, data, true); //@trunc
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -3191,13 +3312,16 @@ void postWarningSQLState(String sqlState)  {
     public long getLong (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             long value = (data == null) ? 0 : data.getLong ();
             testDataTruncation (columnIndex, data, true); //@trunc
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -3239,8 +3363,9 @@ void postWarningSQLState(String sqlState)  {
     public ResultSetMetaData getMetaData ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             ConvTable convTable = null;                                                              // @G5A
                 // If we have extendedDescriptors, send a ConvTable to convert them, else pass null  // @G5A
                                                                                                      // @P6C
@@ -3252,6 +3377,8 @@ void postWarningSQLState(String sqlState)  {
             return new AS400JDBCResultSetMetaData (catalog_, concurrency_,
                                                    cursorName_, row_, 
                                                    extendedDescriptors_, convTable, connection_);                  // @G5A@P6C //@in1
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -3274,13 +3401,16 @@ void postWarningSQLState(String sqlState)  {
     public Object getObject (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Object value = (data == null) ? null : data.getObject ();
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -3421,13 +3551,16 @@ void postWarningSQLState(String sqlState)  {
     public short getShort (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             short value = (data == null) ? 0 : data.getShort ();
             testDataTruncation (columnIndex, data, true); //@trunc
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -3474,13 +3607,16 @@ void postWarningSQLState(String sqlState)  {
     public String getString (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             String value = (data == null) ? null : data.getString ();
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -3557,13 +3693,16 @@ void postWarningSQLState(String sqlState)  {
     private Time internalGetTime(int columnIndex, Calendar calendar)
     throws SQLException
     {
-        synchronized(internalLock_)
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Time value = (data == null) ? null : data.getTime (calendar);
             testDataTruncation (columnIndex, data, false); //@trunc getTime() can set truncation_!=0, but we should not throw an SQLEception
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -3677,13 +3816,16 @@ void postWarningSQLState(String sqlState)  {
     private Timestamp internalGetTimestamp(int columnIndex, Calendar calendar)
     throws SQLException
     {
-        synchronized(internalLock_)
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             Timestamp value = (data == null) ? null : data.getTimestamp (calendar);
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -3773,14 +3915,17 @@ void postWarningSQLState(String sqlState)  {
     public InputStream getUnicodeStream (int columnIndex)
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
             InputStream value = (data == null) ? null : data.getUnicodeStream ();
             openInputStream_ = value;
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -3929,10 +4074,13 @@ void postWarningSQLState(String sqlState)  {
     public boolean wasNull ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             checkOpen ();
             return wasNull_;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -4011,12 +4159,15 @@ void postWarningSQLState(String sqlState)  {
     public void cancelRowUpdates ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             beforeUpdate ();
 
             for(int i = 0; i < columnCount_; ++i)
                 updateSet_[i] = false;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -4037,8 +4188,9 @@ void postWarningSQLState(String sqlState)  {
     public void deleteRow ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             beforeUpdate ();
 
             if(positionValid_ == false)                                         // @D9a
@@ -4068,6 +4220,8 @@ void postWarningSQLState(String sqlState)  {
             // Mark the cursor position not valid.
             positionValid_ = false;
             rowCache_.flush ();
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -4097,8 +4251,9 @@ void postWarningSQLState(String sqlState)  {
     public void insertRow ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             beforeUpdate ();
 
             if(positionInsert_ == false)
@@ -4167,6 +4322,8 @@ void postWarningSQLState(String sqlState)  {
             insertStatement.close ();
 
             rowCache_.flush ();
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -4192,8 +4349,9 @@ void postWarningSQLState(String sqlState)  {
     public boolean rowDeleted ()
     throws SQLException
     {
-        synchronized(internalLock_)
+        try 
         {                                            // @D1A
+            internalLock.lock();
             // We almost always return false because we don't allow 
             // updates to scroll insensitive or forward only result 
             // sets, so we never have holes.
@@ -4203,6 +4361,8 @@ void postWarningSQLState(String sqlState)  {
             // reposition the cursor.
             return((positionValid_ == false) && (positionInsert_ == false)
                    && ((positionFromFirst_ > 0) || (positionFromLast_ > 0)));
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -5940,7 +6100,9 @@ void postWarningSQLState(String sqlState)  {
     **/
   private void updateValue(int columnIndex, Object columnValue,
       Calendar calendar, int scale) throws SQLException {
-    synchronized (internalLock_) { // @D1A
+      try 
+      {                                            // @D1A
+          internalLock.lock();
       beforeUpdateValue(columnIndex);
 
       // Set the update value. If there is a type mismatch,
@@ -6017,7 +6179,9 @@ void postWarningSQLState(String sqlState)  {
 
       if (dataTruncation_) // @B2A
         testDataTruncation2(columnIndex, sqlData); // @B2C
-    }
+      } finally {
+          internalLock.unlock();
+      }
   }
 
 
@@ -6043,8 +6207,9 @@ void postWarningSQLState(String sqlState)  {
      */
     public int getHoldability() throws SQLException
     {
-        synchronized(internalLock_)
-        {
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             checkOpen ();
             
             //@cur return value from cursor attribues if exists else return value as done in pre 550                                                               
@@ -6078,6 +6243,8 @@ void postWarningSQLState(String sqlState)  {
                 return connection_.getHoldability();                                     //@cur
             else                                                                         //@cur
                 return ResultSet.CLOSE_CURSORS_AT_COMMIT;                                //@cur (if no statment exists for this, then safest is to return close at commit to prevent cursor reuse errors)
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -6099,13 +6266,16 @@ void postWarningSQLState(String sqlState)  {
      */
     public Reader getNCharacterStream(int columnIndex) throws SQLException
     {
-        synchronized(internalLock_)
-        {                                      
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             SQLData data = getValue (columnIndex);
             Reader value = (data == null) ? null : data.getNCharacterStream ();
             openReader_ = value;
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -6147,12 +6317,15 @@ void postWarningSQLState(String sqlState)  {
 /* ifdef JDBC40 */
     public NClob getNClob(int columnIndex) throws SQLException
     {
-        synchronized(internalLock_)
-        {                      
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             SQLData data = getValue (columnIndex);
             NClob value = (data == null) ? null : data.getNClob ();
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 /* endif */ 
@@ -6193,12 +6366,15 @@ void postWarningSQLState(String sqlState)  {
     */
     public String getNString(int columnIndex) throws SQLException
     {
-        synchronized(internalLock_)
-        {                                          
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             SQLData data = getValue (columnIndex);
             String value = (data == null) ? null : data.getNString ();
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 
@@ -6237,12 +6413,15 @@ void postWarningSQLState(String sqlState)  {
 /* ifdef JDBC40 */
     public RowId getRowId(int columnIndex) throws SQLException
     {
-        synchronized(internalLock_)
-        {                                                    
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             SQLData data = getValue (columnIndex);
             RowId value = (data == null) ? null : data.getRowId();
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 /* endif */ 
@@ -6279,12 +6458,15 @@ void postWarningSQLState(String sqlState)  {
 /* ifdef JDBC40 */
     public SQLXML getSQLXML(int columnIndex) throws SQLException
     {
-        synchronized(internalLock_)
-        {    
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             SQLData data = getValue (columnIndex);
             SQLXML value = (data == null) ? null : data.getSQLXML();
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2 
             return value;
+        } finally {
+            internalLock.unlock();
         }
     }
 /* endif */ 
@@ -7381,8 +7563,9 @@ void postWarningSQLState(String sqlState)  {
     private void updateValueExtendedIndicator (int columnIndex, int columnValue)
     throws SQLException
     {
-        synchronized(internalLock_)
-        {                                          
+        try 
+        {                                            // @D1A
+            internalLock.lock();
             beforeUpdateValue (columnIndex);
 
 
@@ -7396,6 +7579,8 @@ void postWarningSQLState(String sqlState)  {
             updateUnassigned_[columnIndex0] =  columnValue == 2 ? true: false;   
             updateSet_[columnIndex0] = true;
                  
+        } finally {
+            internalLock.unlock();
         }
     }
 
