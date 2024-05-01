@@ -634,11 +634,18 @@ public class AspOpenList extends OpenList {
  **/
  protected int getBestGuessReceiverSize(int number)
  {
+    int vrm = 0;
+    try {
+        vrm = system_.getVRM();
+    } catch (AS400SecurityException | IOException e) {
+        // assume older version
+    }
+
     switch (format_)
     {
         case 1:  return 64 * number;
-        case 2:  return 148 * number;
-        case 3:  return 94 * number;
+        case 2:  return (vrm >= 0x00070400 ? 154 : 148) * number;
+        case 3:  return (vrm >= 0x00070500 ? 124 : 94) * number;
         case 4:  return 13 * number;
         case 5:  return 46 * number;
         case 6:  return 52 * number;
