@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLWarning;
+import java.util.concurrent.locks.Lock;
 
 /* 
  * Class used for seamless failover 
@@ -600,7 +601,7 @@ extends AS400JDBCStatement {
       return stmt_.getCursor(); 
     }
     
-    AS400JDBCStatementLock getInternalLock() {
+    Lock getInternalLock() {
       return stmt_.getInternalLock(); 
     }
 

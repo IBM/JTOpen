@@ -223,7 +223,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public AS400JDBCDataSource()
     {
         initializeTransient();
-        properties_ = new JDProperties(null, null, null);
+        properties_ = new JDProperties(null, null, null, null);
         sockProps_ = new SocketProperties();
     }
 
@@ -269,6 +269,24 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         setUser(user);
         setPassword(password);
     }
+
+    /**
+ *  Constructs an AS400JDBCDataSource object with the specified signon information.
+ *  @param serverName The name of the IBM i system.
+ *  @param user The user id.
+ *  @param password The user password.  The caller is responsible for clearing password after the constructor returns. 
+ *  @param additionalAuthenticationFactor.  The additional authentication factor.  The user must call connect() before
+ *    the additional authentication factor expires. 
+ **/
+ public AS400JDBCDataSource(String serverName, String user, char[] password, char[] additionalAuthenticationFactor)
+ {
+     this();
+
+     setServerName(serverName);
+     setUser(user);
+     setPassword(password);
+     setAdditionalAuthenticationFactor(additionalAuthenticationFactor);
+ }
 
 
     //@K1A
@@ -339,7 +357,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
         // must initialize the JDProperties so the property change checks dont get a NullPointerException
-        properties_ = new JDProperties(null, null,null);
+        properties_ = new JDProperties(null, null,null,null);
 
         Properties properties = new Properties();
         sockProps_ = new SocketProperties();
@@ -412,7 +430,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
                 properties.put(property, value);
             }
         }
-        properties_ = new JDProperties(properties, null, null);
+        properties_ = new JDProperties(properties, null, null, null);
 
         // get the prompt property and set it back in the as400 object
         String prmpt = properties_.getString(JDProperties.PROMPT);
@@ -568,7 +586,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
 
     /**
-    *  Returns the database connection.
+    *  Returns the database connection.  If an additional authentication factor is needed for the connection, 
+    *  then setAdditionalAuthenciationFactor must be called immediately before this method. 
     *  @return The connection.
     *  @exception SQLException If a database error occurs.
     **/
@@ -576,10 +595,20 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {    
         //if the user asks for the object
         //to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object
-        if (isSecure_ || isSecure())                     //@B4A  //@C2C
-            return getConnection(new SecureAS400(as400_));   //@B4A
-        else                               //@B4A
-            return getConnection(new AS400(as400_));
+    	char[] aaf = properties_.getAdditionalAuthenticationFactor(); 
+        if (isSecure_ || isSecure())       {               //@B4A  //@C2C
+        	SecureAS400 newAs400 = new SecureAS400(as400_);
+        	if (aaf != null) {
+        		newAs400.setAdditionalAuthenticationFactor(aaf);
+        	}
+            return getConnection(newAs400);   //@B4A
+        } else   {                            //@B4A
+        	AS400 newAs400 = new AS400(as400_);
+        	if (aaf != null) {
+        		newAs400.setAdditionalAuthenticationFactor(aaf);
+        	}
+            return getConnection(newAs400);
+        }
     }
 
 
@@ -623,7 +652,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
 
     /**
-    *  Returns the database connection using the specified <i>user</i> and <i>password</i>.
+    *  Returns the database connection using the specified <i>user</i> and <i>password</i> and <i>additionalAuthenticationFactor</i>.
     *  @param user The database user.
     *  @param password The database password.
     *  @param additionalAuthenticationFactor The additional authentication factor, or null if not providing one
@@ -701,14 +730,19 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
         //if the user asks for the object
         //to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object
-        if (isSecure_ || isSecure())                                        //@C2A
-        {                                                                   //@C2A
-            as400Object = new SecureAS400(getServerName(), user, password); //@C2A
-        }                                                                   //@C2A
-        else
-        {                                                                //@C2A                                                                   //@C2A     
-            as400Object = new AS400(getServerName(), user, password);       //@C2A
-        }                                                                   //@C2A
+		try {
+			if (isSecure_ || isSecure()) { // @C2A
+				as400Object = new SecureAS400(getServerName(), user, password, additionalAuthenticationFactor); // @C2A
+			} else { // @C2A //@C2A
+				as400Object = new AS400(getServerName(), user, password, additionalAuthenticationFactor); // @C2A
+			} // @C2A
+		} catch (AS400SecurityException e) {
+			JDError.throwSQLException(this, JDError.EXC_CONNECTION_REJECTED, e);
+			throw new SQLException("PREVENT COMPILER ERROR"); /* Dead code */
+		} catch (IOException e) {
+			JDError.throwSQLException(this, JDError.EXC_CONNECTION_UNABLE, e);
+			throw new SQLException("PREVENT COMPILER ERROR"); /* Dead code */
+		}
 
         try                                                                 //@PDA
         {                                                                   //@PDA
@@ -2202,7 +2236,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
      * @param additionalAuthenticationFactor the additional authentication factor, or null if not providing one
      */
     public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor) {
-
+     	properties_.setAdditionalAuthenticationFactor(additionalAuthenticationFactor);
     }
  
       //@AC1
@@ -3798,9 +3832,11 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             else if (propIndex == JDProperties.USER)
                 setUser(propertyValue);
             else if (propIndex == JDProperties.PASSWORD) {
-              char[] clearPassword = properties_.getClearPassword(); 
+              char[] clearPassword = propertyValue.toCharArray(); 
               setPassword(clearPassword);
               CredentialVault.clearArray(clearPassword);
+              if (JDTrace.isTraceOn()) 
+                  JDTrace.logInformation (this, "Use of password property not recommended:  using setPassword(char[]) instead");  
             } else if (propIndex == JDProperties.SECURE)
                 setSecure(propertyValue.equals(TRUE_) ? true : false);
             else if (propIndex == JDProperties.KEEP_ALIVE)

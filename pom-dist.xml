@@ -7,7 +7,7 @@
   <groupId>net.sf.jt400</groupId>
   <artifactId>jt400</artifactId>
   <packaging>jar</packaging>
-  <version>20.0.6</version>
+  <version>20.0.7</version>
   <name>JTOpen</name>
   <description>The Open Source version of the IBM Toolbox for Java</description>
   <url>http://github.com/IBM/JTOpen</url>
@@ -237,6 +237,38 @@
             </configuration>
           </execution>
           <execution>
+            <id>copy-my-resources-java8-native</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}_java8_native</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/src/main/resources</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-my-resources-java11-native</id>
+            <phase>generate-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.outputDirectory}_java11_native</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/src/main/resources</directory>
+                  <filtering>false</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+          <execution>
             <id>copy-source-java8</id>
             <phase>generate-sources</phase>
             <goals>
@@ -281,13 +313,13 @@
             <phase>process-classes</phase>
             <configuration>
               <target name="source-pcml">
-                <echo> Processing PCML files...</echo>
+                <echo> Processing NetServer PCML files...</echo>
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${project.build.outputDirectory}/com/ibm/as400/access"
-                  srcdir="${basedir}/pcml"
-                  includes="**/NetServer.pcml"
-                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/access"
+                  includes="NetServer.pcml"
+                  classpath="${project.build.outputDirectory}"
                 />
               </target>
             </configuration>
@@ -304,9 +336,9 @@
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
                   destdir="${project.build.outputDirectory}/com/ibm/as400/resource"
-                  srcdir="${basedir}/pcml"
-                  includes="**/R*.pcml"
-                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/resource"
+                  includes="R*.pcml"
+                  classpath="${project.build.outputDirectory}"
                 />
               </target>
             </configuration>
@@ -319,13 +351,13 @@
             <phase>process-classes</phase>
             <configuration>
               <target name="source-pcml">
-                <echo> Processing PCML files...</echo>
+                <echo> Processing NetServer PCML files for Java 8...</echo>
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
-                  destdir="${basedir}/target/sources_java8/com/ibm/as400/access"
-                  srcdir="${basedir}/pcml"
-                  includes="**/NetServer.pcml"
-                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                  destdir="${project.build.outputDirectory}_java8/com/ibm/as400/access"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/access"
+                  includes="NetServer.pcml"
+                  classpath="${project.build.outputDirectory}"
                 />
               </target>
             </configuration>
@@ -338,13 +370,13 @@
             <phase>process-classes</phase>
             <configuration>
               <target name="source-pcml-resources">
-                <echo> Processing PCML files...</echo>
+                <echo> Processing PCML files for Java 8...</echo>
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
-                  destdir="${basedir}/target/sources_java8/com/ibm/as400/resource"
-                  srcdir="${basedir}/pcml"
-                  includes="**/R*.pcml"
-                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                  destdir="${project.build.outputDirectory}_java8/com/ibm/as400/resource"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/resource"
+                  includes="R*.pcml"
+                  classpath="${project.build.outputDirectory}"
                 />
               </target>
             </configuration>
@@ -357,13 +389,13 @@
             <phase>process-classes</phase>
             <configuration>
               <target name="source-pcml">
-                <echo> Processing PCML files...</echo>
+                <echo> Processing NetServer PCML files for Java 11...</echo>
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
-                  destdir="${basedir}/target/sources_java11/com/ibm/as400/access"
-                  srcdir="${basedir}/pcml"
-                  includes="**/NetServer.pcml"
-                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                  destdir="${project.build.outputDirectory}_java11/com/ibm/as400/access"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/access"
+                  includes="NetServer.pcml"
+                  classpath="${project.build.outputDirectory}"
                 />
               </target>
             </configuration>
@@ -376,13 +408,127 @@
             <phase>process-classes</phase>
             <configuration>
               <target name="source-pcml-resources">
-                <echo> Processing PCML files...</echo>
+                <echo> Processing PCML files for Java 11...</echo>
                 <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
                 <pcml
-                  destdir="${basedir}/target/sources_java11/com/ibm/as400/resource"
-                  srcdir="${basedir}/pcml"
-                  includes="**/R*.pcml"
-                  classpath="${project.build.outputDirectory}:${basedir}/pcml"
+                  destdir="${project.build.outputDirectory}_java11/com/ibm/as400/resource"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/resource"
+                  includes="R*.pcml"
+                  classpath="${project.build.outputDirectory}"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-NetServer-native</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml">
+                <echo> Processing NetServer PCML files for Native...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
+                <pcml
+                  destdir="${project.build.outputDirectory}_native/com/ibm/as400/access"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/access"
+                  includes="NetServer.pcml"
+                  classpath="${project.build.outputDirectory}"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-resource-native</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml-resources">
+                <echo> Processing PCML files for Native...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
+                <pcml
+                  destdir="${project.build.outputDirectory}_native/com/ibm/as400/resource"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/resource"
+                  includes="R*.pcml"
+                  classpath="${project.build.outputDirectory}"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-NetServer-java8-native</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml">
+                <echo> Processing NetServer PCML files for Native Java 8...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
+                <pcml
+                  destdir="${project.build.outputDirectory}_java8_native/com/ibm/as400/access"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/access"
+                  includes="NetServer.pcml"
+                  classpath="${project.build.outputDirectory}"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-resource-java8-native</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml-resources">
+                <echo> Processing PCML files for Native Java 8...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
+                <pcml
+                  destdir="${project.build.outputDirectory}_java8_native/com/ibm/as400/resource"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/resource"
+                  includes="R*.pcml"
+                  classpath="${project.build.outputDirectory}"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-NetServer-java11-native</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml">
+                <echo> Processing NetServer PCML files for Native Java 11...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
+                <pcml
+                  destdir="${project.build.outputDirectory}_java11_native/com/ibm/as400/access"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/access"
+                  includes="NetServer.pcml"
+                  classpath="${project.build.outputDirectory}"
+                />
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>source-pcml-resource-java11-native</id>
+            <phase>process-classes</phase>
+            <configuration>
+              <target name="source-pcml-resources">
+                <echo> Processing PCML files for Native Java 11...</echo>
+                <taskdef name="pcml" classname="PCMLTask" classpath="${project.build.outputDirectory}_ant" />
+                <pcml
+                  destdir="${project.build.outputDirectory}_java11_native/com/ibm/as400/resource"
+                  srcdir="${basedir}/src/main/resources/com/ibm/as400/resource"
+                  includes="R*.pcml"
+                  classpath="${project.build.outputDirectory}"
                 />
               </target>
             </configuration>
@@ -450,6 +596,7 @@
               </compileSourceRoots>
               <excludes>
                 <exclude>**/module-info.java</exclude>
+                <exclude>**/package-info.java</exclude>
               </excludes>
               <outputDirectory>${project.build.outputDirectory}_java8</outputDirectory>
             </configuration>
@@ -473,8 +620,7 @@
               <excludes>
                 <exclude>jt400Native/module-info.java</exclude>
                 <exclude>jt400Servlet/module-info.java</exclude>
-                <exclude>com/ibm/as400/util/html/**</exclude>
-                <exclude>com/ibm/as400/util/servlet/**</exclude>
+                <exclude>utilities/**</exclude>
                 <exclude>com/ibm/as400/access/TunnelProxyServer.java</exclude>
               </excludes>
               <outputDirectory>${project.build.outputDirectory}_java11</outputDirectory>
@@ -493,8 +639,57 @@
               <fork>true</fork>
               <excludes>
                 <exclude>**/module-info.java</exclude>
+                <exclude>**/package-info.java</exclude>
               </excludes>
               <outputDirectory>${project.build.outputDirectory}_native</outputDirectory>
+            </configuration>
+          </execution>
+          
+          <execution>
+            <id>Compile Native JDK 8</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <source>8</source>
+              <target>8</target>
+              <release>8</release>
+              <fork>true</fork>
+              <compileSourceRoots>
+                <compileSourceRoot>${basedir}/target/sources_java8
+                </compileSourceRoot>
+              </compileSourceRoots>
+              <excludes>
+                <exclude>**/module-info.java</exclude>
+                <exclude>**/package-info.java</exclude>
+              </excludes>
+              <outputDirectory>${project.build.outputDirectory}_java8_native</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>Compile Native JDK 11</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>compile</goal>
+            </goals>
+            <configuration>
+              <source>11</source>
+              <target>11</target>
+              <release>11</release>
+              <fork>true</fork>
+              <compileSourceRoots>
+                <compileSourceRoot>${basedir}/target/sources_java11
+                </compileSourceRoot>
+              </compileSourceRoots>
+              <excludes>
+                <exclude>jt400/module-info.java</exclude>
+                <exclude>jt400Servlet/module-info.java</exclude>
+                <exclude>com/ibm/as400/util/html/**</exclude>
+                <exclude>com/ibm/as400/util/servlet/**</exclude>
+                <exclude>com/ibm/as400/access/TunnelProxyServer.java</exclude>
+              </excludes>
+              <outputDirectory>${project.build.outputDirectory}_java11_native</outputDirectory>
             </configuration>
           </execution>
           <execution>
@@ -511,6 +706,7 @@
               <fork>true</fork>
               <excludes>
                 <exclude>**/module-info.java</exclude>
+                <exclude>**/package-info.java</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -611,6 +807,44 @@
               <archive>
                 <manifestFile>${project.build.outputDirectory}/../manifests/jt400Native_manifest.txt</manifestFile>
               </archive>
+              <excludes>
+                <exclude>**/com/ibm/as400/vaccess/**</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>jt400Native-java8</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classesDirectory>${project.build.outputDirectory}_java8_native</classesDirectory>
+              <classifier>native-java8</classifier>
+              <archive>
+                <manifestFile>${project.build.outputDirectory}/../manifests/jt400Native_manifest.txt</manifestFile>
+              </archive>
+              <excludes>
+                <exclude>**/com/ibm/as400/vaccess/**</exclude>
+              </excludes>
+            </configuration>
+          </execution>
+          <execution>
+            <id>jt400Native-java11</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <classesDirectory>${project.build.outputDirectory}_java11_native</classesDirectory>
+              <classifier>native-java11</classifier>
+              <archive>
+                <manifestFile>${project.build.outputDirectory}/../manifests/jt400Native_manifest.txt</manifestFile>
+              </archive>
+              <excludes>
+                <exclude>**/com/ibm/as400/vaccess/**</exclude>
+                <exclude>utilities/**</exclude>
+              </excludes>
             </configuration>
           </execution>
           <execution>
@@ -640,6 +874,8 @@
                 <exclude>**/com/ibm/as400/access/UnixSocketInputStream.class</exclude>
                 <exclude>**/com/ibm/as400/access/UnixSocketOutputStream.class</exclude>
                 <exclude>**/com/ibm/as400/access/UnixSocketUser.class</exclude>
+                <exclude>**/com/ibm/as400/vaccess/**</exclude>
+                <exclude>utilities/**</exclude>
               </excludes>
             </configuration>
           </execution>
@@ -648,11 +884,12 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.3.1</version>
+        <version>3.6.3</version>
         <configuration>
           <encoding>UTF-8</encoding>
           <sourcepath>${basedir}/target/sources_java8</sourcepath>
           <additionalOptions>-html4 -Xmaxwarns 1</additionalOptions>
+          <docfilessubdirs>true</docfilessubdirs>
         </configuration>
         <executions>
           <execution>

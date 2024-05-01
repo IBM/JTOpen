@@ -178,19 +178,18 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              ENABLE_SEAMLESS_FAILOVER   = 98; 
     static final int              AFFINITY_FAILBACK_INTERVAL = 99; 
     static final int              TCP_NO_DELAY               = 100; 
+    static final int              ADDITIONAL_AUTHENTICATION_FACTOR=101;
+    static final int              STAY_ALIVE                 = 102; 
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 101;    // @A0C @C1C @A3A @D0C @E0C
-                                                               // @E1C @D1c @E2C @E3C @E9C @F1C
-                                                               // @W1c @j1c @J2c @F5C @F6C @F7c @M0C @K1C @K2C @K5C @KBC @K24 @KBL @K94 @K54 @540 @PDC
-                                                               // @PDC @550 @DFA @CE1 @AC1 @igwrn @pw3 @cc1 @DMY @STIMEOUT
-                                                               // @A2C @A6C @F6A@R3
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 103;   
 
 
     // Property names.
     private static final String ACCESS_                 = "access";
     private static final String AFFINITY_FAILBACK_INTERVAL_ = "affinityFailbackInterval"; 
+    private static final String ADDITIONAL_AUTHENTICATION_FACTOR_ = "additionalAuthenticationFactor"; 
     private static final String BEHAVIOR_OVERRIDE_      = "behavior override";      // @F7A
     private static final String BIDI_STRING_TYPE_       = "bidi string type";       // @E9A
     private static final String BIG_DECIMAL_            = "big decimal";            // @E0A
@@ -249,6 +248,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     private static final String SORT_LANGUAGE_          = "sort language";
     private static final String SORT_TABLE_             = "sort table";
     private static final String SORT_WEIGHT_            = "sort weight";
+    private static final String STAY_ALIVE_             = "stay alive"; 
     private static final String TCP_NO_DELAY_           = "tcp no delay"; 
     private static final String THREAD_USED_            = "thread used";            // @E1A
     private static final String TIME_FORMAT_            = "time format";
@@ -534,7 +534,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     private boolean             extra_;
     private String[]            values_;
     private Properties          info_;   // @A3A
-
+    private char[]              additionalAuthenticationFactor_; 
 
 
     private PasswordVault passwordVault_;
@@ -1639,8 +1639,20 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
        dpi_[i].choices[3]  = DECIMAL_DATA_ERRORS_REPORT_NULL;
        defaults_[i]        = EMPTY_;
 
- 
+       i = ADDITIONAL_AUTHENTICATION_FACTOR;
+       dpi_[i] = new DriverPropertyInfo (ADDITIONAL_AUTHENTICATION_FACTOR_, "");
+       dpi_[i].description = "ADDITIONAL_AUTHENTICATION_FACTOR_DESC";
+       dpi_[i].required    = false;
+       dpi_[i].choices     = new String[0];
+       defaults_[i]  = EMPTY_; 
 
+       i = STAY_ALIVE;
+       dpi_[i] = new DriverPropertyInfo (STAY_ALIVE_, "");
+       dpi_[i].description = "STAY_ALIVE_DESC";
+       dpi_[i].required    = false;
+       dpi_[i].choices     = new String[0];
+       defaults_[i]  = "0"; 
+       
 
     }
 
@@ -1650,7 +1662,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     **/
     JDProperties ()
     {
-      this(null, null,null);
+      this(null, null,null,null);
     }
 
     /**
@@ -1659,7 +1671,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     @param  urlProperties   The URL properties.
     @param  info            The info properties.
     **/
-    JDProperties (Properties urlProperties, Properties info, char[] password)
+    JDProperties (Properties urlProperties, Properties info, char[] password, char[] additionalAuthenticationFactor)
     {
         // Initialize the values.
         info_ = info;
@@ -1679,6 +1691,13 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
           passwordVault_ = new PasswordVault(password); 
         }
         
+        if (additionalAuthenticationFactor == null) { 
+            String aaf = getProperty (urlProperties, info, "additionalAuthenticationFactor");
+            if (aaf != null) { 
+              additionalAuthenticationFactor = aaf.toCharArray(); 
+            }
+        }
+        additionalAuthenticationFactor_ = additionalAuthenticationFactor; 
     values_ = new String[NUMBER_OF_ATTRIBUTES_];
     for (int i = 0; i < NUMBER_OF_ATTRIBUTES_; ++i) {
       if (i != PASSWORD) {  /*@AI7A*/
@@ -2242,6 +2261,13 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
       return sb.toString(); 
     }
 
+	public char[] getAdditionalAuthenticationFactor() {
+		return additionalAuthenticationFactor_; 
+	}
+
+	public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor) {
+		additionalAuthenticationFactor_ = additionalAuthenticationFactor; 
+	}
 
 
 }

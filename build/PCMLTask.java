@@ -44,12 +44,13 @@ public class PCMLTask extends MatchingTask
   public void execute() throws BuildException
   {
     DirectoryScanner scanner = getDirectoryScanner(srcDir_);
+    System.out.println("Source directory is "+srcDir_);
     String[] f = scanner.getIncludedFiles();
     
     Java java = (Java)project.createTask("java");
     java.clearArgs();
     java.setClassname("com.ibm.as400.data.ProgramCallDocument");
-    java.setClasspath(classpath_);
+    
     java.setFork(true); // Otherwise JDK 1.4 throws NoClassDefFoundError on sun/reflect/SerializationConstructorAccessorImpl
     Commandline.Argument arg1 = java.createArg();
     arg1.setValue("-serialize");
@@ -62,9 +63,13 @@ public class PCMLTask extends MatchingTask
           (dest.exists() && dest.lastModified() < source.lastModified()))
       {
         System.out.println("Processing "+f[i]);
+        System.out.println("    source: "+source.getAbsolutePath());
+        System.out.println("    dest:   "+dest.getAbsolutePath());
       
         String name = f[i].replace('\\', '.').replace('/', '.');
         arg2.setValue(name);
+        Path classpath = new Path(getProject(), classpath_+";"+dest.getParentFile().getAbsolutePath());
+        java.setClasspath(classpath);
         java.execute();
 
         Move move = (Move)project.createTask("move");
@@ -73,6 +78,8 @@ public class PCMLTask extends MatchingTask
         move.setFile(outfile);
         move.setTofile(dest);
         move.execute();
+      } else {
+        System.out.println("Not processing because source is unchanged: "+source);
       }
     }
   }

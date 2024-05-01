@@ -402,7 +402,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
       }
     }  // 'while' loop
 
-    properties_ = new JDProperties(properties, null, null);
+    properties_ = new JDProperties(properties, null, null, null);
     if (sockProps_.isAnyOptionSet()) {  // only need to set if not default
       as400_.setSocketProperties(sockProps_);
     }
