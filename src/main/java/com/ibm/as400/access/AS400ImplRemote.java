@@ -23,7 +23,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Method;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -2218,18 +2217,9 @@ public class AS400ImplRemote implements AS400Impl {
       throws NoSuchAlgorithmException, AS400SecurityException {
 
     // Verify that the JVM can support this.
-    // Check the key length. This method is only is in JDK 1.5 so we use
-    // reflection to access it.
-    try {
-      Class cipherClass = Class.forName("javax.crypto.Cipher");
-      Class argTypes[] = new Class[1];
-      argTypes[0] = Class.forName("java.lang.String");
-      Method method = cipherClass.getMethod("getMaxAllowedKeyLength", argTypes);
-      Object args[] = new Object[1];
-      args[0] = "AES";
-      Integer outInteger = (Integer) method.invoke(null, args);
-      int keyLength = outInteger.intValue();
-      if (keyLength < 256) {
+    // Check the key length.
+    int keyLength = Cipher.getMaxAllowedKeyLength("AES");
+    if (keyLength < 256) {
         // If the key length is too small, notify the user
         String message = "THE MAX AES KEY LENGTH IS " + keyLength
             + " AND MUST BE >= 256.  UPDATE THE JVM ("
@@ -2237,11 +2227,8 @@ public class AS400ImplRemote implements AS400Impl {
             + System.getProperty("java.home") + " WITH JCE";
         throw new AS400SecurityException(AS400SecurityException.UNKNOWN,
             new Exception(message));
-      }
-    } catch (Exception e) {
-      throw new AS400SecurityException(AS400SecurityException.UNKNOWN, e);
-
     }
+
 
     //
     // The 256 bit encryption key is derived in the following fashion.
