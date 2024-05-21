@@ -142,6 +142,7 @@ public class EnhancedProfileTokenImplNative
 	 * 
 	 * @param token           Token to be used to create the new token Tis must be a
 	 *                        valid multiple use, regenerable profile token.
+	 *                        
 	 * 
 	 * @param verificationId  The verification ID is the label that identifies the
 	 *                        specific application, service, or action associated
