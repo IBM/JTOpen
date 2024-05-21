@@ -35,7 +35,7 @@ public class EnhancedProfileTokenImplNative
 	 * Generates and returns a new profile token based on a user profile, password,
 	 * and additional authentication factor.   
 	 * 
-	 * @param name                           The name of the user profile for which
+	 * @param user                           The name of the user profile for which
 	 *                                       the token is to be generated.
 	 * 
 	 * @param password                       The password for the user
@@ -140,10 +140,8 @@ public class EnhancedProfileTokenImplNative
 	 * Generate and return a new profile token based on an existing enhanced profile
 	 * token.
 	 * 
-	 * @param token           Token to be used to create the new token Tis must be a
+	 * @param token           Token to be used to create the new token. This must be a
 	 *                        valid multiple use, regenerable profile token.
-	 *                        
-	 * 
 	 * @param verificationId  The verification ID is the label that identifies the
 	 *                        specific application, service, or action associated
 	 *                        with the profile handle request. See verificationId
@@ -168,7 +166,7 @@ public class EnhancedProfileTokenImplNative
 	 *                                    token.
 	 */
 	   public static native byte[] nativeCreateTokenFromToken(
-			   byte[] inToken, 
+			   byte[] token, 
     		    String verificationId,
     		    String remoteIpAddress,
     			int type,
