@@ -30,4 +30,10 @@ class SignonInfo implements Serializable
     // Note: not maintained as com.ibm.as400.security.auth.ProfileToken.  Class is currently not available in proxy environments, so don't want to force instantiation during signon.
     Object profileToken;
     String userId;
+    
+    SignonInfo() { } 
+    
+    SignonInfo(int vrm) {
+    	version = new ServerVersion(vrm); 
+    }
 }

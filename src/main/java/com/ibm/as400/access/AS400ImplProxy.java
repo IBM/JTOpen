@@ -418,4 +418,9 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     public String getSystemName() {
       return connection_.getSystemName(); 
     }
+
+	@Override
+	public void setVRM(int v, int r, int m) {
+		// Does nothing for the proxy class
+	}
 }

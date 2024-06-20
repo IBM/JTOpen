@@ -97,6 +97,8 @@ interface AS400Impl
     SignonInfo skipSignon(String systemName, boolean systemNameLocal,
         String userId_, CredentialVault tempVault, String gssName) throws AS400SecurityException, IOException;
     
-    String getSystemName(); 
+    String getSystemName();
+    /* Set the VRM for the object.  Only set for the remote Impl */ 
+	void setVRM(int v, int r, int m); 
     
 }

@@ -20,9 +20,11 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 /* ifdef JDBC40 */
 import java.sql.SQLFeatureNotSupportedException;
+import java.sql.Statement;
 import java.util.logging.Logger;
 /* endif */ 
 import java.util.Properties;
@@ -1447,7 +1449,14 @@ endif */
 
 	//@B6A -- This logic was formerly in the initializeConnection() method.
 	private Connection prepareConnection(AS400 as400, JDDataSourceURL dataSourceUrl, 
-										  JDProperties jdProperties)
+			  JDProperties jdProperties) throws SQLException  {
+		return prepareConnection(as400,dataSourceUrl, jdProperties, false); 
+	}
+
+
+	private Connection prepareConnection(AS400 as400, JDDataSourceURL dataSourceUrl, 
+										  JDProperties jdProperties,
+										  boolean vrmSet)
 	throws SQLException
 	{
 
@@ -1547,6 +1556,31 @@ endif */
 		      }
 		      throw sqlex; 
 		    }
+		}
+		//
+		// If the signon server was skipped, we need to manually determine the release
+		// This is important for boolean support
+		// 
+		if (as400.skipSignonServer & ! vrmSet) {
+			try { 
+			  Statement s = connection.createStatement(); 
+			  ResultSet rs = s.executeQuery("SELECT OS_VERSION,OS_RELEASE FROM SYSIBMADM.ENVSYSINFO"); 
+			  if (rs.next()) {
+				  int version = rs.getInt(1); 
+				  int release = rs.getInt(2); 
+				  as400.setVRM(version,release,0); 
+			  }
+			  rs.close(); 
+			  s.close(); 
+			} catch (SQLException sqlex) {
+				// Log and ignore 
+			}
+			//
+			// Connect again to get the correct settings
+			// This didn't work!!!! TODO; 
+			//
+			connection.close(); 
+			return prepareConnection(as400,dataSourceUrl, jdProperties, true); 
 		}
 		return connection;
 	}

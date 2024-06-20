@@ -4384,7 +4384,7 @@ throws SQLException
                           JDTrace.logInformation(this, "True auto-commit supported = true");
                           JDTrace.logInformation(this, "128 byte column names supported = true");
                           JDTrace.logInformation(this, "128 length schema names supported = true");
-                          JDTrace.logInformation(this, "client support 0x04000000 set");
+                          JDTrace.logInformation(this, "client support 0x04000000 boolean");
                           JDTrace.logInformation(this, "client support 0x02000000 multiple SQLCAs");
                       }
                       
