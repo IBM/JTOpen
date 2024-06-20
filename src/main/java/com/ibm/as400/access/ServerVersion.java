@@ -20,7 +20,7 @@ class ServerVersion implements Serializable
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
     static final long serialVersionUID = 4L;
-    int vrm_;
+    private int vrm_;
 
     // Create a version object.
     // @param  int  version/release/modification.  High 16 bits represent version next 8 bits represent release, low 8 bits represent modification.  Thus Version 3, release 1, modification level 0 is 0x00030100.
@@ -56,4 +56,10 @@ class ServerVersion implements Serializable
     {
         return vrm_;
     }
+
+    void setVersionReleaseModification(int vrm)
+    {
+         vrm_ = vrm;
+    }
+
 }

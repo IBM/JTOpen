@@ -1554,9 +1554,19 @@ public class AS400ImplRemote implements AS400Impl {
     SocketContainer socketContainer = null;
     if (connectViaHCS)
     {
+    
         if (HCSAuthdServer_ == null)
-            generateHCSServerDaemon(skipSignonServer);
-        
+        	try {
+            generateHCSServerDaemon(skipSignonServer,overridePort);
+        	} catch (Exception ex) {
+        		// If we specified a port number and got an exception, 
+        		// then ignore the error from the HCS. 
+        		if (overridePort > 0) { 
+        			HCSAuthdServer_ = null;
+        		} else {
+        			throw ex; 
+        		}
+        	}
         if (HCSAuthdServer_ == null)
         {
             connectViaHCS = false;
@@ -1876,7 +1886,7 @@ public class AS400ImplRemote implements AS400Impl {
     return server;
   }
   
-  synchronized private void generateHCSServerDaemon(boolean skipSignonServer) throws AS400SecurityException, IOException
+  synchronized private void generateHCSServerDaemon(boolean skipSignonServer, int overridePort) throws AS400SecurityException, IOException
   {
       if (HCSAuthdServer_ != null)
           return;
@@ -1888,7 +1898,7 @@ public class AS400ImplRemote implements AS400Impl {
       try 
       {
           socketContainer = PortMapper.getServerSocket(
-                  (systemNameLocal_) ? "localhost" : systemName_, AS400.HOSTCNN, -1, 
+                  (systemNameLocal_) ? "localhost" : systemName_, AS400.HOSTCNN, overridePort, 
                   useSSLConnection_, socketProperties_, mustUseNetSockets_);
           
           connectionID = socketContainer.hashCode();
@@ -1910,6 +1920,7 @@ public class AS400ImplRemote implements AS400Impl {
           AS400XChgRandSeedReplyDS xChgReply = new AS400XChgRandSeedReplyDS();
           if (Trace.traceOn_)
               xChgReply.setConnectionID(connectionID);
+
           xChgReply.read(inStream);
 
           if (xChgReply.getRC() != 0)
@@ -1986,11 +1997,15 @@ public class AS400ImplRemote implements AS400Impl {
           
           HCSAuthdServer_ = new AS400NoThreadServer(this,  AS400.HOSTCNN, socketContainer, jobString);
       } 
-      catch (ConnectException  e)
+      catch (ConnectException   e)
       {
           forceDisconnect(e, HCSAuthdServer_, socketContainer);
           HCSAuthdServer_ = null;
       } 
+      catch (java.net.SocketException e) {
+          forceDisconnect(e, HCSAuthdServer_, socketContainer);
+          HCSAuthdServer_ = null;
+      }
       catch (IOException | AS400SecurityException | RuntimeException e)
       {
           forceDisconnect(e, HCSAuthdServer_, socketContainer);
@@ -5181,4 +5196,14 @@ public class AS400ImplRemote implements AS400Impl {
 	    return protectedPassword;
 	  }
   //@AF2 End
+
+@Override
+public void setVRM(int v, int r, int m) {
+	if (signonInfo_ == null) { 
+		signonInfo_ = new SignonInfo((v << 16) + (r << 8) + m); 
+	} else {
+		signonInfo_.version.setVersionReleaseModification((v << 16) + (r << 8) + m);
+	}
+	
+}
 }

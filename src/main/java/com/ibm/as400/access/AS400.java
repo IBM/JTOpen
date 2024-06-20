@@ -2958,7 +2958,21 @@ public class AS400 implements Serializable, AutoCloseable
 
         return vrm;
     }
-
+    /**
+     * Sets the VRM for the object, creating a signonInfo as needed
+     * 
+     */
+    protected void setVRM(int v, int r, int m) {
+    	if (signonInfo_ == null) { 
+    		signonInfo_ = new SignonInfo((v << 16 ) + (r << 8) + m); 
+    	} else {
+    		signonInfo_.version.setVersionReleaseModification((v << 16) + (r << 8) + m);
+    	}
+    	if (impl_ != null)  {
+    	  impl_.setVRM(v,r,m); 
+    	}
+    	
+    }
     /**
      Initialize conversion table for the given CCSID.  The default EBCDIC to unicode converters are not shipped with some browsers.  This method can be used to check and download converters if they are not available locally.
      @param  ccsid  the CCSID for the conversion table to initialize.
@@ -5332,6 +5346,8 @@ public class AS400 implements Serializable, AutoCloseable
             newCipherSuites = suites;
         }
     }
+
+
     
     // ======== END =================
     // Previous chunk of code moved from SecureAS400

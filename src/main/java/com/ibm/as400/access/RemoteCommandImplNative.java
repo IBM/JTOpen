@@ -62,9 +62,9 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
       {
         converter_ = ConverterImplRemote.getConverter(system_.getCcsid(), system_);
       }
-      if (AS400.nativeVRM.vrm_ >= 0x00050300)
+      if (AS400.nativeVRM.getVersionReleaseModification()>= 0x00050300)
       {
-        if (AS400.nativeVRM.vrm_ >= 0x00060100)
+        if (AS400.nativeVRM.getVersionReleaseModification()>= 0x00060100)
         {
           serverDataStreamLevel_ = 10;
           if (unicodeConverter_ == null) {
@@ -345,7 +345,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         }
         if (!currentlyOpeningOnThisThread) openOnThread();
 
-        if (AS400.nativeVRM.vrm_ >= 0x00060100)
+        if (AS400.nativeVRM.getVersionReleaseModification()>= 0x00060100)
         {
             return runCommandOnThread(unicodeConverter_.stringToByteArray(command), messageOption, 1200);
         }
@@ -382,7 +382,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         try
         {
             if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Invoking native method.");
-            if (AS400.nativeVRM.vrm_ < 0x00050300)
+            if (AS400.nativeVRM.getVersionReleaseModification()< 0x00050300)
             {
                 try
                 {
@@ -405,7 +405,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             {
                 try
                 {
-                    byte[] replyBytes = AS400.nativeVRM.vrm_ < 0x00060100 ? runCommandNativeV5R3(commandBytes, messageOption) : NativeMethods.runCommand(commandBytes, ccsid, messageOption);
+                    byte[] replyBytes = AS400.nativeVRM.getVersionReleaseModification()< 0x00060100 ? runCommandNativeV5R3(commandBytes, messageOption) : NativeMethods.runCommand(commandBytes, ccsid, messageOption);
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
 
                     // Get info from reply.
@@ -479,7 +479,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         // Run the program on-thread.
         if (!currentlyOpeningOnThisThread) openOnThread();
 
-        if (AS400.nativeVRM.vrm_ < 0x00050300)
+        if (AS400.nativeVRM.getVersionReleaseModification()< 0x00050300)
         {
             // Create a "call program" request, and write it as raw bytes to a byte array.
             // Set up the buffer that contains the program to call.  The buffer contains three items:
@@ -640,7 +640,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             {
                 // Call native method.
                 if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Invoking native method.");
-                byte[] replyBytes = AS400.nativeVRM.vrm_ < 0x00060100 ? runProgramNativeV5R3(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageOption) : NativeMethods.runProgram(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageOption);
+                byte[] replyBytes = AS400.nativeVRM.getVersionReleaseModification()< 0x00060100 ? runProgramNativeV5R3(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageOption) : NativeMethods.runProgram(nameBytes, libraryBytes, parameterList.length, offsetArray, programParameters, messageOption);
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native reply bytes:", replyBytes);
 
                 // Reset the message list.
