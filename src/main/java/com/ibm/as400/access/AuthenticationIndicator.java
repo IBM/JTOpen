@@ -21,7 +21,7 @@ package com.ibm.as400.access;
  */
 public class AuthenticationIndicator {
 	/** Indicates that Kerberos was used to authenticate the user. */
-	public final static int KERBEROSE = 1; 
+	public final static int KERBEROS = 1; 
 	/** Indicates that a successful SSH authentication with a key was used to authenticate the user. */
 	public final static int SSH_KEY = 2; 
 	/** Indicates that a successful identity token mapping to a user profile was used to authenticate the user. */
