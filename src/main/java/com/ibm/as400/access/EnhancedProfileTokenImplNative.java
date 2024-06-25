@@ -129,8 +129,7 @@ public class EnhancedProfileTokenImplNative
 		 *                                       for the user
 		 * 
 		 * @param authenticationIndicator        Indicates how the caller authenticated the user.
-		 *                                       See the AuthenticationIndicator class for possible
-		 *                                       values. 
+		 *                                       @see com.ibm.as400.access.AuthenticationIndicator
 		 * 
 		 * @param verificationId                 The verification ID is the label that
 		 *                                       identifies the specific application,
