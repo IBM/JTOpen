@@ -16,16 +16,20 @@ package com.ibm.as400.access;
 
 /**
  The authentication indicator specifies the reason why an authentication request is being made using a 
- password special value. 
+ password special value.  This should indicate the type of authentication that was performed by the caller.
+ Most applications will probably use APPLICATION_AUTHENTICATION.  
  */
 public class AuthenticationIndicator {
-	/** Indicates that a successful Kerberos authentication was previously performed. */
-	public final static int KERBEROSE_PREVIOUSLY_PERFORMED = 1; 
-	/** Indicates that a successful SSH authentication with a key was previously performed. */
-	public final static int SSH_KEY_PREVIOUSLY_PERFORMED = 2; 
-	/** Indicates that a successful identity token mapping to a user profile was previously performed. */
-	public final static int IDENTITY_TOKEN_MAPPING_PREVIOUSLY_PERFORMED = 3; 
-	/** Indicates that a successful application authentication was previously performed. */ 
-	public final static int APPLICATION_AUTHENTICATION_PREVIOUSLY_PERFORMED = 4;  
+	/** Indicates that Kerberos was used to authenticate the user. */
+	public final static int KERBEROSE = 1; 
+	/** Indicates that a successful SSH authentication with a key was used to authenticate the user. */
+	public final static int SSH_KEY = 2; 
+	/** Indicates that a successful identity token mapping to a user profile was used to authenticate the user. */
+	public final static int IDENTITY_TOKEN_MAPPING = 3; 
+	/** Indicates that DDM (Distributed Data Management) performed user ID only authentication */ 
+	public final static int DDM_USER_ID = 4; 
+	/** Indicates that a successful application authentication was previously performed. This is used when the
+	 * application has assumed full responsibility for authenticating the user. */ 
+	public final static int APPLICATION_AUTHENTICATION = 5;  
 
 }
