@@ -27,9 +27,15 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 /**
- Represents a job on the IBM i server.  In order to access a job, the system and either the job name, user name, and job number or internal job identifier need to be set.  A valid and sufficient combination of these must be set before getting or setting any of the job's attributes.
- <p>Some of the attributes have associated 'get' and 'set' methods defined in this class.  These are provided for backwards compatibility with previous versions of the IBM Toolbox for Java.  The complete set of attribute values can be accessed using the public constants.
- <p>Note:  Most of the 'get' methods will either go to the system to retrieve the job attribute value, or will return a cached value if the attribute was previously retrieved or previously set by {@link #setValue setValue()} or one of the other 'set' methods.  Use {@link #loadInformation loadInformation()} to refresh the attribute values from the system.
+ Represents a job on the IBM i server.  In order to access a job, the system and either the job name, user name, 
+ and job number or internal job identifier need to be set.  A valid and sufficient combination of these must be 
+ set before getting or setting any of the job's attributes.
+ <p>Some of the attributes have associated 'get' and 'set' methods defined in this class.  These are provided for 
+ backwards compatibility with previous versions of the IBM Toolbox for Java.  The complete set of attribute values 
+ can be accessed using the public constants.
+ <p>Note:  Most of the 'get' methods will either go to the system to retrieve the job attribute value, or will 
+ return a cached value if the attribute was previously retrieved or previously set by {@link #setValue setValue()} 
+ or one of the other 'set' methods.  Use {@link #loadInformation loadInformation()} to refresh the attribute values from the system.
  <br>For example:
  <pre>
  *  Job job = new Job(system, jobName, userName, jobNumber);
@@ -1485,7 +1491,9 @@ public class Job implements Serializable
     public static final String JOB_LOG_OUTPUT_PENDING = "*PND";
 
     /**
-     Job attribute representing whether a job's log has been written or not.  If the system fails while the job was active or the job ends abnormally, the job log may not be written yet.  This flag remains on until the job log has been written.  Possible values are:
+     Job attribute representing whether a job's log has been written or not.  If the system fails while the job was 
+     active or the job ends abnormally, the job log may not be written yet.  This flag remains on until the job log has been written.  
+     Possible values are:
      <ul>
      <li>{@link #JOB_LOG_PENDING_NO JOB_LOG_PENDING_NO}
      <li>{@link #JOB_LOG_PENDING_YES JOB_LOG_PENDING_YES}
@@ -1509,7 +1517,9 @@ public class Job implements Serializable
     public static final String JOB_LOG_PENDING_YES = "1";
 
     /**
-     Job attribute representing the name of the job as identified to the system.  For an interactive job, the system assigns the job name of the work station where the job started; for a batch job, you specify the name in the command when you submit the job.  Possible values are:
+     Job attribute representing the name of the job as identified to the system.  For an interactive job, 
+     the system assigns the job name of the work station where the job started; for a batch job, you specify the 
+     name in the command when you submit the job.  Possible values are:
      <ul>
      <li>A specific job name.
      <li>{@link #JOB_NAME_INTERNAL JOB_NAME_INTERNAL}
@@ -1921,7 +1931,11 @@ public class Job implements Serializable
     public static final Integer JOB_TYPE_ENHANCED_WRITER = Integer.valueOf(2310);
 
     /**
-     Job attribute representing the user profile name by which the job is known to other jobs on the system.  The job user identity is used for authorization checks when other jobs on the system attempt to operate against the job.  For more detail on how the job user identity is set and used, refer to the Set Job User Identity (QWTSJUID) API.  For jobs that are on a job queue or have completed running, the job user identity is same as the user name from the qualified job name.  This attribute will return blanks for these jobs.  A value of *N is returned if the job user identity is set, but the user profile to which it is set no longer exists.
+     Job attribute representing the user profile name by which the job is known to other jobs on the system.  The job user identity is 
+     used for authorization checks when other jobs on the system attempt to operate against the job.  For more detail on how the job 
+     user identity is set and used, refer to the Set Job User Identity (QWTSJUID) API.  For jobs that are on a job queue or have 
+     completed running, the job user identity is same as the user name from the qualified job name.  This attribute will return blanks 
+     for these jobs.  A value of *N is returned if the job user identity is set, but the user profile to which it is set no longer exists.
      <p>Read-only: true
      <p>Type: String
      **/
@@ -1940,25 +1954,34 @@ public class Job implements Serializable
     public static final int JOB_USER_IDENTITY_SETTING = 1013;
 
     /**
-     Constant indicating that the job is currently running single threaded and the job user identity is the name of the user profile under which the job is currently running.  This value is also returned for jobs that are on a job queue or have completed running.  This has the same meaning as a value of *DEFAULT on the Display Job Status Attributes display.
+     Constant indicating that the job is currently running single threaded and the job user identity is the name of the 
+     user profile under which the job is currently running.  This value is also returned for jobs that are on a job queue 
+     or have completed running.  This has the same meaning as a value of *DEFAULT on the Display Job Status Attributes display.
      @see  #JOB_USER_IDENTITY_SETTING
      **/
     public static final String JOB_USER_IDENTITY_SETTING_DEFAULT = "0";
 
     /**
-     Constant indicating that the job user identity was explicitly set by an application using one of the Set Job User Identity APIs, QWTSJUID or QwtSetJuid().  The job may be running either single threaded or multithreaded.  This has the same meaning as a value of *APPLICATION on the Display Job Status Attributes display.
+     Constant indicating that the job user identity was explicitly set by an application using one of the Set Job User 
+     Identity APIs, QWTSJUID or QwtSetJuid().  The job may be running either single threaded or multithreaded.  This has 
+     the same meaning as a value of *APPLICATION on the Display Job Status Attributes display.
      @see  #JOB_USER_IDENTITY_SETTING
      **/
     public static final String JOB_USER_IDENTITY_SETTING_APPLICATION = "1";
 
     /**
-     Constant indicating that the job is currently running multithreaded and the job user identity was implicitly set by the system when the job became multithreaded.  It was set to the name of the user profile that the job was running under when it became multithreaded.  This has the same meaning as a value of *SYSTEM on the Display Job Status Attributes display.
+     Constant indicating that the job is currently running multithreaded and the job user identity was implicitly set by the 
+     system when the job became multithreaded.  It was set to the name of the user profile that the job was running under when 
+     it became multithreaded.  This has the same meaning as a value of *SYSTEM on the Display Job Status Attributes display.
      @see  #JOB_USER_IDENTITY_SETTING
      **/
     public static final String JOB_USER_IDENTITY_SETTING_SYSTEM = "2";
 
     /**
-     Job attribute representing whether connections using distributed data management (DDM) protocols remain active when they are not being used.  The connections include APPC conversations, active TCP/IP connections, or Opti-Connect connections.  The DDM protocols are used in Distributed Relational Database Architecture (DRDA) applications, DDM applications, or DB2 Multisystem applications.  Possible values are:
+     Job attribute representing whether connections using distributed data management (DDM) protocols remain active when they 
+     are not being used.  The connections include APPC conversations, active TCP/IP connections, or Opti-Connect connections.  
+     The DDM protocols are used in Distributed Relational Database Architecture (DRDA) applications, DDM applications, or 
+     DB2 Multisystem applications.  Possible values are:
      <ul>
      <li>{@link #KEEP_DDM_CONNECTIONS_ACTIVE_KEEP KEEP_DDM_CONNECTIONS_ACTIVE_KEEP}
      <li>{@link #KEEP_DDM_CONNECTIONS_ACTIVE_DROP KEEP_DDM_CONNECTIONS_ACTIVE_DROP}
@@ -3339,9 +3362,23 @@ public class Job implements Serializable
             isConnected_ = true;
         }
     }
+    
+    /**
+     Returns qualified job name. 
+     @return  Qualified job name. 
+    **/
+    public String getQualifiedJobName() 
+    {
+        if (    (name_   == null || name_.trim().length() == 0)
+             || (user_   == null || user_.trim().length() == 0)
+             || (number_ == null || number_.trim().length() == 0))
+            return "";
+        
+        return number_ + "/" + user_ + "/" + name_;
+    }
 
     // Convenience method to create the qualified job name.
-    private byte[] createQualifiedJobName() throws IOException
+    private byte[] createQualifiedJobNameAsByteArray() throws IOException
     {
         if (realInternalJobID_ != null)
         {
@@ -3475,7 +3512,7 @@ public class Job implements Serializable
 
         ProgramParameter[] parmList = new ProgramParameter[]
         {
-            new ProgramParameter(createQualifiedJobName()),
+            new ProgramParameter(createQualifiedJobNameAsByteArray()),
             new ProgramParameter(realInternalJobID_ == null ? BLANKS16_ : realInternalJobID_),
             // Format name, input, char(8), EBCDIC 'JOBC0100'.
             new ProgramParameter(new byte[] { (byte)0xD1, (byte)0xD6, (byte)0xC2, (byte)0xC3, (byte)0xF0, (byte)0xF1, (byte)0xF0, (byte)0xF0 } ),
@@ -5954,7 +5991,7 @@ public class Job implements Serializable
         parmList[0] = new ProgramParameter(receiverLength);
         parmList[1] = new ProgramParameter(BinaryConverter.intToByteArray(receiverLength));
         parmList[2] = new ProgramParameter(format);
-        parmList[3] = new ProgramParameter(createQualifiedJobName());
+        parmList[3] = new ProgramParameter(createQualifiedJobNameAsByteArray());
         parmList[4] = new ProgramParameter(realInternalJobID_ == null ? BLANKS16_ : realInternalJobID_);
         if (key == -1)
         {

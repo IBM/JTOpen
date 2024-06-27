@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Vector;
 
 /**
@@ -1428,6 +1429,16 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
       {
          AuthenticationSystem.handleUnexpectedException(ioe);
       }
+   }
+   
+   /**
+    * Clears out character array by inserting hexadecimal zeros.
+    * 
+    * @param passwordChars Array to be cleared.
+    */
+   public static void clearArray(char[] passwordChars) {
+       if (passwordChars != null && passwordChars.length > 0)
+           Arrays.fill(passwordChars,'\0');
    }
 
 } //end class 

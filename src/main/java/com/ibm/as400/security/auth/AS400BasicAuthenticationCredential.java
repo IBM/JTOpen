@@ -66,8 +66,8 @@ public String[] basicAuthenticationPrompt();
   int timeoutInterval) instead
  */
 public void initialize(AS400BasicAuthenticationPrincipal principal, String password,
-	boolean isPrivate, boolean isReusable, boolean isRenewable,
-	int timeoutInterval) throws Exception;
+	                   boolean isPrivate, boolean isReusable, boolean isRenewable, int timeoutInterval) throws Exception;
+
 /**
  * Initializes and validates a credential for the local IBM i system.
  *
@@ -100,8 +100,7 @@ public void initialize(AS400BasicAuthenticationPrincipal principal, String passw
  *
  */
 public void initialize(AS400BasicAuthenticationPrincipal principal, char[] password,
-  boolean isPrivate, boolean isReusable, boolean isRenewable,
-  int timeoutInterval) throws Exception;
+                       boolean isPrivate, boolean isReusable, boolean isRenewable, int timeoutInterval) throws Exception;
 
 /**
  * Indicates whether the credential is considered private.

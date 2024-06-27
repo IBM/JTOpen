@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2006 International Business Machines Corporation and
+// Copyright (C) 1997-2024 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -357,6 +357,12 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
             throw ProxyClientConnection.rethrow(e);
         }
     }
+    
+    @Override
+    public SignonInfo setState(AS400Impl impl, CredentialVault credVault) 
+    {
+        return null;
+    }
 
     // Sign-on.
     @Override
@@ -423,4 +429,9 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
 	public void setVRM(int v, int r, int m) {
 		// Does nothing for the proxy class
 	}
+	
+    @Override
+    public void setAdditionalAuthenticationFactor(char[] additionalAuthFactor) {
+		// Does nothing for the proxy class
+    }
 }

@@ -72,11 +72,11 @@ interface AS400Impl
     void setServicePortsToDefault(String systemName);
     // Set significant instance variables into implementation object.
     void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB, boolean mustUseNetSockets, boolean mustUseSuppliedProfile, boolean mustAddLanguageLibrary);
+    SignonInfo setState(AS400Impl impl, CredentialVault credVault);
     // Sign-on to system.
     SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException;
     SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException;
     
-    //@Bidi-HCG3 start        
     /**
      * Sets bidi string type of the connection. 
      * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
@@ -84,21 +84,19 @@ interface AS400Impl
      */
     public void setBidiStringType(int bidiStringType);
     
+    void setAdditionalAuthenticationFactor(char[] additionalAuthFactor);
+    
     /**
      * Returns bidi string type of the connection. 
      * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
      * @return bidi string type
      */
     public int getBidiStringType();        
-    //@Bidi-HCG3 end
     
     /* connect to the system, but skip using the signon server */ 
-    /*@V1A*/
-    SignonInfo skipSignon(String systemName, boolean systemNameLocal,
-        String userId_, CredentialVault tempVault, String gssName) throws AS400SecurityException, IOException;
+    SignonInfo skipSignon(String systemName, boolean systemNameLocal, String userId_, CredentialVault tempVault, String gssName) throws AS400SecurityException, IOException;
     
     String getSystemName();
     /* Set the VRM for the object.  Only set for the remote Impl */ 
-	void setVRM(int v, int r, int m); 
-    
+    void setVRM(int v, int r, int m); 
 }

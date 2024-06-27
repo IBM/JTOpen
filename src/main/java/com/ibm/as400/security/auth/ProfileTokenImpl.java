@@ -13,177 +13,145 @@ package com.ibm.as400.security.auth;
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 /**
- * The ProfileTokenImpl interface provides the template for
- * classes implementing behavior delegated by a
- * ProfileTokenCredential.
+ * The ProfileTokenImpl interface provides the template for classes implementing
+ * behavior delegated by a ProfileTokenCredential.
  *
  */
-public interface ProfileTokenImpl extends AS400CredentialImpl {
+public interface ProfileTokenImpl extends AS400CredentialImpl
+{
 
     /**
-     * String constant for *NOPWD special value. 10 character blank
-     * padded
+     * String constant for *NOPWD special value. 10 character blank padded
      */
-    public final static String PW_STR_NOPWD    = "*NOPWD    ";
+    public final static String PW_STR_NOPWD = "*NOPWD    ";
 
     /**
-     * String constant for *NOPWDCHK special value. 10 character blank
-     * padded
+     * String constant for *NOPWDCHK special value. 10 character blank padded
      */
     public final static String PW_STR_NOPWDCHK = "*NOPWDCHK ";
-    
-    /**
-    * Generates and returns a new profile token based on
-    * the provided information.
-    *
-    * @deprecated As of V5R3, replaced 
-    * by {@link #generateTokenExtended(String,char[],int,int)}
-    * for password strings 
-    * and {@link #generateToken(String,int,int,int)} for password
-    * special values
-    *
-    * @param uid
-    *		The name of the user profile for which the token
-    *		is to be generated.
-    *
-    * @param pwd
-    *		The user profile password (encoded).
-    *
-    * @param type
-    *		The type of token.
-    *		Possible types are defined as fields on the 
-    *       ProfileTokenCredential class:
-    *		  <ul>
-    * 			<li>TYPE_SINGLE_USE
-    * 			<li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-    * 			<li>TYPE_MULTIPLE_USE_RENEWABLE
-    *		  </ul>
-    *		<p>
-    *
-    * @param timeoutInterval
-    *    The number of seconds to expiration.
-    *
-    * @return
-    *		The token bytes.
-    *
-    * @exception RetrieveFailedException
-    *		If errors occur while generating the token.
-    *
-    */
-    byte[] generateToken(String uid, String pwd, int type,
-            int timeoutInterval) throws RetrieveFailedException;
 
     /**
-    * Generates and returns a new profile token based on
-    * the provided information using a password special value.
-    *
-    * @param uid
-    *		The name of the user profile for which the token
-    *		is to be generated.
-    *
-    * @param pwdSpecialValue
-    *	   A password special value.
-    *      Possible types are defined as fields on the 
-    *      ProfileTokenCredential class:
-    *		  <ul>
-    * 			<li>PW_NOPWD
-    * 			<li>PW_NOPWDCHK
-    *		  </ul>
-    *		<p>
-    *
-    * @param type
-    *		The type of token.
-    *		Possible types are defined as fields on the 
-    *       ProfileTokenCredential class:
-    *		  <ul>
-    * 			<li>TYPE_SINGLE_USE
-    * 			<li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-    * 			<li>TYPE_MULTIPLE_USE_RENEWABLE
-    *		  </ul>
-    *		<p>
-    *
-    * @param timeoutInterval
-    *    The number of seconds to expiration.
-    *
-    * @return
-    *		The token bytes.
-    *
-    * @exception RetrieveFailedException
-    *		If errors occur while generating the token.
-    *
-    */
-    byte[] generateToken(String uid, int pwdSpecialValue, int type,
-            int timeoutInterval) throws RetrieveFailedException;
- 
-  
-   /**
-    * Generates and returns a new profile token based on
-    * the provided information using a password string.
-    *
-    * @param uid
-    *   The name of the user profile for which the token
-    *   is to be generated.
-    *
-    * @param pwd
-    *   The user profile password (encoded). 
-    *       Special values are not supported by this method.
-    *
-    * @param type
-    *   The type of token.
-    *   Possible types are defined as fields on the 
-    *       ProfileTokenCredential class:
-    *     <ul>
-    *       <li>TYPE_SINGLE_USE
-    *       <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-    *       <li>TYPE_MULTIPLE_USE_RENEWABLE
-    *     </ul>
-    *   <p>
-    *
-    * @param timeoutInterval
-    *    The number of seconds to expiration.
-    *
-    * @return
-    *   The token bytes.
-    *
-    * @exception RetrieveFailedException
-    *   If errors occur while generating the token.
-    *
-    */
-    byte[] generateTokenExtended(String uid, char[] pwd, int type,
-            int timeoutInterval) throws RetrieveFailedException;
+     * Generates and returns a new profile token based on the provided information.
+     *
+     * @deprecated As of V5R3, replaced by
+     *             {@link #generateTokenExtended(String,char[],int,int)} for
+     *             password strings and {@link #generateToken(String,int,int,int)}
+     *             for password special values
+     *
+     * @param uid             The name of the user profile for which the token is to
+     *                        be generated.
+     *
+     * @param pwd             The user profile password (encoded).
+     *
+     * @param type            The type of token. Possible types are defined as
+     *                        fields on the ProfileTokenCredential class:
+     *                        <ul>
+     *                        <li>TYPE_SINGLE_USE
+     *                        <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                        <li>TYPE_MULTIPLE_USE_RENEWABLE
+     *                        </ul>
+     *                        <p>
+     *
+     * @param timeoutInterval The number of seconds to expiration.
+     *
+     * @return The token bytes.
+     *
+     * @exception RetrieveFailedException If errors occur while generating the
+     *                                    token.
+     *
+     */
+    byte[] generateToken(String uid, String pwd, int type, int timeoutInterval) throws RetrieveFailedException;
 
     /**
-    * Updates or extends the validity period for the credential.
-    *
-    * <p> Generates a new profile token based on the previously
-    * established <i>token</i> with the given <i>type</i>
-    * and <i>timeoutInterval</i>.
-    *
-    * <p> This method is provided to handle cases where it is
-    * desirable to allow for a more restrictive type of token
-    * or a different timeout interval when a new token is
-    * generated during the refresh.
-    *
-    * @param type
-    *		The type of token.
-    *		Possible types are defined as fields on this class:
-    *		  <ul>
-    * 			<li>TYPE_SINGLE_USE
-    * 			<li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-    * 			<li>TYPE_MULTIPLE_USE_RENEWABLE
-    *		  </ul>
-    *		<p>
-    *
-    * @param timeoutInterval
-    *		The number of seconds before expiration.
-    *
-    * @return
-    *		The new token.
-    *
-    * @exception RefreshFailedException
-    *		If errors occur during refresh.
-    *
-    */
-    byte[] refresh(int type, int timeoutInterval) 
-            throws RefreshFailedException;
+     * Generates and returns a new profile token based on the provided information
+     * using a password special value.
+     *
+     * @param uid             The name of the user profile for which the token is to
+     *                        be generated.
+     *
+     * @param pwdSpecialValue A password special value. Possible types are defined
+     *                        as fields on the ProfileTokenCredential class:
+     *                        <ul>
+     *                        <li>PW_NOPWD
+     *                        <li>PW_NOPWDCHK
+     *                        </ul>
+     *                        <p>
+     *
+     * @param type            The type of token. Possible types are defined as
+     *                        fields on the ProfileTokenCredential class:
+     *                        <ul>
+     *                        <li>TYPE_SINGLE_USE
+     *                        <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                        <li>TYPE_MULTIPLE_USE_RENEWABLE
+     *                        </ul>
+     *                        <p>
+     *
+     * @param timeoutInterval The number of seconds to expiration.
+     *
+     * @return The token bytes.
+     *
+     * @exception RetrieveFailedException If errors occur while generating the
+     *                                    token.
+     *
+     */
+    byte[] generateToken(String uid, int pwdSpecialValue, int type, int timeoutInterval) throws RetrieveFailedException;
+
+    /**
+     * Generates and returns a new profile token based on the provided information
+     * using a password string.
+     *
+     * @param uid             The name of the user profile for which the token is to
+     *                        be generated.
+     *
+     * @param pwd             The user profile password (encoded). Special values
+     *                        are not supported by this method.
+     *
+     * @param type            The type of token. Possible types are defined as
+     *                        fields on the ProfileTokenCredential class:
+     *                        <ul>
+     *                        <li>TYPE_SINGLE_USE
+     *                        <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                        <li>TYPE_MULTIPLE_USE_RENEWABLE
+     *                        </ul>
+     *                        <p>
+     *
+     * @param timeoutInterval The number of seconds to expiration.
+     *
+     * @return The token bytes.
+     *
+     * @exception RetrieveFailedException If errors occur while generating the
+     *                                    token.
+     *
+     */
+    byte[] generateTokenExtended(String uid, char[] pwd, int type, int timeoutInterval) throws RetrieveFailedException;
+
+    /**
+     * Updates or extends the validity period for the credential.
+     *
+     * <p>
+     * Generates a new profile token based on the previously established
+     * <i>token</i> with the given <i>type</i> and <i>timeoutInterval</i>.
+     *
+     * <p>
+     * This method is provided to handle cases where it is desirable to allow for a
+     * more restrictive type of token or a different timeout interval when a new
+     * token is generated during the refresh.
+     *
+     * @param type            The type of token. Possible types are defined as
+     *                        fields on this class:
+     *                        <ul>
+     *                        <li>TYPE_SINGLE_USE
+     *                        <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                        <li>TYPE_MULTIPLE_USE_RENEWABLE
+     *                        </ul>
+     *                        <p>
+     *
+     * @param timeoutInterval The number of seconds before expiration.
+     *
+     * @return The new token.
+     *
+     * @exception RefreshFailedException If errors occur during refresh.
+     *
+     */
+    byte[] refresh(int type, int timeoutInterval) throws RefreshFailedException;
 }

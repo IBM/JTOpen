@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1999-2007 International Business Machines Corporation and
+// Copyright (C) 1999-2024 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -61,16 +61,26 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
  * declared as public, it is only intended for the internal use of the driver.
  * 
  */
-public class AS400ImplRemote implements AS400Impl {
+public class AS400ImplRemote implements AS400Impl
+{
   private static boolean PASSWORD_TRACE = false;
   private static final boolean DEBUG = false;
   private static final int UNINITIALIZED = -1;// @S5A
 
-  // The pool of systems. The systems are in service constant order: FILE,
-  // PRINT, COMMAND, DATAQUEUE, DATABASE, RECORDACCESS, CENTRAL.
+  // The pool of systems. The systems are in service constant order!
+  // The following are not in the pool since these are singleton objects.
+  //   -- AS400.SIGNON (7) is special, only one signon server is used. 
+  //   -- AS400.HOSTCNN (8) is special, only one hostcnn server is used.
   private Vector[] serverPool_ = { 
-  new Vector<AS400Server>(), new Vector<AS400Server>(), new Vector<AS400Server>(), 
-  new Vector<AS400Server>(), new Vector<AS400Server>(), new Vector<AS400Server>(), new Vector<AS400Server>()
+      new Vector<AS400Server>(), // AS400.FILE (0)
+      new Vector<AS400Server>(), // AS400.PRINT (1)
+      new Vector<AS400Server>(), // AS400.COMMAND (2)
+      new Vector<AS400Server>(), // AS400.DATAQUEUE (3)
+      new Vector<AS400Server>(), // AS400.DATABASE (4)
+      new Vector<AS400Server>(), // AS400.RECORDACCESS (5)
+      new Vector<AS400Server>()  // AS400.CENTRAL (6)
+                                 // AS400.SIGNON (7) - SLOT NOT USED
+                                 // AS400.HOSTCNN (8) - SLOT NOT USED
   };
 
   // System name.
@@ -78,13 +88,12 @@ public class AS400ImplRemote implements AS400Impl {
   // User ID.
   private String userId_ = "";
   // Flag indicating if system name refers to local system.
-  private boolean systemNameLocal_ = false;
+  private boolean systemNameLocal_ = false; 
 
   // Credential to the IBM i system
-  private CredentialVault credVault_ = new PasswordVault(); // @mds
+  private CredentialVault credVault_ = new PasswordVault(); 
 
-  // GSS Credential object, for Kerberos. Type set to Object to prevent
-  // dependency on 1.4 JDK.
+  // GSS Credential object, for Kerberos.
   private GSSCredential gssCredential_ = null;
   // GSS name string, for Kerberos.
   private String gssName_ = "";
@@ -95,14 +104,12 @@ public class AS400ImplRemote implements AS400Impl {
   private SSLOptions useSSLConnection_ = null;
   // Flag that indicates if we should try to use native optimization.
   private boolean canUseNativeOptimization_ = true;
-  // Flag that indicates if we use threads in communication with the host
-  // servers.
+  // Flag that indicates if we use threads in communication with the host servers.
   private boolean threadUsed_ = true;
 
   // CCSID to use in conversations with the system.
   private int ccsid_ = 0;
-  // If the user has told us to override common sense and use the CCSID they
-  // want.
+  // If the user has told us to override common sense and use the CCSID they want.
   private boolean userOverrideCcsid_ = false;
   // The client NLV.
   private String clientNlv_;
@@ -123,7 +130,7 @@ public class AS400ImplRemote implements AS400Impl {
   // IASP name used for DDM, if specified.
   private String ddmRDB_;
 
-  // VRM information from the sign-on server. Retrieved from sign-on connect and
+  // VRM information from the sign-on or hostcnn server. Retrieved from sign-on connect and
   // stored until placed in sign-on information.
   private ServerVersion version_;
   // System level of the sign-on server. Retrieved from sign-on connect and
@@ -135,12 +142,8 @@ public class AS400ImplRemote implements AS400Impl {
   private boolean isPasswordTypeSet_ = false;
   // Sign-on information retrieved on sign-on information request.
   private SignonInfo signonInfo_;
-  // EBCDIC bytes of sign-on server job name, held until Job CCSID is returned.
-  private byte[] signonJobBytes_;
   // Additional authentication factor indicator
-  private byte additionalAuthenticationIndicator_ = 0x00;
-  // String form of sign-on server job name.
-  private String signonJobString_;
+  private boolean aafIndicator_ = false;
 
   // Dispatcher of connection events from this implementation to public object.
   private ConnectionListener dispatcher_;
@@ -151,161 +154,176 @@ public class AS400ImplRemote implements AS400Impl {
   // Single use seed sent to public object in exchange seed method, held until
   // next sign-on, change password, or generate profile token.
   private byte[] remoteSeed_ = null;
-  private int userHandle_ = UNINITIALIZED; // @S5A
+  private int userHandle_ = UNINITIALIZED;
 
   // Connection to the sign-on server.
-  AS400NoThreadServer signonServer_;
+  private AS400NoThreadServer signonServer_;
+  // Connection to the hostcnn server. Note that this object may be shared across AS400's!!
+  private AS400NoThreadServer hostcnnServer_;
   
-  AS400NoThreadServer HCSAuthdServer_;
-  // Sign-on server server seed, held from sign-on connection until sign-on
-  // disconnect.
-  byte[] serverSeed_;
-  // Sign-on server client seed, held from sign-on connection until sign-on
-  // disconnect.
-  byte[] clientSeed_;
+  // Sign-on server server seed, held from sign-on connection until sign-on disconnect.
+  private byte[] serverSeed_;
+  // Sign-on server client seed, held from sign-on connection until sign-on disconnect.
+  private byte[] clientSeed_;
   
-  private char[] additionalAuthenticationFactorTOTP;
+  // hostcnn server server seed, held from hostcnn connection until hostcnn disconnect.
+  private byte[] hostcnn_serverSeed_;
+  // hostcnn server client seed, held from hostcnn connection until hostcnn disconnect.
+  private byte[] hostcnn_clientSeed_;
+  
+  // Additional authentication factor. We have to hold on to it because it may be timed. 
+  private char[] additionalAuthFactor_;
   
   private int UserHandle2_ = UNINITIALIZED;
 
   private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
-  static {
-    if (Trace.traceOn_)
-      Trace.logLoadPath(CLASSNAME);
-  }
 
   static {
-    // Identify all remote command server reply data streams.
-    AS400Server.addReplyStream(new ChangePasswordRep(), AS400.SIGNON);
-    AS400Server.addReplyStream(new AS400StrSvrReplyDS(), AS400.SIGNON);
-    AS400Server.addReplyStream(new SignonGenAuthTokenReplyDS(), AS400.SIGNON);
-    AS400Server.addReplyStream(new AS400GenAuthTknReplyDS(), AS400.SIGNON);
-    AS400Server.addReplyStream(new AS400XChgRandSeedReplyDS(), AS400.SIGNON);
-    AS400Server.addReplyStream(new SignonInfoRep(), AS400.SIGNON);
-    AS400Server.addReplyStream(new SignonExchangeAttributeRep(), AS400.SIGNON);
-    AS400Server.addReplyStream(new IFSUserHandleSeedRep(), AS400.FILE);
-    AS400Server.addReplyStream(new IFSCreateUserHandleRep(), AS400.FILE);
-    if (DEBUG) {
-      AS400Server.addReplyStream(new IFSReturnCodeRep(), AS400.FILE);
-    }
+      if (Trace.traceOn_)
+          Trace.logLoadPath(CLASSNAME);
+      
+      // Identify all remote command server reply data streams.
+      // Reply data streams need to be added so that sendAndReceive operations
+      // know what class to use for the response. 
+      AS400Server.addReplyStream(new ChangePasswordRep(), AS400.SIGNON);
+      AS400Server.addReplyStream(new AS400StrSvrReplyDS(), AS400.SIGNON);
+      AS400Server.addReplyStream(new SignonGenAuthTokenReplyDS(), AS400.SIGNON);
+      AS400Server.addReplyStream(new AS400GenAuthTknReplyDS(), AS400.SIGNON);
+      AS400Server.addReplyStream(new AS400XChgRandSeedReplyDS(), AS400.SIGNON);
+      AS400Server.addReplyStream(new SignonInfoRep(), AS400.SIGNON);
+      AS400Server.addReplyStream(new SignonExchangeAttributeRep(), AS400.SIGNON);
+      AS400Server.addReplyStream(new IFSUserHandleSeedRep(), AS400.FILE);
+      AS400Server.addReplyStream(new IFSCreateUserHandleRep(), AS400.FILE);
+      AS400Server.addReplyStream(new SignonExchangeAttributeRep(), AS400.HOSTCNN);
+      AS400Server.addReplyStream(new SignonPingRep(), AS400.HOSTCNN);
+
+    
+      if (DEBUG)
+          AS400Server.addReplyStream(new IFSReturnCodeRep(), AS400.FILE);
   }
 
   // Set the connection event dispatcher.
   @Override
-  public void addConnectionListener(ConnectionListener listener) {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Adding implementation connection listener.");
-    dispatcher_ = listener;
+  public void addConnectionListener(ConnectionListener listener)
+  {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding implementation connection listener.");
+      dispatcher_ = listener;
   }
 
   // Indicates if the native optimizations code can be used.
   // Provided for internal use by other ImplRemote classes.
   boolean canUseNativeOptimizations() {
-    return canUseNativeOptimization_;
+      return canUseNativeOptimization_;
   }
 
   // Map from CCSID to encoding string.
   @Override
-  public String ccsidToEncoding(int ccsid) {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Mapping to encoding implementation, CCSID:",
-          ccsid);
+  public String ccsidToEncoding(int ccsid)
+  {
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Mapping to encoding implementation, CCSID:", ccsid);
     return ConversionMaps.ccsidToEncoding(ccsid);
   }
 
   // Convenience method for removing trailing space from SHA-1 passwords.
-  private static char[] trimUnicodeSpace(char[] inputArray) {
-    if (inputArray.length == 0) {
-      return inputArray; 
-    }
-    char lastChar = inputArray[inputArray.length - 1];
-    if (lastChar != '\u0000' && lastChar != '\u0020' && lastChar != '\u3000')
-      return inputArray;
+  private static char[] trimUnicodeSpace(char[] inputArray)
+  {
+      if (inputArray.length == 0)
+          return inputArray;
+      
+      char lastChar = inputArray[inputArray.length - 1];
+      if (lastChar != '\u0000' && lastChar != '\u0020' && lastChar != '\u3000')
+          return inputArray;
 
-    int trimPosition = inputArray.length - 1;
-    while (inputArray[trimPosition] == '\u0000'
-        || inputArray[trimPosition] == '\u0020'
-        || inputArray[trimPosition] == '\u3000')
-      --trimPosition;
-    char[] trimedArray = new char[trimPosition + 1];
-    System.arraycopy(inputArray, 0, trimedArray, 0, trimedArray.length);
-    return trimedArray;
+      int trimPosition = inputArray.length - 1;
+      while (    inputArray[trimPosition] == '\u0000'
+              || inputArray[trimPosition] == '\u0020'
+              || inputArray[trimPosition] == '\u3000')
+          --trimPosition;
+      
+      char[] trimedArray = new char[trimPosition + 1];
+      System.arraycopy(inputArray, 0, trimedArray, 0, trimedArray.length);
+      return trimedArray;
   }
 
   // Convenience method for generating SHA-1 password token.
-  private static byte[] generateShaToken(byte[] userIdBytes, byte[] bytes) {
-    try {
-      MessageDigest md = MessageDigest.getInstance("SHA");
-      md.update(userIdBytes);
-      md.update(bytes);
-      byte[] token = md.digest();
-      
-      //@AI9A Clear bytes
-      byte[] empty = new byte[bytes.length];
-      Arrays.fill(empty, (byte)0);
-      md.update(empty);
-      
-      if (PASSWORD_TRACE) {
-        Trace.log(Trace.DIAGNOSTIC, "SHA-1 token:", token);
+  private static byte[] generateShaToken(byte[] userIdBytes, byte[] bytes)
+  {
+      try
+      {
+          MessageDigest md = MessageDigest.getInstance("SHA");
+          md.update(userIdBytes);
+          md.update(bytes);
+          byte[] token = md.digest();
+
+          byte[] empty = new byte[bytes.length];
+          Arrays.fill(empty, (byte) 0);
+          md.update(empty);
+
+          if (PASSWORD_TRACE)
+              Trace.log(Trace.DIAGNOSTIC, "SHA-1 token:", token);
+          return token;
       }
-      return token;
-    } catch (NoSuchAlgorithmException e) {
-      Trace.log(Trace.ERROR, "Error getting instance of SHA-1 algorithm:", e);
-      throw new InternalErrorException(
-          InternalErrorException.UNEXPECTED_EXCEPTION, e);
-    }
+      catch (NoSuchAlgorithmException e)
+      {
+          Trace.log(Trace.ERROR, "Error getting instance of SHA-1 algorithm:", e);
+          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+      }
   }
 
   // Convenience method for generating SHA-1 substitute password.
   private static byte[] generateShaSubstitute(byte[] token, byte[] serverSeed,
-      byte[] clientSeed, byte[] userIdBytes, byte[] sequence) {
-    try {
-      MessageDigest md = MessageDigest.getInstance("SHA");
-      md.update(token);
-      md.update(serverSeed);
-      md.update(clientSeed);
-      md.update(userIdBytes);
-      md.update(sequence);
-      byte[] substitutePassword = md.digest();
+      byte[] clientSeed, byte[] userIdBytes, byte[] sequence)
+  {
+      try
+      {
+          MessageDigest md = MessageDigest.getInstance("SHA");
+          md.update(token);
+          md.update(serverSeed);
+          md.update(clientSeed);
+          md.update(userIdBytes);
+          md.update(sequence);
+          byte[] substitutePassword = md.digest();
 
-      if (PASSWORD_TRACE) {
-        Trace.log(Trace.DIAGNOSTIC, "SHA-1 substitute:", substitutePassword);
+          if (PASSWORD_TRACE)
+              Trace.log(Trace.DIAGNOSTIC, "SHA-1 substitute:", substitutePassword);
+
+          return substitutePassword;
       }
-      return substitutePassword;
-    } catch (NoSuchAlgorithmException e) {
-      Trace.log(Trace.ERROR, "Error getting instance of SHA-1 algorithm:", e);
-      throw new InternalErrorException(
-          InternalErrorException.UNEXPECTED_EXCEPTION, e);
-    }
+      catch (NoSuchAlgorithmException e)
+      {
+          Trace.log(Trace.ERROR, "Error getting instance of SHA-1 algorithm:", e);
+          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+      }
   }
 
   // Convenience method for generating SHA-1 substitute password.
   private static byte[] generateShaProtected(byte[] bytes, byte[] token,
-      byte[] serverSeed, byte[] clientSeed, byte[] userIdBytes, byte[] sequence) {
-    // Protected length will be rounded up to next 20.
-    int protectedLength = (((bytes.length - 1) / 20) + 1) * 20;
-    byte[] protectedPassword = new byte[protectedLength];
-    for (int i = 0; i < protectedLength; i += 20) {
-      incrementString(sequence);
-      byte[] encryptedSection = generateShaSubstitute(token, serverSeed,
-          clientSeed, userIdBytes, sequence);
-      for (int ii = 0; ii < 20; ++ii) {
-        if (i + ii < bytes.length) {
-          protectedPassword[i + ii] = (byte) (encryptedSection[ii] ^ bytes[i
-              + ii]);
-        } else {
-          protectedPassword[i + ii] = encryptedSection[ii];
-        }
+      byte[] serverSeed, byte[] clientSeed, byte[] userIdBytes, byte[] sequence)
+  {
+      // Protected length will be rounded up to next 20.
+      int protectedLength = (((bytes.length - 1) / 20) + 1) * 20;
+      byte[] protectedPassword = new byte[protectedLength];
+
+      for (int i = 0; i < protectedLength; i += 20)
+      {
+          incrementString(sequence);
+          byte[] encryptedSection = generateShaSubstitute(token, serverSeed, clientSeed, userIdBytes, sequence);
+          for (int ii = 0; ii < 20; ++ii)
+          {
+              if (i + ii < bytes.length)
+                  protectedPassword[i + ii] = (byte) (encryptedSection[ii] ^ bytes[i + ii]);
+              else
+                  protectedPassword[i + ii] = encryptedSection[ii];
+          }
       }
-    }
-    return protectedPassword;
+      return protectedPassword;
   }
   
   // Change password.
   @Override
-  public SignonInfo changePassword(String systemName, boolean systemNameLocal,
-      String userId, byte[] oldBytes, byte[] newBytes)
-      throws AS400SecurityException, IOException {
+  public SignonInfo changePassword(String systemName, boolean systemNameLocal, String userId, byte[] oldBytes, byte[] newBytes)
+      throws AS400SecurityException, IOException
+  {
         return changePassword(systemName, systemNameLocal, userId, oldBytes, newBytes, null);
   }
 
@@ -313,312 +331,277 @@ public class AS400ImplRemote implements AS400Impl {
   @Override
   public SignonInfo changePassword(String systemName, boolean systemNameLocal,
       String userId, byte[] oldBytes, byte[] newBytes, char[] additionalAuthenticationFactor)
-      throws AS400SecurityException, IOException {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC,
-          "Change password implementation, system name: '" + systemName
-              + "' user ID: '" + userId + "'");
-    if (PASSWORD_TRACE) {
-      Trace.log(Trace.DIAGNOSTIC, "Old password bytes:", oldBytes);
-      Trace.log(Trace.DIAGNOSTIC, "New password bytes:", newBytes);
-    }
+      throws AS400SecurityException, IOException
+  {
+      if (Trace.traceOn_)
+          Trace.log(Trace.DIAGNOSTIC, "Change password implementation, system name: '" + systemName + "' user ID: '" + userId + "'");
 
-    systemName_ = systemName;
-    systemNameLocal_ = systemNameLocal;
-    userId_ = userId;
+      if (PASSWORD_TRACE)
+      {
+          Trace.log(Trace.DIAGNOSTIC, "Old password bytes:", oldBytes);
+          Trace.log(Trace.DIAGNOSTIC, "New password bytes:", newBytes);
+      }
 
-    // Decode passwords and discard seeds.
-    byte[] oldVault = CredentialVault.decode(proxySeed_, remoteSeed_, oldBytes); //@AI9A
-    char[] oldPassword = BinaryConverter.byteArrayToCharArray(oldVault); // @mds
+      systemName_      = systemName;
+      systemNameLocal_ = systemNameLocal;
+      userId_          = userId;
 
-    byte[] newVault = CredentialVault.decode(proxySeed_, remoteSeed_, newBytes); //@AI9A
-    char[] newPassword = BinaryConverter.byteArrayToCharArray(newVault); // @mds
+      // Decode passwords and discard seeds.
+      byte[] oldVault = CredentialVault.decode(proxySeed_, remoteSeed_, oldBytes);
+      char[] oldPassword = BinaryConverter.byteArrayToCharArray(oldVault);
 
-    CredentialVault.clearArray(oldVault); //@AI9A
-    CredentialVault.clearArray(newVault); //@AI9A
-    
-    proxySeed_ = null;
-    remoteSeed_ = null;
+      byte[] newVault = CredentialVault.decode(proxySeed_, remoteSeed_, newBytes);
+      char[] newPassword = BinaryConverter.byteArrayToCharArray(newVault);
 
-    if (PASSWORD_TRACE) {
-      Trace.log(Trace.DIAGNOSTIC, "Old password unscrambled: '"
-          + new String(oldPassword) + "'");
-      Trace.log(Trace.DIAGNOSTIC, "New password unscrambled: '"
-          + new String(newPassword) + "'");
-    }
+      CredentialVault.clearArray(oldVault);
+      CredentialVault.clearArray(newVault);
 
-    // Get a socket connection.
-    boolean needToDisconnect = (signonServer_ == null);
-    signonConnect();
-    try {
-      // Convert user ID to EBCDIC.
-      byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId);
-      byte[] encryptedPassword;
-      byte[] oldProtected;
-      byte[] newProtected;
+      proxySeed_ = null;
+      remoteSeed_ = null;
 
-      if (passwordLevel_ < 2) {
-        // @U1A START
-        if (oldPassword.length > 0 && Character.isDigit(oldPassword[0])) {
-          if (Trace.traceOn_)
-            Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
-          char[] passwordWithQ = new char[oldPassword.length + 1];
-          passwordWithQ[0] = 'Q';
-          System
-              .arraycopy(oldPassword, 0, passwordWithQ, 1, oldPassword.length);
-          CredentialVault.clearArray(oldPassword);
-          oldPassword = passwordWithQ;
-        }
-        // @U1A END
+      if (PASSWORD_TRACE)
+      {
+          Trace.log(Trace.DIAGNOSTIC, "Old password unscrambled: '" + new String(oldPassword) + "'");
+          Trace.log(Trace.DIAGNOSTIC, "New password unscrambled: '" + new String(newPassword) + "'");
+      }
 
-        // Do DES encryption.
-        if (oldPassword.length > 10) {
-          Trace.log(Trace.ERROR,
-              "Length of parameter 'oldPassword' is not valid:",
-              oldPassword.length);
-          CredentialVault.clearArray(oldPassword);
-          throw new AS400SecurityException(
-              AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
-        }
-        byte[] oldPasswordEbcdic = SignonConverter
-            .upperCharsToByteArray(oldPassword);
-        CredentialVault.clearArray(oldPassword);
-        
-        // @U1A START
-        if (newPassword.length > 0 && Character.isDigit(newPassword[0])) {
-          if (Trace.traceOn_)
-            Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
-          char[] passwordWithQ = new char[newPassword.length + 1];
-          passwordWithQ[0] = 'Q';
-          System
-              .arraycopy(newPassword, 0, passwordWithQ, 1, newPassword.length);
-          newPassword = passwordWithQ;
-        }
-        // @U1A END
-        if (newPassword.length > 10) {
-          Trace.log(Trace.ERROR,
-              "Length of parameter 'newPassword' is not valid:",
-              newPassword.length);
-          throw new AS400SecurityException(
-              AS400SecurityException.PASSWORD_NEW_NOT_VALID);
-        }
-        byte[] newPasswordEbcdic = SignonConverter
-            .upperCharsToByteArray(newPassword);
-        // CredentialVault.clearArray(newPassword);   Cleared in finally. 
-        
-        // Setup output variables for encrypt new password.
-        oldProtected = (oldPasswordEbcdic[8] == 0x40 && oldPasswordEbcdic[9] == 0x40) ? new byte[8]
-            : new byte[16];
-        newProtected = (newPasswordEbcdic[8] == 0x40 && newPasswordEbcdic[9] == 0x40) ? new byte[8]
-            : new byte[16];
+      // Get a socket connection.
+      // TODO AMRA - need to first authenticate to hostcnn
+      boolean needToDisconnect = (signonServer_ == null);
+      signonConnect();
 
-        encryptedPassword = encryptNewPassword(userIdEbcdic, oldPasswordEbcdic,
-            newPasswordEbcdic, oldProtected, newProtected, clientSeed_,
-            serverSeed_);
-        CredentialVault.clearArray(oldPasswordEbcdic);
-        
-      } else if (passwordLevel_< 4 ) {
-        // Do SHA-1 encryption.
-        byte[] userIdBytes = BinaryConverter
-            .charArrayToByteArray(SignonConverter
-                .byteArrayToCharArray(userIdEbcdic));
+      try
+      {
+          // Convert user ID to EBCDIC.
+          byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId);
+          byte[] encryptedPassword;
+          byte[] oldProtected;
+          byte[] newProtected;
 
-        // Screen out passwords that start with a star.
-        if (oldPassword.length == 0) {
-          Trace.log(Trace.ERROR, "Parameter 'oldPassword' is empty.");
-          throw new AS400SecurityException(
-              AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-        }
-        if (oldPassword[0] == '*') {
-          Trace.log(Trace.ERROR,
-              "Parameter 'oldPassword' begins with a '*' character.");
-          throw new AS400SecurityException(
-              AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-        }
-        if (newPassword.length == 0) {
-          Trace.log(Trace.ERROR, "Parameter 'newPassword' is empty.");
-          throw new AS400SecurityException(
-              AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-        }
-        if (newPassword[0] == '*') {
-          Trace.log(Trace.ERROR,
-              "Parameter 'newPassword' begins with a '*' character.");
-          throw new AS400SecurityException(
-              AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-        }
+          if (passwordLevel_ < 2)
+          {
+              if (oldPassword.length > 0 && Character.isDigit(oldPassword[0]))
+              {
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
 
-        // Trim space and put in byte array.
-        char[] trimmedOldPassword = trimUnicodeSpace(oldPassword);
-        if (oldPassword != trimmedOldPassword) { 
-          CredentialVault.clearArray(oldPassword);
-          oldPassword = trimmedOldPassword; 
-        } 
-        byte[] oldPasswordBytes = BinaryConverter
-            .charArrayToByteArray(oldPassword);
-       
-        
-        char[] trimmedNewPassword = trimUnicodeSpace(newPassword);
-        if (newPassword != trimmedNewPassword) {
-          CredentialVault.clearArray(newPassword);
-          newPassword = trimmedNewPassword;
-        } 
+                  char[] passwordWithQ = new char[oldPassword.length + 1];
+                  passwordWithQ[0] = 'Q';
+                  System.arraycopy(oldPassword, 0, passwordWithQ, 1, oldPassword.length);
+                  CredentialVault.clearArray(oldPassword);
+                  oldPassword = passwordWithQ;
+              }
 
-        byte[] newPasswordBytes = BinaryConverter
-            .charArrayToByteArray(trimUnicodeSpace(newPassword));
-        byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
-
-        if (PASSWORD_TRACE) {
-          Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 userIdBytes:", userIdBytes);
-          Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 oldPasswordBytes:",
-              oldPasswordBytes);
-          Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 newPasswordBytes:",
-              newPasswordBytes);
-          Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 sequence:", sequence);
-        }
-
-        byte[] token = generateShaToken(userIdBytes, oldPasswordBytes);
-        encryptedPassword = generateShaSubstitute(token, serverSeed_,
-            clientSeed_, userIdBytes, sequence);
-
-        newProtected = generateShaProtected(newPasswordBytes, token,
-            serverSeed_, clientSeed_, userIdBytes, sequence);
-
-        byte[] newToken = generateShaToken(userIdBytes, newPasswordBytes);
-
-        oldProtected = generateShaProtected(oldPasswordBytes, newToken,
-            serverSeed_, clientSeed_, userIdBytes, sequence);
-        //@AI9A
-        CredentialVault.clearArray(newPasswordBytes);
-        CredentialVault.clearArray(oldPasswordBytes);
-      } //@AF2 password level >= 4 QPWDLVL4
-      else {
-    	  if (oldPassword.length == 0) {
-              Trace.log(Trace.ERROR, "Parameter 'oldPassword' is empty.");
-              throw new AS400SecurityException(
-                  AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-            }
-            if (oldPassword[0] == '*') {
-              Trace.log(Trace.ERROR,
-                  "Parameter 'oldPassword' begins with a '*' character.");
-              throw new AS400SecurityException(
-                  AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-            }
-            if (newPassword.length == 0) {
-              Trace.log(Trace.ERROR, "Parameter 'newPassword' is empty.");
-              throw new AS400SecurityException(
-                  AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-            }
-            if (newPassword[0] == '*') {
-              Trace.log(Trace.ERROR,
-                  "Parameter 'newPassword' begins with a '*' character.");
-              throw new AS400SecurityException(
-                  AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-            }
-      /*
-       * If a sequence number is used, the client increments its password sequence "PWSEQs" by
-       * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
-       * uses a sequence number of 1.
-      */
-	      byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
-	      	     
-	     char[] trimmedOldPassword = trimUnicodeSpace(oldPassword);
-        if (oldPassword != trimmedOldPassword) { 
-          CredentialVault.clearArray(oldPassword);
-          oldPassword = trimmedOldPassword; 
-        }
+              // Do DES encryption.
+              if (oldPassword.length > 10)
+              {
+                  Trace.log(Trace.ERROR, "Length of parameter 'oldPassword' is not valid:", oldPassword.length);
+                  
+                  CredentialVault.clearArray(oldPassword);
+                  throw new AS400SecurityException(AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
+              }
               
-        char[] trimmedNewPassword = trimUnicodeSpace(newPassword);
-        if (newPassword != trimmedNewPassword) {
+              byte[] oldPasswordEbcdic = SignonConverter.upperCharsToByteArray(oldPassword);
+              CredentialVault.clearArray(oldPassword);
+
+              if (newPassword.length > 0 && Character.isDigit(newPassword[0]))
+              {
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
+
+                  char[] passwordWithQ = new char[newPassword.length + 1];
+                  passwordWithQ[0] = 'Q';
+                  System.arraycopy(newPassword, 0, passwordWithQ, 1, newPassword.length);
+                  newPassword = passwordWithQ;
+              }
+
+              if (newPassword.length > 10)
+              {
+                  Trace.log(Trace.ERROR, "Length of parameter 'newPassword' is not valid:", newPassword.length);
+                  
+                  throw new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_NOT_VALID);
+              }
+              byte[] newPasswordEbcdic = SignonConverter.upperCharsToByteArray(newPassword);
+
+              // Setup output variables for encrypt new password.
+              oldProtected = (oldPasswordEbcdic[8] == 0x40 && oldPasswordEbcdic[9] == 0x40) ? new byte[8] : new byte[16];
+              newProtected = (newPasswordEbcdic[8] == 0x40 && newPasswordEbcdic[9] == 0x40) ? new byte[8] : new byte[16];
+
+              encryptedPassword = encryptNewPassword(userIdEbcdic, oldPasswordEbcdic, newPasswordEbcdic, oldProtected,
+                      newProtected, clientSeed_, serverSeed_);
+              CredentialVault.clearArray(oldPasswordEbcdic);
+          }
+          else if (passwordLevel_ < 4)
+          {
+              // Do SHA-1 encryption.
+              byte[] userIdBytes = BinaryConverter.charArrayToByteArray(SignonConverter.byteArrayToCharArray(userIdEbcdic));
+
+              // Screen out passwords that start with a star.
+              if (oldPassword.length == 0) {
+                  Trace.log(Trace.ERROR, "Parameter 'oldPassword' is empty.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+              if (oldPassword[0] == '*') {
+                  Trace.log(Trace.ERROR, "Parameter 'oldPassword' begins with a '*' character.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+              if (newPassword.length == 0) {
+                  Trace.log(Trace.ERROR, "Parameter 'newPassword' is empty.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+              if (newPassword[0] == '*') {
+                  Trace.log(Trace.ERROR, "Parameter 'newPassword' begins with a '*' character.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+
+              // Trim space and put in byte array.
+              char[] trimmedOldPassword = trimUnicodeSpace(oldPassword);
+              if (oldPassword != trimmedOldPassword)
+              {
+                  CredentialVault.clearArray(oldPassword);
+                  oldPassword = trimmedOldPassword;
+              }
+              byte[] oldPasswordBytes = BinaryConverter.charArrayToByteArray(oldPassword);
+
+              char[] trimmedNewPassword = trimUnicodeSpace(newPassword);
+              if (newPassword != trimmedNewPassword)
+              {
+                  CredentialVault.clearArray(newPassword);
+                  newPassword = trimmedNewPassword;
+              }
+
+              byte[] newPasswordBytes = BinaryConverter.charArrayToByteArray(trimUnicodeSpace(newPassword));
+              byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+
+              if (PASSWORD_TRACE) {
+                  Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 userIdBytes:", userIdBytes);
+                  Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 oldPasswordBytes:", oldPasswordBytes);
+                  Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 newPasswordBytes:", newPasswordBytes);
+                  Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 sequence:", sequence);
+              }
+
+              byte[] token = generateShaToken(userIdBytes, oldPasswordBytes);
+              encryptedPassword = generateShaSubstitute(token, serverSeed_, clientSeed_, userIdBytes, sequence);
+
+              newProtected = generateShaProtected(newPasswordBytes, token, serverSeed_, clientSeed_, userIdBytes, sequence);
+
+              byte[] newToken = generateShaToken(userIdBytes, newPasswordBytes);
+
+              oldProtected = generateShaProtected(oldPasswordBytes, newToken, serverSeed_, clientSeed_, userIdBytes, sequence);
+
+              CredentialVault.clearArray(newPasswordBytes);
+              CredentialVault.clearArray(oldPasswordBytes);
+          } // password level >= 4 QPWDLVL4
+          else
+          {
+              if (oldPassword.length == 0) {
+                  Trace.log(Trace.ERROR, "Parameter 'oldPassword' is empty.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+              if (oldPassword[0] == '*') {
+                  Trace.log(Trace.ERROR, "Parameter 'oldPassword' begins with a '*' character.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+              if (newPassword.length == 0) {
+                  Trace.log(Trace.ERROR, "Parameter 'newPassword' is empty.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+              if (newPassword[0] == '*') {
+                  Trace.log(Trace.ERROR, "Parameter 'newPassword' begins with a '*' character.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+              
+              /*
+               * If a sequence number is used, the client increments its password sequence "PWSEQs" by
+               * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
+               * uses a sequence number of 1.
+               */
+              byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+                 
+              char[] trimmedOldPassword = trimUnicodeSpace(oldPassword);
+              if (oldPassword != trimmedOldPassword)
+              { 
+                  CredentialVault.clearArray(oldPassword);
+                  oldPassword = trimmedOldPassword; 
+              }
+              
+              char[] trimmedNewPassword = trimUnicodeSpace(newPassword);
+              if (newPassword != trimmedNewPassword)
+              {
+                  CredentialVault.clearArray(newPassword);
+                  newPassword = trimmedNewPassword;
+              }
+        
+              byte[] oldPasswordBytes = BinaryConverter.charArrayToByteArray(oldPassword);
+              byte[] newPasswordBytes = BinaryConverter.charArrayToByteArray(newPassword);
+      
+              byte[] token = generatePwdTokenForPasswordLevel4(userId_, oldPassword);
+              encryptedPassword = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
+          
+              newProtected = generateSha512Protected(newPasswordBytes, token, serverSeed_, clientSeed_, userId, sequence);
+          
+              byte[] newToken = generatePwdTokenForPasswordLevel4(userId, newPassword);
+          
+              oldProtected = generateSha512Protected(oldPasswordBytes, newToken, serverSeed_, clientSeed_, userId, sequence);
+          
+              CredentialVault.clearArray(newPasswordBytes);
+              CredentialVault.clearArray(oldPasswordBytes);
+          }
+
+          if (PASSWORD_TRACE) {
+              Trace.log(Trace.DIAGNOSTIC, "Sending Change Password Request...");
+              Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId);
+              Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIdEbcdic);
+              Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
+              Trace.log(Trace.DIAGNOSTIC, "  Protected old password:", oldProtected);
+              Trace.log(Trace.DIAGNOSTIC, "  Protected new password:", newProtected);
+          }
+
+          ChangePasswordReq chgReq = new ChangePasswordReq(userIdEbcdic,
+                  encryptedPassword, oldProtected, oldPassword.length * 2,
+                  newProtected, newPassword.length * 2, serverLevel_, additionalAuthenticationFactor);
+          ChangePasswordRep chgRep = (ChangePasswordRep) signonServer_.sendAndReceive(chgReq);
+          int rc = chgRep.getRC();
+          if (rc == 0)
+          {
+              // Change password worked, so retrieve signon information using new password.
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Password change implementation successful.");
+
+              byte[] tempSeed = new byte[9];
+              CredentialVault.rng.nextBytes(tempSeed);
+
+              byte[] newPasswordByteArray = BinaryConverter.charArrayToByteArray(newPassword); 
+              SignonInfo returnInfo = signon2(systemName, systemNameLocal, userId,
+                      CredentialVault.encode(tempSeed, exchangeSeed(tempSeed), newPasswordByteArray),
+                      AS400.AUTHENTICATION_SCHEME_PASSWORD, additionalAuthenticationFactor); 
+        
+              CredentialVault.clearArray(newPasswordByteArray);
+        
+              if (needToDisconnect)
+                  signonDisconnect();
+              return returnInfo;
+          }
+          else
+          {
+              byte[] rcBytes = new byte[4];
+              BinaryConverter.intToByteArray(rc, rcBytes, 0);
+              Trace.log(Trace.ERROR, "Change password implementation failed with return code:", rcBytes);
+
+              throw AS400ImplRemote.returnSecurityException(rc, chgRep
+                      .getErrorMessages(ConverterImplRemote.getConverter(ExecutionEnvironment.getBestGuessAS400Ccsid(), this)), userId);
+          }
+      }
+      catch (IOException | AS400SecurityException e)
+      {
+          Trace.log(Trace.ERROR, "Change password failed:", e);
+          if (signonServer_ != null)
+              signonServer_.forceDisconnect();
+          signonServer_ = null;
+          throw e;
+      }
+      finally
+      {
           CredentialVault.clearArray(newPassword);
-          newPassword = trimmedNewPassword;
-        }
-        
-	      byte[] oldPasswordBytes = BinaryConverter
-	              .charArrayToByteArray(oldPassword);
-	      byte[] newPasswordBytes = BinaryConverter
-	              .charArrayToByteArray(newPassword);
-	  
-	      byte[] token = generatePwdTokenForPasswordLevel4(userId_, oldPassword);
-		  encryptedPassword = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
-		  
-		  newProtected = generateSha512Protected(newPasswordBytes, token, serverSeed_, clientSeed_, userId, sequence);
-		  
-		  byte[] newToken = generatePwdTokenForPasswordLevel4(userId, newPassword);
-		  
-		  oldProtected = generateSha512Protected(oldPasswordBytes, newToken, serverSeed_, clientSeed_, userId, sequence);
-		  
-		  //@AI9A
-	      CredentialVault.clearArray(newPasswordBytes);
-	      CredentialVault.clearArray(oldPasswordBytes);
-  }
-  //@AF2 End
-
-      if (PASSWORD_TRACE) {
-        Trace.log(Trace.DIAGNOSTIC, "Sending Change Password Request...");
-        Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId);
-        Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIdEbcdic);
-        Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
-        Trace.log(Trace.DIAGNOSTIC, "  Protected old password:", oldProtected);
-        Trace.log(Trace.DIAGNOSTIC, "  Protected new password:", newProtected);
+          CredentialVault.clearArray(oldPassword);
       }
-
-      ChangePasswordReq chgReq = new ChangePasswordReq(userIdEbcdic,
-          encryptedPassword, oldProtected, oldPassword.length * 2,
-          newProtected, newPassword.length * 2, serverLevel_, additionalAuthenticationFactor);
-      ChangePasswordRep chgRep = (ChangePasswordRep) signonServer_
-          .sendAndReceive(chgReq);
-      int rc = chgRep.getRC();
-      if (rc == 0) {
-        // Change password worked, so retrieve signon information using new
-        // password.
-        if (Trace.traceOn_)
-          Trace.log(Trace.DIAGNOSTIC,
-              "Password change implementation successful.");
-
-        byte[] tempSeed = new byte[9];
-        CredentialVault.rng.nextBytes(tempSeed);
-
-        byte[] newPasswordByteArray = BinaryConverter.charArrayToByteArray(newPassword); //@AI9A
-        SignonInfo returnInfo = signon2(systemName, systemNameLocal, userId,
-            CredentialVault.encode(tempSeed, exchangeSeed(tempSeed),
-            		newPasswordByteArray),
-            AS400.AUTHENTICATION_SCHEME_PASSWORD, additionalAuthenticationFactor); // @mds
-        
-        CredentialVault.clearArray(newPasswordByteArray); //@AI9A
-        
-        if (needToDisconnect)
-          signonDisconnect();
-        return returnInfo;
-      } else {
-        byte[] rcBytes = new byte[4];
-        BinaryConverter.intToByteArray(rc, rcBytes, 0);
-        Trace.log(Trace.ERROR,
-            "Change password implementation failed with return code:", rcBytes);
-
-        throw AS400ImplRemote.returnSecurityException(rc, chgRep
-            .getErrorMessages(ConverterImplRemote.getConverter(
-                ExecutionEnvironment.getBestGuessAS400Ccsid(), this)), userId);
-      }
-    } catch (IOException e) {
-      Trace.log(Trace.ERROR, "Change password failed:", e);
-      if (signonServer_ != null) { 
-    	  signonServer_.forceDisconnect();
-      }
-      signonServer_ = null;
-      throw e;
-    } catch (AS400SecurityException e) {
-      Trace.log(Trace.ERROR, "Change password failed:", e);
-      if (signonServer_ != null) {
-    	  signonServer_.forceDisconnect();
-      }
-      signonServer_ = null;
-      throw e;
-    } finally { //@AI9A
-    	if (newPassword != null && newPassword.length>0)
-    		CredentialVault.clearArray(newPassword);
-    	if (oldPassword != null && oldPassword.length>0)
-    		CredentialVault.clearArray(oldPassword);
-    }
   }
 
   // Implementation for connect.
@@ -628,151 +611,156 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   @Override
-  public void connect(int service, int overridePort, boolean skipSignonServer)
-      throws AS400SecurityException, IOException {
-    if (service == AS400.SIGNON) {
-      signonConnect();
-    } else {
-      getConnection(service, overridePort, false, skipSignonServer);
-    }
+  public void connect(int service, int overridePort, boolean skipSignonServer) throws AS400SecurityException, IOException
+  {
+      if (service == AS400.SIGNON)
+          signonConnect();
+      else if (service == AS400.HOSTCNN)
+      {
+          // Do not allow for connections to hostcnn - do not see reason to allow it.
+          Trace.log(Trace.DIAGNOSTIC, "Connecting to as-hostcnn is not allowed. ");
+          throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+      }
+      else
+          getConnection(service, overridePort, false, skipSignonServer);
   }
 
   @Override
-  public Socket connectToPort(int port) throws AS400SecurityException,
-      IOException {
-    return getConnection(0, port, false);
+  public Socket connectToPort(int port) throws AS400SecurityException, IOException {
+      return getConnection(0, port, false);
   }
 
   // @N5A Establish a DHCP connection to the specified port. Add this interface
   // for L1C for DHCP already listens on 942 of localhost for STRTCPSVR
   @Override
-  public Socket connectToPort(int port, boolean forceNonLocalhost)
-      throws AS400SecurityException, IOException {
-    return getConnection(0, port, forceNonLocalhost);
+  public Socket connectToPort(int port, boolean forceNonLocalhost) throws AS400SecurityException, IOException {
+      return getConnection(0, port, forceNonLocalhost);
   }
 
   // @SAA Create user handle for the connection
-  public int createUserHandle() throws AS400SecurityException, IOException {
-    if (userHandle_ != UNINITIALIZED && credVault_.getType() != AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) {//@ACAA
-      return userHandle_;
-    }
+  public int createUserHandle() throws AS400SecurityException, IOException
+  {
+      if (userHandle_ != UNINITIALIZED && credVault_.getType() != AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+          return userHandle_;
     
-    //@ACAA Start
-    if (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) {
-    	return createUserHandle2();
-    }
-    //@ACAA End
+      if (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+          return createUserHandle2();
     
-    ClientAccessDataStream ds = null;
-    int UserHandle = UNINITIALIZED;
+      ClientAccessDataStream ds = null;
+      int UserHandle = UNINITIALIZED;
 
-    AS400Server connectedServer = getConnectedServer(new int[] { AS400.FILE });
-    if (connectedServer != null) {
-      byte[] ClientSeed = BinaryConverter.longToByteArray(System
-          .currentTimeMillis());
-      byte[] ServerSeed = null;
-      try {
-        IFSUserHandleSeedReq req = new IFSUserHandleSeedReq(ClientSeed);
-        ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
-      } catch (InterruptedException e) {
-        Trace.log(Trace.ERROR, "Interrupted");
-        InterruptedIOException throwException = new InterruptedIOException(
-            e.getMessage());
-        throwException.initCause(e);
-        throw throwException;
-      }
-      // Verify that we got a handle back.
-      int rc = 0;
-      if (ds instanceof IFSUserHandleSeedRep) {
-        ServerSeed = ((IFSUserHandleSeedRep) ds).getSeed();
-      } else if (ds instanceof IFSReturnCodeRep) {
-        rc = ((IFSReturnCodeRep) ds).getReturnCode();
-        if (rc != IFSReturnCodeRep.SUCCESS) {
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
-        }
-        throw new ExtendedIOException(rc);
-      } else {
-        // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
-        throw new InternalErrorException(Integer.toHexString(ds.getReqRepID()),
-            InternalErrorException.DATA_STREAM_UNKNOWN);
-      }
-
-      rc = 0;
-      ds = null;
-      byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
-      byte[] encryptedPassword = getPassword(ClientSeed, ServerSeed);
-      IFSCreateUserHandlerReq req = new IFSCreateUserHandlerReq(userIDbytes,
-          encryptedPassword);
-      try {
-        ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
-      } catch (InterruptedException e) {
-        Trace.log(Trace.ERROR, "Interrupted");
-        InterruptedIOException throwException = new InterruptedIOException(
-            e.getMessage());
-        throwException.initCause(e);
-        throw throwException;
-      }
-
-      // Verify the reply.
-      if (ds instanceof IFSCreateUserHandleRep) {
-        rc = ((IFSCreateUserHandleRep) ds).getReturnCode();
-        if (rc != IFSReturnCodeRep.SUCCESS) {
-          Trace.log(Trace.ERROR, "IFSCreateUserHandleRep return code", rc);
-          throw new ExtendedIOException(rc);
-        }
-        UserHandle = ((IFSCreateUserHandleRep) ds).getHandle();
-        
-      } else if (ds instanceof IFSReturnCodeRep) {
-        rc = ((IFSReturnCodeRep) ds).getReturnCode();
-        if (rc != IFSReturnCodeRep.SUCCESS) {
-          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
-        }
-        throw new ExtendedIOException(rc);
-      } else {
-        // Unknown data stream.
-        Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
-        throw new InternalErrorException(
-            InternalErrorException.DATA_STREAM_UNKNOWN, Integer.toHexString(ds
-                .getReqRepID()), null);
-      }
-    }
-    setUserHandle(UserHandle);
-    return UserHandle;
-  }
-
-  // @SAA
-  public int getUserHandle() {
-    return userHandle_;
-  }
-
-  // @SAA
-  public void setUserHandle(int userHandle_) {
-    this.userHandle_ = userHandle_;
-  }
-
-  public void freeUserHandle() throws IOException, AS400SecurityException {
-    if (userHandle_ != UNINITIALIZED) {
-      IFSFreeUserHandlerReq req = new IFSFreeUserHandlerReq(userHandle_);
       AS400Server connectedServer = getConnectedServer(new int[] { AS400.FILE });
-      if (connectedServer != null) {
-        connectedServer.send(req);
+      if (connectedServer != null)
+      {
+          byte[] ClientSeed = BinaryConverter.longToByteArray(System.currentTimeMillis());
+          byte[] ServerSeed = null;
+          try 
+          {
+              IFSUserHandleSeedReq req = new IFSUserHandleSeedReq(ClientSeed);
+              ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
+          } 
+          catch (InterruptedException e)
+          {
+              Trace.log(Trace.ERROR, "Interrupted");
+              InterruptedIOException throwException = new InterruptedIOException( e.getMessage());
+              throwException.initCause(e);
+              throw throwException;
+          }
+          
+          // Verify that we got a handle back.
+          int rc = 0;
+          if (ds instanceof IFSUserHandleSeedRep)
+              ServerSeed = ((IFSUserHandleSeedRep) ds).getSeed();
+          else if (ds instanceof IFSReturnCodeRep)
+          {
+              rc = ((IFSReturnCodeRep) ds).getReturnCode();
+              if (rc != IFSReturnCodeRep.SUCCESS)
+                  Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+              throw new ExtendedIOException(rc);
+          }
+          else
+          {
+              // Unknown data stream.
+              Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
+              throw new InternalErrorException(Integer.toHexString(ds.getReqRepID()), InternalErrorException.DATA_STREAM_UNKNOWN);
+          }
 
+          rc = 0;
+          ds = null;
+          byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
+          byte[] encryptedPassword = getPassword(ClientSeed, ServerSeed);
+          IFSCreateUserHandlerReq req = new IFSCreateUserHandlerReq(userIDbytes, encryptedPassword);
+          
+          try {
+              ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
+          }
+          catch (InterruptedException e)
+          {
+              Trace.log(Trace.ERROR, "Interrupted");
+              InterruptedIOException throwException = new InterruptedIOException( e.getMessage());
+              throwException.initCause(e);
+              throw throwException;
+          }
+
+          // Verify the reply.
+          if (ds instanceof IFSCreateUserHandleRep)
+          {
+              rc = ((IFSCreateUserHandleRep) ds).getReturnCode();
+              if (rc != IFSReturnCodeRep.SUCCESS)
+              {
+                  Trace.log(Trace.ERROR, "IFSCreateUserHandleRep return code", rc);
+                  throw new ExtendedIOException(rc);
+              }
+              UserHandle = ((IFSCreateUserHandleRep) ds).getHandle();
+          }
+          else if (ds instanceof IFSReturnCodeRep)
+          {
+              rc = ((IFSReturnCodeRep) ds).getReturnCode();
+              if (rc != IFSReturnCodeRep.SUCCESS)
+                  Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+              throw new ExtendedIOException(rc);
+          }
+          else
+          {
+              // Unknown data stream.
+              Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
+              throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN, Integer.toHexString(ds.getReqRepID()), null);
+          }
       }
-    }
-    userHandle_ = UNINITIALIZED;
+      
+      setUserHandle(UserHandle);
+      return UserHandle;
+  }
+
+  public int getUserHandle() {
+      return userHandle_;
+  }
+
+  public void setUserHandle(int userHandle) {
+      userHandle_ = userHandle;
+  }
+
+  public void freeUserHandle() throws IOException, AS400SecurityException
+  {
+      if (userHandle_ != UNINITIALIZED)
+      {
+          IFSFreeUserHandlerReq req = new IFSFreeUserHandlerReq(userHandle_);
+          AS400Server connectedServer = getConnectedServer(new int[] { AS400.FILE });
+          if (connectedServer != null)
+              connectedServer.send(req);
+      }
+      
+      userHandle_ = UNINITIALIZED;
   }
 
   // Implementation for disconnect.
   @Override
   public void disconnect(int service)
   {
-      if (service == AS400.HOSTCNN) {
-          hcsDaemonDisconnect();
-      }
-      else if (service == AS400.SIGNON) {
+      if (service == AS400.HOSTCNN)
+          hostcnnDisconnect();
+      else if (service == AS400.SIGNON)
           signonDisconnect();
-      } 
       else
       {
           if (userHandle_ != UNINITIALIZED && service == AS400.FILE)
@@ -791,49 +779,51 @@ public class AS400ImplRemote implements AS400Impl {
           }
       }
     
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Service disconnected implementation:", AS400.getServerName(service));
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service disconnected implementation:", AS400.getServerName(service));
   }
 
   // Disconnect all services.
-  void disconnectAllServices() {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC,
-          "Disconnecting all services implementation...");
+  void disconnectAllServices()
+  {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Disconnecting all services implementation.");
 
-    disconnect(AS400.FILE);
-    disconnect(AS400.PRINT);
-    disconnect(AS400.DATAQUEUE);
-    disconnect(AS400.COMMAND);
-    disconnect(AS400.DATABASE);
-    disconnect(AS400.RECORDACCESS);
-    disconnect(AS400.CENTRAL);
-    disconnect(AS400.SIGNON);
+      disconnect(AS400.FILE);
+      disconnect(AS400.PRINT);
+      disconnect(AS400.DATAQUEUE);
+      disconnect(AS400.COMMAND);
+      disconnect(AS400.DATABASE);
+      disconnect(AS400.RECORDACCESS);
+      disconnect(AS400.CENTRAL);
+      disconnect(AS400.SIGNON);
+      
+      // We purposely do not end HOSTCNN - should we?
 
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "All services disconnected implementation.");
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "All services disconnected implementation.");
   }
-
+  
   // Disconnects the system and removes it from the system list.
   // param server The AS400Server to disconnect and remove.
-  public void disconnectServer(AS400Server server) {
-    server.forceDisconnect();
-    int service = server.getService();
-    if (service != AS400.SIGNON && service != AS400.HOSTCNN) {
-      Vector serverList = serverPool_[service];
-      synchronized (serverList) {
-        if (!serverList.isEmpty()) {
-          serverList.removeElement(server);
+  public void disconnectServer(AS400Server server)
+  {
+      server.forceDisconnect();
+      int service = server.getService();
+      if (service != AS400.SIGNON && service != AS400.HOSTCNN)
+      {
+          Vector serverList = serverPool_[service];
+          synchronized (serverList)
+          {
+              if (!serverList.isEmpty())
+              {
+                  serverList.removeElement(server);
 
-          // Only fire the event if all systems have been disconnected.
-          if (serverList.isEmpty()) {
-            fireConnectEvent(false, service);
+                  // Only fire the event if all systems have been disconnected.
+                  if (serverList.isEmpty())
+                      fireConnectEvent(false, service);
+              }
           }
-        }
       }
-    }
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Server disconnected");
+    
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server disconnected. Job: " + server.getJobString());
   }
 
   // Exchange of seeds between public 'AS400' object and this class.
@@ -842,1134 +832,69 @@ public class AS400ImplRemote implements AS400Impl {
   // between the public class and the implRemote class. The transmitted
   // authentication information can be encoded/decoded using the exchanged
   // seeds.
-  public byte[] exchangeSeed(byte[] proxySeed) {
-    // Hold the seed they send us.
-    proxySeed_ = proxySeed;
+  public byte[] exchangeSeed(byte[] proxySeed)
+  {
+      // Hold the seed they send us.
+      proxySeed_ = proxySeed;
 
-    // Generate, hold, and send them our seed.
-    remoteSeed_ = new byte[7];
-    CredentialVault.rng.nextBytes(remoteSeed_); // @mds
+      // Generate, hold, and send them our seed.
+      remoteSeed_ = new byte[7];
+      CredentialVault.rng.nextBytes(remoteSeed_);
 
-    return remoteSeed_;
+      return remoteSeed_;
   }
 
-  // Cleans up all connections.
+  // Called during garbage collections - Cleans up all connections.
   @Override
-  protected void finalize() throws Throwable {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC,
-          "Finalize method for AS400 implementation invoked.");
-    try {
-      disconnectAllServices();
-    } finally {
-      super.finalize();
-    }
+  protected void finalize() throws Throwable
+  {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Finalize method for AS400 implementation invoked.");
+
+      try {
+          disconnectAllServices();
+          disconnect(AS400.HOSTCNN);
+      } finally {
+          super.finalize();
+      }
   }
 
   // Fire connnect event.
-  private void fireConnectEvent(boolean connect, int service) {
-    if (dispatcher_ != null) {
-      ConnectionEvent connectEvent = new ConnectionEvent(this, service);
-      if (connect) {
-        dispatcher_.connected(connectEvent);
-      } else {
-        dispatcher_.disconnected(connectEvent);
-      }
-    }
-  }
-
-  // Flow the generate profile token datastream.
-  @Override
-   public void generateProfileToken(ProfileTokenCredential profileToken,
-      String userIdentity) throws AS400SecurityException, IOException {
-    signonConnect();
-    try {
-      byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
-      byte[] encryptedPassword = getPassword(clientSeed_, serverSeed_);
-      if (PASSWORD_TRACE) {
-        Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
-        Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
-        Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
-        Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed_);
-        Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed_);
-        Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
-      }
-
-      int serverId = AS400Server.getServerId(AS400.SIGNON);
-      AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes,
-          encryptedPassword, credVault_.getType());
-      AS400StrSvrReplyDS reply = (AS400StrSvrReplyDS) signonServer_
-          .sendAndReceive(req);
-
-      if (reply.getRC() != 0) {
-        byte[] rcBytes = new byte[4];
-        BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
-        Trace
-            .log(Trace.ERROR, "Start server failed with return code:", rcBytes);
-        throw AS400ImplRemote.returnSecurityException(reply.getRC(), null,
-            userId_);
-      }
-
-      SignonGenAuthTokenRequestDS req2 = new SignonGenAuthTokenRequestDS(
-          BinaryConverter.charArrayToByteArray(userIdentity.toCharArray()),
-          profileToken.getTokenType(), profileToken.getTimeoutInterval(),
-          serverLevel_);
-      SignonGenAuthTokenReplyDS rep = (SignonGenAuthTokenReplyDS) signonServer_
-          .sendAndReceive(req2);
-
-      int rc = rep.getRC();
-      if (rc != 0) {
-        byte[] rcBytes = new byte[4];
-        BinaryConverter.intToByteArray(rc, rcBytes, 0);
-        Trace.log(Trace.ERROR,
-            "Generate profile token failed with return code:", rcBytes);
-        throw AS400ImplRemote.returnSecurityException(rc, rep
-            .getErrorMessages(ConverterImplRemote.getConverter(
-                ExecutionEnvironment.getBestGuessAS400Ccsid(), this)), userId_);
-      }
-      try {
-        profileToken.setToken(rep.getProfileTokenBytes());
-      } catch (PropertyVetoException e) {
-        Trace.log(Trace.ERROR, e);
-        throw new InternalErrorException(
-            InternalErrorException.UNEXPECTED_EXCEPTION, e);
-      }
-    } catch (IOException e) {
-      Trace.log(Trace.ERROR, "Generate profile token failed:", e);
-      signonServer_.forceDisconnect();
-      signonServer_ = null;
-      throw e;
-    } catch (AS400SecurityException e) {
-      Trace.log(Trace.ERROR, "Generate profile token failed:", e);
-      signonServer_.forceDisconnect();
-      signonServer_ = null;
-      throw e;
-    }
-  }
-
-  // Flow the generate profile token datastream.
-  public void generateProfileToken(ProfileTokenCredential profileToken,
-      String userId, CredentialVault vault, String gssName)
-      throws AS400SecurityException, IOException, InterruptedException {
-    signonConnect();
-    try {
-      byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId);
-      byte[] authenticationBytes = null;
-      int byteType = vault.getType();
-
-      switch (byteType) {
-      case AS400.AUTHENTICATION_SCHEME_GSS_TOKEN:
-        try {
-          authenticationBytes = (gssCredential_ == null) ? TokenManager
-              .getGSSToken(systemName_, gssName) : TokenManager2.getGSSToken(
-              systemName_, gssCredential_);
-        } catch (Exception e) {
-          Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-          // @M4C
-          throw new AS400SecurityException(
-              AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
-        }
-        break;
-      case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
-      case AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN:
-        authenticationBytes = vault.decode(proxySeed_, remoteSeed_);
-        // @mds should we null out the seeds here
-        break;
-      default: // Password.
-    	byte[] passwordByte = vault.decode(proxySeed_, remoteSeed_); //@AI9A
-        char[] password = BinaryConverter.byteArrayToCharArray(passwordByte); // @mds
-        CredentialVault.clearArray(passwordByte);  //@AI9A
-        proxySeed_ = null;
-        remoteSeed_ = null;
-
-        // Generate the correct password based on the password encryption level
-        // of the system.
-        if (passwordLevel_ < 2) {
-          // Prepend Q to numeric password. A "numeric password" is
-          // a password that starts with a numeric digit.
-          if (password.length > 0 && Character.isDigit(password[0])) {
-            // boolean isAllNumeric = true;
-            // for (int i = 0; i < password.length; ++i)
-            // {
-            // if (password[i] < '\u0030' || password[i] > '\u0039')
-            // {
-            // isAllNumeric = false;
-            // }
-            // }
-            // if (isAllNumeric)
-            // {
-            if (Trace.traceOn_)
-              Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
-            char[] passwordWithQ = new char[password.length + 1];
-            passwordWithQ[0] = 'Q';
-            System.arraycopy(password, 0, passwordWithQ, 1, password.length);
-          CredentialVault.clearArray(password);
-            password = passwordWithQ;
-            // }
-          }
-
-          if (password.length > 10) {
-            Trace
-                .log(Trace.ERROR,
-                    "Length of parameter 'password' is not valid:",
-                    password.length);
-            throw new AS400SecurityException(
-                AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
-          }
-          authenticationBytes = encryptPassword(userIdEbcdic,
-              SignonConverter.upperCharsToByteArray(password), clientSeed_, serverSeed_);
-          CredentialVault.clearArray(password);
-        } else if (passwordLevel_ < 4){
-          // Do SHA-1 encryption.
-          byte[] userIdBytes = BinaryConverter
-              .charArrayToByteArray(SignonConverter
-                  .byteArrayToCharArray(userIdEbcdic));
-
-          // Screen out passwords that start with a star.
-          if (password.length == 0) {
-            Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
-            throw new AS400SecurityException(
-                AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-          }
-          if (password[0] == '*') {
-            Trace.log(Trace.ERROR,
-                "Parameter 'password' begins with a '*' character.");
-            throw new AS400SecurityException(
-                AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-          }
-
-          char[] trimmedPassword = trimUnicodeSpace(password);
-          byte[] passwordBytes = BinaryConverter
-              .charArrayToByteArray(trimmedPassword);
-          CredentialVault.clearArray(trimmedPassword);
-          CredentialVault.clearArray(password);
-          byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
-
-          if (PASSWORD_TRACE) {
-            Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 userIdBytes:", userIdBytes);
-            Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 passwordBytes:",
-                passwordBytes);
-            Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 sequence:", sequence);
-          }
-
-          byte[] token = generateShaToken(userIdBytes, passwordBytes);
-          /* Clear the password bytes */ 
-          CredentialVault.clearArray(passwordBytes);  //@AI9A
-          
-          authenticationBytes = generateShaSubstitute(token, serverSeed_,
-              clientSeed_, userIdBytes, sequence);
-        } else { //@AF6A Start
-        	if (password.length == 0) {
-                Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
-                throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-            }
-            // Screen out passwords that start with a star.
-            if (password[0] == '*') {
-                Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
-                throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-              }
-            /*
-             * If a sequence number is used, the client increments its password sequence "PWSEQs" by
-             * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
-             * uses a sequence number of 1.
-            */
-      	  byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
-      	  //Generate salt for password level 4
-            /*
-             * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
-             * 1. Convert the 10-character blank padded user ID to upper case.
-             * 2. Convert the 10-character blank padded upper case user ID to Unicode (CCSID 13488).
-             * 3. Convert the password value to Unicode (CCSID 13488).
-             * 4. Generate the salt value:
-             *    a. Fill a 28-byte variable with Unicode blanks (0x0020).
-             *    b. Copy the Unicode user ID value into the first 20 bytes of the 28-byte blank filled variable.
-             *    c. Copy the last 8 bytes (last 4 characters) of the Unicode password value into the last 8 bytes of the 28-byte variable. If the password is less than 4 characters, then copy the entire Unicode password value.
-             *    d. Do a SHA-256 hash on the 28-byte variable to produce the 32-byte salt value.
-             * 5. Generate the pwdlvl 4 version of the password using PBKDF2 with HMAC SHA-512 with the following values:
-             *    Hash algorithm = HMAC SHA-512 (produces a 64-byte key)
-             *    Data = Unicode password value
-             *    Data Length = Length of Unicode password value
-             *    Iterations = 10022
-             *    Initialization vector length = 32
-             *    Initialization vector (salt) = value generated in Step #4.
-             */
-  	      byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
-  	      CredentialVault.clearArray(password); //@AI9A
-  	      authenticationBytes = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
-        }//@AF6A End
-      }
-
-      AS400GenAuthTknDS req = new AS400GenAuthTknDS(userIdEbcdic,
-          authenticationBytes, byteType, profileToken.getTokenType(),
-          profileToken.getTimeoutInterval(), serverLevel_);
-      CredentialVault.clearArray(authenticationBytes);
-      AS400GenAuthTknReplyDS rep = (AS400GenAuthTknReplyDS) signonServer_
-          .sendAndReceive(req);
-      req.clear(); 
-      
-      int rc = rep.getRC();
-      if (rc != 0) {
-        byte[] rcBytes = new byte[4];
-        BinaryConverter.intToByteArray(rc, rcBytes, 0);
-        Trace.log(Trace.ERROR,
-            "Generate profile token failed with return code:", rcBytes);
-        throw AS400ImplRemote.returnSecurityException(rc, rep
-            .getErrorMessages(ConverterImplRemote.getConverter(
-                ExecutionEnvironment.getBestGuessAS400Ccsid(), this)), userId);
-      }
-      try {
-        profileToken.setToken(rep.getProfileTokenBytes());
-      } catch (PropertyVetoException e) {
-        Trace.log(Trace.ERROR, e);
-        throw new InternalErrorException(
-            InternalErrorException.UNEXPECTED_EXCEPTION, e);
-      }
-    } catch (IOException e) {
-      Trace.log(Trace.ERROR, "Generate profile token failed:", e);
-      signonServer_.forceDisconnect();
-      signonServer_ = null;
-      throw e;
-    } catch (AS400SecurityException e) {
-      Trace.log(Trace.ERROR, "Generate profile token failed:", e);
-      signonServer_.forceDisconnect();
-      signonServer_ = null;
-      throw e;
-    } 
-  }
-
-  public static byte getAdditionalAuthenticationIndicator(AS400 sys) throws AS400SecurityException, IOException
-  {       
-      return getAdditionalAuthenticationIndicator(sys.getSystemName(), sys.isSecure());
-  }
-  
-  public static byte getAdditionalAuthenticationIndicator(String systemName, boolean useSSL) throws AS400SecurityException, IOException { 
-      AS400ImplRemote implRemote = new AS400ImplRemote(); 
-      implRemote.systemName_ = systemName; 
-      implRemote.socketProperties_ = new SocketProperties();
-      implRemote.useSSLConnection_ = useSSL ? new SSLOptions()  : null;
-      implRemote.signonConnect(); 
-      byte indicator = implRemote.additionalAuthenticationIndicator_; 
-      implRemote.signonDisconnect(); 
-      return indicator; 
-  }
-
-  // Get either the user's CCSID, the signon server CCSID, or our best guess.
-  public int getCcsid() {
-    int howObtained = 0; // how we got the CCSID value
-
-    // CCSID values obtained from different sources (indexed by 'howObtained')
-    int[] ccsidValues = { ccsid_, 0, 0, 0 };
-
-    // First pass:
-    // Try to arrive at a CCSID other than 0 or 65535.
-    if (ccsid_ == 0 || ccsid_ == 65535) {
-      if (signonInfo_ != null) {
-        howObtained = 1;
-        ccsidValues[howObtained] = signonInfo_.serverCCSID;
-        ccsid_ = ccsidValues[howObtained];
-      }
-
-      if (ccsid_ == 0 || ccsid_ == 65535) {
-        howObtained = 2;
-        // Note.  This will call the portmapper and signon server. 
-        ccsidValues[howObtained] = getCcsidFromServer();
-        ccsid_ = ccsidValues[howObtained];
-      }
-
-      if (ccsid_ == 0 || ccsid_ == 65535) {
-        howObtained = 3;
-        ccsidValues[howObtained] = ExecutionEnvironment
-            .getBestGuessAS400Ccsid();
-        ccsid_ = ccsidValues[howObtained];
-      }
-    }
-
-    // Second pass:
-    // If first pass ended up with CCSID == 0, settle for any non-zero CCSID.
-    if (ccsid_ == 0) {
-      if (Trace.traceOn_)
-        Trace.log(Trace.DIAGNOSTIC,
-            "AS400ImplRemote.getCcsid() [after first pass]: CCSID=" + ccsid_
-                + ", howObtained=" + howObtained);
-      for (int i = 0; i < ccsidValues.length; i++) {
-        if (ccsidValues[i] != 0) {
-          howObtained = i;
-          ccsid_ = ccsidValues[howObtained];
-          break;
-        }
-      }
-    }
-
-    if (Trace.traceOn_) {
-      Trace.log(Trace.DIAGNOSTIC, "AS400ImplRemote.getCcsid(): CCSID=" + ccsid_
-          + ", howObtained=" + howObtained);
-      if (ccsid_ < 1 || ccsid_ >= 65535) {
-        Trace.log(Trace.WARNING,
-            "AS400ImplRemote.getCcsid(): CCSID is out of valid range: CCSID="
-                + ccsid_ + ", howObtained=" + howObtained);
-      }
-    }
-
-    return ccsid_;
-  }
-
-  // Get the user's override CCSID or zero if not set.
-  int getUserOverrideCcsid() {
-    if (userOverrideCcsid_)
-      return ccsid_;
-    return 0;
-  }
-
-  // Get CCSID from central server or current job if native.
-  public int getCcsidFromServer() {
-    try {
-      NLSImpl impl = (NLSImpl) loadImpl("com.ibm.as400.access.NLSImplNative",
-          "com.ibm.as400.access.NLSImplRemote");
-
-      // Get the ccsid from the central server or current job.
-      impl.setSystem(this);
-      impl.connect();
-      impl.disconnect();
-      return impl.getCcsid();
-    } catch (Exception e) {
-      if (Trace.traceOn_)
-        Trace.log(Trace.WARNING,
-            "Error when attempting to get CCSID from server.", e);
-      return 0;
-    }
-
-  }
-
-  // Get connection for FTP.
-  synchronized Socket getConnection(int port) throws IOException {
-    Socket socket = new Socket((systemNameLocal_) ? "localhost" : systemName_,
-        port);
-    try {
-      PortMapper.setSocketProperties(socket, socketProperties_);
-      BufferedReader reader = new BufferedReader(new InputStreamReader(
-          socket.getInputStream(), "ISO8859_1"));
-      PrintWriter writer = new PrintWriter(new OutputStreamWriter(
-          socket.getOutputStream(), "ISO8859_1"), true);
-
-      readFTPLine(reader);
-      writer.print("USER " + userId_+ "\r\n"); //@AI1
-      writer.flush();
-      readFTPLine(reader);
-      writer.print("PASS " 
-              + new String(BinaryConverter.byteArrayToCharArray(credVault_
-            		  .getClearCredential())) + "\r\n"); //@AI1
-      writer.flush(); //@AI1
-      
-      if (!readFTPLine(reader).startsWith("230"))
-        throw new IOException();
-
-      return socket;
-    } catch (IOException e) {
-      Trace.log(Trace.ERROR, "Establishing FTP connection failed:", e);
-      try {
-        socket.close();
-      } catch (IOException ee) {
-        Trace.log(Trace.ERROR, "Error closing socket:", ee);
-      }
-      throw e;
-    }
-  }
-
-  private String readFTPLine(BufferedReader reader) throws IOException {
-    String line = reader.readLine();
-    if (line == null || line.length() == 0)
-      throw new IOException();
-    String code = line.substring(0, 3);
-    StringBuffer fullMessage = new StringBuffer(line);
-    while ((line != null)
-        && !(line.length() > 3 && line.substring(0, 3).equals(code) && line
-            .charAt(3) == ' ')) {
-      line = reader.readLine();
-      fullMessage.append("\n" + line);
-    }
-    return fullMessage.toString();
-  }
-
-  // Note: The 'dhcp' argument is a dummy argument, whose sole purpose is to
-  // differentiate this method from getConnection(int port). The value of 'dhcp'
-  // is ignored.
-  synchronized Socket getConnection(int dhcp, int port)
-      throws AS400SecurityException, IOException {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Establishing connection to system at port:",
-          port);
-    Socket socket = new Socket((systemNameLocal_) ? "localhost" : systemName_,
-        port);
-    int connectionID = socket.hashCode();
-    try {
-      PortMapper.setSocketProperties(socket, socketProperties_);
-      InputStream inStream = socket.getInputStream();
-      OutputStream outStream = socket.getOutputStream();
-
-      // The first request we send is "exchange random seeds"...
-      int serverId = AS400Server.getServerId(AS400.COMMAND);
-      AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId);
-      if (Trace.traceOn_)
-        xChgReq.setConnectionID(connectionID);
-      xChgReq.write(outStream);
-
-      AS400XChgRandSeedReplyDS xChgReply = new AS400XChgRandSeedReplyDS();
-      if (Trace.traceOn_)
-        xChgReply.setConnectionID(connectionID);
-      xChgReply.read(inStream);
-
-      if (xChgReply.getRC() != 0) {
-        byte[] rcBytes = new byte[4];
-        BinaryConverter.intToByteArray(xChgReply.getRC(), rcBytes, 0);
-        Trace.log(Trace.ERROR,
-            "Exchange of random seeds failed with return code:", rcBytes);
-        throw AS400ImplRemote.returnSecurityException(xChgReply.getRC(), null,
-            null);
-      }
-      if (Trace.traceOn_)
-        Trace.log(Trace.DIAGNOSTIC, "Exchange of random seeds successful.");
-
-      // Next we send the "start server job" request...
-      byte[] clientSeed = xChgReq.getClientSeed();
-      byte[] serverSeed = xChgReply.getServerSeed();
-      byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
-      byte[] encryptedPassword = getPassword(clientSeed, serverSeed);
-      if (PASSWORD_TRACE) {
-        Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
-        Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
-        Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
-        Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
-        Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
-        Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
-      }
-
-      AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes,
-          encryptedPassword, credVault_.getType());
-      if (Trace.traceOn_)
-        req.setConnectionID(connectionID);
-      req.write(outStream);
-
-      AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
-      if (Trace.traceOn_)
-        reply.setConnectionID(connectionID);
-      reply.read(inStream);
-
-      if (reply.getRC() != 0) {
-        byte[] rcBytes = new byte[4];
-        BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
-        Trace
-            .log(Trace.ERROR, "Start server failed with return code:", rcBytes);
-        throw AS400ImplRemote.returnSecurityException(reply.getRC(), null,
-            userId_);
-      }
-
-      if (Trace.traceOn_)
-        Trace.log(Trace.DIAGNOSTIC, "Server started successfully.");
-      return socket;
-    } catch (IOException e) {
-      Trace.log(Trace.ERROR, "Establishing DHCP connection failed:", e);
-      try {
-        socket.close();
-      } catch (IOException ee) {
-        Trace.log(Trace.ERROR, "Error closing socket:", ee);
-      }
-      throw e;
-    } catch (AS400SecurityException e) {
-      Trace.log(Trace.ERROR, "Establishing DHCP connection failed:", e);
-      try {
-        socket.close();
-      } catch (IOException ee) {
-        Trace.log(Trace.ERROR, "Error closing socket:", ee);
-      }
-      throw e;
-    }
-  }
-
-  // Note: The 'dhcp' argument is a dummy argument, whose sole purpose is to
-  // differentiate this method from getConnection(int port). The value of 'dhcp'
-  // is ignored.
-  // @N5A Add this interface for L1C for DHCP already listens on 942 of
-  // localhost for STRTCPSVR
-  synchronized Socket getConnection(int dhcp, int port,
-      boolean forceNonLocalhost) throws AS400SecurityException, IOException {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Establishing connection to system at port:",
-          port);
-    Socket socket = new Socket(
-        (systemNameLocal_ && !forceNonLocalhost) ? "localhost" : systemName_,
-        port);
-    int connectionID = socket.hashCode();
-    try {
-      PortMapper.setSocketProperties(socket, socketProperties_);
-      InputStream inStream = socket.getInputStream();
-      OutputStream outStream = socket.getOutputStream();
-
-      // The first request we send is "exchange random seeds"...
-      int serverId = AS400Server.getServerId(AS400.COMMAND);
-      AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId);
-      if (Trace.traceOn_)
-        xChgReq.setConnectionID(connectionID);
-      xChgReq.write(outStream);
-
-      AS400XChgRandSeedReplyDS xChgReply = new AS400XChgRandSeedReplyDS();
-      if (Trace.traceOn_)
-        xChgReply.setConnectionID(connectionID);
-      xChgReply.read(inStream);
-
-      if (xChgReply.getRC() != 0) {
-        byte[] rcBytes = new byte[4];
-        BinaryConverter.intToByteArray(xChgReply.getRC(), rcBytes, 0);
-        Trace.log(Trace.ERROR,
-            "Exchange of random seeds failed with return code:", rcBytes);
-        throw AS400ImplRemote.returnSecurityException(xChgReply.getRC(), null,
-            null);
-      }
-      if (Trace.traceOn_)
-        Trace.log(Trace.DIAGNOSTIC, "Exchange of random seeds successful.");
-
-      // Next we send the "start server job" request...
-      byte[] clientSeed = xChgReq.getClientSeed();
-      byte[] serverSeed = xChgReply.getServerSeed();
-      byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
-      byte[] encryptedPassword = getPassword(clientSeed, serverSeed);
-      if (PASSWORD_TRACE) {
-        Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
-        Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
-        Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
-        Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
-        Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
-        Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
-      }
-
-      AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes,
-          encryptedPassword, credVault_.getType());
-      if (Trace.traceOn_)
-        req.setConnectionID(connectionID);
-      req.write(outStream);
-
-      AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
-      if (Trace.traceOn_)
-        reply.setConnectionID(connectionID);
-      reply.read(inStream);
-
-      if (reply.getRC() != 0) {
-        byte[] rcBytes = new byte[4];
-        BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
-        Trace
-            .log(Trace.ERROR, "Start server failed with return code:", rcBytes);
-        throw AS400ImplRemote.returnSecurityException(reply.getRC(), null,
-            userId_);
-      }
-
-      if (Trace.traceOn_)
-        Trace.log(Trace.DIAGNOSTIC, "Server started successfully.");
-      return socket;
-    } catch (IOException e) {
-      Trace.log(Trace.ERROR, "Establishing DHCP connection failed:", e);
-      try {
-        socket.close();
-      } catch (IOException ee) {
-        Trace.log(Trace.ERROR, "Error closing socket:", ee);
-      }
-      throw e;
-    } catch (AS400SecurityException e) {
-      Trace.log(Trace.ERROR, "Establishing DHCP connection failed:", e);
-      try {
-        socket.close();
-      } catch (IOException ee) {
-        Trace.log(Trace.ERROR, "Error closing socket:", ee);
-      }
-      throw e;
-    }
-  }
-
-  // Gets the jobs with which we are connected.
-  @Override
-  public String[] getJobs(int service) {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Getting job names implementation, service:", service);
-    
-    if (service == AS400.SIGNON) {
-      return (signonServer_ != null) ? new String[] { signonJobString_ } : new String[0];
-    }
-    else if (service == AS400.HOSTCNN) {
-        return (HCSAuthdServer_ != null) ? new String[] { HCSAuthdServer_.getJobString() } : new String[0];
-    } else {
-      Vector serverList = serverPool_[service];
-      String[] jobStrings = new String[serverList.size()];
-      synchronized (serverList) {
-        for (int i = 0; i < serverList.size(); ++i) {
-          jobStrings[i] = (((AS400Server) serverList.elementAt(i)).getJobString());
-        }
-      }
-      return jobStrings;
-    }
-  }
-
-  public AS400Server getConnection(int service, boolean forceNewConnection)
-      throws AS400SecurityException, IOException {
-    return getConnection(service, forceNewConnection, false /*Skip signon server */);
-  }
-
-  AS400Server getConnection(int service, boolean forceNewConnection,
-      boolean skipSignonServer) throws AS400SecurityException, IOException {
-    return getConnection(service, -1, forceNewConnection, skipSignonServer);
-  }
-  
-  synchronized AS400Server getConnection(int service, int overridePort, boolean forceNewConnection,
-      boolean skipSignonServer) throws AS400SecurityException, IOException
+  private void fireConnectEvent(boolean connect, int service)
   {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Establishing connection to system: " + AS400.getServerName(service));
-
-    // Necessary for case where we are connecting after native sign-on.
-    // Skip this test if not using the signon server.
-    if (!isPasswordTypeSet_) {
-      if (!skipSignonServer) { /* @V1A */
-        signonConnect();
-        signonDisconnect();
-      }
-    }
-    
-    AS400Server server = null;
-    Vector serverList = serverPool_[service];
-    
-    synchronized (serverList)
-    {
-      if (!forceNewConnection && !serverList.isEmpty())
-      {
-        // System exists, get the first available system to reuse.
-        server = (AS400Server) serverList.firstElement();
-        if (Trace.traceOn_)
-          Trace.log(Trace.DIAGNOSTIC, "Reusing previous server object...");
-
-        // Return the connected system.
-        return server;
-      }
-    }
-        
-    // Will always go to HCS if secure
-    boolean connectViaHCS = (    useSSLConnection_ != null);
-    
-    SocketContainer socketContainer = null;
-    if (connectViaHCS)
-    {
-    
-        if (HCSAuthdServer_ == null)
-        	try {
-            generateHCSServerDaemon(skipSignonServer,overridePort);
-        	} catch (Exception ex) {
-        		// If we specified a port number and got an exception, 
-        		// then ignore the error from the HCS. 
-        		if (overridePort > 0) { 
-        			HCSAuthdServer_ = null;
-        		} else {
-        			throw ex; 
-        		}
-        	}
-        if (HCSAuthdServer_ == null)
-        {
-            connectViaHCS = false;
-
-            if (Trace.traceOn_)
-                Trace.log(Trace.DIAGNOSTIC, "Cannot connect to HCSAuthdServer ...");
-        }
-        else
-        {
-            socketContainer = HCSAuthdServer_.getSocket();
-
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using HCSAuthdServer object...");
-        }
-    }
-    
-    if (socketContainer == null)
-    {
-        socketContainer = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, service,
-                overridePort, useSSLConnection_, socketProperties_, mustUseNetSockets_);
-    }
-
-    int connectionID = socketContainer.hashCode();
-    String jobString = "";
-    byte[] jobBytes  = null;
-    SocketContainer svc_socketContainer = null; // only used for HCS
-
-    try
-    {
-        InputStream inStream = socketContainer.getInputStream();
-        OutputStream outStream = socketContainer.getOutputStream();
-
-        if (!connectViaHCS)
-        {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Not using HCS");
-            
-            int byteType = credVault_.getType();
-
-            if (service == AS400.RECORDACCESS)
-            {
-                Object[] returnVals = ClassDecoupler.connectDDMPhase1(outStream, inStream, (passwordLevel_ >= 2), byteType, connectionID);
-                byte[] clientSeed = (byte[]) returnVals[0];
-                byte[] serverSeed = (byte[]) returnVals[1];
-                jobBytes = (byte[]) returnVals[2];
-
-                byte[] sharedKeyBytes = null;
-                boolean encryptUserId = (returnVals[3] != null);
-                KeyPair keyPair = (KeyPair) returnVals[4];
-
-                if (keyPair != null)
-                {
-                    try {
-                        sharedKeyBytes = DDMTerm.getSharedKey(keyPair, serverSeed);
-                    } 
-                    catch (GeneralSecurityException e)
-                    {
-                        ServerStartupException serverStartupException = new ServerStartupException(
-                                ServerStartupException.CONNECTION_NOT_ESTABLISHED);
-                        serverStartupException.initCause(e);
-                        throw serverStartupException;
-                    }
-                }
-
-                byte[] userIDbytes;
-                byte[] ddmSubstitutePassword;
-                if (encryptUserId)
-                {
-                    byteType = AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD;
-
-                    userIDbytes = getEncryptedUserid(sharedKeyBytes, serverSeed);
-                    ddmSubstitutePassword = getDdmEncryptedPassword(sharedKeyBytes, serverSeed);
-                } 
-                else
-                {
-                    userIDbytes = SignonConverter.stringToByteArray(userId_);
-                    // Get the substitute password.
-                    ddmSubstitutePassword = getPassword(clientSeed, serverSeed);
-                }
-
-                if (PASSWORD_TRACE)
-                {
-                    Trace.log(Trace.DATASTREAM, "Sending DDM SECCHK request...");
-                    Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
-                    Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
-                    Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
-                    Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
-                    Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", ddmSubstitutePassword);
-                }
-                byte[] iaspBytes = null;
-                if (ddmRDB_ != null)
-                {
-                    AS400Text text18 = new AS400Text(18, signonInfo_.serverCCSID);
-                    iaspBytes = text18.toBytes(ddmRDB_);
-                }
-                ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes, ddmSubstitutePassword, iaspBytes,
-                        byteType, ddmRDB_, systemName_, connectionID);
-            } 
-            else
-            {
-                // The first request we send is "exchange random seeds"...
-                int serverId = AS400Server.getServerId(service);
-                AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId);
-                if (Trace.traceOn_)
-                    xChgReq.setConnectionID(connectionID);
-                xChgReq.write(outStream);
-
-                AS400XChgRandSeedReplyDS xChgReply = new AS400XChgRandSeedReplyDS();
-                if (Trace.traceOn_)
-                    xChgReply.setConnectionID(connectionID);
-                xChgReply.read(inStream);
-
-                if (xChgReply.getRC() != 0)
-                {
-                    byte[] rcBytes = new byte[4];
-                    BinaryConverter.intToByteArray(xChgReply.getRC(), rcBytes, 0);
-                    Trace.log(Trace.ERROR, "Exchange of random seeds failed with return code:", rcBytes);
-                    throw AS400ImplRemote.returnSecurityException(xChgReply.getRC(), null, userId_);
-                }
-                if (Trace.traceOn_)
-                    Trace.log(Trace.DIAGNOSTIC, "Exchange of random seeds successful.");
-
-                // Next we send the "start server job" request...
-                byte[] clientSeed = xChgReq.getClientSeed();
-                byte[] serverSeed = xChgReply.getServerSeed();
-                if (skipSignonServer)
-                {
-                    // If the signon server was skipped, get the password level
-                    // from the current response.
-                    passwordLevel_ = xChgReply.getServerAttributes();
-                }
-                byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
-                byte[] encryptedPassword = getPassword(clientSeed, serverSeed);
-                if (PASSWORD_TRACE)
-                {
-                    Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
-                    Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
-                    Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
-                    Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
-                    Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
-                    Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
-                    Trace.log(Trace.DIAGNOSTIC, "  Password level: ", passwordLevel_);
-                }
-
-                AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType(),
-                        additionalAuthenticationFactorTOTP);
-                if (Trace.traceOn_)
-                    req.setConnectionID(connectionID);
-                req.write(outStream);
-
-                AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
-                if (Trace.traceOn_)
-                    reply.setConnectionID(connectionID);
-                reply.read(inStream);
-
-                if (reply.getRC() != 0)
-                {
-                    byte[] rcBytes = new byte[4];
-                    BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
-                    Trace.log(Trace.ERROR, "Start server failed with return code:", rcBytes);
-                    throw AS400ImplRemote.returnSecurityException(reply.getRC(), null, userId_);
-                }
-
-                jobBytes = reply.getJobNameBytes();
-
-                // Obtain the job identifier for the connection.
-                // The name is always invariant, we we can use CCSID 37. /*@V1C*/
-                ConverterImplRemote converter = ConverterImplRemote.getConverter(37, this);
-                // @Bidi-HCG3 jobString = converter.byteArrayToString(jobBytes);
-                // @Bidi-HCG3 start
-                // Perform Bidi transformation for data only
-                jobString = AS400BidiTransform.SQL_statement_reordering(jobString, bidiStringType,
-                        converter.table_.bidiStringType_);
-                // this is a trick to prevent Bidi transformation
-                jobString = converter.byteArrayToString(jobBytes, 0, jobBytes.length, converter.table_.bidiStringType_);
-                // @Bidi-HCG3 end
-                if (Trace.traceOn_)
-                    Trace.log(Trace.DIAGNOSTIC, "System job:", jobString);
-            }
-        }
-        else 
-        {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using HCS");
-
-            // -------
-            // Prepare new connection request with server type
-            // -------
-            
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "HCS - prepare new connection request");
-
-            int requestedServerID = AS400Server.getServerId(service);
-              
-            HCSPrepareNewConnDS HCSPrepDS = new HCSPrepareNewConnDS(requestedServerID);
-            if (Trace.traceOn_)
-                HCSPrepDS.setConnectionID(connectionID);
-            HCSPrepDS.write(outStream); 
-              
-            HCSPrepareNewConnReplyDS HCSPrepReply = new HCSPrepareNewConnReplyDS();
-            if (Trace.traceOn_)
-                HCSPrepReply.setConnectionID(connectionID);
-            HCSPrepReply.read(inStream);
-              
-            if (HCSPrepReply.getRC() != 0)
-            {
-                byte[] rcBytes = new byte[4];
-                BinaryConverter.intToByteArray(HCSPrepReply.getRC(), rcBytes, 0);
-                Trace.log(Trace.ERROR, "Route prepare connection failed with return code:", rcBytes);
-                throw AS400ImplRemote.returnSecurityException(HCSPrepReply.getRC(), null, userId_);
-            }
-            
-            byte[] connectionReqID = HCSPrepReply.getConnReqID();
-            
-            // -------
-            // Connect to HCS using new socket
-            // -------
-            
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "HCS - Connect to HCS using new socket");
-
-                        
-            svc_socketContainer = PortMapper.getServerSocket((systemNameLocal_) 
-                    ? "localhost" : systemName_,  AS400.HOSTCNN, overridePort,  useSSLConnection_, socketProperties_,  mustUseNetSockets_);
-            
-            connectionID = svc_socketContainer.hashCode();
-            int          svc_connectionID = svc_socketContainer.hashCode();
-            InputStream  svc_inStream     = svc_socketContainer.getInputStream();
-            OutputStream svc_outStream    = svc_socketContainer.getOutputStream();
-            
-            // -------
-            // Give new connection request with new connection request ID
-            // -------
-            
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "HCS - Give new connection request with new connection request ID");
-
-            HCSGetNewConnDS HCSGetDS = new HCSGetNewConnDS(connectionReqID);
-            if (Trace.traceOn_)
-              HCSGetDS.setConnectionID(svc_connectionID);
-            HCSGetDS.write(svc_outStream); 
-            
-            HCSGetNewConnReplyDS HCSGetReply = new HCSGetNewConnReplyDS();
-            if (Trace.traceOn_)
-              HCSGetReply.setConnectionID(svc_connectionID);
-            HCSGetReply.read(svc_inStream);
-            
-            if (HCSGetReply.getRC() != 0)
-            {
-                byte[] rcBytes = new byte[4];
-                BinaryConverter.intToByteArray(HCSGetReply.getRC(), rcBytes, 0);
-                Trace.log(Trace.ERROR, "Get new connection failed with return code:", rcBytes);
-                throw AS400ImplRemote.returnSecurityException(HCSGetReply.getRC(), null, userId_);
-            }
-          
-            // -------
-            // Route new connection request with connection request ID
-            // -------
-
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "HCS - Route new connection request with connection request ID");
-
-            HCSRouteNewConnDS HCSRouteDS = new HCSRouteNewConnDS(connectionReqID);
-            if (Trace.traceOn_)
-                HCSRouteDS.setConnectionID(connectionID);
-            HCSRouteDS.write(outStream);
-
-            HCSRouteNewConnReplyDS HCSRouteReply = new HCSRouteNewConnReplyDS();
-            if (Trace.traceOn_)
-                HCSRouteReply.setConnectionID(connectionID);
-            HCSRouteReply.read(inStream);
-
-            if (HCSRouteReply.getRC() != 0)
-            {
-                byte[] rcBytes = new byte[4];
-                BinaryConverter.intToByteArray(HCSRouteReply.getRC(), rcBytes, 0);
-                Trace.log(Trace.ERROR, "Route new connection failed with return code:", rcBytes);
-                throw AS400ImplRemote.returnSecurityException(HCSRouteReply.getRC(), null, userId_);
-            }
-            
-            socketContainer = svc_socketContainer;
-          
-          // amra TODO HCS still needs to add job string probably is not right.
-//          jobBytes = HCSRouteReply.getJobNameBytes();
-//
-//          // Obtain the job identifier for the connection.
-//          // The name is always invariant, we we can use CCSID 37. /*@V1C*/
-//          ConverterImplRemote converter = ConverterImplRemote.getConverter(37, this);
-//          // @Bidi-HCG3 jobString = converter.byteArrayToString(jobBytes);
-//          // @Bidi-HCG3 start
-//          // Perform Bidi transformation for data only
-//          jobString = AS400BidiTransform.SQL_statement_reordering(jobString, bidiStringType,
-//                  converter.table_.bidiStringType_);
-//          // this is a trick to prevent Bidi transformation
-//          jobString = converter.byteArrayToString(jobBytes, 0, jobBytes.length, converter.table_.bidiStringType_);
-//          // @Bidi-HCG3 end
-//          if (Trace.traceOn_)
-//              Trace.log(Trace.DIAGNOSTIC, "System job:", jobString);
-          
-      }
-    }
-    catch (IOException | AS400SecurityException | RuntimeException e)
-    {
-        forceDisconnect(e, server, (svc_socketContainer == null) ? socketContainer : svc_socketContainer);
-        throw e;
-    } 
-    
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Server started successfully.");
-
-    // At this point the Socket connection is established. Now we need to set up
-    // the AS400Server object before passing it back to the caller.
-
-    // Construct a new server...
-    server = (threadUsed_) ? new AS400ThreadedServer(this, service, socketContainer, jobString)
-                           : new AS400NoThreadServer(this, service, socketContainer, jobString);
-
-    // Add the system to our list so we can return it on a subsequent
-    // connect()...
-    serverList.addElement(server);
-
-    fireConnectEvent(true, service);
-
-    return server;
-  }
-  
-  synchronized private void generateHCSServerDaemon(boolean skipSignonServer, int overridePort) throws AS400SecurityException, IOException
-  {
-      if (HCSAuthdServer_ != null)
+      if (dispatcher_ == null)
           return;
-      
-      SocketContainer socketContainer  = null;
-      int connectionID;
-      String jobString = "";
 
-      try 
+      ConnectionEvent connectEvent = new ConnectionEvent(this, service);
+      if (connect)
+          dispatcher_.connected(connectEvent);
+      else
+          dispatcher_.disconnected(connectEvent);
+  }
+
+  // Flow the generate profile token datastream.
+  @Override
+  public void generateProfileToken(ProfileTokenCredential profileToken, String userIdentity) throws AS400SecurityException, IOException
+  {
+      // TODO AMRA - profile tokens via hostcnn
+      signonConnect();
+
+      try
       {
-          socketContainer = PortMapper.getServerSocket(
-                  (systemNameLocal_) ? "localhost" : systemName_, AS400.HOSTCNN, overridePort, 
-                  useSSLConnection_, socketProperties_, mustUseNetSockets_);
-          
-          connectionID = socketContainer.hashCode();
-
-          InputStream inStream = socketContainer.getInputStream();
-          OutputStream outStream = socketContainer.getOutputStream();
-
-          // -------
-          // The first request we send is "exchange random seeds"...
-          // -------
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "HCS daemon - exchange random seeds");
-
-          int serverId = AS400Server.getServerId(AS400.HOSTCNN);
-          AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId, true);
-          if (Trace.traceOn_)
-              xChgReq.setConnectionID(connectionID);
-          xChgReq.write(outStream);
-
-          AS400XChgRandSeedReplyDS xChgReply = new AS400XChgRandSeedReplyDS();
-          if (Trace.traceOn_)
-              xChgReply.setConnectionID(connectionID);
-
-          xChgReply.read(inStream);
-
-          if (xChgReply.getRC() != 0)
-          {
-              byte[] rcBytes = new byte[4];
-              BinaryConverter.intToByteArray(xChgReply.getRC(), rcBytes, 0);
-              Trace.log(Trace.ERROR, "Exchange of random seeds failed with return code:", rcBytes);
-              throw AS400ImplRemote.returnSecurityException(xChgReply.getRC(), null, userId_);
-          }
-          if (Trace.traceOn_)
-              Trace.log(Trace.DIAGNOSTIC, "Exchange of random seeds successful.");
-
-          // -------
-          // Next we send the "start server job" request...
-          // -------
-          
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "HCS daemon - start server job");
-
-          byte[] clientSeed = xChgReq.getHCSClientSeed();
-          byte[] serverSeed = xChgReply.getHCSServerSeed();
-          if (skipSignonServer)
-          {
-              // If the signon server was skipped, get the password level
-              // from the current response.
-              passwordLevel_ = xChgReply.getServerAttributes();
-          }
           byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
-          byte[] encryptedPassword = getPassword(clientSeed, serverSeed);
+          byte[] encryptedPassword = getPassword(clientSeed_, serverSeed_);
           if (PASSWORD_TRACE)
           {
               Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
               Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
               Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
-              Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
-              Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
+              Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed_);
+              Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed_);
               Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
-              Trace.log(Trace.DIAGNOSTIC, "  Password level: ", passwordLevel_);
           }
 
-          AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType(),
-                  additionalAuthenticationFactorTOTP);
-          if (Trace.traceOn_)
-              req.setConnectionID(connectionID);
-          req.write(outStream);
-
-          AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
-          if (Trace.traceOn_)
-              reply.setConnectionID(connectionID);
-          reply.read(inStream);
+          int serverId = AS400Server.getServerId(AS400.SIGNON);
+          AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType());
+          AS400StrSvrReplyDS reply = (AS400StrSvrReplyDS) signonServer_.sendAndReceive(req);
 
           if (reply.getRC() != 0)
           {
@@ -1979,263 +904,954 @@ public class AS400ImplRemote implements AS400Impl {
               throw AS400ImplRemote.returnSecurityException(reply.getRC(), null, userId_);
           }
 
-          // -------
-          // Bookeeping...
-          // -------
+          SignonGenAuthTokenRequestDS req2 = new SignonGenAuthTokenRequestDS(
+                  BinaryConverter.charArrayToByteArray(userIdentity.toCharArray()), profileToken.getTokenType(),
+                  profileToken.getTimeoutInterval(), serverLevel_);
+          SignonGenAuthTokenReplyDS rep = (SignonGenAuthTokenReplyDS) signonServer_.sendAndReceive(req2);
 
-          byte[] jobBytes = reply.getJobNameBytes();;
-      
-          // Obtain the job identifier for the connection.
-          // The name is always invariant, we we can use CCSID 37. /*@V1C*/
-          ConverterImplRemote converter = ConverterImplRemote.getConverter(37, this);
-          // Perform Bidi transformation for data only
-          jobString = AS400BidiTransform.SQL_statement_reordering(jobString, bidiStringType, converter.table_.bidiStringType_);
-          // this is a trick to prevent Bidi transformation
-          jobString = converter.byteArrayToString(jobBytes, 0, jobBytes.length, converter.table_.bidiStringType_);
-          if (Trace.traceOn_)
-            Trace.log(Trace.DIAGNOSTIC, "System job:", jobString);
-          
-          HCSAuthdServer_ = new AS400NoThreadServer(this,  AS400.HOSTCNN, socketContainer, jobString);
+          int rc = rep.getRC();
+          if (rc != 0)
+          {
+              byte[] rcBytes = new byte[4];
+              BinaryConverter.intToByteArray(rc, rcBytes, 0);
+              Trace.log(Trace.ERROR, "Generate profile token failed with return code:", rcBytes);
+              throw AS400ImplRemote.returnSecurityException(rc,
+                      rep.getErrorMessages(ConverterImplRemote.getConverter(ExecutionEnvironment.getBestGuessAS400Ccsid(), this)),
+                      userId_);
+          }
+          try {
+              profileToken.setToken(rep.getProfileTokenBytes());
+          }
+          catch (PropertyVetoException e) {
+              Trace.log(Trace.ERROR, e);
+              throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+          }
       } 
-      catch (ConnectException   e)
+      catch (IOException | AS400SecurityException e)
       {
-          forceDisconnect(e, HCSAuthdServer_, socketContainer);
-          HCSAuthdServer_ = null;
-      } 
-      catch (java.net.SocketException e) {
-          forceDisconnect(e, HCSAuthdServer_, socketContainer);
-          HCSAuthdServer_ = null;
+          Trace.log(Trace.ERROR, "Generate profile token failed:", e);
+          signonServer_.forceDisconnect();
+          signonServer_ = null;
+          throw e;
       }
-      catch (IOException | AS400SecurityException | RuntimeException e)
+  }
+
+  // Flow the generate profile token datastream.
+  public void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, String gssName)
+      throws AS400SecurityException, IOException, InterruptedException
+  {
+      // TODO AMRA - profile tokens via hostcnn
+      signonConnect();
+      
+      try
       {
-          forceDisconnect(e, HCSAuthdServer_, socketContainer);
-          HCSAuthdServer_ = null;
+          byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId);
+          byte[] authenticationBytes = null;
+          int authScheme = vault.getType();
+
+          switch (authScheme) 
+          {
+          case AS400.AUTHENTICATION_SCHEME_GSS_TOKEN:
+              try
+              {
+                  authenticationBytes = (gssCredential_ == null) 
+                          ? TokenManager.getGSSToken(systemName_, gssName) 
+                          : TokenManager2.getGSSToken(systemName_, gssCredential_);
+              }
+              catch (Exception e)
+              {
+                  Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+                  throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
+              }
+              break;
+          case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
+          case AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN:
+              authenticationBytes = vault.decode(proxySeed_, remoteSeed_);
+              break;
+          default: // Password.
+              byte[] passwordByte = vault.decode(proxySeed_, remoteSeed_); 
+              char[] password = BinaryConverter.byteArrayToCharArray(passwordByte); 
+              CredentialVault.clearArray(passwordByte);  
+              proxySeed_ = null;
+              remoteSeed_ = null;
+
+              // Generate the correct password based on the password encryption level of the system.
+              if (passwordLevel_ < 2)
+              {
+                  // Prepend Q to numeric password. A "numeric password" is a password that starts with a numeric digit.
+                  if (password.length > 0 && Character.isDigit(password[0]))
+                  {
+                      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
+            
+                      char[] passwordWithQ = new char[password.length + 1];
+                      passwordWithQ[0] = 'Q';
+                      System.arraycopy(password, 0, passwordWithQ, 1, password.length);
+                      CredentialVault.clearArray(password);
+                      password = passwordWithQ;
+                  }
+
+                  if (password.length > 10)
+                  {
+                      Trace.log(Trace.ERROR, "Length of parameter 'password' is not valid:", password.length);
+                      throw new AS400SecurityException(AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
+                  }
+                  authenticationBytes = encryptPassword(userIdEbcdic,
+                          SignonConverter.upperCharsToByteArray(password), clientSeed_, serverSeed_);
+                  CredentialVault.clearArray(password);
+              }
+              else if (passwordLevel_ < 4)
+              {
+                  // Do SHA-1 encryption.
+                  byte[] userIdBytes = BinaryConverter.charArrayToByteArray(SignonConverter.byteArrayToCharArray(userIdEbcdic));
+
+                  // Screen out passwords that start with a star.
+                  if (password.length == 0) {
+                      Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
+                      throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                  }
+                  
+                  if (password[0] == '*') {
+                      Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
+                      throw new AS400SecurityException( AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                  }
+
+                  char[] trimmedPassword = trimUnicodeSpace(password);
+                  byte[] passwordBytes = BinaryConverter.charArrayToByteArray(trimmedPassword);
+                  CredentialVault.clearArray(trimmedPassword);
+                  CredentialVault.clearArray(password);
+                  byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+
+                  if (PASSWORD_TRACE) {
+                      Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 userIdBytes:", userIdBytes);
+                      Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 passwordBytes:", passwordBytes);
+                      Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 sequence:", sequence);
+                  }
+
+                  byte[] token = generateShaToken(userIdBytes, passwordBytes);
+                  CredentialVault.clearArray(passwordBytes);
+          
+                  authenticationBytes = generateShaSubstitute(token, serverSeed_, clientSeed_, userIdBytes, sequence);
+              }
+              else
+              {
+                  if (password.length == 0) {
+                      Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
+                      throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                  }
+            
+                  // Screen out passwords that start with a star.
+                  if (password[0] == '*') {
+                      Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
+                      throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                  }
+                  
+                  /*
+                   * If a sequence number is used, the client increments its password sequence "PWSEQs" by
+                   * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
+                   * uses a sequence number of 1.
+                   */
+                  byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+                  //Generate salt for password level 4
+                  /*
+                   * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
+                   * 1. Convert the 10-character blank padded user ID to upper case.
+                   * 2. Convert the 10-character blank padded upper case user ID to Unicode (CCSID 13488).
+                   * 3. Convert the password value to Unicode (CCSID 13488).
+                   * 4. Generate the salt value:
+                   *    a. Fill a 28-byte variable with Unicode blanks (0x0020).
+                   *    b. Copy the Unicode user ID value into the first 20 bytes of the 28-byte blank filled variable.
+                   *    c. Copy the last 8 bytes (last 4 characters) of the Unicode password value into the last 8 bytes of the 28-byte variable. If the password is less than 4 characters, then copy the entire Unicode password value.
+                   *    d. Do a SHA-256 hash on the 28-byte variable to produce the 32-byte salt value.
+                   * 5. Generate the pwdlvl 4 version of the password using PBKDF2 with HMAC SHA-512 with the following values:
+                   *    Hash algorithm = HMAC SHA-512 (produces a 64-byte key)
+                   *    Data = Unicode password value
+                   *    Data Length = Length of Unicode password value
+                   *    Iterations = 10022
+                   *    Initialization vector length = 32
+                   *    Initialization vector (salt) = value generated in Step #4.
+                   */
+                  byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
+                  CredentialVault.clearArray(password); 
+                  authenticationBytes = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
+              }
+          }
+
+          AS400GenAuthTknDS req = new AS400GenAuthTknDS(userIdEbcdic,
+                  authenticationBytes, authScheme, profileToken.getTokenType(),
+                  profileToken.getTimeoutInterval(), serverLevel_);
+          CredentialVault.clearArray(authenticationBytes);
+          AS400GenAuthTknReplyDS rep = (AS400GenAuthTknReplyDS) signonServer_.sendAndReceive(req);
+          req.clear(); 
+      
+          int rc = rep.getRC();
+          if (rc != 0)
+          {
+              byte[] rcBytes = new byte[4];
+              BinaryConverter.intToByteArray(rc, rcBytes, 0);
+              Trace.log(Trace.ERROR, "Generate profile token failed with return code:", rcBytes);
+              throw AS400ImplRemote.returnSecurityException(rc, rep.getErrorMessages(ConverterImplRemote.getConverter(
+                ExecutionEnvironment.getBestGuessAS400Ccsid(), this)), userId);
+          }
+      
+          try {
+              profileToken.setToken(rep.getProfileTokenBytes());
+          } catch (PropertyVetoException e) {
+              Trace.log(Trace.ERROR, e);
+              throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+          }
+      }
+      catch (IOException | AS400SecurityException e)
+      {
+          Trace.log(Trace.ERROR, "Generate profile token failed:", e);
+          signonServer_.forceDisconnect();
+          signonServer_ = null;
           throw e;
       } 
   }
+  
+  public static boolean getAdditionalAuthenticationIndicator(String systemName, boolean useSSL) throws AS400SecurityException, IOException
+  { 
+      AS400ImplRemote implRemote = new AS400ImplRemote(); 
+      
+      try 
+      {
+          implRemote.systemName_ = systemName; 
+          implRemote.socketProperties_ = new SocketProperties();
+          implRemote.useSSLConnection_ = useSSL ? new SSLOptions()  : null;
 
-  private static void forceDisconnect(Exception e, AS400Server server,
-      SocketContainer sc) {
-    Trace.log(Trace.ERROR, "Establishing connection failed:", e);
-    if (server != null) {
-      try {
-        server.forceDisconnect();
-      } catch (Throwable ee) {
-        Trace.log(Trace.ERROR, "Error closing socket:", ee);
+          if (implRemote.hostcnnServer_ == null)
+              implRemote.signonConnect(); 
+          return implRemote.aafIndicator_; 
       }
-    } else if (sc != null) {
-      try {
-        sc.close();
-      } catch (Throwable ee) {
-        Trace.log(Trace.ERROR, "Error closing socket:", ee);
+      finally {
+          if (implRemote.hostcnnServer_ != null)
+              implRemote.hostcnnDisconnect(); 
+          else
+              implRemote.signonDisconnect(); 
       }
+  }
+
+  // Get either the user's CCSID, the signon server CCSID, or our best guess.
+  public int getCcsid()
+  {
+      int howObtained = 0; // how we got the CCSID value
+
+      // CCSID values obtained from different sources (indexed by 'howObtained')
+      int[] ccsidValues = { ccsid_, 0, 0, 0 };
+
+      // First pass:
+      // Try to arrive at a CCSID other than 0 or 65535.
+      if (ccsid_ == 0 || ccsid_ == 65535)
+      {
+          if (signonInfo_ != null)
+          {
+              howObtained = 1;
+              ccsidValues[howObtained] = signonInfo_.serverCCSID;
+              ccsid_ = ccsidValues[howObtained];
+          }
+
+          if (ccsid_ == 0 || ccsid_ == 65535)
+          {
+              howObtained = 2;
+              // Note. This will call the portmapper and signon server.
+              ccsidValues[howObtained] = getCcsidFromServer();
+              ccsid_ = ccsidValues[howObtained];
+          }
+
+          if (ccsid_ == 0 || ccsid_ == 65535)
+          {
+              howObtained = 3;
+              ccsidValues[howObtained] = ExecutionEnvironment.getBestGuessAS400Ccsid();
+              ccsid_ = ccsidValues[howObtained];
+          }
+      }
+
+      // Second pass:
+      // If first pass ended up with CCSID == 0, settle for any non-zero CCSID.
+      if (ccsid_ == 0)
+      {
+          if (Trace.traceOn_)
+              Trace.log(Trace.DIAGNOSTIC, "AS400ImplRemote.getCcsid() [after first pass]: CCSID=" + ccsid_ + ", howObtained=" + howObtained);
+
+          for (int i = 0; i < ccsidValues.length; i++)
+          {
+              if (ccsidValues[i] != 0)
+              {
+                  howObtained = i;
+                  ccsid_ = ccsidValues[howObtained];
+                  break;
+              }
+          }
+      }
+
+      if (Trace.traceOn_)
+      {
+          Trace.log(Trace.DIAGNOSTIC, "AS400ImplRemote.getCcsid(): CCSID=" + ccsid_ + ", howObtained=" + howObtained);
+          if (ccsid_ < 1 || ccsid_ >= 65535) {
+              Trace.log(Trace.WARNING, "AS400ImplRemote.getCcsid(): CCSID is out of valid range: CCSID=" + ccsid_ + ", howObtained=" + howObtained);
+          }
+      }
+
+      return ccsid_;
+  }
+
+  // Get the user's override CCSID or zero if not set.
+  int getUserOverrideCcsid()
+  {
+      if (userOverrideCcsid_)
+          return ccsid_;
+      return 0;
+  }
+
+  // Get CCSID from central server or current job if native.
+  public int getCcsidFromServer()
+  {
+      try
+      {
+          NLSImpl impl = (NLSImpl) loadImpl("com.ibm.as400.access.NLSImplNative", "com.ibm.as400.access.NLSImplRemote");
+
+          // Get the ccsid from the central server or current job.
+          impl.setSystem(this);
+          impl.connect();
+          impl.disconnect();
+          return impl.getCcsid();
+      }
+      catch (Exception e)
+      {
+          if (Trace.traceOn_) Trace.log(Trace.WARNING, "Error when attempting to get CCSID from server.", e);
+          return 0;
+      }
+  }
+
+  // Get connection for FTP.
+  synchronized Socket getConnection(int port) throws IOException
+  {
+      Socket socket = new Socket((systemNameLocal_) ? "localhost" : systemName_, port);
+
+      try
+      {
+          PortMapper.setSocketProperties(socket, socketProperties_);
+          BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "ISO8859_1"));
+          PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream(), "ISO8859_1"), true);
+
+          readFTPLine(reader);
+          writer.print("USER " + userId_ + "\r\n");
+          writer.flush();
+          readFTPLine(reader);
+          writer.print("PASS " + new String(BinaryConverter.byteArrayToCharArray(credVault_.getClearCredential())) + "\r\n");
+          writer.flush();
+
+          if (!readFTPLine(reader).startsWith("230"))
+              throw new IOException();
+
+          return socket;
+      }
+      catch (IOException e)
+      {
+          Trace.log(Trace.ERROR, "Establishing FTP connection failed:", e);
+          try {
+              socket.close();
+          } catch (IOException ee) {
+              Trace.log(Trace.ERROR, "Error closing socket:", ee);
+          }
+          throw e;
+      }
+  }
+
+  private String readFTPLine(BufferedReader reader) throws IOException
+  {
+      String line = reader.readLine();
+      if (line == null || line.length() == 0)
+          throw new IOException();
+      String code = line.substring(0, 3);
+      StringBuffer fullMessage = new StringBuffer(line);
+      while ((line != null) && !(line.length() > 3 && line.substring(0, 3).equals(code) && line.charAt(3) == ' '))
+      {
+          line = reader.readLine();
+          fullMessage.append("\n" + line);
+      }
+      return fullMessage.toString();
+  }
+
+  // Note: The 'dhcp' argument is a dummy argument, whose sole purpose is to
+  // differentiate this method from getConnection(int port). The value of 'dhcp' is ignored.
+  // @N5A Add this interface for L1C for DHCP already listens on 942 of localhost for STRTCPSVR
+  synchronized Socket getConnection(int dhcp, int port, boolean forceNonLocalhost) throws AS400SecurityException, IOException
+  {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Establishing connection to system at port:", port);
+      
+      Socket socket = new Socket((systemNameLocal_ && !forceNonLocalhost) ? "localhost" : systemName_, port);
+      int connectionID = socket.hashCode();
+   
+      try
+      {
+          PortMapper.setSocketProperties(socket, socketProperties_);
+          InputStream inStream = socket.getInputStream();
+          OutputStream outStream = socket.getOutputStream();
+
+          // The first request we send is "exchange random seeds"...
+          int serverId = AS400Server.getServerId(AS400.COMMAND);
+          AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId);
+          if (Trace.traceOn_) xChgReq.setConnectionID(connectionID);
+          xChgReq.write(outStream);
+
+          AS400XChgRandSeedReplyDS xChgReply = new AS400XChgRandSeedReplyDS();
+          if (Trace.traceOn_) xChgReply.setConnectionID(connectionID);
+          xChgReply.read(inStream);
+
+          if (xChgReply.getRC() != 0)
+          {
+              byte[] rcBytes = new byte[4];
+              BinaryConverter.intToByteArray(xChgReply.getRC(), rcBytes, 0);
+              Trace.log(Trace.ERROR, "Exchange of random seeds failed with return code:", rcBytes);
+              throw AS400ImplRemote.returnSecurityException(xChgReply.getRC(), null, null);
+          }
+          
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exchange of random seeds successful.");
+
+          // Next we send the "start server job" request...
+          byte[] clientSeed = xChgReq.getClientSeed();
+          byte[] serverSeed = xChgReply.getServerSeed();
+          byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
+          byte[] encryptedPassword = getPassword(clientSeed, serverSeed);
+          
+          if (PASSWORD_TRACE) {
+              Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
+              Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
+              Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
+              Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
+              Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
+              Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
+          }
+
+          AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType());
+          if (Trace.traceOn_)
+              req.setConnectionID(connectionID);
+          req.write(outStream);
+
+          AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
+          if (Trace.traceOn_)
+              reply.setConnectionID(connectionID);
+          reply.read(inStream);
+
+          if (reply.getRC() != 0) {
+              byte[] rcBytes = new byte[4];
+              BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
+              Trace.log(Trace.ERROR, "Start server failed with return code:", rcBytes);
+              throw AS400ImplRemote.returnSecurityException(reply.getRC(), null, userId_);
+          }
+
+          if (Trace.traceOn_)
+              Trace.log(Trace.DIAGNOSTIC, "Server started successfully.");
+          return socket;
+      }
+      catch (IOException | AS400SecurityException e)
+      {
+          Trace.log(Trace.ERROR, "Establishing DHCP connection failed:", e);
+          try {
+              socket.close();
+          } catch (IOException ee) {
+              Trace.log(Trace.ERROR, "Error closing socket:", ee);
+          }
+          throw e;
+      }
+  }
+
+  // Gets the jobs with which we are connected.
+  @Override
+  public String[] getJobs(int service)
+  {
+      if (Trace.traceOn_)
+          Trace.log(Trace.DIAGNOSTIC, "Getting job names implementation, service:", service);
+
+      if (service == AS400.SIGNON)
+          return (signonServer_ != null) ? new String[] { signonServer_.getJobString()} : new String[0];
+      else if (service == AS400.HOSTCNN)
+          return (hostcnnServer_ != null) ? new String[] { hostcnnServer_.getJobString() } : new String[0];
+
+      Vector serverList = serverPool_[service];
+      String[] jobStrings = new String[serverList.size()];
+      synchronized (serverList)
+      {
+          for (int i = 0; i < serverList.size(); ++i) {
+              jobStrings[i] = (((AS400Server) serverList.elementAt(i)).getJobString());
+          }
+      }
+      
+      return jobStrings;
+  }
+  
+  // Obtain the job identifier for a connection.
+  private String obtainJobIdForConnection(byte[] jobBytes) throws UnsupportedEncodingException
+  {
+      String jobString = "";
+
+      // The name is always invariant, we can use CCSID 37.
+      ConverterImplRemote converter = ConverterImplRemote.getConverter(37, this);
+
+      // Perform Bidi transformation for data only
+      jobString = AS400BidiTransform.SQL_statement_reordering(jobString, bidiStringType_, converter.table_.bidiStringType_);
+      
+      // this is a trick to prevent Bidi transformation
+      jobString = converter.byteArrayToString(jobBytes, 0, jobBytes.length, converter.table_.bidiStringType_);
+      
+      return jobString;
+  }
+
+  public AS400Server getConnection(int service, boolean forceNewConnection)
+      throws AS400SecurityException, IOException {
+      return getConnection(service, forceNewConnection, false /*Skip signon server */);
+  }
+
+  AS400Server getConnection(int service, boolean forceNewConnection,
+      boolean skipSignonServer) throws AS400SecurityException, IOException {
+      return getConnection(service, -1, forceNewConnection, skipSignonServer);
+  }
+  
+  synchronized AS400Server getConnection(int service, int overridePort, boolean forceNewConnection,
+      boolean skipSignonServer) throws AS400SecurityException, IOException
+  {
+      if (Trace.traceOn_)
+          Trace.log(Trace.DIAGNOSTIC, "Handling request for host server job connection: " + AS400.getServerName(service));
+
+      // -------
+      // See if hostcnn server is up, because we will be using that if it is.
+      // -------
+      
+      // Do not allow for connections to hostcnn
+      if (service == AS400.HOSTCNN)
+      {
+          Trace.log(Trace.DIAGNOSTIC, "Get connection for as-hostcnn is not allowed ");
+          throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+      }
+
+      // Necessary for case where we are connecting after native sign-on.
+      // Skip this test if not using the signon server.
+      if (!isPasswordTypeSet_ && !skipSignonServer && hostcnnServer_ == null)
+      {
+          signonConnect();
+          signonDisconnect();
+      }
+
+      // -------
+      // See if we have a server available to reuse
+      // -------
+      
+      AS400Server server = null;
+      Vector serverList = serverPool_[service];
+
+      synchronized (serverList)
+      {
+          if (!forceNewConnection && !serverList.isEmpty())
+          {
+              server = (AS400Server) serverList.firstElement();
+
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Reusing previous server object...");
+
+              return server;
+          }
+      }
+    
+      // -------
+      // Setup communications with the IBM i server, either through the HOSTCNN server
+      // or directly to the host server.
+      // -------
+      
+      SocketContainer socketContainer = null;
+      int connectionID;
+      String jobString = "";
+      InputStream inStream = null;
+      OutputStream outStream = null;
+      boolean usingAuthenticatedHostcnnConnection = false;
+      boolean haveHostcnnConnection = (hostcnnServer_ != null);
+
+      try
+      {
+          // DDM (AS400.RECORDACCESS) does not fall under the HOSTCNN umbrella, it is a separate server. 
+          if (!haveHostcnnConnection || service == AS400.RECORDACCESS)
+          {
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "The service as-hostcnn is not available to use or service is DDM");
+
+              socketContainer = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_, service,
+                      overridePort, useSSLConnection_, socketProperties_, mustUseNetSockets_);
+
+              connectionID = socketContainer.hashCode();
+              inStream = socketContainer.getInputStream();
+              outStream = socketContainer.getOutputStream();
+
+              int authScheme = credVault_.getType();
+
+              if (service == AS400.RECORDACCESS)
+              {
+                  Object[] returnVals = ClassDecoupler.connectDDMPhase1(outStream, inStream, (passwordLevel_ >= 2), authScheme, connectionID);
+                  byte[] clientSeed = (byte[]) returnVals[0];
+                  byte[] serverSeed = (byte[]) returnVals[1];
+                  byte[] jobBytes   = (byte[]) returnVals[2];
+
+                  byte[] sharedKeyBytes = null;
+                  boolean encryptUserId = (returnVals[3] != null);
+                  KeyPair keyPair = (KeyPair) returnVals[4];
+
+                  if (keyPair != null)
+                  {
+                      try {
+                          sharedKeyBytes = DDMTerm.getSharedKey(keyPair, serverSeed);
+                      } 
+                      catch (GeneralSecurityException e)
+                      {
+                          ServerStartupException serverStartupException = new ServerStartupException(
+                                  ServerStartupException.CONNECTION_NOT_ESTABLISHED);
+                          serverStartupException.initCause(e);
+                          throw serverStartupException;
+                      }
+                  }
+
+                  byte[] userIDbytes;
+                  byte[] ddmSubstitutePassword;
+                  if (encryptUserId)
+                  {
+                      authScheme = AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD;
+
+                      userIDbytes = getEncryptedUserid(sharedKeyBytes, serverSeed);
+                      ddmSubstitutePassword = getDdmEncryptedPassword(sharedKeyBytes, serverSeed);
+                  }
+                  else
+                  {
+                      userIDbytes = SignonConverter.stringToByteArray(userId_);
+                      // Get the substitute password.
+                      ddmSubstitutePassword = getPassword(clientSeed, serverSeed);
+                  }
+
+                  if (PASSWORD_TRACE)
+                  {
+                      Trace.log(Trace.DATASTREAM, "Sending DDM SECCHK request...");
+                      Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
+                      Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
+                      Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
+                      Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
+                      Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", ddmSubstitutePassword);
+                  }
+                  byte[] iaspBytes = null;
+                  if (ddmRDB_ != null)
+                  {
+                      AS400Text text18 = new AS400Text(18, signonInfo_.serverCCSID);
+                      iaspBytes = text18.toBytes(ddmRDB_);
+                  }
+                  
+                  ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes, ddmSubstitutePassword, iaspBytes,
+                                                  authScheme, ddmRDB_, systemName_, connectionID);
+              }
+              else
+              {
+                  // -------
+                  // The first request we send is "exchange random seeds"...
+                  // -------
+                
+                  int serverId = AS400Server.getServerId(service);
+                  AS400XChgRandSeedDS xChgReq = new AS400XChgRandSeedDS(serverId);
+                  if (Trace.traceOn_) xChgReq.setConnectionID(connectionID);
+                  xChgReq.write(outStream);
+
+                  AS400XChgRandSeedReplyDS xChgReply = new AS400XChgRandSeedReplyDS();
+                  if (Trace.traceOn_) xChgReply.setConnectionID(connectionID);
+                  xChgReply.read(inStream);
+
+                  if (xChgReply.getRC() != 0)
+                  {
+                      byte[] rcBytes = new byte[4];
+                      BinaryConverter.intToByteArray(xChgReply.getRC(), rcBytes, 0);
+                      Trace.log(Trace.ERROR, "Exchange of random seeds failed with return code:", rcBytes);
+                      throw AS400ImplRemote.returnSecurityException(xChgReply.getRC(), null, userId_);
+                  }
+                   
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exchange of random seeds successful.");
+
+                  // -------
+                  // Next we send the "start server job" request...
+                  // -------
+                
+                  byte[] clientSeed = xChgReq.getClientSeed();
+                  byte[] serverSeed = xChgReply.getServerSeed();
+                  if (skipSignonServer)
+                  {
+                      // If the signon server was skipped, get the password level
+                      // from the current response.
+                      passwordLevel_ = xChgReply.getServerAttributes();
+                  }
+                
+                  byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
+                  byte[] encryptedPassword = getPassword(clientSeed, serverSeed);
+                  if (PASSWORD_TRACE)
+                  {
+                      Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
+                      Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
+                      Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
+                      Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
+                      Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
+                      Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
+                      Trace.log(Trace.DIAGNOSTIC, "  Password level: ", passwordLevel_);
+                  }
+
+                  // Do not pass authentication factor if server does not support it. Otherwise, you will get an error.
+                  AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType(),
+                          (xChgReply.getAAFIndicator()) ? additionalAuthFactor_ : null);
+                  
+                  if (Trace.traceOn_) req.setConnectionID(connectionID);
+                  req.write(outStream);
+
+                  AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
+                  if (Trace.traceOn_) reply.setConnectionID(connectionID);
+                  reply.read(inStream);
+
+                  if (reply.getRC() != 0)
+                  {
+                      byte[] rcBytes = new byte[4];
+                      BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
+                      Trace.log(Trace.ERROR, "Start server failed with return code:", rcBytes);
+                      throw AS400ImplRemote.returnSecurityException(reply.getRC(), null, userId_);
+                  }
+
+                  jobString = obtainJobIdForConnection(reply.getJobNameBytes());
+              }
+          }
+          else 
+          {
+              // TODO
+          }
     }
+    catch (IOException | AS400SecurityException | RuntimeException e)
+    {                
+        try
+        {
+            // If error happened when communicating with hostcnn, close the socket.
+            if (usingAuthenticatedHostcnnConnection)
+            {
+                hostcnnServer_.forceDisconnect();
+                hostcnnServer_ = null;
+            }
+            
+            // If we have host server connection, close it as well. 
+            if (socketContainer != null)
+                socketContainer.close();
+        } 
+        catch (Throwable ee) {
+            Trace.log(Trace.ERROR, "Error closing socket:", ee);
+        }
+        
+        // If we used hostcnn server, then we cannot establish host server connection over an hostcnn connection. 
+        if (haveHostcnnConnection && !(e instanceof AS400SecurityException))
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exception during communication with as-hostcnn server");
+            throw new ServerStartupException( ServerStartupException.CONNECTION_NOT_ESTABLISHED, e);
+        }
+
+        throw e;
+    } 
+    
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server started successfully. Job: " + jobString);
+
+    // At this point the Socket connection is established. Now we need to set up
+    // the AS400Server object before passing it back to the caller.
+
+    // Construct a new server...
+    server = (threadUsed_) ? new AS400ThreadedServer(this, service, socketContainer, jobString)
+                           : new AS400NoThreadServer(this, service, socketContainer, jobString);
+
+    // Add the system to our list so we can return it on a subsequent connect()...
+    serverList.addElement(server);
+
+    fireConnectEvent(true, service);
+
+    return server;
   }
 
   // The NLV to send to the system.
-  String getNLV() {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Getting NLV implementation:", clientNlv_);
-    return clientNlv_;
+  String getNLV()
+  {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting NLV implementation:", clientNlv_);
+      return clientNlv_;
   }
 
   // Get the encrypted password with the seeds folded in.
-  byte[] getPassword(byte[] clientSeed, byte[] serverSeed)
-      throws AS400SecurityException, IOException {
-    int credType = credVault_.getType();
+  byte[] getPassword(byte[] clientSeed, byte[] serverSeed) throws AS400SecurityException, IOException
+  {
+      int credType = credVault_.getType();
 
-    if (credType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) {
-      try {
-        return (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_,
-            gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
-      } catch (Throwable e) {
-        Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-        // @M4C
-        throw new AS400SecurityException(
-            AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
-      }
-    } else if (credType == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN
-        || credType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) {
-      return credVault_.getClearCredential();
-    }
-
-    // If we got this far:
-    // credType is AS400.AUTHENTICATION_SCHEME_PASSWORD
-
-    byte[] encryptedPassword = null;
-
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Retrieving encrypted password.");
-
-    if (credVault_.isEmpty()) {
-      if (!mustUseSuppliedProfile_
-          && AS400.onAS400
-          && AS400.currentUserAvailable()
-          && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM
-              .getVersionReleaseModification()))) {
-        encryptedPassword = CurrentUser.getUserInfo(
-            AS400.nativeVRM.getVersionReleaseModification(), clientSeed,
-            serverSeed, userId_);
-        Trace.log(Trace.DIAGNOSTIC, "  encrypted password retrieved");
-      } else {
-        Trace.log(Trace.ERROR, "Password is null.");
-        throw new AS400SecurityException(
-            AS400SecurityException.PASSWORD_NOT_SET);
-      }
-    } else {
-      byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId_);
-      byte[] clearCredential = credVault_.getClearCredential();
-      char[] password = BinaryConverter.byteArrayToCharArray(clearCredential);
-      CredentialVault.clearArray(clearCredential);
-      if (PASSWORD_TRACE) {
-        Trace.log(Trace.DIAGNOSTIC, "  user ID:", userId_);
-        Trace.log(Trace.DIAGNOSTIC, "  user ID EBCDIC:", userIdEbcdic);
-        Trace.log(Trace.DIAGNOSTIC, "  password untwiddled: '"
-            + new String(password) + "'");
-        Trace.log(Trace.DIAGNOSTIC, "  client seed: ", clientSeed);
-        Trace.log(Trace.DIAGNOSTIC, "  server seed: ", serverSeed);
-      }
-
-      if ((passwordLevel_< 2 )) {
-        // Do DES encryption.
-
-        // Prepend Q to numeric password. A "numeric password" is
-        // a password that starts with a numeric digit.
-        if (password.length > 0 && Character.isDigit(password[0])) {
-          // boolean isAllNumeric = true;
-          // for (int i = 0; i < password.length; ++i)
-          // {
-          // if (password[i] < '\u0030' || password[i] > '\u0039')
-          // {
-          // isAllNumeric = false;
-          // }
-          // }
-          // if (isAllNumeric)
-          // {
-          if (Trace.traceOn_)
-            Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
-          char[] passwordWithQ = new char[password.length + 1];
-          passwordWithQ[0] = 'Q';
-          System.arraycopy(password, 0, passwordWithQ, 1, password.length);
-          CredentialVault.clearArray(password);
-          password = passwordWithQ;
-          // }
-        }
-
-        if (password.length > 10) {
-          CredentialVault.clearArray(password);
-          Trace.log(Trace.ERROR,
-              "Length of parameter 'password' is not valid:", password.length);
-          throw new AS400SecurityException(
-              AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
-        }
-        byte[] passwordEbcdic; 
-        passwordEbcdic = SignonConverter.upperCharsToByteArray(
-            password);
-        CredentialVault.clearArray(password);
-        if (PASSWORD_TRACE) {
-          Trace.log(Trace.DIAGNOSTIC, "  password in ebcdic: ", passwordEbcdic);
-        }
-        encryptedPassword = encryptPassword(userIdEbcdic, passwordEbcdic,
-            clientSeed, serverSeed);
-      } else if (passwordLevel_< 4) { //@AF2
-        // Do SHA-1 encryption.
-        byte[] userIdBytes = BinaryConverter
-            .charArrayToByteArray(SignonConverter
-                .byteArrayToCharArray(userIdEbcdic));
-
-        // Screen out passwords that are empty
-        if (password.length == 0) {
-          Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
-          throw new AS400SecurityException(
-              AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-
-        }
-        // Screen out passwords that start with a star.
-        if (password[0] == '*') {
-          Trace.log(Trace.ERROR,
-              "Parameter 'password' begins with a '*' character.");
-          throw new AS400SecurityException(
-              AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-        }
-        // trimUnicodeSpace may return the same pointer if no spaces
-        char[] trimmedPassword = trimUnicodeSpace(password);
-        byte[] passwordBytes = BinaryConverter
-            .charArrayToByteArray(trimmedPassword);
-        CredentialVault.clearArray(trimmedPassword);
-        CredentialVault.clearArray(password);
-        
-        byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
-
-        if (PASSWORD_TRACE) {
-          Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 userIdBytes:", userIdBytes);
-          Trace
-              .log(Trace.DIAGNOSTIC, "Pre SHA-1 passwordBytes:", passwordBytes);
-          Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 sequence:", sequence);
-        }
-
-        byte[] token = generateShaToken(userIdBytes, passwordBytes);
-        /* Clear the password bytes */ 
-        CredentialVault.clearArray(passwordBytes); //@AI9A
-         
-        encryptedPassword = generateShaSubstitute(token, serverSeed,
-            clientSeed, userIdBytes, sequence);
-        //@AF2A Start
-      } else {
-    	  if (password.length == 0) {
-              Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
-              throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+      if (credType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+      {
+          try {
+              return (gssCredential_ == null) 
+                    ? TokenManager.getGSSToken(systemName_, gssName_)
+                    : TokenManager2.getGSSToken(systemName_, gssCredential_);
+          } catch (Throwable e) {
+              Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+              throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
           }
-          // Screen out passwords that start with a star.
-          if (password[0] == '*') {
-              Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
-              throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-            }
-          /*
-           * If a sequence number is used, the client increments its password sequence "PWSEQs" by
-           * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
-           * uses a sequence number of 1.
-          */
-    	  byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
-    	  //Generate salt for password level 4
-          /*
-           * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
-           * 1. Convert the 10-character blank padded user ID to upper case.
-           * 2. Convert the 10-character blank padded upper case user ID to Unicode (CCSID 13488).
-           * 3. Convert the password value to Unicode (CCSID 13488).
-           * 4. Generate the salt value:
-           *    a. Fill a 28-byte variable with Unicode blanks (0x0020).
-           *    b. Copy the Unicode user ID value into the first 20 bytes of the 28-byte blank filled variable.
-           *    c. Copy the last 8 bytes (last 4 characters) of the Unicode password value into the last 8 bytes of the 28-byte variable. If the password is less than 4 characters, then copy the entire Unicode password value.
-           *    d. Do a SHA-256 hash on the 28-byte variable to produce the 32-byte salt value.
-           * 5. Generate the pwdlvl 4 version of the password using PBKDF2 with HMAC SHA-512 with the following values:
-           *    Hash algorithm = HMAC SHA-512 (produces a 64-byte key)
-           *    Data = Unicode password value
-           *    Data Length = Length of Unicode password value
-           *    Iterations = 10022
-           *    Initialization vector length = 32
-           *    Initialization vector (salt) = value generated in Step #4.
-           */
-	      byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
-		  encryptedPassword = generateSha512Substitute(userId_, token, serverSeed, clientSeed, sequence);
-      } //@AF2A End
-    }
+      }
+    
+      if (credType == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN
+                 || credType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN)
+          return credVault_.getClearCredential();
 
-    if (PASSWORD_TRACE) {
-      Trace.log(Trace.DIAGNOSTIC, "Encrypted password: ", encryptedPassword);
-    }
+      // If we got this far:
+      // credType is AS400.AUTHENTICATION_SCHEME_PASSWORD
+      
+      byte[] encryptedPassword = null;
 
-    return encryptedPassword;
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving encrypted password.");
+
+      if (credVault_.isEmpty())
+      {
+          if (!mustUseSuppliedProfile_
+                  && AS400.onAS400
+                  && AS400.currentUserAvailable()
+                  && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
+          {
+              encryptedPassword = CurrentUser.getUserInfo(AS400.nativeVRM.getVersionReleaseModification(), clientSeed, serverSeed, userId_);
+              Trace.log(Trace.DIAGNOSTIC, "  encrypted password retrieved");
+          }
+          else {
+              Trace.log(Trace.ERROR, "Password is null.");
+              throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
+          }
+      }
+      else
+      {
+          byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId_);
+          byte[] clearCredential = credVault_.getClearCredential();
+          char[] password = BinaryConverter.byteArrayToCharArray(clearCredential);
+          CredentialVault.clearArray(clearCredential);
+      
+          if (PASSWORD_TRACE) {
+              Trace.log(Trace.DIAGNOSTIC, "  user ID:", userId_);
+              Trace.log(Trace.DIAGNOSTIC, "  user ID EBCDIC:", userIdEbcdic);
+              Trace.log(Trace.DIAGNOSTIC, "  password untwiddled: '" + new String(password) + "'");
+              Trace.log(Trace.DIAGNOSTIC, "  client seed: ", clientSeed);
+              Trace.log(Trace.DIAGNOSTIC, "  server seed: ", serverSeed);
+          }
+
+          if ((passwordLevel_< 2 ))
+          {
+              // Do DES encryption.
+
+              // Prepend Q to numeric password. A "numeric password" is
+              // a password that starts with a numeric digit.
+              if (password.length > 0 && Character.isDigit(password[0]))
+              {
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
+                  char[] passwordWithQ = new char[password.length + 1];
+                  passwordWithQ[0] = 'Q';
+                  System.arraycopy(password, 0, passwordWithQ, 1, password.length);
+                  CredentialVault.clearArray(password);
+                  password = passwordWithQ;
+              }
+
+              if (password.length > 10)
+              {
+                  CredentialVault.clearArray(password);
+                  Trace.log(Trace.ERROR, "Length of parameter 'password' is not valid:", password.length);
+                  throw new AS400SecurityException(AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
+              }
+        
+              byte[] passwordEbcdic; 
+              passwordEbcdic = SignonConverter.upperCharsToByteArray(password);
+              CredentialVault.clearArray(password);
+              if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "  password in ebcdic: ", passwordEbcdic);
+              encryptedPassword = encryptPassword(userIdEbcdic, passwordEbcdic, clientSeed, serverSeed);
+          }
+          else if (passwordLevel_< 4)
+          {
+              // Do SHA-1 encryption.
+              byte[] userIdBytes = BinaryConverter.charArrayToByteArray(SignonConverter.byteArrayToCharArray(userIdEbcdic));
+
+              // Screen out passwords that are empty
+              if (password.length == 0) {
+                  Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+              
+              // Screen out passwords that start with a star.
+              if (password[0] == '*') {
+                  Trace.log(Trace.ERROR,"Parameter 'password' begins with a '*' character.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+              
+              // trimUnicodeSpace may return the same pointer if no spaces
+              char[] trimmedPassword = trimUnicodeSpace(password);
+              byte[] passwordBytes = BinaryConverter.charArrayToByteArray(trimmedPassword);
+              CredentialVault.clearArray(trimmedPassword);
+              CredentialVault.clearArray(password);
+        
+              byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+
+              if (PASSWORD_TRACE) {
+                  Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 userIdBytes:", userIdBytes);
+                  Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 passwordBytes:", passwordBytes);
+                  Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 sequence:", sequence);
+              }
+
+              byte[] token = generateShaToken(userIdBytes, passwordBytes);
+              CredentialVault.clearArray(passwordBytes);
+         
+              encryptedPassword = generateShaSubstitute(token, serverSeed, clientSeed, userIdBytes, sequence);
+          }
+          else
+          {
+              if (password.length == 0) {
+                  Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+              
+              // Screen out passwords that start with a star.
+              if (password[0] == '*') {
+                  Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+              
+              /*
+               * If a sequence number is used, the client increments its password sequence "PWSEQs" by
+               * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
+               * uses a sequence number of 1.
+               */
+              byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+          
+              //Generate salt for password level 4
+              /*
+               * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
+               * 1. Convert the 10-character blank padded user ID to upper case.
+               * 2. Convert the 10-character blank padded upper case user ID to Unicode (CCSID 13488).
+               * 3. Convert the password value to Unicode (CCSID 13488).
+               * 4. Generate the salt value:
+               *    a. Fill a 28-byte variable with Unicode blanks (0x0020).
+               *    b. Copy the Unicode user ID value into the first 20 bytes of the 28-byte blank filled variable.
+               *    c. Copy the last 8 bytes (last 4 characters) of the Unicode password value into the last 8 bytes of 
+               *       the 28-byte variable. If the password is less than 4 characters, then copy the entire Unicode password value.
+               *    d. Do a SHA-256 hash on the 28-byte variable to produce the 32-byte salt value.
+               * 5. Generate the pwdlvl 4 version of the password using PBKDF2 with HMAC SHA-512 with the following values:
+               *    Hash algorithm = HMAC SHA-512 (produces a 64-byte key)
+               *    Data = Unicode password value
+               *    Data Length = Length of Unicode password value
+               *    Iterations = 10022
+               *    Initialization vector length = 32
+               *    Initialization vector (salt) = value generated in Step #4.
+               */
+              byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
+              encryptedPassword = generateSha512Substitute(userId_, token, serverSeed, clientSeed, sequence);
+          }
+      }
+
+      if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "Encrypted password: ", encryptedPassword);
+
+      return encryptedPassword;
   }
 
-  /* @U4A */
-  public static byte[] getAESEncryptionKey(byte[] sharedPrivateKey)
-      throws NoSuchAlgorithmException, AS400SecurityException {
-
+  public static byte[] getAESEncryptionKey(byte[] sharedPrivateKey) throws NoSuchAlgorithmException, AS400SecurityException
+  {
     // Verify that the JVM can support this.
     // Check the key length. This method is only is in JDK 1.5 so we use
     // reflection to access it.
-    try {
+    try
+    {
       Class cipherClass = Class.forName("javax.crypto.Cipher");
       Class argTypes[] = new Class[1];
       argTypes[0] = Class.forName("java.lang.String");
@@ -2244,18 +1860,17 @@ public class AS400ImplRemote implements AS400Impl {
       args[0] = "AES";
       Integer outInteger = (Integer) method.invoke(null, args);
       int keyLength = outInteger.intValue();
-      if (keyLength < 256) {
+      if (keyLength < 256)
+      {
         // If the key length is too small, notify the user
         String message = "THE MAX AES KEY LENGTH IS " + keyLength
             + " AND MUST BE >= 256.  UPDATE THE JVM ("
             + System.getProperty("java.vm.info") + ") AT "
             + System.getProperty("java.home") + " WITH JCE";
-        throw new AS400SecurityException(AS400SecurityException.UNKNOWN,
-            new Exception(message));
+        throw new AS400SecurityException(AS400SecurityException.UNKNOWN, new Exception(message));
       }
     } catch (Exception e) {
       throw new AS400SecurityException(AS400SecurityException.UNKNOWN, e);
-
     }
 
     //
@@ -2301,34 +1916,34 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Get the encrypted userid with the seeds folded in.
-  private byte[] getEncryptedUserid(byte[] sharedPrivateKey, byte[] serverSeed)
-      throws AS400SecurityException, IOException {
-
+  private byte[] getEncryptedUserid(byte[] sharedPrivateKey, byte[] serverSeed) throws AS400SecurityException, IOException
+  {
     byte[] encryptedUserid = null;
 
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Retrieving encrypted userid.");
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving encrypted userid.");
 
-    if (credVault_.isEmpty()) {
+    if (credVault_.isEmpty())
+    {
       if (!mustUseSuppliedProfile_
           && AS400.onAS400
           && AS400.currentUserAvailable()
-          && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM
-              .getVersionReleaseModification()))) {
+          && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
+      {
         // TODO:Think about what to do in this case
         // encryptedPassword =
         // CurrentUser.getUserInfo(AS400.nativeVRM.getVersionReleaseModification(),
         // clientSeed, serverSeed, userId_);
         Trace.log(Trace.DIAGNOSTIC, "  encrypted password retrieved");
         // For now throw exception
-        throw new AS400SecurityException(
-            AS400SecurityException.PASSWORD_NOT_SET);
-      } else {
-        Trace.log(Trace.ERROR, "Password is null.");
-        throw new AS400SecurityException(
-            AS400SecurityException.PASSWORD_NOT_SET);
+        throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
       }
-    } else {
+      else {
+        Trace.log(Trace.ERROR, "Password is null.");
+        throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
+      }
+    }
+    else
+    {
       byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId_);
       if (PASSWORD_TRACE) {
         Trace.log(Trace.DIAGNOSTIC, "  user ID:", userId_);
@@ -2337,14 +1952,16 @@ public class AS400ImplRemote implements AS400Impl {
         Trace.log(Trace.DIAGNOSTIC, "  server seed: ", serverSeed);
       }
 
-      if (userIdEbcdic.length > 10) {
-        Trace.log(Trace.ERROR, "Length of parameter 'userId' is not valid:",
-            userIdEbcdic.length);
-        throw new AS400SecurityException(
-            AS400SecurityException.USERID_LENGTH_NOT_VALID);
+      if (userIdEbcdic.length > 10)
+      {
+        Trace.log(Trace.ERROR, "Length of parameter 'userId' is not valid:", userIdEbcdic.length);
+        throw new AS400SecurityException(AS400SecurityException.USERID_LENGTH_NOT_VALID);
       }
-      try {
-        if (sharedPrivateKey.length == 32) {
+      
+      try 
+      {
+        if (sharedPrivateKey.length == 32)
+        {
           // Do DES encryption
 
           // The 56 bit encryption key is derived from the middle 8 bytes of the
@@ -2354,8 +1971,7 @@ public class AS400ImplRemote implements AS400Impl {
           System.arraycopy(sharedPrivateKey, 12, encryptionKey, 0, 8);
           Trace.log(Trace.DIAGNOSTIC, "  sharedPrivateKey: ", encryptionKey);
 
-          boolean parityAdjusted = DESKeySpec
-              .isParityAdjusted(encryptionKey, 0);
+          boolean parityAdjusted = DESKeySpec.isParityAdjusted(encryptionKey, 0);
           Trace.log(Trace.DIAGNOSTIC, "  isParityAdjusted: ", parityAdjusted);
 
           /*
@@ -2365,8 +1981,7 @@ public class AS400ImplRemote implements AS400Impl {
            * DESKeySpec.isParityAdjusted(encryptionKey, 0 ); }
            */
 
-          Trace.log(Trace.DIAGNOSTIC, "  sharedPrivateKey(parity): ",
-              encryptionKey);
+          Trace.log(Trace.DIAGNOSTIC, "  sharedPrivateKey(parity): ", encryptionKey);
 
           // Cipher c = Cipher.getInstance("DES");
           // Cipher c = Cipher.getInstance("DES/CBC/NoPadding");
@@ -2389,29 +2004,24 @@ public class AS400ImplRemote implements AS400Impl {
 
           encryptedUserid = c.doFinal(userIdEbcdic);
           Trace.log(Trace.DIAGNOSTIC, "  encryptedUserid: ", encryptedUserid);
-
-        } else {
+        }
+        else {
           // Do AES encryption.
           // AES/CBC/NoPadding (128)
           // AES/CBC/PKCS5Padding (128)
           // AES/ECB/NoPadding (128)
 
-          encryptedUserid = encryptAES(sharedPrivateKey, serverSeed,
-              userIdEbcdic);
-
+          encryptedUserid = encryptAES(sharedPrivateKey, serverSeed, userIdEbcdic);
         }
 
       } catch (Exception e) {
         e.printStackTrace();
-        throw new AS400SecurityException(
-            AS400SecurityException.PROFILE_TOKEN_NOT_VALID, e);
-
+        throw new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID, e);
       }
 
     }
-    if (PASSWORD_TRACE) {
-      Trace.log(Trace.DIAGNOSTIC, "Encrypted userid: ", encryptedUserid);
-    }
+    
+    if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "Encrypted userid: ", encryptedUserid);
 
     return encryptedUserid;
   }
@@ -2420,7 +2030,8 @@ public class AS400ImplRemote implements AS400Impl {
       byte[] value) throws NoSuchAlgorithmException,
       NoSuchPaddingException, AS400SecurityException, InvalidKeySpecException,
       InvalidKeyException, InvalidAlgorithmParameterException,
-      IllegalBlockSizeException, BadPaddingException {
+      IllegalBlockSizeException, BadPaddingException
+  {
     byte[] encryptedValue;
     Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
 
@@ -2454,247 +2065,227 @@ public class AS400ImplRemote implements AS400Impl {
    */
 
   // Get the encrypted password for EUSRIDPWD.
-  private byte[] getDdmEncryptedPassword(byte[] sharedPrivateKey, byte[] serverSeed)
-      throws AS400SecurityException, IOException {
-    int credType = credVault_.getType();
+  private byte[] getDdmEncryptedPassword(byte[] sharedPrivateKey, byte[] serverSeed) throws AS400SecurityException, IOException
+  {
+      int credType = credVault_.getType();
 
-    if (credType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) {
-      try {
-        return (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_,
-            gssName_) : TokenManager2.getGSSToken(systemName_, gssCredential_);
-      } catch (Throwable e) {
-        Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-        // @M4C
-        throw new AS400SecurityException(
-            AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
+      if (credType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+      {
+          try {
+              return (gssCredential_ == null) 
+                ? TokenManager.getGSSToken(systemName_, gssName_)
+                : TokenManager2.getGSSToken(systemName_, gssCredential_);
+          }
+          catch (Throwable e) {
+              Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+              throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
+          }
       }
-    } else if (credType == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN
-        || credType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) {
-      return credVault_.getClearCredential();
-    }
+      else if (credType == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN
+                || credType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN)
+          return credVault_.getClearCredential();
 
-    // If we got this far:
-    // credType is AS400.AUTHENTICATION_SCHEME_PASSWORD
+      // If we got this far:
+      // credType is AS400.AUTHENTICATION_SCHEME_PASSWORD
 
-    byte[] encryptedPassword = null;
+      byte[] encryptedPassword = null;
 
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Retrieving encrypted password.");
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieving encrypted password.");
 
-    if (credVault_.isEmpty()) {
-      Trace.log(Trace.ERROR, "Password is null.");
-      throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
-    } else {
+      if (credVault_.isEmpty()) {
+          Trace.log(Trace.ERROR, "Password is null.");
+          throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
+      }
+
       byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId_);
       byte[] clearCredential = credVault_ .getClearCredential();
       char[] password = BinaryConverter.byteArrayToCharArray(clearCredential);
-      CredentialVault.clearArray(clearCredential); 
+      CredentialVault.clearArray(clearCredential);
+      
       if (PASSWORD_TRACE) {
         Trace.log(Trace.DIAGNOSTIC, "  user ID:", userId_);
         Trace.log(Trace.DIAGNOSTIC, "  user ID EBCDIC:", userIdEbcdic);
-        Trace.log(Trace.DIAGNOSTIC, "  password untwiddled: '"
-            + new String(password) + "'");
+        Trace.log(Trace.DIAGNOSTIC, "  password untwiddled: '" + new String(password) + "'");
         Trace.log(Trace.DIAGNOSTIC, "  server seed: ", serverSeed);
       }
 
-      try {
+      try
+      {
+          // Prepend Q to numeric password. A "numeric password" is
+          // a password that starts with a numeric digit.
+          if (password.length > 0 && Character.isDigit(password[0]))
+          {
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
+          
+              char[] passwordWithQ = new char[password.length + 1];
+              passwordWithQ[0] = 'Q';
+              System.arraycopy(password, 0, passwordWithQ, 1, password.length);
+              CredentialVault.clearArray(password);
+              password = passwordWithQ;
+          }
 
-        // Prepend Q to numeric password. A "numeric password" is
-        // a password that starts with a numeric digit.
-        if (password.length > 0 && Character.isDigit(password[0])) {
-          // boolean isAllNumeric = true;
-          // for (int i = 0; i < password.length; ++i)
-          // {
-          // if (password[i] < '\u0030' || password[i] > '\u0039')
-          // {
-          // isAllNumeric = false;
-          // }
-          // }
-          // if (isAllNumeric)
-          // {
-          if (Trace.traceOn_)
-            Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
-          char[] passwordWithQ = new char[password.length + 1];
-          passwordWithQ[0] = 'Q';
-          System.arraycopy(password, 0, passwordWithQ, 1, password.length);
+          // Codepage 500 is a DRDA standard. Using 37 fails for certain invariant characters, such
+          // as the exclamation point ('!')
+          byte[] passwordEbcdic = SignonConverter.charArrayToByteArray(password, "Cp500");
           CredentialVault.clearArray(password);
-          password = passwordWithQ;
-          // }
-        }
+          if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "  password in ebcdic: ", passwordEbcdic);
 
-        // Codepage 500 is a DRDA standard. Using 37 fails for certain invariant characters, such
-        // as the exclamation point ('!')
-        byte[] passwordEbcdic = SignonConverter.charArrayToByteArray(
-            password, "Cp500");
-        CredentialVault.clearArray(password);
-        if (PASSWORD_TRACE) {
-          Trace.log(Trace.DIAGNOSTIC, "  password in ebcdic: ", passwordEbcdic);
-        }
-
-        if (sharedPrivateKey.length == 32) {
-          // Do DES encryption.
-          Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");
-          //
-          // The 56 bit encryption key is derived from the middle 8 bytes of the
-          // 32 byte shared secret key
-          //
-          byte[] encryptionKey = new byte[8];
-          System.arraycopy(sharedPrivateKey, 12, encryptionKey, 0, 8);
-          Trace.log(Trace.DIAGNOSTIC, "  sharedPrivateKey: ", encryptionKey);
-
-          DESKeySpec keySpec = new DESKeySpec(encryptionKey);
-          SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
-          SecretKey key = keyFactory.generateSecret(keySpec);
-
-          byte[] iv = new byte[8];
-          System.arraycopy(serverSeed, 12, iv, 0, 8);
-          c.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
-          encryptedPassword = c.doFinal(passwordEbcdic);
-
-        } else {
-
-          if (password.length == 0) {
-            Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
-            throw new AS400SecurityException(
-                AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-
+          if (sharedPrivateKey.length == 32)
+          {
+              // Do DES encryption.
+              Cipher c = Cipher.getInstance("DES/CBC/PKCS5Padding");
+              //
+              // The 56 bit encryption key is derived from the middle 8 bytes of the
+              // 32 byte shared secret key
+              //
+              byte[] encryptionKey = new byte[8];
+              System.arraycopy(sharedPrivateKey, 12, encryptionKey, 0, 8);
+              Trace.log(Trace.DIAGNOSTIC, "  sharedPrivateKey: ", encryptionKey);
+    
+              DESKeySpec keySpec = new DESKeySpec(encryptionKey);
+              SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");
+              SecretKey key = keyFactory.generateSecret(keySpec);
+    
+              byte[] iv = new byte[8];
+              System.arraycopy(serverSeed, 12, iv, 0, 8);
+              c.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(iv));
+              encryptedPassword = c.doFinal(passwordEbcdic);
           }
-          // Screen out passwords that start with a star.
-          if (password[0] == '*') {
-            Trace.log(Trace.ERROR,
-                "Parameter 'password' begins with a '*' character.");
-            throw new AS400SecurityException(
-                AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+          else
+          {
+              if (password.length == 0)
+              {
+                  Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+          
+              // Screen out passwords that start with a star.
+              if (password[0] == '*')
+              {
+                  Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+
+              // Do AES encryption.
+              encryptedPassword =  encryptAES(sharedPrivateKey, serverSeed, passwordEbcdic);
           }
-
-          // Do AES encryption.
-
-          encryptedPassword =  encryptAES(sharedPrivateKey, serverSeed, passwordEbcdic); 
-         
-        }
-      } catch (Exception e) {
-        throw new AS400SecurityException(
-            AS400SecurityException.PROFILE_TOKEN_NOT_VALID, e);
-
       }
-    }
+      catch (Exception e) {
+          throw new AS400SecurityException(AS400SecurityException.PROFILE_TOKEN_NOT_VALID, e);
+      }
 
-    if (PASSWORD_TRACE) {
-      Trace.log(Trace.DIAGNOSTIC, "Encrypted password: ", encryptedPassword);
-    }
+      if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "Encrypted password: ", encryptedPassword);
 
-    return encryptedPassword;
+      return encryptedPassword;
   }
 
   // Get port number for service.
   @Override
   public int getServicePort(String systemName, int service) {
-    return PortMapper.getServicePort(systemName, service, useSSLConnection_);
+      return PortMapper.getServicePort(systemName, service, useSSLConnection_);
   }
 
   // Get secondary language library name.
   String getLanguageLibrary() {
-    return languageLibrary_;
+      return languageLibrary_;
   }
 
   // Get system name.
   @Override
-  public String getSystemName() {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Getting implementation system name: "
-          + systemName_ + " is local:", systemNameLocal_);
-    return (systemNameLocal_) ? "localhost" : systemName_;
+  public String getSystemName()
+  {
+      if (Trace.traceOn_)
+          Trace.log(Trace.DIAGNOSTIC, "Getting implementation system name: " + systemName_ + " is local:", systemNameLocal_);
+      return (systemNameLocal_) ? "localhost" : systemName_;
   }
 
   // Get user ID.
-  String getUserId() {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Getting implementation user ID:", userId_);
-    return userId_;
+  String getUserId()
+  {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting implementation user ID:", userId_);
+      return userId_;
   }
 
   // Get VRM.
-  int getVRM() {
-    // If we skipped the signon server, assume we are V7R1 or later.
-    // The VRM will be fixed later after the other connection is made.
-    // /*@V1A*/
-    if (signonInfo_ == null) {
-      return 0x070100;
-    }
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Getting implementation VRM.");
-    int vrm = signonInfo_.version.getVersionReleaseModification();
-    if (Trace.traceOn_) {
-      byte[] vrmBytes = new byte[4];
-      BinaryConverter.intToByteArray(vrm, vrmBytes, 0);
-      Trace.log(Trace.DIAGNOSTIC, "Implementation VRM:", vrmBytes);
-    }
+  int getVRM()
+  {
+      // If we skipped the signon server, assume we are V7R1 or later.
+      // The VRM will be fixed later after the other connection is made.
+      if (signonInfo_ == null)
+          return 0x070100;
+    
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting implementation VRM.");
+    
+      int vrm = signonInfo_.version.getVersionReleaseModification();
+      if (Trace.traceOn_)
+      {
+          byte[] vrmBytes = new byte[4];
+          BinaryConverter.intToByteArray(vrm, vrmBytes, 0);
+          Trace.log(Trace.DIAGNOSTIC, "Implementation VRM:", vrmBytes);
+      }
 
-    return vrm;
+      return vrm;
   }
 
   // Returns true of password type is SHA
   public boolean getPasswordType() {
-    return (passwordLevel_ >= 2);
-  }
-  
-  //Returns true of password level @AE6A
-  public int getPasswordLevel() {
-    return passwordLevel_;
+      return (passwordLevel_ >= 2);
   }
 
+  // Returns true of password level @AE6A
+  public int getPasswordLevel() {
+      return passwordLevel_;
+  }
 
   // Check if service is connected.
   @Override
-  public boolean isConnected(int service) {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC,
-          "Checking for service connection implementation:", service);
-    if (service == AS400.SIGNON) {
-      return signonServer_ != null;
-    } else {
+  public boolean isConnected(int service)
+  {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking for service connection implementation:", service);
+
+      if (service == AS400.SIGNON)
+          return signonServer_ != null;
+      else if (service == AS400.HOSTCNN)
+          return (hostcnnServer_ != null);
+
       Vector serverList = serverPool_[service];
-      synchronized (serverList) {
-        for (int i = serverList.size() - 1; i >= 0; i--) {
-          if (((AS400Server) serverList.elementAt(i)).isConnected())
-            return true;
-        }
-        return false;
+      
+      synchronized (serverList)
+      {
+          for (int i = serverList.size() - 1; i >= 0; i--)
+          {
+              if (((AS400Server) serverList.elementAt(i)).isConnected())
+                  return true;
+          }
+          return false;
       }
-    }
   }
 
   private SignonPingReq signonPingRequest_;
+  private SignonPingReq hostcnnPingRequest_;
   private IFSPingReq ifsPingRequest_;
   private static final int NO_PRIOR_SERVICE = -1;
   private int priorService_ = NO_PRIOR_SERVICE;
 
   // Check connection's current status.
   @Override
-  public boolean isConnectionAlive() {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Checking connection's current alive status");
+  public boolean isConnectionAlive()
+  {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking connection's current alive status");
 
-    // The host server 'ping' request is supported starting in V7R1.
-    if (getVRM() < 0x00070100) {
-      Trace
-          .log(
-              Trace.DIAGNOSTIC,
+      // The host server 'ping' request is supported starting in V7R1.
+      if (getVRM() < 0x00070100)
+      {
+          Trace.log(Trace.DIAGNOSTIC,
               "The IBM i version is V6R1 or lower, therefore isConnectionAlive() defaults to the behavior of isConnected().");
-      if (isConnected(AS400.FILE) || isConnected(AS400.PRINT)
-          || isConnected(AS400.COMMAND) || isConnected(AS400.DATAQUEUE)
-          || isConnected(AS400.DATABASE) || isConnected(AS400.RECORDACCESS)
-          || isConnected(AS400.CENTRAL) || isConnected(AS400.SIGNON)) {
-        return true;
-      } else {
-        return false;
+          if (   isConnected(AS400.FILE) || isConnected(AS400.PRINT)
+               || isConnected(AS400.COMMAND) || isConnected(AS400.DATAQUEUE)
+               || isConnected(AS400.DATABASE) || isConnected(AS400.RECORDACCESS)
+               || isConnected(AS400.CENTRAL) || isConnected(AS400.SIGNON))
+              return true;
+          
+          return false;
       }
-    }
-
-    boolean isAlive = false;
-
-    try {
-      AS400Server connectedServer = null;
 
       // Note: The Signon Server is the "common gateway" (contains common code)
       // for the following servers: Network Print, Remote Command, Data Queue,
@@ -2703,227 +2294,251 @@ public class AS400ImplRemote implements AS400Impl {
       // from the Signon Server, and do not yet support a "ping" request.
       // To test connection, we will ping a connected connection to any of the
       // above services.
+      
+      boolean isAlive = false;
+      AS400Server connectedServer = null;
 
-      // First, try the previously-connected common service (if any).
-      if (priorService_ != NO_PRIOR_SERVICE
-          && (priorService_ == AS400.PRINT || priorService_ == AS400.COMMAND
-              || priorService_ == AS400.DATAQUEUE
-              || priorService_ == AS400.DATABASE
-              || priorService_ == AS400.CENTRAL || priorService_ == AS400.SIGNON)) {
-        connectedServer = getConnectedServer(new int[] { priorService_ });
-      }
-
-      if (connectedServer == null) {
-        // Go through the list of common servers until we find a connected
-        // connection.
-        connectedServer = getConnectedServer(new int[] { AS400.SIGNON,
-            AS400.COMMAND, AS400.DATABASE, AS400.PRINT, AS400.DATAQUEUE,
-            AS400.CENTRAL });
-      }
-
-      // If we have a connection to a "common" server, send the ping request.
-      // If no exception gets thrown, report that the connection is alive.
-      if (connectedServer != null) {
-        if (signonPingRequest_ == null) {
-          signonPingRequest_ = new SignonPingReq(); // the above services all
-                                                    // support "ping"
-        }
-        connectedServer.sendAndDiscardReply(signonPingRequest_);
-        // If no exception was thrown, then the ping succeeded.
-
-        isAlive = true;
-        priorService_ = connectedServer.getService();
-      }
-
-      // If we have a connection to the File Server, send the ping request.
-      // Then if a reply comes back, swallow the "invalid request" error and
-      // report that the connection is alive.
-      if (connectedServer == null) {
-        connectedServer = getConnectedServer(new int[] { AS400.FILE });
-        if (connectedServer != null) {
-          if (ifsPingRequest_ == null) {
-            ifsPingRequest_ = new IFSPingReq(); // a dummy request, just to get
-                                                // a reply
+      try
+      {
+          // First, try the previously-connected common service (if any).
+          if (priorService_ != NO_PRIOR_SERVICE 
+                  && (   priorService_ == AS400.PRINT     || priorService_ == AS400.COMMAND
+                      || priorService_ == AS400.DATAQUEUE || priorService_ == AS400.DATABASE
+                      || priorService_ == AS400.CENTRAL 
+                      || priorService_ == AS400.SIGNON    || priorService_ == AS400.HOSTCNN))
+          {
+              connectedServer = getConnectedServer(new int[] { priorService_ });
           }
-          // We expect to get back a reply indicating "request not supported".
-          DataStream reply = connectedServer.sendAndReceive(ifsPingRequest_);
-          // If no exception was thrown, then the ping succeeded.
 
-          isAlive = true;
-          priorService_ = connectedServer.getService();
+          if (connectedServer == null)
+          {
+              // Go through the list of common servers until we find a connected connection.
+              connectedServer = getConnectedServer(new int[] { 
+                      AS400.SIGNON, AS400.HOSTCNN, AS400.COMMAND,
+                      AS400.DATABASE, AS400.PRINT, AS400.DATAQUEUE, AS400.CENTRAL });
+          }
 
-          if (DEBUG) {
-            // Sanity-check the reply.
-            if (reply instanceof IFSReturnCodeRep) {
-              int returnCode = ((IFSReturnCodeRep) reply).getReturnCode();
-              // We expect the return code to indicate REQUEST_NOT_SUPPORTED.
-              // That sort of error doesn't clutter the job log with error
-              // entries.
-              if (returnCode != IFSReturnCodeRep.REQUEST_NOT_SUPPORTED) {
-                if (Trace.traceOn_) {
-                  Trace.log(Trace.DIAGNOSTIC,
-                      "Ping of File Server failed with unexpected return code "
-                          + returnCode);
-                }
+          // If we have a connection to a "common" server, send the ping request.
+          // If no exception gets thrown, report that the connection is alive.
+          if (connectedServer != null)
+          {
+              // the above services all support "ping"
+              if (signonPingRequest_ == null)
+                  signonPingRequest_ = new SignonPingReq();
+
+              connectedServer.sendAndDiscardReply(signonPingRequest_);
+
+              // If no exception was thrown, then the ping succeeded.
+              isAlive = true;
+              priorService_ = connectedServer.getService();
+          }
+
+          // If we have a connection to the File Server, send the ping request.
+          // Then if a reply comes back, swallow the "invalid request" error and
+          // report that the connection is alive.
+          if (connectedServer == null)
+          {
+              connectedServer = getConnectedServer(new int[] { AS400.FILE });
+              
+              if (connectedServer != null)
+              {
+                  // a dummy request, just to get a reply
+                  if (ifsPingRequest_ == null)
+                      ifsPingRequest_ = new IFSPingReq();
+
+                  // We expect to get back a reply indicating "request not supported".
+                  DataStream reply = connectedServer.sendAndReceive(ifsPingRequest_);
+                  // If no exception was thrown, then the ping succeeded.
+
+                  isAlive = true;
+                  priorService_ = connectedServer.getService();
+
+                  if (DEBUG)
+                  {
+                      // Sanity-check the reply.
+                      if (reply instanceof IFSReturnCodeRep)
+                      {
+                          int returnCode = ((IFSReturnCodeRep) reply).getReturnCode();
+                          // We expect the return code to indicate REQUEST_NOT_SUPPORTED.
+                          // That sort of error doesn't clutter the job log with error entries.
+                          if (returnCode != IFSReturnCodeRep.REQUEST_NOT_SUPPORTED && Trace.traceOn_)
+                              Trace.log(Trace.DIAGNOSTIC, "Ping of File Server failed with unexpected return code " + returnCode);
+                      }
+                      else
+                          Trace.log(Trace.WARNING, "Unexpected IFS reply datastream received.", reply.data_);
+                  }
               }
-            } else {
-              Trace.log(Trace.WARNING,
-                  "Unexpected IFS reply datastream received.", reply.data_);
-            }
           }
 
-        }
+          // If all we have is a connection to the DDM Server, simply return true.
+          // We don't have a way to ping the DDM server without creating an error
+          // entry in the job log.
+          if (connectedServer == null)
+          {
+              if (isConnected(AS400.RECORDACCESS))
+              {
+                  Trace.log(Trace.DIAGNOSTIC,
+                          "For the RECORDACCESS service, isConnectionAlive() defaults to the behavior of isConnected().");
+                  isAlive = true;
+              }
+
+              priorService_ = NO_PRIOR_SERVICE;
+          }
+      }
+      catch (Exception e)
+      {
+          if (Trace.traceOn_)
+              Trace.log(Trace.DIAGNOSTIC, e);
+          isAlive = false;
       }
 
-      // If all we have is a connection to the DDM Server, simply return true.
-      // We don't have a way to ping the DDM server without creating an error
-      // entry in the job log.
-      if (connectedServer == null) {
-        if (isConnected(AS400.RECORDACCESS)) {
-          Trace
-              .log(
-                  Trace.DIAGNOSTIC,
-                  "For the RECORDACCESS service, isConnectionAlive() defaults to the behavior of isConnected().");
-          isAlive = true;
-        }
-      }
+      if (!isAlive)
+          priorService_ = NO_PRIOR_SERVICE;
 
-      if (connectedServer == null) {
-        priorService_ = NO_PRIOR_SERVICE;
-      }
-
-    } catch (Exception e) {
-      if (Trace.traceOn_)
-        Trace.log(Trace.DIAGNOSTIC, e);
-      isAlive = false;
-    }
-
-    if (!isAlive) {
-      priorService_ = NO_PRIOR_SERVICE;
-    }
-
-    return isAlive;
+      return isAlive;
   }
 
   // Check connection's current status, for a specific service.
   @Override
-  public boolean isConnectionAlive(int service) {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC,
-          "Checking service connection's current alive status:", service);
-
-    if (!isConnected(service))
-      return false;
-
-    // The host server 'ping' request is supported starting in V7R1.
-    if (getVRM() < 0x00070100) {
-      Trace
-          .log(
-              Trace.DIAGNOSTIC,
-              "The IBM i version is V6R1 or lower, therefore isConnectionAlive() defaults to the behavior of isConnected().");
-      if (isConnected(service)) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-
-    boolean isAlive = false;
-    try {
-      AS400Server connectedServer = getConnectedServer(new int[] { service });
-
-      // If we have a connection to the specified service, send the ping
-      // request.
-      // If no exception gets thrown, report that the connection is alive.
-
-      if (connectedServer != null) {
-
-        // Special handling for the DDM Server.
-        if (service == AS400.RECORDACCESS) {
-          // For the DDM Server, simply return true.
-          // We don't have a way to ping the DDM server without creating an
-          // error entry in the host server's job log.
-          Trace
-              .log(
-                  Trace.DIAGNOSTIC,
-                  "For the RECORDACCESS service, isConnectionAlive() defaults to the behavior of isConnected().");
-          isAlive = true;
-        }
-
-        // Special handling for the File Server.
-        else if (service == AS400.FILE) {
-          if (ifsPingRequest_ == null) {
-            ifsPingRequest_ = new IFSPingReq(); // a dummy request, just to get
-                                                // a reply
-          }
-          // We expect to get back a reply indicating "request not supported".
-          DataStream reply = connectedServer.sendAndReceive(ifsPingRequest_);
-          // If no exception was thrown, then the ping succeeded.
-
-          isAlive = true;
-
-          if (DEBUG) {
-            // Sanity-check the reply.
-            if (reply instanceof IFSReturnCodeRep) {
-              int returnCode = ((IFSReturnCodeRep) reply).getReturnCode();
-              // We expect the return code to indicate REQUEST_NOT_SUPPORTED.
-              // That sort of error doesn't clutter the job log with error
-              // entries.
-              if (returnCode != IFSReturnCodeRep.REQUEST_NOT_SUPPORTED) {
-                if (Trace.traceOn_) {
-                  Trace.log(Trace.DIAGNOSTIC,
-                      "Ping of File Server failed with unexpected return code "
-                          + returnCode);
-                }
-              }
-            } else {
-              Trace.log(Trace.WARNING,
-                  "Unexpected IFS reply datastream received.", reply.data_);
-            }
-          }
-        }
-
-        else // It's a "common service", which will accept a Signon Ping
-             // Request.
-        {
-          if (signonPingRequest_ == null) {
-            signonPingRequest_ = new SignonPingReq(); // the above services all
-                                                      // support "ping"
-          }
-          connectedServer.sendAndDiscardReply(signonPingRequest_);
-          // If no exception was thrown, then the ping succeeded.
-
-          isAlive = true;
-        }
-      }
-
-    } catch (Exception e) {
+  public boolean isConnectionAlive(int service)
+  {
       if (Trace.traceOn_)
-        Trace.log(Trace.DIAGNOSTIC, e);
-      isAlive = false;
-    }
+          Trace.log(Trace.DIAGNOSTIC, "Checking service connection's current alive status:", service);
 
-    return isAlive;
+      if (!isConnected(service))
+          return false;
+
+      // The host server 'ping' request is supported starting in V7R1.
+      if (getVRM() < 0x00070100)
+      {
+          Trace.log(Trace.DIAGNOSTIC,
+                  "The IBM i version is V6R1 or lower, therefore isConnectionAlive() defaults to the behavior of isConnected().");
+
+          if (isConnected(service))
+              return true;
+
+          return false;
+      }
+
+      boolean isAlive = false;
+      try
+      {
+          AS400Server connectedServer = getConnectedServer(new int[] { service });
+
+          // If we have a connection to the specified service, send the ping request.
+          // If no exception gets thrown, report that the connection is alive.
+
+          if (connectedServer != null)
+          {
+              if (service == AS400.RECORDACCESS)
+              {
+                  // Special handling for the DDM Server.
+
+                  // For the DDM Server, simply return true.
+                  // We don't have a way to ping the DDM server without creating an
+                  // error entry in the host server's job log.
+
+                  Trace.log(Trace.DIAGNOSTIC,
+                          "For the RECORDACCESS service, isConnectionAlive() defaults to the behavior of isConnected().");
+                  isAlive = true;
+              }
+              else if (service == AS400.FILE)
+              {
+                  // Special handling for the File Server.
+
+                  // a dummy request, just to get a reply
+                  if (ifsPingRequest_ == null)
+                      ifsPingRequest_ = new IFSPingReq();
+
+                  // We expect to get back a reply indicating "request not supported".
+                  DataStream reply = connectedServer.sendAndReceive(ifsPingRequest_);
+                  // If no exception was thrown, then the ping succeeded.
+
+                  isAlive = true;
+
+                  if (DEBUG)
+                  {
+                      // Sanity-check the reply.
+                      if (reply instanceof IFSReturnCodeRep)
+                      {
+                          int returnCode = ((IFSReturnCodeRep) reply).getReturnCode();
+                          // We expect the return code to indicate REQUEST_NOT_SUPPORTED.
+                          // That sort of error doesn't clutter the job log with error
+                          // entries.
+                          if (returnCode != IFSReturnCodeRep.REQUEST_NOT_SUPPORTED && Trace.traceOn_)
+                              Trace.log(Trace.DIAGNOSTIC,
+                                      "Ping of File Server failed with unexpected return code " + returnCode);
+                      }
+                      else
+                          Trace.log(Trace.WARNING, "Unexpected IFS reply datastream received.", reply.data_);
+                  }
+              }
+              else if (service == AS400.HOSTCNN)
+              {
+                  // TODO maybe should be the default for all isAlive tests?
+                  
+                  // To reliably detect a connection is still up, we need to 
+                  // to send a payload and do a receive. 
+                  
+                  // It's a "common service", which will accept a Signon Ping Request.
+                  if (hostcnnPingRequest_ == null)
+                      hostcnnPingRequest_ = new SignonPingReq(12345);
+
+                  connectedServer.sendAndReceive(hostcnnPingRequest_);
+                  // If no exception was thrown, then the ping succeeded.
+
+                  isAlive = true;
+              }
+              else
+              {
+                  // It's a "common service", which will accept a Signon Ping Request.
+                  if (signonPingRequest_ == null)
+                      signonPingRequest_ = new SignonPingReq();
+
+                  connectedServer.sendAndDiscardReply(signonPingRequest_);
+                  // If no exception was thrown, then the ping succeeded.
+
+                  isAlive = true;
+              }
+          }
+      }
+      catch (Exception e)
+      {
+          if (Trace.traceOn_)
+              Trace.log(Trace.DIAGNOSTIC, e);
+          isAlive = false;
+      }
+
+      return isAlive;
   }
 
-  private final AS400Server getConnectedServer(int[] services) {
-    AS400Server server = null;
-    for (int i = 0; i < services.length && server == null; i++) {
-      int service = services[i];
-      if (service == AS400.SIGNON) {
-        server = signonServer_;
-      } else {
-        Vector serverList = serverPool_[service];
-        synchronized (serverList) {
-          for (int ii = serverList.size() - 1; ii >= 0 && server == null; ii--) {
-            if (((AS400Server) serverList.elementAt(ii)).isConnected()) {
-              server = (AS400Server) serverList.elementAt(ii);
-            }
+  private final AS400Server getConnectedServer(int[] services)
+  {
+      AS400Server server = null;
+
+      for (int i = 0; i < services.length && server == null; i++)
+      {
+          int service = services[i];
+          
+          if (service == AS400.SIGNON)
+              server = signonServer_;
+          else if (service == AS400.HOSTCNN)
+              server = hostcnnServer_;
+          else
+          {
+              Vector serverList = serverPool_[service];
+              synchronized (serverList)
+              {
+                  for (int ii = serverList.size() - 1; ii >= 0 && server == null; ii--)
+                  {
+                      if (((AS400Server) serverList.elementAt(ii)).isConnected())
+                          server = (AS400Server) serverList.elementAt(ii);
+                  }
+              }
           }
-        }
       }
-    }
-    return server;
+
+      return server;
   }
 
   // Indicates whether we've discovered that PTF SI29629 is missing on a V5R4
@@ -2949,32 +2564,32 @@ public class AS400ImplRemote implements AS400Impl {
 
   // Check if thread can be used.
   boolean isThreadUsed() {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Checking implementation if thread is used:",
-          threadUsed_);
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking implementation if thread is used:", threadUsed_);
     return threadUsed_;
   }
 
   // Load the appropriate implementation object.
   // param impl1 fully package named class name for native implementation.
   // param impl2 fully package named class name for remote implementation.
-  Object loadImpl(String impl1, String impl2) {
-    if (canUseNativeOptimization_) {
-      Object impl = AS400.loadImpl(impl1);
-      if (impl != null)
-        return impl;
-      if (Trace.traceOn_)
-        Trace.log(Trace.DIAGNOSTIC, "Load of native implementation '" + impl1
-            + "' failed, attempting to load remote implementation.");
-    }
-    Object impl = AS400.loadImpl(impl2);
-    if (impl != null)
-      return impl;
+  Object loadImpl(String impl1, String impl2)
+  {
+      if (canUseNativeOptimization_)
+      {
+          Object impl = AS400.loadImpl(impl1);
+          if (impl != null)
+              return impl;
 
-    Trace.log(Trace.DIAGNOSTIC, "Load of remote implementation '" + impl2
-        + "' failed.");
-    throw new ExtendedIllegalStateException(impl2,
-        ExtendedIllegalStateException.IMPLEMENTATION_NOT_FOUND);
+          if (Trace.traceOn_)
+              Trace.log(Trace.DIAGNOSTIC, "Load of native implementation '" + impl1
+                      + "' failed, attempting to load remote implementation.");
+      }
+      
+      Object impl = AS400.loadImpl(impl2);
+      if (impl != null)
+          return impl;
+
+      Trace.log(Trace.DIAGNOSTIC, "Load of remote implementation '" + impl2 + "' failed.");
+      throw new ExtendedIllegalStateException(impl2, ExtendedIllegalStateException.IMPLEMENTATION_NOT_FOUND);
   }
 
   // Load a converter object into converter cache.
@@ -2986,66 +2601,57 @@ public class AS400ImplRemote implements AS400Impl {
   // Remove the connection event dispatcher.
   @Override
   public void removeConnectionListener(ConnectionListener listener) {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC,
-          "Removing implementation connection listener.");
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing implementation connection listener.");
     dispatcher_ = null;
   }
 
   // Create AS400SecurityException from sign-on server return code.
   // Throw or return proper exception if exchange of random seeds or start
   // server request fail.
-  static AS400SecurityException returnSecurityExceptionX(int rc)
-      throws ServerStartupException {
+  static AS400SecurityException returnSecurityExceptionX(int rc) throws ServerStartupException {
     return returnSecurityException(rc, null, null);
   }
 
   static AS400SecurityException returnSecurityException(int rc,
-      AS400Message[] messageList, String info) throws ServerStartupException {
+      AS400Message[] messageList, String info) throws ServerStartupException
+  {
     int exceptionCode = 0;
-    switch (rc) {
+    switch (rc)
+    {
     case 0x00010001:
       // Error on request data: invalid exchange attributes request.
       // Error on request data: invalid exchange random seeds request.
-      throw new ServerStartupException(
-          ServerStartupException.RANDOM_SEED_EXCHANGE_INVALID);
+      throw new ServerStartupException(ServerStartupException.RANDOM_SEED_EXCHANGE_INVALID);
     case 0x00010002:
       // Error on request data: invalid server ID.
-      throw new ServerStartupException(
-          ServerStartupException.SERVER_ID_NOT_VALID);
+      throw new ServerStartupException(ServerStartupException.SERVER_ID_NOT_VALID);
     case 0x00010003:
       // Error on request data: invalid request ID.
-      throw new ServerStartupException(
-          ServerStartupException.REQUEST_ID_NOT_VALID);
+      throw new ServerStartupException(ServerStartupException.REQUEST_ID_NOT_VALID);
     case 0x00010004:
       // Error on request data: invalid random seed:
       // - Zero is invalid.
       // - Greater than x'DFFFFFFFFFFFFFFF' is invalid.
-      throw new ServerStartupException(
-          ServerStartupException.RANDOM_SEED_INVALID);
+      throw new ServerStartupException(ServerStartupException.RANDOM_SEED_INVALID);
     case 0x00010005:
       // Error on request data: random seed required when doing password
       // substitution.
-      throw new ServerStartupException(
-          ServerStartupException.RANDOM_SEED_REQUIRED);
+      throw new ServerStartupException(ServerStartupException.RANDOM_SEED_REQUIRED);
     case 0x00010006:
       // Error on request data: invalid password encrypt indicator.
-      throw new ServerStartupException(
-          ServerStartupException.PASSWORD_ENCRYPT_INVALID);
+      throw new ServerStartupException(ServerStartupException.PASSWORD_ENCRYPT_INVALID);
     case 0x00010007:
       // Error on request data: invalid user ID (length).
       exceptionCode = AS400SecurityException.USERID_LENGTH_NOT_VALID;
       break;
     case 0x00010008:
-
       // Error on request data: invalid password or passphrase (length).
       exceptionCode = AS400SecurityException.PASSWORD_LENGTH_NOT_VALID;
       break;
     case 0x00010009:
       // Error on request data: invalid client version.
       // Error on request data: invalid send reply indicator.
-      throw new ServerStartupException(
-          ServerStartupException.REQUEST_DATA_ERROR);
+      throw new ServerStartupException(ServerStartupException.REQUEST_DATA_ERROR);
     case 0x0001000A:
       // Error on request data: invalid data stream level.
       // Error on request data: invalid start server request:
@@ -3055,8 +2661,7 @@ public class AS400ImplRemote implements AS400Impl {
       // - missing user ID, password or passphrase, and authentication token
       // were specified.
       // - both password and passphrase were specified on the request.
-      throw new ServerStartupException(
-          ServerStartupException.REQUEST_DATA_ERROR);
+      throw new ServerStartupException(ServerStartupException.REQUEST_DATA_ERROR);
     case 0x0001000B:
       // Error on request data: invalid retrieve sign-on data request:
       // - missing user ID.
@@ -3086,13 +2691,11 @@ public class AS400ImplRemote implements AS400Impl {
     case 0x0001000E:
       // Error on request data: invalid protected new or clear text password or
       // passphrase.
-      return new AS400SecurityException(
-          AS400SecurityException.PASSWORD_NEW_NOT_VALID, messageList);
+      return new AS400SecurityException(AS400SecurityException.PASSWORD_NEW_NOT_VALID, messageList);
     case 0x0001000F:
       // Error on request data: invalid token type on generate authentication
       // token request.
-      return new AS400SecurityException(
-          AS400SecurityException.TOKEN_TYPE_NOT_VALID, messageList);
+      return new AS400SecurityException(AS400SecurityException.TOKEN_TYPE_NOT_VALID, messageList);
     case 0x00010010:
       // Error on request data: invalid generate authentication token request:
       // - missing authentication token.
@@ -3105,8 +2708,7 @@ public class AS400ImplRemote implements AS400Impl {
       break;
     case 0x00010011:
       // Error on request data: invalid authentication token (length).
-      return new AS400SecurityException(
-          AS400SecurityException.TOKEN_LENGTH_NOT_VALID, messageList);
+      return new AS400SecurityException(AS400SecurityException.TOKEN_LENGTH_NOT_VALID, messageList);
     case 0x00010012:
       // Invalid generate authentication token for another user.
       exceptionCode = AS400SecurityException.GENERATE_TOKEN_REQUEST_NOT_VALID;
@@ -3442,49 +3044,54 @@ public class AS400ImplRemote implements AS400Impl {
       // Internal errors or unexpected return codes.
       exceptionCode = AS400SecurityException.UNKNOWN;
     }
+    
     // Exception code set above
-    if (info != null) {
-      return new AS400SecurityException(exceptionCode, messageList, info);
-    } else {
-      return new AS400SecurityException(exceptionCode, messageList);
-    }
-
+    return (info != null)
+      ? new AS400SecurityException(exceptionCode, messageList, info)
+      : new AS400SecurityException(exceptionCode, messageList);
   }
 
-  static AS400Message[] parseMessages(byte[] data, int offset,
-      ConverterImplRemote converter) throws IOException {
-    int originalOffset = offset;
-    int messageNumber = 0;
-    while (offset < data.length - 1) {
-      if (BinaryConverter.byteArrayToShort(data, offset + 4) != 0x112A) {
-        offset += BinaryConverter.byteArrayToInt(data, offset);
-      } else {
-        messageNumber = BinaryConverter.byteArrayToShort(data, offset + 6);
-        break;
+  static AS400Message[] parseMessages(byte[] data, int offset, ConverterImplRemote converter) throws IOException
+  {
+      int originalOffset = offset;
+      int messageNumber = 0;
+      while (offset < data.length - 1)
+      {
+          if (BinaryConverter.byteArrayToShort(data, offset + 4) != 0x112A)
+              offset += BinaryConverter.byteArrayToInt(data, offset);
+          else
+          {
+              messageNumber = BinaryConverter.byteArrayToShort(data, offset + 6);
+              break;
+          }
       }
-    }
-    if (messageNumber == 0)
-      return null;
-    AS400Message[] messageList = new AS400Message[messageNumber];
 
-    offset = originalOffset;
-    for (int i = 0; i < messageNumber; ++i) {
-      while (offset < data.length - 1) {
-        if (BinaryConverter.byteArrayToShort(data, offset + 4) != 0x112B) {
+      if (messageNumber == 0)
+          return null;
+
+      AS400Message[] messageList = new AS400Message[messageNumber];
+
+      offset = originalOffset;
+      for (int i = 0; i < messageNumber; ++i)
+      {
+          while (offset < data.length - 1)
+          {
+              if (BinaryConverter.byteArrayToShort(data, offset + 4) != 0x112B)
+                  offset += BinaryConverter.byteArrayToInt(data, offset);
+              else
+              {
+                  messageList[i] = parseMessage(data, offset + 6, converter);
+                  break;
+              }
+          }
           offset += BinaryConverter.byteArrayToInt(data, offset);
-        } else {
-          messageList[i] = parseMessage(data, offset + 6, converter);
-          break;
-        }
       }
-      offset += BinaryConverter.byteArrayToInt(data, offset);
-    }
 
-    return messageList;
+      return messageList;
   }
 
-  static AS400Message parseMessage(byte[] data, int offset,
-      ConverterImplRemote converter) throws IOException {
+  static AS400Message parseMessage(byte[] data, int offset, ConverterImplRemote converter) throws IOException
+  {
     AS400Message message = new AS400Message();
     int textCcsid = BinaryConverter.byteArrayToInt(data, offset);
     message.setTextCcsid(textCcsid);
@@ -3504,40 +3111,32 @@ public class AS400ImplRemote implements AS400Impl {
     offset += messageIdLength;
     int messageFileNameLength = BinaryConverter.byteArrayToInt(data, offset);
     offset += 4;
-    message.setFileName(converter.byteArrayToString(data, offset,
-        messageFileNameLength).trim());
+    message.setFileName(converter.byteArrayToString(data, offset, messageFileNameLength).trim());
     offset += messageFileNameLength;
-    int messageFileLibraryNameLength = BinaryConverter.byteArrayToInt(data,
-        offset);
+    int messageFileLibraryNameLength = BinaryConverter.byteArrayToInt(data, offset);
     offset += 4;
-    message.setLibraryName(converter.byteArrayToString(data, offset,
-        messageFileLibraryNameLength).trim());
+    message.setLibraryName(converter.byteArrayToString(data, offset, messageFileLibraryNameLength).trim());
     offset += messageFileLibraryNameLength;
     int messageTextLength = BinaryConverter.byteArrayToInt(data, offset);
     offset += 4;
-    message.setText(converter
-        .byteArrayToString(data, offset, messageTextLength));
+    message.setText(converter.byteArrayToString(data, offset, messageTextLength));
     offset += messageTextLength;
-    int messageSubstitutionTextLength = BinaryConverter.byteArrayToInt(data,
-        offset);
+    int messageSubstitutionTextLength = BinaryConverter.byteArrayToInt(data, offset);
     offset += 4;
     byte[] substitutionData = new byte[messageSubstitutionTextLength];
-    System.arraycopy(data, offset, substitutionData, 0,
-        messageSubstitutionTextLength);
+    System.arraycopy(data, offset, substitutionData, 0, messageSubstitutionTextLength);
     message.setSubstitutionData(substitutionData);
     offset += messageSubstitutionTextLength;
     int messageHelpLength = BinaryConverter.byteArrayToInt(data, offset);
     offset += 4;
-    message.setHelp(converter
-        .byteArrayToString(data, offset, messageHelpLength));
+    message.setHelp(converter.byteArrayToString(data, offset, messageHelpLength));
     return message;
   }
 
   @Override
-  public void setGSSCredential(GSSCredential gssCredential) {
-    if (Trace.traceOn_)
-      Trace.log(Trace.DIAGNOSTIC, "Setting GSS credential into impl: '"
-          + gssCredential + "'");
+  public void setGSSCredential(GSSCredential gssCredential)
+  {
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS credential into impl: '" + gssCredential + "'");
     gssCredential_ = gssCredential;
   }
 
@@ -3585,90 +3184,102 @@ public class AS400ImplRemote implements AS400Impl {
       boolean canUseNativeOptimization, boolean threadUsed, int ccsid,
       String nlv, SocketProperties socketProperties, String ddmRDB,
       boolean mustUseNetSockets, boolean mustUseSuppliedProfile,
-      boolean mustAddLanguageLibrary) {
-    if (Trace.traceOn_) {
-      Trace.log(Trace.DIAGNOSTIC, "Setting up AS400 implementation object:");
-      Trace.log(Trace.DIAGNOSTIC, "  Enable SSL connections: "
-          + useSSLConnection);
-      Trace.log(Trace.DIAGNOSTIC, "  Native optimizations allowed:",
-          canUseNativeOptimization);
-      Trace.log(Trace.DIAGNOSTIC, "  Use threaded communications:", threadUsed);
-      Trace.log(Trace.DIAGNOSTIC, "  User specified CCSID:", ccsid);
-      Trace.log(Trace.DIAGNOSTIC, "  NLV:", nlv);
-      Trace.log(Trace.DIAGNOSTIC, "  Socket properties: " + socketProperties);
-      Trace.log(Trace.DIAGNOSTIC, "  DDM RDB:", ddmRDB);
-      Trace.log(Trace.DIAGNOSTIC, "  Must use net sockets:", mustUseNetSockets);
-      Trace.log(Trace.DIAGNOSTIC, "  Must use supplied profile:",
-          mustUseSuppliedProfile);
-      Trace.log(Trace.DIAGNOSTIC, "  Must add language library:",
-          mustAddLanguageLibrary);
-    }
-    useSSLConnection_ = useSSLConnection;
-    canUseNativeOptimization_ = canUseNativeOptimization;
-    threadUsed_ = threadUsed;
-    if (ccsid != 0) {
-      userOverrideCcsid_ = true;
-      ccsid_ = ccsid;
-    }
-    clientNlv_ = nlv;
-    socketProperties_ = socketProperties;
-    ddmRDB_ = ddmRDB;
-    mustAddLanguageLibrary_ = mustAddLanguageLibrary;
-    mustUseNetSockets_ = mustUseNetSockets;
-    mustUseSuppliedProfile_ = mustUseSuppliedProfile;
+      boolean mustAddLanguageLibrary)
+  {
+      if (Trace.traceOn_)
+      {
+          Trace.log(Trace.DIAGNOSTIC, "Setting up AS400 implementation object:");
+          Trace.log(Trace.DIAGNOSTIC, "  Enable SSL connections: " + useSSLConnection);
+          Trace.log(Trace.DIAGNOSTIC, "  Native optimizations allowed:", canUseNativeOptimization);
+          Trace.log(Trace.DIAGNOSTIC, "  Use threaded communications:", threadUsed);
+          Trace.log(Trace.DIAGNOSTIC, "  User specified CCSID:", ccsid);
+          Trace.log(Trace.DIAGNOSTIC, "  NLV:", nlv);
+          Trace.log(Trace.DIAGNOSTIC, "  Socket properties: " + socketProperties);
+          Trace.log(Trace.DIAGNOSTIC, "  DDM RDB:", ddmRDB);
+          Trace.log(Trace.DIAGNOSTIC, "  Must use net sockets:", mustUseNetSockets);
+          Trace.log(Trace.DIAGNOSTIC, "  Must use supplied profile:", mustUseSuppliedProfile);
+          Trace.log(Trace.DIAGNOSTIC, "  Must add language library:", mustAddLanguageLibrary);
+      }
+      
+      useSSLConnection_ = useSSLConnection;
+      canUseNativeOptimization_ = canUseNativeOptimization;
+      threadUsed_ = threadUsed;
+      if (ccsid != 0)
+      {
+          userOverrideCcsid_ = true;
+          ccsid_ = ccsid;
+      }
+      clientNlv_ = nlv;
+      socketProperties_ = socketProperties;
+      ddmRDB_ = ddmRDB;
+      mustAddLanguageLibrary_ = mustAddLanguageLibrary;
+      mustUseNetSockets_ = mustUseNetSockets;
+      mustUseSuppliedProfile_ = mustUseSuppliedProfile;
+  }
+  
+  @Override
+  public SignonInfo setState(AS400Impl impl, CredentialVault credVault)
+  {
+      // TODO
+      return null;
   }
 
+  // Only called by changePassword
   private SignonInfo signon2(String systemName, boolean systemNameLocal,
-      String userId, byte[] bytes, int byteType, char[] additionalAuthenticationFactor) throws AS400SecurityException,
-      IOException {
-    CredentialVault tempVault;
+                             String userId, byte[] bytes, int byteType, 
+                             char[] additionalAuthenticationFactor)  throws AS400SecurityException, IOException
+  {
+      CredentialVault tempVault;
 
-    if (bytes == null) {
-      tempVault = new PasswordVault();
-    } else if (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) {
-      tempVault = new GSSTokenVault(bytes);
-    } else {
-      //
-      // Create a credential vault based on the type of bytes,
-      // and populate it with the raw decoded credential bytes.
-      //
-      byte[] newBytes = CredentialVault.decode(proxySeed_, remoteSeed_, bytes);
-      switch (byteType) {
-      case AS400.AUTHENTICATION_SCHEME_PASSWORD:
-        tempVault = new PasswordVault(newBytes);
-        break;
-      case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
-        tempVault = new ProfileTokenVault(newBytes);
-        break;
-      case AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN:
-        tempVault = new IdentityTokenVault(newBytes);
-        break;
-      default:
-        Trace.log(Trace.ERROR, "Unsupported byte type: " + byteType);
-        throw new InternalErrorException(InternalErrorException.UNKNOWN,
-            byteType);
+      if (bytes == null)
+          tempVault = new PasswordVault();
+      else if (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+          tempVault = new GSSTokenVault(bytes);
+      else
+      {
+          //
+          // Create a credential vault based on the type of bytes,
+          // and populate it with the raw decoded credential bytes.
+          //
+          byte[] newBytes = CredentialVault.decode(proxySeed_, remoteSeed_, bytes);
+          switch (byteType)
+          {
+          case AS400.AUTHENTICATION_SCHEME_PASSWORD:
+              tempVault = new PasswordVault(newBytes);
+              break;
+          case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
+              tempVault = new ProfileTokenVault(newBytes);
+              break;
+          case AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN:
+              tempVault = new IdentityTokenVault(newBytes);
+              break;
+          default:
+              Trace.log(Trace.ERROR, "Unsupported byte type: " + byteType);
+              throw new InternalErrorException(InternalErrorException.UNKNOWN, byteType);
+          }
+
+          CredentialVault.clearArray(newBytes);
+
+          // This code is a bit strange, but necessary.
+          // We decoded the raw bytes above and created a new credential vault using
+          // the decoded bytes.
+          // This is because a credential vault always requires clear bytes when
+          // constructed.
+          // Once constructed, we must encode the credential in the vault using the
+          // same seeds we just decoded it with.
+          // Why? Because the signon() method we are going to invoke expects that
+          // the credential in the vault will always be encoded,
+          // so we satisfy this expectation by re-encoding here.
+          tempVault.storeEncodedUsingExternalSeeds(proxySeed_, remoteSeed_);
       }
-      CredentialVault.clearArray(newBytes); //@AI9A
-      // This code is a bit strange, but necessary.
-      // We decoded the raw bytes above and created a new credential vault using
-      // the decoded bytes.
-      // This is because a credential vault always requires clear bytes when
-      // constructed.
-      // Once constructed, we must encode the credential in the vault using the
-      // same seeds we just decoded it with.
-      // Why? Because the signon() method we are going to invoke expects that
-      // the credential in the vault will always be encoded,
-      // so we satisfy this expectation by re-encoding here.
-      tempVault.storeEncodedUsingExternalSeeds(proxySeed_, remoteSeed_);
-    }
-    return signon(systemName, systemNameLocal, userId, tempVault, gssName_,additionalAuthenticationFactor);
+
+      return signon(systemName, systemNameLocal, userId, tempVault, gssName_, additionalAuthenticationFactor);
   }
 
   // Exchange sign-on flows with sign-on server.
   @Override
-  public SignonInfo signon(String systemName, boolean systemNameLocal,
-      String userId, CredentialVault vault, String gssName)
-      throws AS400SecurityException, IOException // @mds
+  public SignonInfo signon(String systemName, boolean systemNameLocal,  String userId, CredentialVault vault, String gssName)
+      throws AS400SecurityException, IOException
   {
       return signon(systemName, systemNameLocal, userId, vault, gssName, null);
   }
@@ -3676,184 +3287,162 @@ public class AS400ImplRemote implements AS400Impl {
   // Exchange sign-on flows with sign-on server.
   @Override
   public SignonInfo signon(String systemName, boolean systemNameLocal,
-      String userId, CredentialVault vault, String gssName, char[] additionalAuthenticationFactor)
-      throws AS400SecurityException, IOException // @mds
+                           String userId, CredentialVault vault, String gssName,
+                           char[] additionalAuthFactor)
+      throws AS400SecurityException, IOException
   {
-    systemName_ = systemName;
-    systemNameLocal_ = systemNameLocal;
-    userId_ = userId;
-    gssName_ = gssName;
+      systemName_           = systemName;
+      systemNameLocal_      = systemNameLocal;
+      userId_               = userId;
+      gssName_              = gssName;
+      setAdditionalAuthenticationFactor(additionalAuthFactor);
 
-    // We are accepting a credential vault from the caller.
-    // This vault will replace our existing one.
-    // So if our existing one is not the same as the one being given to us,
-    // then empty our existing one since we are discarding it.
-    if (!vault.equals(credVault_)) {
-      credVault_.empty();
-    }
-    credVault_ = vault; // @mds
+      // We are accepting a credential vault from the caller.
+      // This vault will replace our existing one.
+      // So if our existing one is not the same as the one being given to us,
+      // then empty our existing one since we are discarding it.
+      if (!vault.equals(credVault_))
+          credVault_.empty();
+    
+      credVault_ = vault;
 
-    // gssOption_ = gssOption; // not used
-
-    if (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) {
-      // No decoding to do.
-    } else {
-      // Must first decode the credential using the seeds that were previously
+      // If not GSS token, must first decode the credential using the seeds that were previously
       // exchanged between the public AS400 class and this class.
-      credVault_.storeEncodedUsingInternalSeeds(proxySeed_, remoteSeed_);
-      // Note: The called method ends up storing a "twiddled" representation of
-      // the credential info.
-    }
+      // Note: The called method ends up storing a "twiddled" representation of the credential info.
+      if (credVault_.getType() != AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+          credVault_.storeEncodedUsingInternalSeeds(proxySeed_, remoteSeed_);
 
-    proxySeed_ = null;
-    remoteSeed_ = null;
+      proxySeed_ = null;
+      remoteSeed_ = null;
 
-    if (canUseNativeOptimization_) {
-      byte[] swapToPH = new byte[12];
-      byte[] swapFromPH = new byte[12];
-      // If -Xshareclasses is specified when using Java on an IBM i system
-      // then classes cannot be loaded when the profile is swapped.
-      // Load the classes before doing the swap. @K4A
-      Class x = BinaryConverter.class;
-      x = GregorianCalendar.class;
-      x = SignonInfo.class;
-      x = com.ibm.as400.access.NLSImplNative.class;
-      x = com.ibm.as400.access.NLSImplRemote.class;
-      boolean didSwap = swapTo(swapToPH, swapFromPH);
-      try {
-        byte[] data = AS400ImplNative.signonNative(SignonConverter
-            .stringToByteArray(userId));
-        GregorianCalendar date = new GregorianCalendar(
-            BinaryConverter.byteArrayToUnsignedShort(data, 0)/* year */,
-            (int) (data[2] - 1)/* month convert to zero based */,
-            (int) (data[3])/* day */, (int) (data[4])/* hour */,
-            (int) (data[5])/* minute */, (int) (data[6])/* second */);
-        signonInfo_ = new SignonInfo();
-        signonInfo_.currentSignonDate = date;
-        signonInfo_.lastSignonDate = date;
-        signonInfo_.expirationDate = (BinaryConverter.byteArrayToInt(data, 8) == 0) ? null
-            : new GregorianCalendar(BinaryConverter.byteArrayToUnsignedShort(
-                data, 8)/* year */, (int) (data[10] - 1)/*
-                                                         * month convert to zero
-                                                         * based
-                                                         */,
-                (int) (data[11])/* day */, (int) (data[12])/* hour */,
-                (int) (data[13])/* minute */, (int) (data[14])/* second */);
-
-        signonInfo_.version = AS400.nativeVRM;
-        signonInfo_.serverCCSID = getCcsidFromServer();
-      } catch (NativeException e) {
-        // Map native exception to AS400SecurityException.
-        throw mapNativeSecurityException(e);
-      } finally {
-        if (didSwap)
-          swapBack(swapToPH, swapFromPH);
-      }
-    } else {
-      if (Trace.traceOn_)
-        Trace.log(Trace.DIAGNOSTIC, "Opening a socket to verify security...");
-      // Validate user id and password.
-      signonConnect();
-      try {
-        byte[] userIDbytes = credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD ? SignonConverter
-            .stringToByteArray(userId) : null;
-        byte[] encryptedPassword = credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN ? credVault_
-            .getClearCredential() : getPassword(clientSeed_, serverSeed_); // @mds
-
-        if (PASSWORD_TRACE) {
-          Trace.log(Trace.DIAGNOSTIC,
-              "Sending Retrieve Signon Information Request...");
-          Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId);
-          Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
-          Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed_);
-          Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed_);
-          Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:",
-              encryptedPassword);
-        }
-
-        SignonInfoReq signonReq = new SignonInfoReq(userIDbytes,
-            encryptedPassword, credVault_.getType(), serverLevel_, additionalAuthenticationFactor);
-        CredentialVault.clearArray(encryptedPassword);
-        SignonInfoRep signonRep = (SignonInfoRep) signonServer_
-            .sendAndReceive(signonReq);
-        signonReq.clear(); 
-        
-        if (Trace.traceOn_)
-          Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
-        
-        int rc = signonRep.getRC();
-        if(0x00 == this.additionalAuthenticationIndicator_ && null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length) {
-          Trace.log(Trace.INFORMATION, "An additional authentication factor was provided, but the server does not support this mechanism. The additional factor will be ignored.");
-        }
-        if (rc != 0) {
-          byte[] rcBytes = new byte[4];
-          BinaryConverter.intToByteArray(rc, rcBytes, 0);
-          Trace.log(Trace.ERROR,
-              "Security validation failed with return code:", rcBytes);
-          throw AS400ImplRemote
-              .returnSecurityException(rc, signonRep
-                  .getErrorMessages(ConverterImplRemote.getConverter(
-                      ExecutionEnvironment.getBestGuessAS400Ccsid(), this)),
-                  userId);
-        }
-
-        if (Trace.traceOn_)
-          Trace.log(Trace.DIAGNOSTIC, "Security validated successfully.");
-        
-        additionalAuthenticationFactorTOTP = additionalAuthenticationFactor;
-
-        signonInfo_ = new SignonInfo();
-        signonInfo_.currentSignonDate = signonRep.getCurrentSignonDate();
-        signonInfo_.lastSignonDate = signonRep.getLastSignonDate();
-        signonInfo_.expirationDate = signonRep.getExpirationDate();
-        signonInfo_.PWDexpirationWarning = signonRep.getPWDExpirationWarning();
-        signonInfo_.version = version_;
-        signonInfo_.serverCCSID = signonRep.getServerCCSID();
-        if (userId_.length() == 0) {
-          byte[] b = signonRep.getUserIdBytes();
-          if (b != null) {
-            userId_ = SignonConverter.byteArrayToString(b);
-            signonInfo_.userId = userId_;
+      if (canUseNativeOptimization_)
+      {
+          byte[] swapToPH = new byte[12];
+          byte[] swapFromPH = new byte[12];
+          // If -Xshareclasses is specified when using Java on an IBM i system
+          // then classes cannot be loaded when the profile is swapped. Load the classes before doing the swap.
+          Class x = BinaryConverter.class;
+          x = GregorianCalendar.class;
+          x = SignonInfo.class;
+          x = com.ibm.as400.access.NLSImplNative.class;
+          x = com.ibm.as400.access.NLSImplRemote.class;
+          boolean didSwap = swapTo(swapToPH, swapFromPH);
+          try
+          {
+            byte[] data = AS400ImplNative.signonNative(SignonConverter.stringToByteArray(userId));
+            GregorianCalendar date = new GregorianCalendar(
+                BinaryConverter.byteArrayToUnsignedShort(data, 0)/* year */,
+                (int) (data[2] - 1)/* month convert to zero based */,
+                (int) (data[3])/* day */, (int) (data[4])/* hour */,
+                (int) (data[5])/* minute */, (int) (data[6])/* second */);
+            signonInfo_ = new SignonInfo();
+            signonInfo_.currentSignonDate = date;
+            signonInfo_.lastSignonDate = date;
+            signonInfo_.expirationDate = (BinaryConverter.byteArrayToInt(data, 8) == 0) ? null
+                : new GregorianCalendar(
+                        BinaryConverter.byteArrayToUnsignedShort(data, 8)/* year */,
+                        (int) (data[10] - 1)/* month convert to zero based */,
+                        (int) (data[11])/* day */,
+                        (int) (data[12])/* hour */,
+                        (int) (data[13])/* minute */, 
+                        (int) (data[14])/* second */);
+    
+            signonInfo_.version = AS400.nativeVRM;
+            signonInfo_.serverCCSID = getCcsidFromServer();
           }
-        }
-
-        if (DataStream.getDefaultConverter() == null) {
-          if (Trace.traceOn_)
-            Trace.log(Trace.DIAGNOSTIC, "Signon server reports CCSID:",
-                signonInfo_.serverCCSID);
-          DataStream.setDefaultConverter(ConverterImplRemote.getConverter(
-              signonInfo_.serverCCSID, this));
-        }
-        ConverterImplRemote converter = ConverterImplRemote.getConverter(
-            signonInfo_.serverCCSID, this);
-        // @Bidi-HCG3 signonJobString_ =
-        // converter.byteArrayToString(signonJobBytes_);
-        signonJobString_ = converter.byteArrayToString(signonJobBytes_, 0,
-            signonJobBytes_.length, BidiStringType.DEFAULT);// Bidi-HCG3
-
-        signonServer_.setJobString(signonJobString_);
-        if (Trace.traceOn_)
-          Trace.log(Trace.DIAGNOSTIC, "Signon server job:", signonJobString_);
-      } catch (IOException e) {
-        Trace.log(Trace.ERROR, "Signon failed:", e);
-        signonServer_.forceDisconnect();
-        signonServer_ = null;
-        throw e;
-      } catch (AS400SecurityException e) {
-        Trace.log(Trace.ERROR, "Signon failed:", e);
-        signonServer_.forceDisconnect();
-        signonServer_ = null;
-        throw e;
+          catch (NativeException e) {
+            throw mapNativeSecurityException(e);
+          }
+          finally {
+            if (didSwap)
+              swapBack(swapToPH, swapFromPH);
+          }
+          
+          return signonInfo_;
       }
-    }
-    return signonInfo_;
+
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening a socket to authenticate...");
+    
+      // Get connection to authenticating server. 
+      signonConnect();
+    
+      // -------
+      // If here, use signon server to retrieve user information
+      // -------
+      try
+      {
+          byte[] userIDbytes = (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD) 
+                ? SignonConverter.stringToByteArray(userId) : null;
+          byte[] encryptedPassword = (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+                ? credVault_.getClearCredential() : getPassword(clientSeed_, serverSeed_);
+
+          if (PASSWORD_TRACE) {
+              Trace.log(Trace.DIAGNOSTIC, "Sending Retrieve Signon Information Request...");
+              Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId);
+              Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
+              Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed_);
+              Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed_);
+              Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
+          }
+
+          SignonInfoReq signonReq = new SignonInfoReq(userIDbytes, encryptedPassword, credVault_.getType(), serverLevel_, additionalAuthFactor_);
+          CredentialVault.clearArray(encryptedPassword);
+          SignonInfoRep signonRep = (SignonInfoRep) signonServer_.sendAndReceive(signonReq);
+          signonReq.clear(); 
+        
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
+        
+          int rc = signonRep.getRC();
+          if (rc != 0)
+          {
+              byte[] rcBytes = new byte[4];
+              BinaryConverter.intToByteArray(rc, rcBytes, 0);
+              Trace.log(Trace.ERROR, "Security validation failed with return code:", rcBytes);
+              throw AS400ImplRemote.returnSecurityException(rc, 
+                     signonRep.getErrorMessages(ConverterImplRemote.getConverter( ExecutionEnvironment.getBestGuessAS400Ccsid(), this)), userId);
+          }
+
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Security validated successfully.");
+        
+          signonInfo_ = new SignonInfo();
+          signonInfo_.currentSignonDate = signonRep.getCurrentSignonDate();
+          signonInfo_.lastSignonDate = signonRep.getLastSignonDate();
+          signonInfo_.expirationDate = signonRep.getExpirationDate();
+          signonInfo_.PWDexpirationWarning = signonRep.getPWDExpirationWarning();
+          signonInfo_.version = version_;
+          signonInfo_.serverCCSID = signonRep.getServerCCSID();
+        
+          if (userId_.length() == 0)
+          {
+              byte[] b = signonRep.getUserIdBytes();
+              if (b != null) {
+                    userId_ = SignonConverter.byteArrayToString(b);
+                    signonInfo_.userId = userId_;
+              }
+          }
+
+          if (DataStream.getDefaultConverter() == null)
+          {
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server reports CCSID:", signonInfo_.serverCCSID);
+              DataStream.setDefaultConverter(ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this));
+          }
+      }
+      catch (IOException | AS400SecurityException e)
+      {
+          Trace.log(Trace.ERROR, "Signon failed:", e);
+          signonServer_.forceDisconnect();
+          signonServer_ = null;
+          throw e;
+      }
+      
+      return signonInfo_;
   }
 
   // Initialize the impl without calling the sign-on server.
   @Override
   public SignonInfo skipSignon(String systemName, boolean systemNameLocal,
       String userId, CredentialVault vault, String gssName)
-      throws AS400SecurityException, IOException // @mds
+      throws AS400SecurityException, IOException 
   {
     systemName_ = systemName;
     systemNameLocal_ = systemNameLocal;
@@ -3864,10 +3453,10 @@ public class AS400ImplRemote implements AS400Impl {
     // This vault will replace our existing one.
     // So if our existing one is not the same as the one being given to us,
     // then empty our existing one since we are discarding it.
-    if (!vault.equals(credVault_)) {
+    if (!vault.equals(credVault_))
       credVault_.empty();
-    }
-    credVault_ = vault; // @mds
+    
+    credVault_ = vault; 
 
     // gssOption_ = gssOption; // not used
 
@@ -3925,14 +3514,14 @@ public class AS400ImplRemote implements AS400Impl {
         if (didSwap)
           swapBack(swapToPH, swapFromPH);
       }
-    } else {
+    }
+    else
+    {
       try {
 
-        if (Trace.traceOn_)
-          Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
 
-        if (Trace.traceOn_)
-          Trace.log(Trace.DIAGNOSTIC, "Security validated successfully.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Security validated successfully.");
 
         signonInfo_ = new SignonInfo();
         signonInfo_.currentSignonDate = null;
@@ -3943,15 +3532,15 @@ public class AS400ImplRemote implements AS400Impl {
         signonInfo_.serverCCSID = 37;
         signonInfo_.userId = userId_;
 
-        if (DataStream.getDefaultConverter() == null) {
-          if (Trace.traceOn_)
-            Trace.log(Trace.DIAGNOSTIC, "Signon server reports CCSID:",
-                signonInfo_.serverCCSID);
-          DataStream.setDefaultConverter(ConverterImplRemote.getConverter(
-              signonInfo_.serverCCSID, this));
+        if (DataStream.getDefaultConverter() == null)
+        {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server reports CCSID:", signonInfo_.serverCCSID);
+          DataStream.setDefaultConverter(ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this));
         }
         signonInfo_ = null;
-      } catch (IOException e) {
+      }
+      catch (IOException e)
+      {
         Trace.log(Trace.ERROR, "Signon failed:", e);
         signonServer_.forceDisconnect();
         signonServer_ = null;
@@ -3962,125 +3551,133 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // Connect to sign-on server.
-  private synchronized void signonConnect() throws AS400SecurityException,
-      IOException {
+  private synchronized void signonConnect() throws AS400SecurityException, IOException
+  {
+      if (signonServer_ != null)
+          return;
 
-    if (signonServer_ == null) {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Attempting to connect to as-signon server.");
+
       boolean connectedSuccessfully = false;
-      SocketContainer signonConnection = PortMapper.getServerSocket(
-          (systemNameLocal_) ? "localhost" : systemName_, AS400.SIGNON,
-          useSSLConnection_, socketProperties_, mustUseNetSockets_);
-      signonServer_ = new AS400NoThreadServer(this, AS400.SIGNON,
-          signonConnection, "");
+      
+      SocketContainer signonConnection = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_,
+              AS400.SIGNON, useSSLConnection_, socketProperties_, mustUseNetSockets_);
+      AS400NoThreadServer signonServer = new AS400NoThreadServer(this, AS400.SIGNON, signonConnection, "");
       int connectionID = signonConnection.hashCode();
-      try {
-        InputStream inStream = signonConnection.getInputStream();
-        OutputStream outStream = signonConnection.getOutputStream();
+      
+      try
+      {
+          InputStream inStream = signonConnection.getInputStream();
+          OutputStream outStream = signonConnection.getOutputStream();
 
-        clientSeed_ = credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD ? BinaryConverter
-            .longToByteArray(System.currentTimeMillis()) : null;
+          clientSeed_ = (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD)
+                  ? BinaryConverter.longToByteArray(System.currentTimeMillis())
+                  : null;
 
-        SignonExchangeAttributeReq attrReq = new SignonExchangeAttributeReq(
-            clientSeed_);
-        if (Trace.traceOn_)
-          attrReq.setConnectionID(connectionID);
-        attrReq.write(outStream);
+          SignonExchangeAttributeReq attrReq = new SignonExchangeAttributeReq(AS400Server.getServerId(AS400.SIGNON), clientSeed_);
+          if (Trace.traceOn_) attrReq.setConnectionID(connectionID);
+          attrReq.write(outStream);
 
-        SignonExchangeAttributeRep attrRep = new SignonExchangeAttributeRep();
-        if (Trace.traceOn_)
-          attrRep.setConnectionID(connectionID);
-        attrRep.read(inStream);
+          SignonExchangeAttributeRep attrRep = new SignonExchangeAttributeRep();
+          if (Trace.traceOn_) attrRep.setConnectionID(connectionID);
+          attrRep.read(inStream);
 
-        if (attrRep.getRC() != 0) {
-          // Connect failed, throw exception.
-          byte[] rcBytes = new byte[4];
-          BinaryConverter.intToByteArray(attrRep.getRC(), rcBytes, 0);
-          Trace
-              .log(
-                  Trace.ERROR,
-                  "Signon server exchange client/server attributes failed, return code:",
-                  rcBytes);
-          throw AS400ImplRemote.returnSecurityException(attrRep.getRC(), null,
-              userId_);
-        }
-
-        version_ = new ServerVersion(attrRep.getServerVersion());
-        serverLevel_ = attrRep.getServerLevel();
-        passwordLevel_ = attrRep.getPasswordLevel();
-        isPasswordTypeSet_ = true;
-        serverSeed_ = attrRep.getServerSeed();
-        signonJobBytes_ = attrRep.getJobNameBytes();
-        additionalAuthenticationIndicator_ = attrRep.getAdditionalAuthenticationIndicator();
-        connectedSuccessfully = true;
-
-        if (Trace.traceOn_) {
-          if (PASSWORD_TRACE) {
-            Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed_);
-            Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed_);
+          if (attrRep.getRC() != 0)
+          {
+              // Connect failed, throw exception.
+              byte[] rcBytes = new byte[4];
+              BinaryConverter.intToByteArray(attrRep.getRC(), rcBytes, 0);
+              Trace.log(Trace.ERROR, "Signon server exchange client/server attributes failed, return code:", rcBytes);
+              throw AS400ImplRemote.returnSecurityException(attrRep.getRC(), null, userId_);
           }
-          byte[] versionBytes = new byte[4];
-          BinaryConverter.intToByteArray(
-              version_.getVersionReleaseModification(), versionBytes, 0);
-          Trace.log(Trace.DIAGNOSTIC, "  Server vrm:", versionBytes);
-          Trace.log(Trace.DIAGNOSTIC, "  Server level: ", serverLevel_);
-        }
+          
+          // -------
+          // Bookkeeping...
+          // -------
+          
+          version_ = new ServerVersion(attrRep.getServerVersion());
+          serverLevel_ = attrRep.getServerLevel();
+          passwordLevel_ = attrRep.getPasswordLevel();
+          isPasswordTypeSet_ = true;
+          serverSeed_ = attrRep.getServerSeed();
+          aafIndicator_ = attrRep.getAAFIndicator();
 
-        fireConnectEvent(true, AS400.SIGNON);
-        if (Trace.traceOn_)
-          Trace.log(Trace.DIAGNOSTIC, "Socket opened successfully.");
-      } catch (IOException e) {
-        Trace.log(Trace.ERROR,
-            "Signon server exchange client/server attributes failed:", e);
-        throw e;
-      } catch (AS400SecurityException e) {
-        Trace.log(Trace.ERROR,
-            "Signon server exchange client/server attributes failed:", e);
-        throw e;
-      } finally {
-        if (!connectedSuccessfully) {
-          // Ensure that the connection is not left in an inconsistent state,
-          // even if an Error or RuntimeException was thrown.
-          signonServer_.forceDisconnect();
-          signonServer_ = null;
-        }
+          if (Trace.traceOn_)
+          {
+              if (PASSWORD_TRACE)
+              {
+                  Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed_);
+                  Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed_);
+              }
+              byte[] versionBytes = new byte[4];
+              BinaryConverter.intToByteArray(version_.getVersionReleaseModification(), versionBytes, 0);
+              Trace.log(Trace.DIAGNOSTIC, "  Server vrm:", versionBytes);
+              Trace.log(Trace.DIAGNOSTIC, "  Server level: ", serverLevel_);
+          }
+                
+          signonServer.setJobString(obtainJobIdForConnection(attrRep.getJobNameBytes()));
+          
+          connectedSuccessfully = true;
+          
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Socket opened successfully - as-signon server job is " + signonServer.getJobString());
+
+          fireConnectEvent(true, AS400.SIGNON);
       }
-    }
+      catch (IOException | AS400SecurityException e)
+      {
+          Trace.log(Trace.ERROR, "Signon server exchange client/server attributes failed:", e);
+          throw e;
+      }
+      finally
+      {
+          if (connectedSuccessfully)
+              signonServer_ = signonServer;
+          else if (signonServer != null)
+              signonServer.forceDisconnect();
+      }
   }
   
   // Disconnect from HCS daemon server.
-  private synchronized void hcsDaemonDisconnect()
+  private synchronized void hostcnnDisconnect()
   {
-      if (HCSAuthdServer_ != null) {
-          HCSAuthdServer_.forceDisconnect();
-          HCSAuthdServer_ = null;
+      if (hostcnnServer_ == null)
+          return;
+
+      try {
+          hostcnnServer_.forceDisconnect();
+      } catch (Exception e) {
+          Trace.log(Trace.ERROR, "Error on disconnect of as-hostcnn server:", e);
+          throw e;
+      } finally {
+          hostcnnServer_ = null;
       }
+
+      fireConnectEvent(false, AS400.HOSTCNN);
   }
 
   // Disconnect from sign-on server.
-  private synchronized void signonDisconnect() {
-    if (signonServer_ != null) {
+  private synchronized void signonDisconnect()
+  {
+      if (signonServer_ == null)
+          return;
+
       try {
-        if (Trace.traceOn_)
-          Trace.log(Trace.DIAGNOSTIC,
-              "Sending end job data stream to signon server...");
-        SignonEndServerReq signonEnd = new SignonEndServerReq();
-        signonServer_.send(signonEnd);
-        signonServer_.forceDisconnect();
-      } catch (IOException e) {
-        Trace.log(Trace.ERROR,
-            "Error sending end job data stream to signon server:", e);
+          signonServer_.forceDisconnect();
+      } catch (Exception e) {
+          Trace.log(Trace.ERROR, "Error on disconnect of as-signon server:", e);
+          throw e;
+      } finally {
+          signonServer_ = null;
       }
-      signonServer_ = null;
+
       fireConnectEvent(false, AS400.SIGNON);
-    }
   }
 
-  boolean swapTo(byte[] swapToPH, byte[] swapFromPH)
-      throws AS400SecurityException, IOException {
+  boolean swapTo(byte[] swapToPH, byte[] swapFromPH) throws AS400SecurityException, IOException
+  {
     if (AS400.onAS400
         && AS400.currentUserAvailable()
-        && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM
-            .getVersionReleaseModification())))
+        && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
       return false;
 
     if (credVault_.isEmpty()) {
@@ -4089,61 +3686,53 @@ public class AS400ImplRemote implements AS400Impl {
     }
     
     byte[] temp = credVault_.getClearCredential();
-    try {
+    try
+    {
       // Screen out passwords that start with a star.
       if (temp[0] == 0x00 && temp[1] == 0x2A) {
-        Trace.log(Trace.ERROR,
-            "Parameter 'password' begins with a '*' character.");
-        throw new AS400SecurityException(
-            AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+        Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
+        throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
       }
-      AS400ImplNative.swapToNative(SignonConverter.stringToByteArray(userId_),
-          temp, swapToPH, swapFromPH);
-    } catch (NativeException e) {
-      // Map native exception to AS400SecurityException.
+      
+      AS400ImplNative.swapToNative(SignonConverter.stringToByteArray(userId_), temp, swapToPH, swapFromPH);
+    }
+    catch (NativeException e) {
       throw mapNativeSecurityException(e);
     } finally {
-    	CredentialVault.clearArray(temp); //@AI9A
+        CredentialVault.clearArray(temp); 
     }
+    
     return true;
   }
 
-  void swapBack(byte[] swapToPH, byte[] swapFromPH)
-      throws AS400SecurityException, IOException {
-    try {
-      AS400ImplNative.swapBackNative(swapToPH, swapFromPH);
-    } catch (NativeException e) {
-      // Map native exception to AS400SecurityException.
-      throw mapNativeSecurityException(e);
-    }
+  void swapBack(byte[] swapToPH, byte[] swapFromPH) throws AS400SecurityException, IOException
+  {
+      try {
+          AS400ImplNative.swapBackNative(swapToPH, swapFromPH);
+      } catch (NativeException e) {
+          throw mapNativeSecurityException(e);
+      }
   }
 
-  // Return a security exception based on the data received from the native
-  // method.
-  private AS400SecurityException mapNativeSecurityException(NativeException e)
-      throws IOException {
-    // Parse information from byte array.
-    String id = ConverterImplRemote.getConverter(37, this).byteArrayToString(
-        e.data, 12, 7);
+  // Return a security exception based on the data received from the native method.
+  private AS400SecurityException mapNativeSecurityException(NativeException e) throws IOException
+  {
+      // Parse information from byte array.
+      String id = ConverterImplRemote.getConverter(37, this).byteArrayToString(e.data, 12, 7);
 
-    if (id.equals("CPF2203") || id.equals("CPF2204")) {
-      return new AS400SecurityException(AS400SecurityException.USERID_UNKNOWN,
-          userId_);
-    }
-    if (id.equals("CPF22E3")) {
-      return new AS400SecurityException(AS400SecurityException.USERID_DISABLE,
-          userId_);
-    }
-    if (id.equals("CPF22E2") || id.equals("CPF22E5")) {
-      return new AS400SecurityException(
-          AS400SecurityException.PASSWORD_INCORRECT, userId_);
-    }
-    if (id.equals("CPF22E4")) {
-      return new AS400SecurityException(
-          AS400SecurityException.PASSWORD_EXPIRED, userId_);
-    }
-    return new AS400SecurityException(AS400SecurityException.SECURITY_GENERAL,
-        userId_);
+      if (id.equals("CPF2203") || id.equals("CPF2204"))
+          return new AS400SecurityException(AS400SecurityException.USERID_UNKNOWN, userId_);
+
+      if (id.equals("CPF22E3"))
+          return new AS400SecurityException(AS400SecurityException.USERID_DISABLE, userId_);
+
+      if (id.equals("CPF22E2") || id.equals("CPF22E5"))
+          return new AS400SecurityException(AS400SecurityException.PASSWORD_INCORRECT, userId_);
+
+      if (id.equals("CPF22E4"))
+          return new AS400SecurityException(AS400SecurityException.PASSWORD_EXPIRED, userId_);
+
+      return new AS400SecurityException(AS400SecurityException.SECURITY_GENERAL, userId_);
   }
 
   // This method is to generate the password, the protected old password and the
@@ -4163,7 +3752,8 @@ public class AS400ImplRemote implements AS400Impl {
   // hostSeed: Host format 8-byte random host seed number.
   private static byte[] encryptNewPassword(byte[] userID, byte[] oldPwd,
       byte[] newPwd, byte[] protectedOldPwd, byte[] protectedNewPwd,
-      byte[] clientSeed, byte[] serverSeed) {
+      byte[] clientSeed, byte[] serverSeed)
+  {
     byte[] verifyToken = new byte[8];
     byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
 
@@ -4171,15 +3761,13 @@ public class AS400ImplRemote implements AS400Impl {
     byte[] token = generateToken(userID, oldPwd);
 
     // generate the first password substitute
-    byte[] encryptedPassword = generatePasswordSubstitute(userID, token,
-        verifyToken, sequence, clientSeed, serverSeed);
+    byte[] encryptedPassword = generatePasswordSubstitute(userID, token, verifyToken, sequence, clientSeed, serverSeed);
 
     // generate the proctected new password
 
     // generate the second password substitute
     incrementString(sequence);
-    byte[] tempEncryptedPassword = generatePasswordSubstitute(userID, token,
-        verifyToken, sequence, clientSeed, serverSeed);
+    byte[] tempEncryptedPassword = generatePasswordSubstitute(userID, token, verifyToken, sequence, clientSeed, serverSeed);
 
     // exclusive or the first copy of the protected new password
     // This is the first 8 bytes of the protected new password
@@ -4187,12 +3775,12 @@ public class AS400ImplRemote implements AS400Impl {
 
     // if the newPassword is more than 8 bytes generate the second 8 bytes of
     // the protected new password
-    if (protectedNewPwd.length == 16) {
+    if (protectedNewPwd.length == 16)
+    {
       byte[] secondNewPassword = new byte[8];
       // increment the sequence number for the next copy of the substitute
       incrementString(sequence);
-      tempEncryptedPassword = generatePasswordSubstitute(userID, token,
-          verifyToken, sequence, clientSeed, serverSeed);
+      tempEncryptedPassword = generatePasswordSubstitute(userID, token, verifyToken, sequence, clientSeed, serverSeed);
 
       // left justify the 9 and 10 bytes of the new password
       for (int i = 0; i < 8; i++) {
@@ -4217,21 +3805,20 @@ public class AS400ImplRemote implements AS400Impl {
     incrementString(sequence);
 
     // generate the first copy of the protected new password
-    tempEncryptedPassword = generatePasswordSubstitute(userID, token,
-        verifyToken, sequence, clientSeed, serverSeed);
+    tempEncryptedPassword = generatePasswordSubstitute(userID, token, verifyToken, sequence, clientSeed, serverSeed);
     // exclusive or the first copy of the protected old password
     // This is the first 8 bytes of the protected old password
     xORArray(tempEncryptedPassword, oldPwd, protectedOldPwd);
 
     // if the oldPassword is more than 8 bytes
     // generate the second 8 bytes of the protected old password
-    if (protectedOldPwd.length == 16) {
+    if (protectedOldPwd.length == 16)
+    {
       byte[] secondOldPassword = new byte[8];
       // increment the sequence number for the next copy of the substitute
       incrementString(sequence);
 
-      tempEncryptedPassword = generatePasswordSubstitute(userID, token,
-          verifyToken, sequence, clientSeed, serverSeed);
+      tempEncryptedPassword = generatePasswordSubstitute(userID, token, verifyToken, sequence, clientSeed, serverSeed);
 
       // left justify the 9 and 10 bytes of the old password
       for (int i = 0; i < 8; i++) {
@@ -4248,22 +3835,17 @@ public class AS400ImplRemote implements AS400Impl {
     return encryptedPassword;
   }
 
-  private static byte[] encryptPassword(byte[] userID, byte[] pwd,
-      byte[] clientSeed, byte[] serverSeed) {
+  private static byte[] encryptPassword(byte[] userID, byte[] pwd, byte[] clientSeed, byte[] serverSeed)
+  {
     byte[] sequenceNumber = { 0, 0, 0, 0, 0, 0, 0, 1 };
     byte[] verifyToken = new byte[8];
 
     byte[] token = generateToken(userID, pwd);
-    if (PASSWORD_TRACE) {
-      Trace.log(Trace.DIAGNOSTIC, "In encryptPassword, token: ", token);
-    }
+    if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "In encryptPassword, token: ", token);
 
-    byte[] encryptedPassword = generatePasswordSubstitute(userID, token,
-        verifyToken, sequenceNumber, clientSeed, serverSeed);
-    if (PASSWORD_TRACE) {
-      Trace.log(Trace.DIAGNOSTIC, "In encryptPassword, encryptedPassword: ",
-          encryptedPassword);
-    }
+    byte[] encryptedPassword = generatePasswordSubstitute(userID, token, verifyToken, sequenceNumber, clientSeed, serverSeed);
+    if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "In encryptPassword, encryptedPassword: ",  encryptedPassword);
+
     return encryptedPassword;
   }
 
@@ -4309,7 +3891,8 @@ public class AS400ImplRemote implements AS400Impl {
   // operation is repeated.
   private static byte[] generatePasswordSubstitute(byte[] userID, byte[] token,
       byte[] password_verifier, byte[] sequenceNumber, byte[] clientSeed,
-      byte[] serverSeed) {
+      byte[] serverSeed)
+  {
     byte[] RDrSEQ = new byte[8];
     byte[] nextData = new byte[8];
     byte[] nextEncryptedData = new byte[8];
@@ -4366,7 +3949,8 @@ public class AS400ImplRemote implements AS400Impl {
 
   // userID and password are in EBCDIC
   // userID and password are terminated with 0x40 (EBCDIC blank)
-  private static byte[] generateToken(byte[] userID, byte[] password) {
+  private static byte[] generateToken(byte[] userID, byte[] password)
+  {
     byte[] token = new byte[8];
     byte[] workBuffer1 = new byte[10];
     byte[] workBuffer2 = { 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40, 0x40,
@@ -4400,7 +3984,8 @@ public class AS400ImplRemote implements AS400Impl {
     length = ebcdicStrLen(password, 10);
 
     // if password is more than 8 characters long
-    if (length > 8) {
+    if (length > 8)
+    {
       // copy the first 8 bytes of password to workBuffer2
       System.arraycopy(password, 0, workBuffer2, 0, 8);
 
@@ -4423,40 +4008,37 @@ public class AS400ImplRemote implements AS400Impl {
 
       // exclusive-or the first and second token to get the real token
       xORArray(workBuffer2, workBuffer3, token);
-    } else {
+    }
+    else
+    {
       // copy password to work buffer
       System.arraycopy(password, 0, workBuffer2, 0, length);
-      if (PASSWORD_TRACE) {
-        Trace.log(Trace.DIAGNOSTIC, "In generateToken, workBuffer2: ",
-            workBuffer2);
-      }
+      if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "In generateToken, workBuffer2: ", workBuffer2);
 
       // generate the token for 8 byte userID
       xorWith0x55andLshift(workBuffer2);
-      if (PASSWORD_TRACE) {
-        Trace.log(Trace.DIAGNOSTIC, "In generateToken, workBuffer2: ",
-            workBuffer2);
-      }
+      if (PASSWORD_TRACE)  Trace.log(Trace.DIAGNOSTIC, "In generateToken, workBuffer2: ", workBuffer2);
 
-      token = // token
-      enc_des(workBuffer2, // shifted result
-          workBuffer1); // userID
+      token =  enc_des(workBuffer2, workBuffer1); // shifted result, userID
     }
+    
     return token;
   }
 
   // Add two byte arrays.
-  private static void addArray(byte[] array1, byte[] array2, byte[] result,
-      int length) {
+  private static void addArray(byte[] array1, byte[] array2, byte[] result, int length)
+  {
     int carryBit = 0;
-    for (int i = length - 1; i >= 0; i--) {
+    for (int i = length - 1; i >= 0; i--)
+    {
       int temp = (array1[i] & 0xff) + (array2[i] & 0xff) + carryBit;
       carryBit = temp >>> 8;
       result[i] = (byte) temp;
     }
   }
 
-  private static int ebcdicStrLen(byte[] string, int maxLength) {
+  private static int ebcdicStrLen(byte[] string, int maxLength)
+  {
     int i = 0;
     while ((i < maxLength) && (string[i] != 0x40) && (string[i] != 0))
       ++i;
@@ -4464,9 +4046,9 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // increment host format 8-byte number
-  private static void incrementString(byte[] string) {
+  private static void incrementString(byte[] string)
+  {
     byte[] one = { 0, 0, 0, 0, 0, 0, 0, 1 };
-
     addArray(string, one, string, 8);
   }
 
@@ -4989,7 +4571,7 @@ public class AS400ImplRemote implements AS400Impl {
   }
 
   // @Bidi-HCG3 start
-  private int bidiStringType = BidiStringType.DEFAULT;
+  private int bidiStringType_ = BidiStringType.DEFAULT;
 
   /**
    * Sets bidi string type of the connection. See <a
@@ -4998,7 +4580,7 @@ public class AS400ImplRemote implements AS400Impl {
    */
   @Override
   public void setBidiStringType(int bidiStringType) {
-    this.bidiStringType = bidiStringType;
+    bidiStringType_ = bidiStringType;
   }
 
   /**
@@ -5008,65 +4590,67 @@ public class AS400ImplRemote implements AS400Impl {
    */
   @Override
   public int getBidiStringType() {
-    return bidiStringType;
+    return bidiStringType_;
   }
   // @Bidi-HCG3 end
   
   //@ACAA Start
-  public int createUserHandle2() throws AS400SecurityException, IOException {
-	    if (UserHandle2_ != UNINITIALIZED) {
-	      return UserHandle2_;
-	    }
-	    ClientAccessDataStream ds = null;
-	    
-	    AS400Server connectedServer = getConnectedServer(new int[] { AS400.FILE });
-	    if (connectedServer != null) {
-	      try {
-	          byte[] authenticationBytes = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) 
-	        		  : TokenManager2.getGSSToken(systemName_, gssCredential_);	    
-	    	IFSUserHandle2Req req = new IFSUserHandle2Req(authenticationBytes);
-	        ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
-	      } catch (InterruptedException e) {
-	        Trace.log(Trace.ERROR, "Interrupted");
-	        InterruptedIOException throwException = new InterruptedIOException(
-	            e.getMessage());
-	        throwException.initCause(e);
-	        throw throwException;
-	      } catch (Throwable e) {
-	          Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-	          // @M4C
-	          throw new AS400SecurityException(
-	              AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
-	      }
-	      int rc = 0;
-	      // Verify the reply.
-	      if (ds instanceof IFSCreateUserHandleRep) {
-	        rc = ((IFSCreateUserHandleRep) ds).getReturnCode();
-	        if (rc != IFSReturnCodeRep.SUCCESS) {
-	          Trace.log(Trace.ERROR, "IFSCreateUserHandleRep return code", rc);
-	        }
-	        UserHandle2_ = ((IFSCreateUserHandleRep) ds).getHandle();
+  public int createUserHandle2() throws AS400SecurityException, IOException
+  {
+      if (UserHandle2_ != UNINITIALIZED)
+          return UserHandle2_;
+          
+      ClientAccessDataStream ds = null;
 
-	      } else if (ds instanceof IFSReturnCodeRep) {
-	        rc = ((IFSReturnCodeRep) ds).getReturnCode();
-	        if (rc != IFSReturnCodeRep.SUCCESS) {
-	          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
-	        }
-	        throw new ExtendedIOException(rc);
-	      } else {
-	        // Unknown data stream.
-	        Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
-	        throw new InternalErrorException(
-	            InternalErrorException.DATA_STREAM_UNKNOWN, Integer.toHexString(ds
-	                .getReqRepID()), null);
-	      }
-	    }
-	    setUserHandle(UserHandle2_);
-	    return UserHandle2_;
-	  }
-    //@ACAA End
+      AS400Server connectedServer = getConnectedServer(new int[] { AS400.FILE });
+      if (connectedServer != null)
+      {
+          try
+          {
+              byte[] authenticationBytes = (gssCredential_ == null) 
+                      ? TokenManager.getGSSToken(systemName_, gssName_)
+                      : TokenManager2.getGSSToken(systemName_, gssCredential_);
+              
+              IFSUserHandle2Req req = new IFSUserHandle2Req(authenticationBytes);
+              ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
+          } catch (InterruptedException e) {
+              Trace.log(Trace.ERROR, "Interrupted");
+              InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+              throwException.initCause(e);
+              throw throwException;
+          } catch (Throwable e) {
+              Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+              throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
+          }
+          
+          int rc = 0;
+          // Verify the reply.
+          if (ds instanceof IFSCreateUserHandleRep)
+          {
+              rc = ((IFSCreateUserHandleRep) ds).getReturnCode();
+              if (rc != IFSReturnCodeRep.SUCCESS) Trace.log(Trace.ERROR, "IFSCreateUserHandleRep return code", rc);
+
+              UserHandle2_ = ((IFSCreateUserHandleRep) ds).getHandle();
+          }
+          else if (ds instanceof IFSReturnCodeRep)
+          {
+              rc = ((IFSReturnCodeRep) ds).getReturnCode();
+              if (rc != IFSReturnCodeRep.SUCCESS) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+
+              throw new ExtendedIOException(rc);
+          }
+          else
+          {
+              // Unknown data stream.
+              Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
+              throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN, Integer.toHexString(ds.getReqRepID()), null);
+          }
+      }
+      
+      setUserHandle(UserHandle2_);
+      return UserHandle2_;
+  }
   
-  //@AF2 Start
   //Generate salt for password level 4
   /*
    * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
@@ -5086,124 +4670,114 @@ public class AS400ImplRemote implements AS400Impl {
    *    Initialization vector length = 32
    *    Initialization vector (salt) = value generated in Step #4.
    */
-  private byte[] generateSaltForPasswordLevel4(String userId, char[] password) {
-  	// leftmost 10 chars of userid blank-padded to exactly 10...
+  private byte[] generateSaltForPasswordLevel4(String userId, char[] password)
+  {
+      // leftmost 10 chars of userid blank-padded to exactly 10...
       // ...and rightmost 4 chars of password blank-padded to 4, ...
       // ...produces 14 characters (28 bytes)
       final char[] saltCharArray = new char[14];
       final CharBuffer saltCharBuffer = CharBuffer.wrap(saltCharArray);
       saltCharBuffer.put((userId + "          ").substring(0, 10));
-      //saltCharBuffer.append((userId + "          ").substring(0, 10));
+
       final int passwdEnd = password.length;
       final int passwdStart = Math.max(passwdEnd - 4, 0);
       for (int i = passwdStart; i < passwdEnd; ++i) {
           saltCharBuffer.put(password[i]);
       }
-      //saltCharBuffer.append("    ".substring(0, 4 - passwdEnd + passwdStart));
+
       saltCharBuffer.put("    ".substring(0, 4 - passwdEnd + passwdStart));
       saltCharBuffer.flip();
       final ByteBuffer saltByteBuffer = Charset.forName("utf-16be").encode(saltCharBuffer);
       MessageDigest saltDigest;
       byte[] salt = null;
-		try {
-			saltDigest = MessageDigest.getInstance("SHA-256");
-			saltDigest.update(saltByteBuffer.array());
-	        salt = saltDigest.digest(); // returns a 32 byte array
-	        Arrays.fill(saltCharArray, ' ');
-	        Arrays.fill(saltByteBuffer.array(), (byte) 0);
-		} catch (NoSuchAlgorithmException e) {
-			Trace.log(Trace.ERROR, "Error getting instance of SHA-256 algorithm:", e);
-		    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-		}
+      try {
+            saltDigest = MessageDigest.getInstance("SHA-256");
+            saltDigest.update(saltByteBuffer.array());
+            salt = saltDigest.digest(); // returns a 32 byte array
+            Arrays.fill(saltCharArray, ' ');
+            Arrays.fill(saltByteBuffer.array(), (byte) 0);
+      } catch (NoSuchAlgorithmException e) {
+            Trace.log(Trace.ERROR, "Error getting instance of SHA-256 algorithm:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+      }
+      
       return salt;
   }
   //Generates a 64-byte password token "PW_TOKEN" as described by the security team for the QPWDLVL4 algorithm.
-  private byte[] generatePwdTokenForPasswordLevel4(final String userProfile_, final char[] passwd_) {
-      final byte[] salt = generateSaltForPasswordLevel4(userProfile_, passwd_);
-      final KeySpec spec = new PBEKeySpec(passwd_, salt, 10022, 64 * 8); // takes a bit length so *8
+  private byte[] generatePwdTokenForPasswordLevel4(final String userProfile, final char[] passwd)
+  {
+      final byte[] salt = generateSaltForPasswordLevel4(userProfile, passwd);
+      final KeySpec spec = new PBEKeySpec(passwd, salt, 10022, 64 * 8); // takes a bit length so *8
+      
       SecretKeyFactory factory;
-		try {
-			factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-			return factory.generateSecret(spec).getEncoded();
-		} catch (NoSuchAlgorithmException e) {
-			Trace.log(Trace.ERROR, "Error getting instance of PBKDF2WithHmacSHA512 algorithm:", e);
-		      throw new InternalErrorException(
-		          InternalErrorException.UNEXPECTED_EXCEPTION, e);
-		} catch (InvalidKeySpecException e) {
-			Trace.log(Trace.ERROR, "Invalid Key Spec Exception:", e);
-		      throw new InternalErrorException(
-		          InternalErrorException.UNEXPECTED_EXCEPTION, e);
-		}
+      try {
+          factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+          return factory.generateSecret(spec).getEncoded();
+      } catch (NoSuchAlgorithmException e) {
+          Trace.log(Trace.ERROR, "Error getting instance of PBKDF2WithHmacSHA512 algorithm:", e);
+          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+      } catch (InvalidKeySpecException e) {
+          Trace.log(Trace.ERROR, "Invalid Key Spec Exception:", e);
+          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+      }
   }
   
   //Generates a 64-byte password substitute "PW_SUB" as follows: PW_SUB = SHA-2 512(PW_TOKEN, RDr, RDs, ID, PWSEQs)
-  static byte[] generateSha512Substitute(final String userProfile_, final byte[] passwdToken_, final byte[] serverSeed_, final byte[] clientSeed_, final byte[] sequence_){
+  static byte[] generateSha512Substitute(final String userProfile, final byte[] passwdToken, final byte[] serverSeed, final byte[] clientSeed, final byte[] sequence)
+  {
       MessageDigest messageDigest;
-		try {
-			messageDigest = MessageDigest.getInstance("SHA-512");
-			messageDigest.update(passwdToken_);
-	        messageDigest.update(serverSeed_);
-	        messageDigest.update(clientSeed_);
-			messageDigest.update((userProfile_ + "          ").substring(0, 10).getBytes("utf-16be"));
-	        messageDigest.update(sequence_);
-	        return messageDigest.digest();
-		} catch (NoSuchAlgorithmException e) {
-			Trace.log(Trace.ERROR, "Error getting instance of SHA-512 algorithm:", e);
-		    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-		} catch (UnsupportedEncodingException e) {
-			Trace.log(Trace.ERROR, "Unsupported Encoding Exception:", e);
-		    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-		}
-  }
-
-  //Generate 32 bytes hash with algorithmType
-  private static byte[] generateShabytes(byte[] data, String algorithmType) {
-      try {
-  	    MessageDigest md = MessageDigest.getInstance(algorithmType);
-  	    md.update(data);
-  	    byte[] result = md.digest();
-  	    
-  	    //@AI9A Clear data
-  	    byte[] empty = new byte[data.length];
-        Arrays.fill(empty, (byte)0);
-        md.update(empty);
-  	    
-  	    return result;
-  	} catch (NoSuchAlgorithmException e) {
-  	    Trace.log(Trace.ERROR, "Error getting instance of " + algorithmType + " algorithm:", e);
-  	    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-  	}
+        try {
+            messageDigest = MessageDigest.getInstance("SHA-512");
+            messageDigest.update(passwdToken);
+            messageDigest.update(serverSeed);
+            messageDigest.update(clientSeed);
+            messageDigest.update((userProfile + "          ").substring(0, 10).getBytes("utf-16be"));
+            messageDigest.update(sequence);
+            return messageDigest.digest();
+        } catch (NoSuchAlgorithmException e) {
+            Trace.log(Trace.ERROR, "Error getting instance of SHA-512 algorithm:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+        } catch (UnsupportedEncodingException e) {
+            Trace.log(Trace.ERROR, "Unsupported Encoding Exception:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+        }
   }
   
   private static byte[] generateSha512Protected(byte[] bytes, byte[] token,
-	      byte[] serverSeed, byte[] clientSeed, String userId, byte[] sequence) {
-	    // Protected length will be rounded up to next 64.
-	    int protectedLength = (((bytes.length - 1) / 64) + 1) * 64;
-	    byte[] protectedPassword = new byte[protectedLength];
-	    for (int i = 0; i < protectedLength; i += 64) {
-	      incrementString(sequence);
-	      byte[] encryptedSection = generateSha512Substitute(userId, token, serverSeed,
-	          clientSeed, sequence);
-	      for (int ii = 0; ii < 64; ++ii) {
-	        if (i + ii < bytes.length) {
-	          protectedPassword[i + ii] = (byte) (encryptedSection[ii] ^ bytes[i
-	              + ii]);
-	        } else {
-	          protectedPassword[i + ii] = encryptedSection[ii];
-	        }
-	      }
-	    }
-	    return protectedPassword;
-	  }
-  //@AF2 End
+          byte[] serverSeed, byte[] clientSeed, String userId, byte[] sequence)
+  {
+        // Protected length will be rounded up to next 64.
+        int protectedLength = (((bytes.length - 1) / 64) + 1) * 64;
+        byte[] protectedPassword = new byte[protectedLength];
+        for (int i = 0; i < protectedLength; i += 64)
+        {
+          incrementString(sequence);
+          byte[] encryptedSection = generateSha512Substitute(userId, token, serverSeed, clientSeed, sequence);
+          for (int ii = 0; ii < 64; ++ii)
+          {
+            if (i + ii < bytes.length)
+              protectedPassword[i + ii] = (byte) (encryptedSection[ii] ^ bytes[i + ii]);
+            else
+              protectedPassword[i + ii] = encryptedSection[ii];
+          }
+        }
+        return protectedPassword;
+      }
 
-@Override
-public void setVRM(int v, int r, int m) {
-	if (signonInfo_ == null) { 
-		signonInfo_ = new SignonInfo((v << 16) + (r << 8) + m); 
-	} else {
-		signonInfo_.version.setVersionReleaseModification((v << 16) + (r << 8) + m);
-	}
-	
-}
+  @Override
+  public void setVRM(int v, int r, int m)
+  {
+      if (signonInfo_ == null)
+		  signonInfo_ = new SignonInfo((v << 16) + (r << 8) + m); 
+	  else
+		  signonInfo_.version.setVersionReleaseModification((v << 16) + (r << 8) + m);
+  }
+
+  @Override
+  public void setAdditionalAuthenticationFactor(char[] additionalAuthFactor)
+  {
+      additionalAuthFactor_ = null;
+      if (null != additionalAuthFactor && 0 < additionalAuthFactor.length )
+          additionalAuthFactor_ = Arrays.copyOf(additionalAuthFactor, additionalAuthFactor.length);
+  }
 }

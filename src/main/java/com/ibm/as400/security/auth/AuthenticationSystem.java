@@ -43,7 +43,7 @@ class AuthenticationSystem
         {
             String osName = System.getProperty("os.name");
             Trace.log(Trace.DIAGNOSTIC, "Detected os.name: " + osName);
-            if (osName != null && osName.equalsIgnoreCase("OS/400")) AuthenticationSystem.onAS400_ = true;
+            onAS400_ = (osName != null && osName.equalsIgnoreCase("OS/400"));
         }
         catch (SecurityException e)
         {
@@ -99,7 +99,7 @@ class AuthenticationSystem
             AuthenticationSystem.system_.resetAllServices();
             // Reset the system user ID & password to force re-resolve.
             AuthenticationSystem.system_.setUserId("");
-            AuthenticationSystem.system_.setPassword("");
+            AuthenticationSystem.system_.setPassword("".toCharArray());
             // Request a service port to take system out of unset state.
             AuthenticationSystem.system_.getServicePort(AS400.SIGNON);
         }

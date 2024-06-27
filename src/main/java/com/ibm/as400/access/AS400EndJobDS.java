@@ -47,6 +47,9 @@ class AS400EndJobDS extends ClientAccessDataStream
             case 0xE009:  // Signon Server.
                 setReqRepID(0x7006);
                 break;
+            case 0xE00B:  // Host Connection Server.
+                setReqRepID(0x7108);
+                break;
         }
     }
 

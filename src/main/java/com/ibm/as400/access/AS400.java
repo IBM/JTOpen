@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2006 International Business Machines Corporation and
+// Copyright (C) 1997-2024 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.net.Socket;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -203,7 +204,7 @@ public class AS400 implements Serializable, AutoCloseable
     // Default setting for threadUsed property.
     private static boolean defaultThreadUsed_ = true;
     
-    boolean skipSignonServer = false;             /*@V1A*/
+    boolean skipSignonServer_ = false;
     public String currentLib_ = "*CURUSR";
     public String librariesForThread_ = "*CURUSR";
     static
@@ -221,133 +222,86 @@ public class AS400 implements Serializable, AutoCloseable
                     char[] versionChars = version.toCharArray();
                     if (versionChars.length == 6)
                     {
-                        int vrm = ((versionChars[1] & 0x000F) << 16) +
-                                  ((versionChars[3] & 0x000F) <<  8) +
-                                   (versionChars[5] & 0x000F);
+                        int vrm = ((versionChars[1] & 0x000F) << 16) + ((versionChars[3] & 0x000F) <<  8) + (versionChars[5] & 0x000F);
                         AS400.nativeVRM = new ServerVersion(vrm);
                     }
                 }
                 AS400.onAS400 = true;
             }
-        }
-        catch (SecurityException e)
-        {
+        } catch (SecurityException e) {
             Trace.log(Trace.WARNING, "Error retrieving os.name:", e);
         }
 
         // Get the "default sign-on handler" property.
-        {
-          String propVal = SystemProperties.getProperty(SystemProperties.AS400_SIGNON_HANDLER);
-          if (propVal != null)
-          {
-            try
-            {
+        String propVal = SystemProperties.getProperty(SystemProperties.AS400_SIGNON_HANDLER);
+        if (propVal != null) {
+            try {
               defaultSignonHandlerClass_ = Class.forName(propVal);
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
               Trace.log(Trace.WARNING, "Error retrieving default sign-on handler (specified by property):", e);
               defaultSignonHandlerClass_ = ToolboxSignonHandler.class;
             }
-          }
         }
 
         // Get the "GUI available" property.
-        {
-          String propVal = SystemProperties.getProperty(SystemProperties.AS400_GUI_AVAILABLE);
-          if (propVal != null)
-          {
-            try
-            {
+        propVal = SystemProperties.getProperty(SystemProperties.AS400_GUI_AVAILABLE);
+        if (propVal != null) {
+            try {
               defaultGuiAvailable_ = Boolean.valueOf(propVal).booleanValue();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
               Trace.log(Trace.WARNING, "Error retrieving guiAvailable property value:", e);
             }
-          }
         }
 
         // Get the "must add language library" property.
-        {
-          String propVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_ADD_LANGUAGE_LIBRARY);
-          if (propVal != null)
-          {
-            try
-            {
+        propVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_ADD_LANGUAGE_LIBRARY);
+        if (propVal != null) {
+            try {
               defaultMustAddLanguageLibrary_ = Boolean.valueOf(propVal).booleanValue();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
               Trace.log(Trace.WARNING, "Error retrieving mustAddLanguageLibrary property value:", e);
             }
-          }
         }
 
         // Get the "must use sockets" property.
-        {
-          String propVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_USE_SOCKETS);
-          if (propVal != null)
-          {
-            try
-            {
+        propVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_USE_SOCKETS);
+        if (propVal != null) {
+            try {
               defaultMustUseSockets_ = Boolean.valueOf(propVal).booleanValue();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
               Trace.log(Trace.WARNING, "Error retrieving mustUseSockets property value:", e);
             }
-          }
         }
 
         // Get the "must use net sockets" property.
-        {
-          String propVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_USE_NET_SOCKETS);
-          if (propVal != null)
-          {
-            try
-            {
+        propVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_USE_NET_SOCKETS);
+        if (propVal != null) {
+            try {
               defaultMustUseNetSockets_ = Boolean.valueOf(propVal).booleanValue();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
               Trace.log(Trace.WARNING, "Error retrieving mustUseNetSockets property value:", e);
             }
-          }
         }
 
         // Get the "must use supplied profile" property.
-        {
-          String propVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_USE_SUPPLIED_PROFILE);
-          if (propVal != null)
-          {
-            try
-            {
+        propVal = SystemProperties.getProperty(SystemProperties.AS400_MUST_USE_SUPPLIED_PROFILE);
+        if (propVal != null) {
+            try {
               defaultMustUseSuppliedProfile_ = Boolean.valueOf(propVal).booleanValue();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
               Trace.log(Trace.WARNING, "Error retrieving mustUseSuppliedProfile property value:", e);
             }
-          }
         }
 
         // Get the "thread used" property.
-        {
-          String propVal = SystemProperties.getProperty(SystemProperties.AS400_THREAD_USED);
-          if (propVal != null)
-          {
-            try
-            {
+        propVal = SystemProperties.getProperty(SystemProperties.AS400_THREAD_USED);
+        if (propVal != null) {
+            try {
               defaultThreadUsed_ = Boolean.valueOf(propVal).booleanValue();
-            }
-            catch (Exception e)
-            {
+            } catch (Exception e) {
               Trace.log(Trace.WARNING, "Error retrieving threadUsed property value:", e);
             }
-          }
         }
-
     }
 
     // System list:  elements are 3 element Object[]: systemName, userId, credential vault
@@ -448,7 +402,8 @@ public class AS400 implements Serializable, AutoCloseable
     // Implementation object.
     private transient AS400Impl impl_ = null;
 
-    // This object is created by the initial sign-on process.  It contains the information from the retrieve sign-on information flow with the sign-on server.
+    // This object is created by the initial sign-on process.  It contains the information from
+    // the retrieve sign-on information flow with the sign-on server.
     private transient SignonInfo signonInfo_ = null;
 
     // The IASP name used for the RECORDACCESS service.
@@ -462,13 +417,15 @@ public class AS400 implements Serializable, AutoCloseable
     This is useful in cases where an application sends in incorrect dummy id/password and expects Toolbox to display the logon dialog.
     In JDBC, we do some pre-validation of id/password.  So JDBC may flag the id/password as invalid and then need
     to let AS400 know that it just needs to display the logon dialog. */
-    private boolean forcePrompt_ = false;  //@prompt
-    private int validateSignonTimeOut_ = 0; //@Z6A validate signon timeout
+    private boolean forcePrompt_ = false;
+    private int validateSignonTimeOut_ = 0;
 
     /**
      Constructs an AS400 object.
-     <p>If running on IBM i, the target is the local system.  This has the same effect as using <code>localhost</code> for the system name, *CURRENT for the user ID, and *CURRENT for the password.
-     <p>If running on another operating system, a sign-on prompt may be displayed.  The user is then able to specify the system name, user ID, and password.
+     <p>If running on IBM i, the target is the local system.  This has the same effect as using <code>localhost</code> 
+     for the system name, *CURRENT for the user ID, and *CURRENT for the password.
+     <p>If running on another operating system, a sign-on prompt may be displayed.  The user is then able to specify 
+     the system name, user ID, and password.
      **/
     public AS400()
     {
@@ -485,7 +442,8 @@ public class AS400 implements Serializable, AutoCloseable
     /**
      Constructs an AS400 object.  It uses the specified system name.
      <p>If running on IBM i to another system or to itself, the user ID and password of the current job are used.
-     <p>If running on another operating system, the user may be prompted for the user ID and password if a default user has not been established for this system name.
+     <p>If running on another operating system, the user may be prompted for the user ID and password if a default
+     user has not been established for this system name.
      @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
      **/
     public AS400(String systemName)
@@ -505,9 +463,11 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Constructs an AS400 object.  It uses the specified system name and user ID.  If the sign-on prompt is displayed, the user is able to specify the password.  Note that the user ID may be overridden.
+     Constructs an AS400 object.  It uses the specified system name and user ID.  If the sign-on prompt is displayed, 
+     the user is able to specify the password.  Note that the user ID may be overridden.
      @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may 
+     be used to specify the current user ID.
      **/
     public AS400(String systemName, String userId)
     {
@@ -562,8 +522,7 @@ public class AS400 implements Serializable, AutoCloseable
      * @param tokenProvider The provider to use when a new profile token needs to be generated.
      * @see #AS400(String,ProfileTokenProvider,int)
      */
-    public AS400(String systemName, ProfileTokenProvider tokenProvider)
-    {
+    public AS400(String systemName, ProfileTokenProvider tokenProvider) {
       this(systemName, tokenProvider, null);
     }
 
@@ -576,8 +535,7 @@ public class AS400 implements Serializable, AutoCloseable
      *                         to help ensure it remains current for an indefinite period of time.
      * @see #AS400(String,ProfileTokenProvider)
      */
-    public AS400(String systemName, ProfileTokenProvider tokenProvider, int refreshThreshold)
-    {
+    public AS400(String systemName, ProfileTokenProvider tokenProvider, int refreshThreshold) {
       this(systemName, tokenProvider, Integer.valueOf(refreshThreshold));
     }
 
@@ -617,16 +575,19 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
+     Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is 
+     displayed unless the sign-on fails.
      @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
-     @param  password  The user profile password to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be 
+     used to specify the current user ID.
+     @param  password  The user profile password to use to authenticate to the system.  If running on IBM i, 
+     *CURRENT may be used to specify the current user ID.
      @deprecated   Use AS400(String systemName, String userId, char[] password) instead
      **/
     public AS400(String systemName, String userId, String password)
     {
         super();
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "'");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with password, system name: '" + systemName + "' user ID: '" + userId + "'");
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + password + "'");
         if (systemName == null)
             throw new NullPointerException("systemName");
@@ -637,20 +598,22 @@ public class AS400 implements Serializable, AutoCloseable
         if (userId.length() > 10)
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-        checkPasswordNullAndLength(password, "password");
-        construct();
-        systemName_ = systemName;
-        systemNameLocal_ = resolveSystemNameLocal(systemName);
- 
-        if (isTurkish()) {
-            userId = userId.toUpperCase(Locale.ENGLISH);
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
-        }
-
-        userId_ = userId.toUpperCase();
-        char[] passwordChars = password.toCharArray();
+        char[] passwordChars = (password == null) ? null : password.toCharArray();
         
-        try {
+        try 
+        {
+            checkPasswordNullAndLength(passwordChars, "password");
+            construct();
+            systemName_ = systemName;
+            systemNameLocal_ = resolveSystemNameLocal(systemName);
+ 
+            if (isTurkish()) {
+                userId = userId.toUpperCase(Locale.ENGLISH);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+            }
+
+            userId_ = userId.toUpperCase();
+
             credVault_ = new PasswordVault(passwordChars);
         }
         finally {
@@ -664,7 +627,8 @@ public class AS400 implements Serializable, AutoCloseable
      Constructs an AS400 object.  It uses the specified system name, user ID, password, and additional authentication
      factor.  No sign-on prompt is displayed unless the sign-on fails.
      @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT 
+             may be used to specify the current user ID.
      @param  password  The user profile password to use to authenticate to the system.
      @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
      The caller is responsible for clearing the password array to keep the password from residing in memory. 
@@ -674,14 +638,14 @@ public class AS400 implements Serializable, AutoCloseable
     {
         this(systemName, userId, password);
         setAdditionalAuthenticationFactor(additionalAuthenticationFactor);
-        if (null != additionalAuthenticationFactor_)
-            validateSignon(userId, password, additionalAuthenticationFactor_);
     }
 
     /**
-     Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
+     Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt 
+     is displayed unless the sign-on fails.
      @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT 
+             may be used to specify the current user ID.
      @param  password  The user profile password to use to authenticate to the system.   
      The caller is responsible for clearing the password array to keep the password from residing in memory. 
                      
@@ -689,7 +653,7 @@ public class AS400 implements Serializable, AutoCloseable
     public AS400(String systemName, String userId, char[] password)
     {
         super();
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "'");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with password, system name: '" + systemName + "' user ID: '" + userId + "'");
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + new String(password) + "'");
         if (systemName == null)
             throw new NullPointerException("systemName");
@@ -700,7 +664,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (userId.length() > 10)
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-        checkPasswordNullAndLength(password);
+        checkPasswordNullAndLength(password, "password");
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
@@ -727,13 +691,14 @@ public class AS400 implements Serializable, AutoCloseable
     };
     public String aspName="";
 
-    //@M2A
     /**
-     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to change the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection.  
+     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to 
+     * change the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection.  
      * Current library default is *CURUSR.
      * Libraries for current thread default is *CURUSR.
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
-     * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
+     * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible 
+     * and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
      * @throws  AS400SecurityException  If a security or authority error occurs.
      * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
@@ -754,12 +719,14 @@ public class AS400 implements Serializable, AutoCloseable
       else
         aspName = IASPGroup;
     }
-    //@P5A START
+
     /**
-     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to change the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection. 
+     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to 
+     * change the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection. 
      * Libraries for current thread default is *CURUSR.
      * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
-     * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
+     * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible 
+     * and objects in those libraries can be referenced using regular library-qualified object name syntax.
      * @param IASPGroup asp group name
      * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
      * @throws  AS400SecurityException  If a security or authority error occurs.
@@ -801,7 +768,8 @@ public class AS400 implements Serializable, AutoCloseable
      * @throws  InterruptedException  If this thread is interrupted.
      * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
      */
-    public void setIASPGroup(String IASPGroup, String currentLib, String librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
+    public void setIASPGroup(String IASPGroup, String currentLib, String librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
+    {
       if(currentLib==null || currentLib.length()==0)
         currentLib = "*CURUSR";
       else if (currentLib.length() > 10)
@@ -842,7 +810,8 @@ public class AS400 implements Serializable, AutoCloseable
      * @throws  InterruptedException  If this thread is interrupted.
      * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
      */
-    public void setIASPGroup(String IASPGroup, String currentLib, String[] librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException{
+    public void setIASPGroup(String IASPGroup, String currentLib, String[] librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
+    {
       if(currentLib==null || currentLib.length()==0)
         currentLib = "*CURUSR";
       else if (currentLib.length() > 10)
@@ -852,13 +821,15 @@ public class AS400 implements Serializable, AutoCloseable
         }
       if(librariesForThread==null || librariesForThread.length==0)
         librariesForThread = new String[]{"*CURUSR"};
-      else if(librariesForThread.length>1){
+      else if(librariesForThread.length>1)
+      {
         if(librariesForThread.length>250){
           Trace.log(Trace.ERROR, this,"Up to 250 libraries can be set for SETASPGRP USRLIBL");
           throw new ExtendedIllegalArgumentException("setIASPGroup Libraries for current thread librariesForThread(" + librariesForThread.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
         }
         else
-          for(int i=0;i<librariesForThread.length;i++){
+          for(int i=0;i<librariesForThread.length;i++)
+          {
             String value =librariesForThread[i];
             if (value==null || value.length()<1 || value.length()> 10)
             {
@@ -887,7 +858,6 @@ public class AS400 implements Serializable, AutoCloseable
       }  else
         aspName = IASPGroup;
     }
-    //@P5A END
     
     // Private constructor for use when a new object is needed and the password is already twiddled.
     // Used by password cache and password verification code.
@@ -942,7 +912,7 @@ public class AS400 implements Serializable, AutoCloseable
     public AS400(String systemName, String userId, String password, String proxyServer)
     {
         super();
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with password, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + password + "'");
         if (systemName == null)
             throw new NullPointerException("systemName");
@@ -953,23 +923,25 @@ public class AS400 implements Serializable, AutoCloseable
         if (userId.length() > 10)
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-        checkPasswordNullAndLength(password, "password");
-        if (proxyServer == null)
-            throw new NullPointerException("proxyServer");
-
-        construct();
-        systemName_ = systemName;
-        systemNameLocal_ = resolveSystemNameLocal(systemName);
-
-        if (isTurkish()) {
-            userId = userId.toUpperCase(Locale.ENGLISH);
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
-        }
-
-        userId_ = userId.toUpperCase();
-        char[] passwordChars = password.toCharArray(); 
+        char[] passwordChars = (password == null) ? null : password.toCharArray(); 
         
-        try {
+        try
+        {
+            checkPasswordNullAndLength(passwordChars, "password");
+            if (proxyServer == null)
+                throw new NullPointerException("proxyServer");
+    
+            construct();
+            systemName_ = systemName;
+            systemNameLocal_ = resolveSystemNameLocal(systemName);
+    
+            if (isTurkish()) {
+                userId = userId.toUpperCase(Locale.ENGLISH);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
+            }
+    
+            userId_ = userId.toUpperCase();
+
             credVault_ = new PasswordVault(passwordChars);
         } 
         finally {
@@ -989,7 +961,7 @@ public class AS400 implements Serializable, AutoCloseable
     public AS400(String systemName, String userId, char[] password, String proxyServer)
     {
         super();
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with password, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'");
         if (systemName == null)
             throw new NullPointerException("systemName");
 
@@ -999,7 +971,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (userId.length() > 10)
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-        checkPasswordNullAndLength(password);
+        checkPasswordNullAndLength(password, "password");
         
         if (proxyServer == null)
             throw new NullPointerException("proxyServer");
@@ -1046,6 +1018,8 @@ public class AS400 implements Serializable, AutoCloseable
         // because each AS400 object must always have its very own credential vault.
         credVault_ = (CredentialVault)system.credVault_.clone();
 
+        additionalAuthenticationFactor_ = system.additionalAuthenticationFactor_;
+
         gssCredential_ = system.gssCredential_;
         gssName_ = system.gssName_;
         gssOption_ = system.gssOption_;
@@ -1087,7 +1061,8 @@ public class AS400 implements Serializable, AutoCloseable
     /**
     Returns a new instance of an AS400 object.  It uses the specified system name.
     <p>If running on IBM i to another system or to itself, the user ID and password of the current job are used.
-    <p>If running on another operating system, the user may be prompted for the user ID and password if a default user has not been established for this system name.
+    <p>If running on another operating system, the user may be prompted for the user ID and password if a default 
+    user has not been established for this system name.
     @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
     **/
@@ -1095,6 +1070,19 @@ public class AS400 implements Serializable, AutoCloseable
     {
         return (useSSL) ? new SecureAS400(systemName) 
                         : new AS400(systemName);
+    }
+
+    /**
+    Returns a new instance of an AS400 object.  It uses the specified system name, and user ID.  When the sign-on prompt is displayed, 
+     the user is able to specify the password.  Note that the user ID may be overridden in the AS400 object.
+    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
+    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+    @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
+    **/
+    public static AS400 newInstance(boolean useSSL, String systemName, String userId) throws IOException, AS400SecurityException
+    {
+        return (useSSL) ? new SecureAS400(systemName, userId) 
+                        : new AS400(systemName, userId);
     }
 
     /**
@@ -1114,7 +1102,8 @@ public class AS400 implements Serializable, AutoCloseable
     }
     
     /**
-    Returns a new instance of an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
+    Returns a new instance of an AS400 object.  It uses the specified system name, user ID, and password. 
+    No sign-on prompt is displayed unless the sign-on fails.
     @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
@@ -1170,12 +1159,10 @@ public class AS400 implements Serializable, AutoCloseable
                 connectionListeners_ = new Vector();
                 dispatcher_ = new ConnectionListener()
                 {
-                    public void connected(ConnectionEvent event)
-                    {
+                    public void connected(ConnectionEvent event) {
                         fireConnectEvent(event, true);
                     }
-                    public void disconnected(ConnectionEvent event)
-                    {
+                    public void disconnected(ConnectionEvent event) {
                         fireConnectEvent(event, false);
                     }
                 };
@@ -1342,38 +1329,74 @@ public class AS400 implements Serializable, AutoCloseable
     @exception  IOException  If an error occurs while communicating with the system.
     @throws AS400SecurityException  If an error occurs exchanging client/server information
     **/
-    public boolean isAdditionalAuthenticationFactorAccepted() throws IOException, AS400SecurityException
-    {
-        return AS400ImplRemote.getAdditionalAuthenticationIndicator(this) > 0;
+    public boolean isAdditionalAuthenticationFactorAccepted() throws IOException, AS400SecurityException {
+        return isAdditionalAuthenticationFactorAccepted(getSystemName(), isSecure());
     }
 
     /**
-    Checks whether an additional authentication factor is accepted for the given system.
-    The communications with the host server is performed over an unsecure connection. 
+     Checks whether an additional authentication factor is accepted for the given system
     @param  systemName  The IP address or hostname of the target system
+    @param  useSSL  Whether or not secure connections should be used when communicating with the host servers.
     @return  whether the server accepts the additional authentication factor
     @exception  IOException  If an error occurs while communicating with the system.
     @throws AS400SecurityException  If an error occurs exchanging client/server information
     **/
-    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
-       return isAdditionalAuthenticationFactorAccepted(systemName, false);
+    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName, boolean useSSL) throws IOException, AS400SecurityException {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting whether additional factor accepted: " + systemName + ", use SSL:", useSSL);
+        return AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName, useSSL);
     }
    
     /**
      Checks whether an additional authentication factor is accepted for the given system
      @param  systemName  The IP address or hostname of the target system
-     @param  useSSL  Whether or not secure connections should be used when communicating with the host servers.
      @return  whether the server accepts the additional authentication factor
      @exception  IOException  If an error occurs while communicating with the system.
      @throws AS400SecurityException  If an error occurs exchanging client/server information
+    @deprecated Use {@link #isAdditionalAuthenticationFactorAccepted(String, boolean)}
      **/
-    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName, boolean useSSL) throws IOException, AS400SecurityException {
-        return (AS400ImplRemote.getAdditionalAuthenticationIndicator(systemName, useSSL) > 0);
+    public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
+       return isAdditionalAuthenticationFactorAccepted(systemName, false);
     }
 
     /**
+    Authenticate the user ID and password on the system and adds to the signon-list.  This means that authentication
+    is performed using the AS400 object instance for which this method is invoked - a new AS400 object is not created to do
+    the authentication (unlike the other authenticate(String, String) or validateSignon() methods).  
+    <P>If the AS400 object has previously 
+    been authenticated, either by using authenticate() or indirectly such as when establishing a connection to a host server, and
+    if any of the setter methods are used after the authentication to change credentials, such as user ID or system name,
+    the AS400.HOSTCNN and/or AS400.SIGNON server connections, if they exist, may be discarded if the change is different than what 
+    was previously used in the authentication process. 
+     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
+     <p><b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is used.
+     @return  true if successful.
+     @exception  AS400SecurityException  If a security or authority error occurs.
+     @exception  IOException  If an error occurs while communicating with the system.
+     **/
+    public boolean authenticate() throws AS400SecurityException, IOException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Authenticating signon.");
+
+        if (systemName_.length() == 0 && !systemNameLocal_)
+        {
+            Trace.log(Trace.ERROR, "Cannot authenticate signon before system name is set.");
+            throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+        
+        userId_ = resolveUserId(userId_);
+        if (userId_.length() == 0)
+        {
+            Trace.log(Trace.ERROR, "Cannot authenticate signon before user ID is set.");
+            throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+
+        return validateSignon(false, userId_, credVault_, additionalAuthenticationFactor_);
+    }
+    
+    /**
      Authenticates the user profile name and user profile password.
-     <p>This method is functionally equivalent to the <i>validateSignon()</i> method.  It does not alter the user profile assigned to this object, impact the status of existing connections, or otherwise impact the user and authorities on which the application is running.
+     <p>This method is functionally equivalent to the <i>validateSignon()</i> method, except it does not alter the user profile assigned to this object, 
+     impact the status of existing connections, or otherwise impact the user and authorities on which the application is running.
      <p>The system name needs to be set prior to calling this method.
      <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
@@ -1393,7 +1416,8 @@ public class AS400 implements Serializable, AutoCloseable
     
         /**
      Authenticates the user profile name and user profile password.
-     <p>This method is functionally equivalent to the <i>validateSignon()</i> method.  It does not alter the user profile assigned to this object, impact the status of existing connections, or otherwise impact the user and authorities on which the application is running.
+     <p>This method is functionally equivalent to the <i>validateSignon()</i> method, except it does not alter the user profile assigned to this object,
+     impact the status of existing connections, or otherwise impact the user and authorities on which the application is running.
      <p>The system name needs to be set prior to calling this method.
      <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
@@ -1416,9 +1440,7 @@ public class AS400 implements Serializable, AutoCloseable
         try
         {
             if (AS400.nativeVersion == -1)
-            {
                 AS400.nativeVersion = Class.forName("com.ibm.as400.access.NativeVersion").newInstance().hashCode();
-            }
         }
         catch (ClassNotFoundException e)
         {
@@ -1449,37 +1471,30 @@ public class AS400 implements Serializable, AutoCloseable
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using native optimizations.");
             return true;
         }
-        else
-        {
+        
           if (Trace.traceOn_)
           {
             Trace.log(Trace.DIAGNOSTIC, "Not using native optimizations. Reason follows:");
-            if (!AS400.onAS400) {
-              Trace.log(Trace.DIAGNOSTIC, "  onAS400:", AS400.onAS400);
-            }
-            if (mustUseSockets_) {
-              Trace.log(Trace.DIAGNOSTIC, "  mustUseSockets:", mustUseSockets_);
-            }
-            if (!systemNameLocal_) {
-              Trace.log(Trace.DIAGNOSTIC, "  systemNameLocal:", systemNameLocal_);
-            }
-            if (proxyServer_.length() != 0) {
-              Trace.log(Trace.DIAGNOSTIC, "  proxyServer:", proxyServer_);
-            }
+            if (!AS400.onAS400) Trace.log(Trace.DIAGNOSTIC, "  onAS400:", AS400.onAS400);
+            
+            if (mustUseSockets_) Trace.log(Trace.DIAGNOSTIC, "  mustUseSockets:", mustUseSockets_);
+
+            if (!systemNameLocal_)  Trace.log(Trace.DIAGNOSTIC, "  systemNameLocal:", systemNameLocal_);
+
+            if (proxyServer_.length() != 0) Trace.log(Trace.DIAGNOSTIC, "  proxyServer:", proxyServer_);
+
             int credType = credVault_.getType();
             if (credType != AUTHENTICATION_SCHEME_PASSWORD) {
               // Design note: For various reasons (such as lack of requirement, and potential complications
               // when swapping during a token-based session), the Toolbox has never supported staying
               //on-thread when using profile tokens or other non-password based authentication schemes.
-              Trace.log(Trace.DIAGNOSTIC, "  authenticationScheme:", credType +
-                        " ("+credTypeToString(credType)+")");
+              Trace.log(Trace.DIAGNOSTIC, "  authenticationScheme:", credType + " ("+credTypeToString(credType)+")");
             }
-            if (getNativeVersion() != 2) {
-              Trace.log(Trace.DIAGNOSTIC, "  nativeVersion:", getNativeVersion());
-            }
+            
+            if (getNativeVersion() != 2) Trace.log(Trace.DIAGNOSTIC, "  nativeVersion:", getNativeVersion());
           }
-          return false;
-        }
+        
+        return false;
     }
 
     private static final String credTypeToString(int credType)
@@ -1639,10 +1654,13 @@ public class AS400 implements Serializable, AutoCloseable
         }
         if (!propertiesFrozen_)
         {
-            impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, nlv_, socketProperties_, ddmRDB_, mustUseNetSockets_, mustUseSuppliedProfile_, mustAddLanguageLibrary_);
+            impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, nlv_, 
+                           socketProperties_, ddmRDB_, mustUseNetSockets_, mustUseSuppliedProfile_, mustAddLanguageLibrary_);
             propertiesFrozen_ = true;
         }
-        impl_.setBidiStringType(this.getBidiStringType());              //@Bidi-HCG3
+        
+        impl_.setBidiStringType(getBidiStringType());
+        impl_.setAdditionalAuthenticationFactor(additionalAuthenticationFactor_);
     }
 
     /**
@@ -1667,12 +1685,12 @@ public class AS400 implements Serializable, AutoCloseable
         boolean isLocalHost = false;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Clearing password cache, system name:", systemName);
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         systemName = resolveSystem(systemName);
         boolean localHost = systemName.equals("localhost");
-        if (localHost) {
+        if (localHost)
+        {
             isLocalHost = true;
             try {
             systemName = InetAddress.getLocalHost().getHostName();
@@ -1689,13 +1707,11 @@ public class AS400 implements Serializable, AutoCloseable
             {
                 String elementName = (String)((Object[])AS400.systemList.elementAt(i))[0];
                 if (systemName.equalsIgnoreCase(elementName))
-                {
                     AS400.systemList.removeElementAt(i);
-                } else if (isLocalHost && "localhost".equalsIgnoreCase(elementName)) {
+                else if (isLocalHost && "localhost".equalsIgnoreCase(elementName))
                     AS400.systemList.removeElementAt(i);
-                } else if ((longName != null) && longName.equalsIgnoreCase(elementName)) {
+                else if ((longName != null) && longName.equalsIgnoreCase(elementName))
                     AS400.systemList.removeElementAt(i);
-                }
             }
         }
     }
@@ -1717,8 +1733,7 @@ public class AS400 implements Serializable, AutoCloseable
     @exception  AS400SecurityException  If a security or authority error occurs.
     @exception  IOException  If an error occurs while communicating with the system.
     **/
-   public void connectService(int service) throws AS400SecurityException, IOException
-   {
+   public void connectService(int service) throws AS400SecurityException, IOException {
      connectService(service, -1); 
    }
     
@@ -1747,14 +1762,13 @@ public class AS400 implements Serializable, AutoCloseable
         
         // Validate parameter. HOSTCNN connection is for internal use, do not allow explicit connect requests. 
         if (service < 0 || service > 7)
-        {
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
 
         chooseImpl();
 
         // Before the thread to connect server, block the thread to refresh profile token credential.
-        if (credVault_ instanceof ProfileTokenVault) {
+        if (credVault_ instanceof ProfileTokenVault)
+        {
           if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Before service connected, block the thread of refreshing profile token credential");
           ((ProfileTokenVault) credVault_).preventRefresh();
         }
@@ -1762,11 +1776,13 @@ public class AS400 implements Serializable, AutoCloseable
         try {
           signon(service == AS400.SIGNON);
          
-          impl_.connect(service, overridePort, skipSignonServer);
+          impl_.connect(service, overridePort, skipSignonServer_);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connected:", AS400.getServerName(service));
-        } finally {
+        }
+        finally {
           // After the thread to connect server, notify the thread to refresh profile token credential.
-          if (credVault_ instanceof ProfileTokenVault) {
+          if (credVault_ instanceof ProfileTokenVault)
+          {
             if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "After service connected, notify the thread of refreshing profile token credential");
             ((ProfileTokenVault) credVault_).allowRefresh();
           }
@@ -1799,7 +1815,7 @@ public class AS400 implements Serializable, AutoCloseable
     @exception  AS400SecurityException  If a security or authority error occurs.
     @exception  IOException  If an error occurs while communicating with the system.
     **/
-    //@N5A Add this interface for L1C for the issue of DHCP server has listened on 942 for STRTCPSVR on localhost. 
+    // Add this interface for L1C for the issue of DHCP server has listened on 942 for STRTCPSVR on localhost. 
    public Socket connectToPort(int port,boolean forceNonLocalhost) throws AS400SecurityException, IOException
    {
        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connecting port:", port);
@@ -1836,31 +1852,9 @@ public class AS400 implements Serializable, AutoCloseable
         }
     }
     
-    //@SAA   @V4D Remove the createUserHandle to IFSFileDescriptorImplRemote 
-   /* public int createUserHandle() throws AS400SecurityException, IOException {
-      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Create user handle.");
-      connectService(AS400.FILE);
-      
-      if (systemName_.length() == 0 && !systemNameLocal_)
-      {
-          Trace.log(Trace.ERROR, "Cannot create user handle before system name is set.");
-          throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
-      
-      if (userId_.length() == 0)
-      {
-          Trace.log(Trace.ERROR, "Cannot create user handle before user ID is set.");
-          throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-      }
-      if (impl_ == null)
-          chooseImpl();
-      return impl_.createUserHandle();
-    }
-    */
-
-
     /**
-     Disconnects all services.  All socket connections associated with this object will be closed.  The signon information is not changed, and connection properties remain frozen.
+     Disconnects all services.  All socket connections associated with this object will be closed.  
+     The signon information is not changed, and connection properties remain frozen.
      @see #resetAllServices
      **/
     public void disconnectAllServices()
@@ -1894,7 +1888,7 @@ public class AS400 implements Serializable, AutoCloseable
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
      <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
-     <li>{@link #HOSTCNN HOSTCNN} - host-connection class.
+     <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
      </ul>
      **/
     public void disconnectService(int service)
@@ -1902,9 +1896,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Disconnecting service:", service);
         // Validate parameter. Will allow users to disconnect HOSTCNN. 
         if (service < 0 || service > 8)
-        {
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
 
         if (impl_ == null) return;
         impl_.disconnect(service);
@@ -1921,13 +1913,9 @@ public class AS400 implements Serializable, AutoCloseable
         {
             ConnectionListener target = (ConnectionListener)targets.elementAt(i);
             if (connect)
-            {
                 target.connected(event);
-            }
             else
-            {
                 target.disconnected(event);
-            }
         }
     }
 
@@ -1953,9 +1941,7 @@ public class AS400 implements Serializable, AutoCloseable
         connectService(AS400.SIGNON);
 
         if (userIdentity == null)
-        {
             throw new NullPointerException("userIdentity");
-        }
 
         ProfileTokenCredential profileToken = new ProfileTokenCredential();
         try
@@ -1971,8 +1957,7 @@ public class AS400 implements Serializable, AutoCloseable
         }
 
         chooseImpl();
-        synchronized (this)
-        {
+        synchronized (this) {
             impl_.generateProfileToken(profileToken, userIdentity);
         }
         return profileToken;
@@ -1989,17 +1974,14 @@ public class AS400 implements Serializable, AutoCloseable
     {
         // Check for valid input.
         if (version < 0 || version > 0xFFFF)
-        {
             throw new ExtendedIllegalArgumentException("version (" + version + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-        }
+
         if (release < 0 || release > 0xFF)
-        {
             throw new ExtendedIllegalArgumentException("release (" + release + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-        }
+
         if (modification < 0 || modification > 0xFF)
-        {
             throw new ExtendedIllegalArgumentException("modification (" + modification + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-        }
+
         return (version << 16) + (release << 8)  + modification;
     }
 
@@ -2046,22 +2028,26 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     // Calculate number of days until user's password expires.
-  private int getDaysToExpiration() {
-    if (signonInfo_ != null) {
-      GregorianCalendar expirationDate = signonInfo_.expirationDate;
-      GregorianCalendar now = signonInfo_.currentSignonDate;
-      if (expirationDate != null && now != null) {
-        long lExpiration = expirationDate.getTimeInMillis();
-        long lNow = now.getTimeInMillis();
+  private int getDaysToExpiration()
+  {
+      if (signonInfo_ != null) 
+      {
+          GregorianCalendar expirationDate = signonInfo_.expirationDate;
+          GregorianCalendar now = signonInfo_.currentSignonDate;
+          if (expirationDate != null && now != null)
+          {
+              long lExpiration = expirationDate.getTimeInMillis();
+              long lNow = now.getTimeInMillis();
 
-        // Divide by number of seconds in day, round up.
-        int days = (int) (((lExpiration - lNow) / 0x5265C00) + 1);
+              // Divide by number of seconds in day, round up.
+              int days = (int) (((lExpiration - lNow) / 0x5265C00) + 1);
 
-        return days;
+              return days;
+          }
       }
-    }
-    // No expiration date.
-    return 365;
+      
+      // No expiration date.
+      return 365;
   }
 
     /**
@@ -2072,8 +2058,7 @@ public class AS400 implements Serializable, AutoCloseable
     public static SignonHandler getDefaultSignonHandler()
     {
         if (defaultSignonHandler_ != null) return defaultSignonHandler_;
-        try
-        {
+        try {
             return (SignonHandler)defaultSignonHandlerClass_.newInstance();
         }
         catch (Exception e)
@@ -2102,9 +2087,8 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting the default user, system name:", systemName);
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         String defaultUser = (String)AS400.defaultUsers.get(resolveSystem(systemName));
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Default user:", defaultUser);
         return defaultUser;
@@ -2151,9 +2135,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job CCSID.");
         chooseImpl();
         signon(false);
-        if (Trace.traceOn_) {
-          Trace.log(Trace.DIAGNOSTIC, "Job CCSID:", signonInfo_.serverCCSID);
-        }
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job CCSID:", signonInfo_.serverCCSID);
         return signonInfo_.serverCCSID;
     }
 
@@ -2167,9 +2149,9 @@ public class AS400 implements Serializable, AutoCloseable
     public String getJobCCSIDEncoding() throws AS400SecurityException, IOException, InterruptedException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job CCSID encoding.");
-        if (signonInfo_ == null) {        /*@V1A*/
-        chooseImpl();
-        signon(false);
+        if (signonInfo_ == null) {
+            chooseImpl();
+            signon(false);
         }
         int ccsid = signonInfo_.serverCCSID;
         String encoding = impl_.ccsidToEncoding(ccsid);
@@ -2190,6 +2172,7 @@ public class AS400 implements Serializable, AutoCloseable
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
      <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
+     <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
      </ul>
      @return  The array of job objects.
      **/
@@ -2240,7 +2223,7 @@ public class AS400 implements Serializable, AutoCloseable
     public int getModification() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting modification level.");
-        if (signonInfo_ == null) {     /*@V1A*/
+        if (signonInfo_ == null) {
           chooseImpl();
           signon(false);
         }
@@ -2270,7 +2253,7 @@ public class AS400 implements Serializable, AutoCloseable
     public GregorianCalendar getPasswordExpirationDate() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting password expiration date.");
-        if (signonInfo_ == null) {       /*@V1A*/
+        if (signonInfo_ == null) {
           chooseImpl();
           signon(false);
         }
@@ -2288,7 +2271,8 @@ public class AS400 implements Serializable, AutoCloseable
      * @param  useSystem  indicates whether or not to use password expiration warning days
      *                    from the QPWDEXPWRN system value
      */
-    public void setUseSystemPasswordExpirationWarningDays(boolean useSystem) {
+    public void setUseSystemPasswordExpirationWarningDays(boolean useSystem)
+    {
         if (useSystem) {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Use system password expiration(QPWDEXPWRN) warning.");
             useSystemExpirationWarning_ = true;
@@ -2309,9 +2293,11 @@ public class AS400 implements Serializable, AutoCloseable
      * @throws  AS400SecurityException  If a security or authority error occurs.
      * @throws  IOException  If an error occurs while communicating with the system.
      */
-    public int getSystemPasswordExpirationWarningDays()throws AS400SecurityException, IOException {
-        if (useSystemExpirationWarning_) {
-            if (signonInfo_ == null) {     /*@V1A*/
+    public int getSystemPasswordExpirationWarningDays()throws AS400SecurityException, IOException
+    {
+        if (useSystemExpirationWarning_)
+        {
+            if (signonInfo_ == null) {
               chooseImpl();
               signon(false);
             }
@@ -2334,8 +2320,8 @@ public class AS400 implements Serializable, AutoCloseable
      * @throws  AS400SecurityException  If a security or authority error occurs.
      * @throws  IOException  If an error occurs while communicating with the system.
      */
-    public boolean isInPasswordExpirationWarningDays()
-            throws AS400SecurityException, IOException {
+    public boolean isInPasswordExpirationWarningDays() throws AS400SecurityException, IOException
+    {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if within the password expiration warning days for the system. " );
 
         chooseImpl();
@@ -2355,7 +2341,8 @@ public class AS400 implements Serializable, AutoCloseable
      * @throws  AS400SecurityException  If a security or authority error occurs.
      * @throws  IOException  If an error occurs while communicating with the system.
      */
-    public int getPasswordExpirationDays() throws AS400SecurityException, IOException {
+    public int getPasswordExpirationDays() throws AS400SecurityException, IOException
+    {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting password expiration warning days.");
         
         chooseImpl();
@@ -2387,7 +2374,7 @@ public class AS400 implements Serializable, AutoCloseable
     public GregorianCalendar getPreviousSignonDate() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting previous signon date.");
-        if (signonInfo_ == null) {     /*@V1A*/
+        if (signonInfo_ == null) {
           chooseImpl();
           signon(false);
         }
@@ -2503,6 +2490,8 @@ public class AS400 implements Serializable, AutoCloseable
           // (i.e. to make sure we have enough authority to generate the profile token).
           // Note that we do not send across the bytes in the clear, but encode them
           // using random seeds generated and exchanged with the 'impl' object.
+          // Also, Don't re-encode our own vault; we might need to reuse it later.
+          
           CredentialVault tempVault = (CredentialVault)credVault_.clone();
           tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));
           impl_.generateProfileToken(profileToken, userId_, tempVault, gssName_);   // @mds
@@ -2522,7 +2511,7 @@ public class AS400 implements Serializable, AutoCloseable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @deprecated  Use getProfileToken(String userId, char[] password) instead.
+     @deprecated  Use {@link #getProfileToken(String, char[]) getProfileToken(String, char[])} instead.
      **/
     public ProfileTokenCredential getProfileToken(String userId, String password) throws AS400SecurityException, IOException, InterruptedException
     {
@@ -2534,7 +2523,8 @@ public class AS400 implements Serializable, AutoCloseable
      <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.
      <p>This method generates a single use token with a timeout of one hour.
      <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
-     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
+     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, 
+     and can result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
      @param  userId  The user profile name.
      @param  password  The user profile password.
      @return  A ProfileTokenCredential representing the authenticated profile and password.
@@ -2551,7 +2541,8 @@ public class AS400 implements Serializable, AutoCloseable
      Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if successful.
      <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.
      <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
-     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
+     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can 
+     result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
      @param  userId  The user profile name.
      @param  password  The user profile password.
      @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
@@ -2565,7 +2556,7 @@ public class AS400 implements Serializable, AutoCloseable
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  InterruptedException  If this thread is interrupted.
-     @deprecated Using string for password is insecure.
+     @deprecated  Use {@link #getProfileToken(String, char[],int,int) getProfileToken(String, char[],int,int)} instead.
      **/
     public ProfileTokenCredential getProfileToken(String userId, String password, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException
     {
@@ -2585,7 +2576,8 @@ public class AS400 implements Serializable, AutoCloseable
      Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if successful.
      <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.
      <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
-     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
+     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can 
+     result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
      @param  userId  The user profile name.
      @param  password  The user profile password.
      @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
@@ -2604,14 +2596,13 @@ public class AS400 implements Serializable, AutoCloseable
     {
         connectService(AS400.SIGNON);
 
-        // Validate parms.
         if (userId == null)
             throw new NullPointerException("userId");
 
         if (userId.length() > 10)
             throw new ExtendedIllegalArgumentException("userId", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
  
-        checkPasswordNullAndLength(password);
+        checkPasswordNullAndLength(password, "password");
       
         if (isTurkish()) {
           userId = userId.toUpperCase(Locale.ENGLISH);
@@ -2664,7 +2655,7 @@ public class AS400 implements Serializable, AutoCloseable
     public int getRelease() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting release level.");
-        if (signonInfo_ == null) {   /*@V1A*/
+        if (signonInfo_ == null) {
           chooseImpl();
           signon(false);
         }
@@ -2694,7 +2685,7 @@ public class AS400 implements Serializable, AutoCloseable
             case AS400.CENTRAL:
                 return "as-central";
             case AS400.HOSTCNN:
-                return "as-hostcnn-s";
+                return "as-hostcnn";
             case AS400.SIGNON:
                 return "as-signon";
             default:
@@ -2714,6 +2705,7 @@ public class AS400 implements Serializable, AutoCloseable
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
      <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
+     <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
      </ul>
      @return  The port specified in the service port table.  The value {@link #USE_PORT_MAPPER USE_PORT_MAPPER} will be returned if the service has not been set, and the service has not been connected.
      **/
@@ -2767,8 +2759,7 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public SignonHandler getSignonHandler()
     {
-      if (signonHandler_ != null) return signonHandler_;
-      else return getDefaultSignonHandler();
+        return (signonHandler_ != null) ? signonHandler_ : getDefaultSignonHandler();
     }
 
     /**
@@ -2840,9 +2831,9 @@ public class AS400 implements Serializable, AutoCloseable
              ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting time zone for System");
-        if (timezone_ == null) {
+        if (timezone_ == null)
           timezone_ = DateTimeConverter.timeZoneForSystem(this);
-        }
+
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Time zone:", timezone_.getDisplayName());
         return timezone_;
     }
@@ -2853,16 +2844,20 @@ public class AS400 implements Serializable, AutoCloseable
      * @param system   System to get the timezone from
      * @return  The timezone of the IBM i if available.
      */
-    public static TimeZone getDefaultTimeZone(AS400 system) {
+    public static TimeZone getDefaultTimeZone(AS400 system)
+    {
       TimeZone timeZone = null;
-      if (system != null) {
+      if (system != null)
+      {
         try {
         timeZone = system.getTimeZone();
         } catch (Exception e) {
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exception obtaining timezone ", e);
         }
       }
-      if (timeZone == null) {
+      
+      if (timeZone == null)
+      {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Defaulting to local timezone");
         timeZone = TimeZone.getDefault();
       }
@@ -2889,28 +2884,28 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public String getUserId(boolean forceRefresh)
     {
-      if (!forceRefresh) return getUserId();
-      else
-      {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting current user ID:", userId_);
+        if (!forceRefresh)
+            return getUserId();
+
+        if (Trace.traceOn_)
+            Trace.log(Trace.DIAGNOSTIC, "Getting current user ID:", userId_);
+        
         String currentUserID = userId_;
         if (systemNameLocal_ && AS400.onAS400)
         {
-          try
-          {
-            currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());
-            if (currentUserID == null || currentUserID.length() == 0) {
-              currentUserID = userId_;
+            try {
+                currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());
+                if (currentUserID == null || currentUserID.length() == 0)
+                    currentUserID = userId_;
             }
-          }
-          catch (Throwable t) {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, t);
-            currentUserID = userId_;
-          }
+            catch (Throwable t) {
+                if (Trace.traceOn_)
+                    Trace.log(Trace.DIAGNOSTIC, t);
+                currentUserID = userId_;
+            }
         }
 
         return currentUserID;
-      }
     }
 
     /**
@@ -2923,7 +2918,7 @@ public class AS400 implements Serializable, AutoCloseable
     public int getVersion() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting version level.");
-        if (signonInfo_ == null) {   /*@V1A*/
+        if (signonInfo_ == null) {
           chooseImpl();
           signon(false);
         }
@@ -2943,7 +2938,8 @@ public class AS400 implements Serializable, AutoCloseable
     public int getVRM() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting VRM.");
-        if (signonInfo_ == null) {    /*@V1A*/
+        if (signonInfo_ == null)
+        {
           chooseImpl();
           signon(false);
         }
@@ -2962,17 +2958,17 @@ public class AS400 implements Serializable, AutoCloseable
      * Sets the VRM for the object, creating a signonInfo as needed
      * 
      */
-    protected void setVRM(int v, int r, int m) {
-    	if (signonInfo_ == null) { 
-    		signonInfo_ = new SignonInfo((v << 16 ) + (r << 8) + m); 
-    	} else {
-    		signonInfo_.version.setVersionReleaseModification((v << 16) + (r << 8) + m);
-    	}
-    	if (impl_ != null)  {
-    	  impl_.setVRM(v,r,m); 
-    	}
-    	
+    protected void setVRM(int v, int r, int m)
+    {
+        if (signonInfo_ == null)
+            signonInfo_ = new SignonInfo((v << 16 ) + (r << 8) + m); 
+        else
+            signonInfo_.version.setVersionReleaseModification((v << 16) + (r << 8) + m);
+
+        if (impl_ != null)
+          impl_.setVRM(v,r,m);
     }
+    
     /**
      Initialize conversion table for the given CCSID.  The default EBCDIC to unicode converters are not shipped with some browsers.  This method can be used to check and download converters if they are not available locally.
      @param  ccsid  the CCSID for the conversion table to initialize.
@@ -3003,23 +2999,14 @@ public class AS400 implements Serializable, AutoCloseable
     public boolean isConnected()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking for any service connection...");
-        if (isConnected(AS400.FILE) ||
-            isConnected(AS400.PRINT) ||
-            isConnected(AS400.COMMAND) ||
-            isConnected(AS400.DATAQUEUE) ||
-            isConnected(AS400.DATABASE) ||
-            isConnected(AS400.RECORDACCESS) ||
-            isConnected(AS400.CENTRAL)||
-            isConnected(AS400.SIGNON))
-        {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "A service is connected.");
-            return true;
-        }
-        else
-        {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "No service is connected.");
-            return false;
-        }
+        boolean flag = false;
+        if (    isConnected(AS400.HOSTCNN)      || isConnected(AS400.FILE)      || isConnected(AS400.PRINT) 
+             || isConnected(AS400.COMMAND)      || isConnected(AS400.DATAQUEUE) || isConnected(AS400.DATABASE) 
+             || isConnected(AS400.RECORDACCESS) || isConnected(AS400.CENTRAL)   || isConnected(AS400.SIGNON) )
+            flag = true;
+        
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Is a service connected? " + flag);
+        return flag;
     }
 
     /**
@@ -3035,6 +3022,7 @@ public class AS400 implements Serializable, AutoCloseable
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
      <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
+     <li>{@link #HOSTCNN HOSTCNN} - host connection classes.
      </ul>
      @return  true if service is connected; false otherwise.
      @see #isConnectionAlive
@@ -3042,14 +3030,11 @@ public class AS400 implements Serializable, AutoCloseable
     public boolean isConnected(int service)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking for service connection:", service);
-        // Validate parameter.
-        if (service < 0 || service > 7)
-        {
-            throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
 
-        if (impl_ == null) return false;
-        boolean connected = impl_.isConnected(service);
+        if (service < 0 || service > 8)
+            throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+        boolean connected = (impl_ == null) ? false : impl_.isConnected(service);
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Service connection:", connected);
         return connected;
     }
@@ -3070,10 +3055,7 @@ public class AS400 implements Serializable, AutoCloseable
     {
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Testing connection...");
 
-      boolean alive;
-      if (impl_ == null) alive = false;
-      else               alive = impl_.isConnectionAlive();
-
+      boolean alive = (impl_ == null) ? false : impl_.isConnectionAlive();
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connection status:", alive);
       return alive;
     }
@@ -3104,9 +3086,7 @@ public class AS400 implements Serializable, AutoCloseable
     {
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Testing connection...");
 
-      boolean alive;
-      if (impl_ == null) alive = false;
-      else               alive = impl_.isConnectionAlive(service);
+      boolean alive = (impl_ == null) ? false : impl_.isConnectionAlive(service);
 
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connection status:", alive);
       return alive;
@@ -3173,8 +3153,7 @@ public class AS400 implements Serializable, AutoCloseable
                     return true;
             }
         }
-        catch (UnknownHostException e)
-        {
+        catch (UnknownHostException e) {
             Trace.log(Trace.ERROR, "Error retrieving host address information:", e);
         }
 
@@ -3268,30 +3247,21 @@ public class AS400 implements Serializable, AutoCloseable
                   }
                 }
             }
-            catch (ClassNotFoundException e)
-            {
+            catch (ClassNotFoundException e) {
                 Trace.log(Trace.DIAGNOSTIC, "Class not found:", e.getMessage());
             }
-            catch (Throwable e)
-            {
+            catch (Throwable e) {
                 Trace.log(Trace.DIAGNOSTIC, e);
             }
         }
-
-        try
-        {
+        
+        try {
             return Class.forName(impl).newInstance();
-        }
-        catch (ClassNotFoundException e1)
-        {
+        } catch (ClassNotFoundException e1) {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Class not found:", e1.getMessage());
-        }
-        catch (IllegalAccessException e2)
-        {
+        } catch (IllegalAccessException e2) {
             Trace.log(Trace.ERROR, "Unexpected IllegalAccessException:", e2);
-        }
-        catch (InstantiationException e3)
-        {
+        } catch (InstantiationException e3) {
             Trace.log(Trace.ERROR, "Unexpected InstantiationException:", e3);
         }
 
@@ -3328,9 +3298,7 @@ public class AS400 implements Serializable, AutoCloseable
             synchronized (this)
             {
                 if (proxyClientConnection_ == null)
-                {
                     proxyClientConnection_ = new ProxyClientConnection(proxyServer_, useSSLConnection_);
-                }
             }
             ProxyImpl proxyImpl = (ProxyImpl)loadImpl(impl2);
             if (proxyImpl != null)
@@ -3358,9 +3326,7 @@ public class AS400 implements Serializable, AutoCloseable
             synchronized (this)
             {
                 if (proxyClientConnection_ == null)
-                {
                     proxyClientConnection_ = new ProxyClientConnection(proxyServer_, useSSLConnection_);
-                }
             }
             ProxyImpl proxyImpl = (ProxyImpl)loadImpl(impl3);
             if (proxyImpl != null)
@@ -3431,14 +3397,15 @@ public class AS400 implements Serializable, AutoCloseable
                             sendSignonRequest();
                             break;
                         case PROMPT:
-                            if(!isGuiAvailable() && forcePrompt_)                                               //@prompt
-                            {                                                                                   //@prompt
-                                //JDBC flagged id/pass as invalid and set forcePrompt, but GUI not available    //@prompt
-                                //So don't even try to authenticate because it could be a non-safe password.    //@prompt
-                                Trace.log(Trace.ERROR, "No GUI available for signon dialog.");                  //@prompt
-                                handlerCanceled_ = true;  // Don't submit exception to handler.                 //@prompt
-                                throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID); //@prompt
-                            }                                                                                   //@prompt
+                            if(!isGuiAvailable() && forcePrompt_)
+                            { 
+                                //JDBC flagged id/pass as invalid and set forcePrompt, but GUI not available 
+                                //So don't even try to authenticate because it could be a non-safe password. 
+                                Trace.log(Trace.ERROR, "No GUI available for signon dialog.");            
+                                handlerCanceled_ = true;  // Don't submit exception to handler.                 
+                                throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID); 
+                            }
+                            
                             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling SignonHandler...");
                             // If bytes_ has not been set, tell the handler something is missing.
                             SignonEvent soEvent = new SignonEvent(this, reconnecting);
@@ -3466,7 +3433,7 @@ public class AS400 implements Serializable, AutoCloseable
                     }
 
                     // Check for number of days to expiration, and warn if within threshold.
-                    if ((!skipSignonServer) &&  isInPasswordExpirationWarningDays()) /*@V1C*/
+                    if ((!skipSignonServer_) &&  isInPasswordExpirationWarningDays()) /*@V1C*/
                     {
                         SignonEvent soEvent = new SignonEvent(this, reconnecting);
                         proceed = soHandler.passwordAboutToExpire(soEvent, getDaysToExpiration());
@@ -3575,9 +3542,8 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing connection listener.");
         if (listener == null)
-        {
             throw new NullPointerException("listener");
-        }
+
         synchronized (this)
         {
             // If we have listeners.
@@ -3602,9 +3568,8 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing the default user, system name:", systemName);
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         AS400.defaultUsers.remove(resolveSystem(systemName));
     }
 
@@ -3619,21 +3584,19 @@ public class AS400 implements Serializable, AutoCloseable
         String longName = null;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing password cache entry, system name: " + systemName + " user ID: " + userId);
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+ 
         if (userId == null)
-        {
             throw new NullPointerException("userId");
-        }
+
         if (userId.length() > 10)
-        {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
+
         systemName = resolveSystem(systemName);
 
         boolean localHost = systemName.equals("localhost");
-        if (localHost) {
+        if (localHost)
+        {
             isLocalHost = true;
             try {
             systemName = InetAddress.getLocalHost().getHostName();
@@ -3648,12 +3611,11 @@ public class AS400 implements Serializable, AutoCloseable
             systemName = systemName.substring(0,dotIndex);
         }
 
-        //@W9 Start
         if (isTurkish()) {
             userId = userId.toUpperCase(Locale.ENGLISH);
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        //@W9 End
+
         userId = resolveUserId(userId.toUpperCase());
 
         synchronized (AS400.systemList)
@@ -3662,13 +3624,11 @@ public class AS400 implements Serializable, AutoCloseable
             {
                 Object[] secobj = (Object[])AS400.systemList.elementAt(i);
                 if (systemName.equalsIgnoreCase((String)secobj[0]) && userId.equals(secobj[1]))
-                {
                     AS400.systemList.removeElementAt(i);
-                } else if (isLocalHost && "localhost".equalsIgnoreCase((String)secobj[0]) && userId.equals(secobj[1])) {
+                else if (isLocalHost && "localhost".equalsIgnoreCase((String)secobj[0]) && userId.equals(secobj[1]))
                     AS400.systemList.removeElementAt(i);
-                } else if (longName != null  && longName.equalsIgnoreCase((String)secobj[0]) && userId.equals(secobj[1])) {
+                else if (longName != null  && longName.equalsIgnoreCase((String)secobj[0]) && userId.equals(secobj[1]))
                     AS400.systemList.removeElementAt(i);
-                }
             }
         }
     }
@@ -3681,14 +3641,11 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing property change listener.");
         if (listener == null)
-        {
             throw new NullPointerException("listener");
-        }
+
         // If we have listeners.
         if (propertyChangeListeners_ != null)
-        {
             propertyChangeListeners_.removePropertyChangeListener(listener);
-        }
     }
 
     /**
@@ -3699,19 +3656,17 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Removing vetoable change listener.");
         if (listener == null)
-        {
             throw new NullPointerException("listener");
-        }
+
         // If we have listeners.
         if (vetoableChangeListeners_ != null)
-        {
             vetoableChangeListeners_.removeVetoableChangeListener(listener);
-        }
     }
 
     /**
      Disconnects all services, and clears the sign-on information.
-     This intent of this method is to "wipe the slate clean" for this AS400 object, enabling connection properties to be subsequently reset.
+     This intent of this method is to "wipe the slate clean" for this AS400 object, enabling connection 
+     properties to be subsequently changed.
      @see #disconnectAllServices
      **/
     public synchronized void resetAllServices()
@@ -3759,9 +3714,7 @@ public class AS400 implements Serializable, AutoCloseable
     static boolean resolveSystemNameLocal(String systemName)
     {
         if (AS400.onAS400)
-        {
             if (systemName.length() == 0 || isSystemNameLocal(systemName)) return true;
-        }
         return false;
     }
 
@@ -3769,7 +3722,7 @@ public class AS400 implements Serializable, AutoCloseable
     static String resolveUserId(String userId)
     {
         // Resolve user ID, for someone using user ID/password.
-        return resolveUserId(userId, 0, false);
+        return resolveUserId(userId, AUTHENTICATION_SCHEME_PASSWORD, false);
     }
 
     private static boolean currentUserAvailable = true;
@@ -3793,14 +3746,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     // If on the system, resolve user ID to current user ID.
-    static String resolveUserId(String userId, int byteType, boolean mustUseSuppliedProfile)
+    static String resolveUserId(String userId, int authScheme, boolean mustUseSuppliedProfile)
     {
         // First, see if we are running on the system.
         if (AS400.onAS400 && !mustUseSuppliedProfile && currentUserAvailable())
         {
             boolean tryToGetCurrentUserID = false;
             // If user ID is not set and we're using user ID/password, then we get it and set it up.
-            if (userId.length() == 0 && byteType == 0)
+            if (userId.length() == 0 && authScheme == AUTHENTICATION_SCHEME_PASSWORD)
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resolving initial user ID.");
                 tryToGetCurrentUserID = true;
@@ -3824,15 +3777,6 @@ public class AS400 implements Serializable, AutoCloseable
         // Prepend Q to numeric user ID.
         if (userId.length() > 0 && Character.isDigit(userId.charAt(0)))
         {
-//            char[] userIdChars = userId.toCharArray();
-//            for (int i = 0; i < userIdChars.length; ++i)
-//            {
-//                if (userIdChars[i] < '\u0030' || userIdChars[i] > '\u0039')
-//                {
-//                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "User ID: '"  + userId + "'");
-//                    return userId;
-//                }
-//            }
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending 'Q' to numeric user ID.");
             userId = "Q" + userId;
         }
@@ -3847,34 +3791,30 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signing-on without prompting...");
         // No prompting.
         if (credVault_.isEmpty() && !userIdMatchesLocal(userId_, mustUseSuppliedProfile_))
-        {
             throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
-        }
 
         // If using GSS tokens, don't bother encoding the authentication info.
         if (credVault_.getType() == AUTHENTICATION_SCHEME_GSS_TOKEN)
         {
-            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, credVault_, gssName_, null);  // @mds
+            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, credVault_, gssName_, null);
 
-            if (gssCredential_ != null) impl_.setGSSCredential(gssCredential_);
-            credVault_.empty();  // GSSToken is single use only.    @mds
+            if (gssCredential_ != null)
+                impl_.setGSSCredential(gssCredential_);
+            credVault_.empty();  // GSSToken is single use only.
         }
         else  // Encode the authentication info before sending vault to impl.
         {
           byte[] proxySeed = new byte[9];
           CredentialVault.rng.nextBytes(proxySeed);
           CredentialVault tempVault = (CredentialVault)credVault_.clone();
-          tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));   // @mds
+          tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));
 
-          if (PASSWORD_TRACE)
-          {
-            Trace.log(Trace.DIAGNOSTIC, "AS400 object proxySeed:", proxySeed);
-          }
-          if (skipSignonServer) {   /*@V1A*/
-          signonInfo_ = impl_.skipSignon(systemName_, systemNameLocal_, userId_, tempVault, gssName_);  // @mds
-          } else {
-            signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, tempVault, gssName_, additionalAuthenticationFactor_);  // @mds
-          }
+            if (PASSWORD_TRACE)  Trace.log(Trace.DIAGNOSTIC, "AS400 object proxySeed:", proxySeed);
+          
+            if (skipSignonServer_)
+                signonInfo_ = impl_.skipSignon(systemName_, systemNameLocal_, userId_, tempVault, gssName_);
+            else
+                signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, tempVault, gssName_, additionalAuthenticationFactor_);
         }
         if (userId_.length() == 0) userId_ = signonInfo_.userId;
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sign-on completed.");
@@ -3890,9 +3830,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting identity token.");
 
         if (identityToken == null)
-        {
             throw new NullPointerException("identityToken");
-        }
 
         synchronized (this)
         {
@@ -3901,16 +3839,19 @@ public class AS400 implements Serializable, AutoCloseable
             signonInfo_ = null;
         }
     }
+    
+    public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting additional authentication factor. Length: " 
+                     + ((additionalAuthenticationFactor == null) ? 0 : additionalAuthenticationFactor.length));
 
-
-    public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor) {
         additionalAuthenticationFactor_ = null;
         if (null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length )
-            additionalAuthenticationFactor_ = additionalAuthenticationFactor;
+            additionalAuthenticationFactor_ = Arrays.copyOf(additionalAuthenticationFactor, additionalAuthenticationFactor.length);
     }
     
     // Store information in password cache.
-    private static void setCacheEntry(String systemName, String userId, CredentialVault pwVault) // @mds
+    private static void setCacheEntry(String systemName, String userId, CredentialVault pwVault)
     {
         synchronized (AS400.systemList)
         {
@@ -3929,12 +3870,14 @@ public class AS400 implements Serializable, AutoCloseable
 
             // Now add the new one.
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry for "+systemName+":"+userId+".");
-            AS400.systemList.addElement(new Object[] {systemName, userId, pwVault.clone()} );   // @mds
+            
+            AS400.systemList.addElement(new Object[] {systemName, userId, pwVault.clone()} );
         }
     }
 
     /**
-     Sets the CCSID to be used for this object.  The CCSID property cannot be changed once a connection to the system has been established.
+     Sets the CCSID to be used for this object.  The CCSID property cannot be changed once a connection to the 
+     system has been established.
      @param  ccsid  The CCSID to use for this object.
      @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
      **/
@@ -3955,14 +3898,12 @@ public class AS400 implements Serializable, AutoCloseable
             Integer newValue = Integer.valueOf(ccsid);
 
             if (vetoableChangeListeners_ != null)
-            {
                 vetoableChangeListeners_.fireVetoableChange("ccsid", oldValue, newValue);
-            }
+            
             ccsid_ = ccsid;
+            
             if (propertyChangeListeners_ != null)
-            {
                 propertyChangeListeners_.firePropertyChange("ccsid", oldValue, newValue);
-            }
         }
     }
 
@@ -3982,14 +3923,13 @@ public class AS400 implements Serializable, AutoCloseable
             Trace.log(Trace.ERROR, "Cannot set RDB name after connection has been made.");
             throw new ExtendedIllegalStateException("ddmRDB", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
+        
         if (ddmRDB != null && ddmRDB.length() > 18)
-        {
             throw new ExtendedIllegalArgumentException("ddmRDB", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
+        
         if (isConnected(RECORDACCESS))
-        {
             throw new ExtendedIllegalStateException("ddmRDB", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-        }
+        
         ddmRDB_ = ((ddmRDB == null) ? null : ddmRDB.toUpperCase());
     }
 
@@ -4029,9 +3969,7 @@ public class AS400 implements Serializable, AutoCloseable
             throw new NullPointerException("userId");
 
         if (userId.length() > 10)
-        {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
 
         systemName = resolveSystem(systemName);
 
@@ -4064,8 +4002,8 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS manager: '" + gssMgr + "'");
         gssManager_ = gssMgr;
     }
-    static GSSManager getGSSManager()
-    {
+    
+    static GSSManager getGSSManager() {
         return gssManager_;
     }
 
@@ -4088,8 +4026,8 @@ public class AS400 implements Serializable, AutoCloseable
             credVault_ = new GSSTokenVault();
             signonInfo_ = null;
 
-            if (impl_ != null) impl_.setGSSCredential(gssCredential_);
-
+            if (impl_ != null)
+                impl_.setGSSCredential(gssCredential_);
         }
     }
 
@@ -4106,9 +4044,8 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GSS option:", gssOption);
         if (gssOption < 0 || gssOption > 2)
-        {
             throw new ExtendedIllegalArgumentException("gssOption (" + gssOption + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
+
         gssOption_ = gssOption;
     }
 
@@ -4145,28 +4082,24 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting GUI available:", guiAvailable);
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
-        {
             guiAvailable_ = guiAvailable;
-        }
         else
         {
             Boolean oldValue = Boolean.valueOf(guiAvailable_);
             Boolean newValue = Boolean.valueOf(guiAvailable);
 
             if (vetoableChangeListeners_ != null)
-            {
                 vetoableChangeListeners_.fireVetoableChange("guiAvailable", oldValue, newValue);
-            }
+
             guiAvailable_ = guiAvailable;
             if (propertyChangeListeners_ != null)
-            {
                 propertyChangeListeners_.firePropertyChange("guiAvailable", oldValue, newValue);
-            }
         }
     }
 
     /**
-     Sets the Locale used to set the National Language Version (NLV) on the system.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.  This method will set the NLV based on a mapping from the Locale object to the NLV.
+     Sets the Locale used to set the National Language Version (NLV) on the system.  Only the COMMAND, PRINT, 
+     and DATABASE services accept an NLV.  This method will set the NLV based on a mapping from the Locale object to the NLV.
      @param  locale  The Locale object.
      **/
     public void setLocale(Locale locale)
@@ -4198,7 +4131,8 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the Locale and a specific National Language Version (NLV) to send to the system.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
+     Sets the Locale and a specific National Language Version (NLV) to send to the system.  Only the COMMAND, PRINT, 
+     and DATABASE services accept an NLV.
      @param  locale  The Locale object.
      @param  nlv  The NLV.
      **/
@@ -4222,8 +4156,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets this object to attempt to add the appropriate secondary language library to the library list, when running on the system.  The default is false.  Setting the language library will ensure that any system error messages that are returned, will be returned in the appropriate national language for the client locale.  If the user profile has insufficient authority to call CHGSYSLIBL, an error entry will appear in the job log, and the Toolbox will disregard the error and proceed normally.
-     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.mustAddLanguageLibrary</tt>
+     Sets this object to attempt to add the appropriate secondary language library to the library list, when running on the system.  
+     The default is false.  Setting the language library will ensure that any system error messages that are returned, will be returned in the appropriate national language for the client locale.  If the user profile has insufficient authority to call CHGSYSLIBL, an error entry will appear in the job log, and the Toolbox will disregard the error and proceed normally.
+     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property 
+     <tt>com.ibm.as400.access.AS400.mustAddLanguageLibrary</tt>
      @param  mustAddLanguageLibrary  true to add language library; false otherwise.
      **/
     public void setMustAddLanguageLibrary(boolean mustAddLanguageLibrary)
@@ -4342,7 +4278,7 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting password.");
 
-        checkPasswordNullAndLength(password);
+        checkPasswordNullAndLength(password, "password");
 
         synchronized (this)
         {
@@ -4406,14 +4342,11 @@ public class AS400 implements Serializable, AutoCloseable
             String newValue = resolveProxyServer(proxyServer);
 
             if (vetoableChangeListeners_ != null)
-            {
                 vetoableChangeListeners_.fireVetoableChange("proxyServer", oldValue, newValue);
-            }
+
             proxyServer_ = newValue;
             if (propertyChangeListeners_ != null)
-            {
                 propertyChangeListeners_.firePropertyChange("proxyServer", oldValue, newValue);
-            }
         }
     }
 
@@ -4429,6 +4362,7 @@ public class AS400 implements Serializable, AutoCloseable
      <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
      <li>{@link #CENTRAL CENTRAL} - license management classes.
      <li>{@link #SIGNON SIGNON} - sign-on classes.
+     <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
      </ul>
      @param  port  The port to use for this service.  The value {@link #USE_PORT_MAPPER USE_PORT_MAPPER} can be used to specify that the next connection to this service should ask the port mapper server for the port number.
      **/
@@ -4437,14 +4371,11 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting service port, service " + service + ", port " + port);
 
         // Validate parameters.
-        if (service < 0 || service > 7)
-        {
+        if (service < 0 || service > 8)
             throw new ExtendedIllegalArgumentException("service (" + service + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
+
         if (port < -1)
-        {
             throw new ExtendedIllegalArgumentException("port (" + port + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
 
         // Validate state.
         if (systemName_.length() == 0 && !systemNameLocal_)
@@ -4524,9 +4455,8 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting socket properties: " + socketProperties);
         if (socketProperties == null)
-        {
             throw new NullPointerException("socketProperties");
-        }
+
         if (propertiesFrozen_)
         {
             Trace.log(Trace.ERROR, "Cannot set socket properties after connection has been made.");
@@ -4544,9 +4474,8 @@ public class AS400 implements Serializable, AutoCloseable
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting system name:", systemName);
         if (systemName == null)
-        {
             throw new NullPointerException("systemName");
-        }
+
         if (systemName.equals(systemName_)) return;
         if (propertiesFrozen_ && (systemNameLocal_ || systemName_.length() != 0))
         {
@@ -4565,15 +4494,12 @@ public class AS400 implements Serializable, AutoCloseable
             String newValue = systemName;
 
             if (vetoableChangeListeners_ != null)
-            {
                 vetoableChangeListeners_.fireVetoableChange("systemName", oldValue, newValue);
-            }
+
             systemName_ = systemName;
             systemNameLocal_ = resolveSystemNameLocal(systemName);
             if (propertyChangeListeners_ != null)
-            {
                 propertyChangeListeners_.firePropertyChange("systemName", oldValue, newValue);
-            }
         }
     }
 
@@ -4605,14 +4531,11 @@ public class AS400 implements Serializable, AutoCloseable
             Boolean newValue = Boolean.valueOf(useThreads);
 
             if (vetoableChangeListeners_ != null)
-            {
                 vetoableChangeListeners_.fireVetoableChange("threadUsed", oldValue, newValue);
-            }
+                
             threadUsed_ = useThreads;
             if (propertyChangeListeners_ != null)
-            {
                 propertyChangeListeners_.firePropertyChange("threadUsed", oldValue, newValue);
-            }
         }
     }
 
@@ -4633,14 +4556,11 @@ public class AS400 implements Serializable, AutoCloseable
             Boolean newValue = Boolean.valueOf(useDefaultUser);
 
             if (vetoableChangeListeners_ != null)
-            {
                 vetoableChangeListeners_.fireVetoableChange("useDefaultUser", oldValue, newValue);
-            }
+
             useDefaultUser_ = useDefaultUser;
             if (propertyChangeListeners_ != null)
-            {
                 propertyChangeListeners_.firePropertyChange("useDefaultUser", oldValue, newValue);
-            }
         }
     }
 
@@ -4662,14 +4582,11 @@ public class AS400 implements Serializable, AutoCloseable
             Boolean newValue = Boolean.valueOf(usePasswordCache);
 
             if (vetoableChangeListeners_ != null)
-            {
                 vetoableChangeListeners_.fireVetoableChange("usePasswordCache", oldValue, newValue);
-            }
+
             usePasswordCache_ = usePasswordCache;
             if (propertyChangeListeners_ != null)
-            {
                 propertyChangeListeners_.firePropertyChange("usePasswordCache", oldValue, newValue);
-            }
         }
     }
 
@@ -4688,9 +4605,7 @@ public class AS400 implements Serializable, AutoCloseable
 
         if (userId.equals(userId_)) return;
         if (userId.length() > 10)
-        {
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
 
         if (signonInfo_ != null)
         {
@@ -4698,12 +4613,10 @@ public class AS400 implements Serializable, AutoCloseable
             throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
         }
         
-        //@W9 Start
         if (isTurkish()) {
             userId = userId.toUpperCase(Locale.ENGLISH);
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        //@W9 End
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
             userId_ = userId.toUpperCase();
@@ -4713,18 +4626,16 @@ public class AS400 implements Serializable, AutoCloseable
             String newValue = userId.toUpperCase();
 
             if (vetoableChangeListeners_ != null)
-            {
                 vetoableChangeListeners_.fireVetoableChange("userId", oldValue, newValue);
-            }
+
             userId_ = newValue;
             if (propertyChangeListeners_ != null)
-            {
                 propertyChangeListeners_.firePropertyChange("userId", oldValue, newValue);
-            }
         }
     }
 
-    // Initiate sign-on to the system.  This method is synchronized to prevent more than one thread from needlessly signing-on.  This method can safely be called multiple times because it checks for a previous sign-on before performing the sign-on code.
+    // Initiate sign-on to the system.  This method is synchronized to prevent more than one thread from needlessly signing-on.  
+    // This method can safely be called multiple times because it checks for a previous sign-on before performing the sign-on code.
     synchronized void signon(boolean keepConnection) throws AS400SecurityException, IOException
     {
         // If we haven't already signed on.
@@ -4789,7 +4700,6 @@ public class AS400 implements Serializable, AutoCloseable
                 if (credVault_.getType() == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ == AS400.GSS_OPTION_MANDATORY)
                 {
                     Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-                    //@M4C
                     throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE,e);
                 }
                 else
@@ -4802,8 +4712,10 @@ public class AS400 implements Serializable, AutoCloseable
             // Note: A user-supplied sign-on handler isn't necessarily GUI-based.
             promptSignon();
             if (!keepConnection) {
-              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Disconnecting temporary connection for validating signon info.");
-              impl_.disconnect(AS400.SIGNON);
+                if (impl_.isConnected(AS400.SIGNON)) {
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Disconnecting temporary connection for validating signon.");
+                    impl_.disconnect(AS400.SIGNON);
+                }
             }
         }
     }
@@ -4812,8 +4724,7 @@ public class AS400 implements Serializable, AutoCloseable
      Returns the text representation of this AS400 object.
      @return  The string representing this AS400 object.
      **/
-    public String toString()
-    {
+    public String toString() {
         return "AS400 (system name: '" + systemName_ + "' user ID: '" + userId_ + "'):" + super.toString();
     }
 
@@ -4824,22 +4735,22 @@ public class AS400 implements Serializable, AutoCloseable
 
       boolean result;
 
-      // First, see if we are running on IBM i.
-      if (AS400.onAS400 && !mustUseSuppliedProfile && currentUserAvailable())
-      {
-        String currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());
-        if (currentUserID == null) {
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Current userID information not available.");
-          result = false;
+        // First, see if we are running on IBM i.
+        if (AS400.onAS400 && !mustUseSuppliedProfile && currentUserAvailable())
+        {
+            String currentUserID = CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification());
+            if (currentUserID == null)
+            {
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Current userID information not available.");
+                result = false;
+            }
+            else
+            {
+                result = userId.equals(currentUserID);
+                if (Trace.traceOn_ && !result)
+                    Trace.log(Trace.DIAGNOSTIC, "Specified userID ("+userId+") does not match current userID ("+currentUserID+").");
+            }
         }
-
-        else {
-          result = userId.equals(currentUserID);
-          if (Trace.traceOn_ && !result) {
-            Trace.log(Trace.DIAGNOSTIC, "Specified userID ("+userId+") does not match current userID ("+currentUserID+").");
-          }
-        }
-      }
       else
       {
         result = false;
@@ -4857,15 +4768,17 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Validates the user ID and password on the system but does not add to the signed-on list.  The system name, user ID, and password need to be set prior to calling this method.
+     Validates the user ID and password on the system but does not add to the signed-on list.  This means that a new 
+     AS400 object instance is created to do the validation. The user ID and system name need to be set before calling this method.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
+     <p><b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is used.
      @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  IOException  If an error occurs while communicating with the system.
      **/
     public boolean validateSignon() throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating Signon.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating Signon, no parameters.");
 
         if (systemName_.length() == 0 && !systemNameLocal_)
         {
@@ -4878,12 +4791,15 @@ public class AS400 implements Serializable, AutoCloseable
             Trace.log(Trace.ERROR, "Cannot validate signon before user ID is set.");
             throw new ExtendedIllegalStateException("userId", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
-        return validateSignon(userId_, credVault_, additionalAuthenticationFactor_);
+        return validateSignon(true, userId_, credVault_, additionalAuthenticationFactor_);
     }
 
     /**
-     Validates the user ID and password on the system but does not add to the signed-on list.  The user ID and system name need to be set before calling this method.
+     Validates the user ID and password on the system but does not add to the signed-on list.  This means that a new 
+     AS400 object instance is created to do the validation. 
+     The user ID and system name need to be set before calling this method.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
+     <p><b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is used.
      @param  password  The user profile password to validate.
      @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -4902,18 +4818,12 @@ public class AS400 implements Serializable, AutoCloseable
         }
     }
 
-     private void  checkPasswordNullAndLength(char [] password)
-     { 
-        if (password == null)
-            throw new NullPointerException("password");
-
-        if (password.length > 128)
-            throw new ExtendedIllegalArgumentException("password.length {" + password.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-     }
-
     /**
-     Validates the user ID and password on the system but does not add to the signed-on list.  The user ID and system name need to be set before calling this method.
+     Validates the user ID and password on the system but does not add to the signed-on list.  This means that a new 
+     AS400 object instance is created to do the validation. 
+     The user ID and system name need to be set before calling this method.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
+     <p><b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is used.
      @param  password  The user profile password to validate.
      @return  true if successful.
      @exception  AS400SecurityException  If a security or authority error occurs.
@@ -4922,7 +4832,8 @@ public class AS400 implements Serializable, AutoCloseable
     public boolean validateSignon(char[] password) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating Signon, with password.");
-        checkPasswordNullAndLength(password); 
+        
+        checkPasswordNullAndLength(password, "password"); 
         if (systemName_.length() == 0 && !systemNameLocal_)
         {
             Trace.log(Trace.ERROR, "Cannot validate signon before system name is set.");
@@ -4936,30 +4847,16 @@ public class AS400 implements Serializable, AutoCloseable
         }
 
         PasswordVault tempVault = new PasswordVault(password);
-        return validateSignon(userId_, tempVault);
-    }
-
-      private void checkPasswordNullAndLength(String password, String label)
-      { 
-        if (password == null)
-            throw new NullPointerException(label);
-
-        if (password.length() > 128)
-            throw new ExtendedIllegalArgumentException(label+".length {" + password.length() + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-      }
-      
-      private void checkPasswordNullAndLength(char[] password, String label)
-      { 
-        if (password == null)
-            throw new NullPointerException(label);
-
-        if (password.length > 128)
-            throw new ExtendedIllegalArgumentException(label+".length {" + password.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        return validateSignon(true, userId_, tempVault, additionalAuthenticationFactor_);
       }
       
     /**
-     Validates the user ID and password on the system but does not add to the signed-on list.  The system name needs to be set prior to calling this method.
+     Validates the user ID and password on the system but does not add to the signed-on list.  This means that a new 
+     AS400 object instance is created to do the validation. 
+     The system name needs to be set prior to calling this method.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
+     <p><b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is not used. If you want to use an additional authentication factor, 
+     see {@link #validateSignon(String, char[], char[])}
      @param  userId  The user profile name to validate.
      @param  password  The user profile password to validate.
      @return  true if successful.
@@ -4980,8 +4877,12 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
         /**
-     Validates the user ID and password on the system but does not add to the signed-on list.  The system name needs to be set prior to calling this method.
+     Validates the user ID and password on the system but does not add to the signed-on list.  This means that a new 
+     AS400 object instance is created to do the validation. 
+     The system name needs to be set prior to calling this method.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
+     <p><b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is not used. If you want to use an additional authentication factor, 
+     see {@link #validateSignon(String, char[], char[])}
      @param  userId  The user profile name to validate.
      @param  password  The user profile password to validate.
      @return  true if successful.
@@ -4994,7 +4895,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
         /**
-     Validates the user ID and password on the system but does not add to the signed-on list.  The system name needs to be set prior to calling this method.
+     Validates the user ID and password on the system but does not add to the signed-on list.  This means that a new 
+     AS400 object instance is created to do the validation. 
+     The system name needs to be set prior to calling this method.
      <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
      @param  userId  The user profile name to validate.
      @param  password  The user profile password to validate.
@@ -5005,7 +4908,7 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public boolean validateSignon(String userId, char[] password, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating signon, user ID: '" + userId + "'");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating signon, password and additional factor, user ID: '" + userId + "'");
 
         if (userId == null)
             throw new NullPointerException("userId");
@@ -5013,7 +4916,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (userId.length() > 10)
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-        checkPasswordNullAndLength(password);
+        checkPasswordNullAndLength(password, "password");
  
         if (systemName_.length() == 0 && !systemNameLocal_)
         {
@@ -5027,58 +4930,68 @@ public class AS400 implements Serializable, AutoCloseable
           userId = userId.toUpperCase(Locale.ENGLISH);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        return validateSignon(userId.toUpperCase(), tempVault, additionalAuthenticationFactor);
+        return validateSignon(true, userId.toUpperCase(), tempVault, additionalAuthenticationFactor);
     }
 
     // Internal version of validate sign-on; takes checked user ID and twiddled password bytes.
     // If the signon info is not valid, an exception is thrown.
-    private boolean validateSignon(String userId, CredentialVault pwVault) throws AS400SecurityException, IOException
+    private boolean validateSignon(boolean useNewInstance, String userId, CredentialVault pwVault, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
     {
-        return validateSignon(userId, pwVault, additionalAuthenticationFactor_);
+         // Use a new instance when system, userid, and credentials are not part of this
+        // instance of AS400 class;  otherwise, use this instance. 
+        if (useNewInstance)
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating temporary connection for validating signon info.");
+
+            try (AS400 validationSystem = new AS400(systemName_, userId, pwVault, additionalAuthenticationFactor))
+            {
+                validationSystem.proxyServer_ = proxyServer_;
+                // proxyClientConnection_ is not needed.
+                validationSystem.guiAvailable_ = false;
+                validationSystem.usePasswordCache_ = false;
+                validationSystem.useDefaultUser_ = false;
+                // showCheckboxes_ is not needed.
+                validationSystem.useSSLConnection_ = useSSLConnection_;
+                validationSystem.mustUseSockets_ = true; // force the use of the Signon Server
+                validationSystem.mustUseNetSockets_ = mustUseNetSockets_;
+                validationSystem.mustUseSuppliedProfile_ = mustUseSuppliedProfile_;
+                // threadUsed_ is not needed.
+                // locale_ in not needed.
+                // nlv_ in not needed.
+                validationSystem.socketProperties_ = socketProperties_;
+                if (validateSignonTimeOut_ > 0)
+                    validationSystem.socketProperties_.setSoTimeout(validateSignonTimeOut_);
+                // ccsid_ is not needed.
+                // connectionListeners_ is not needed.
+                // dispatcher_ is not needed.
+                // propertyChangeListeners_ is not needed.
+                // vetoableChangeListeners_ is not needed.
+                // propertiesFrozen_ is not needed.
+                // impl_ is not copied.
+                // signonInfo_ is not copied.
+    
+                validationSystem.signon(false); // signon(false) calls disconnect() when done
+            }
+        }
+        else
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using AS400 object for validating signon.");
+
+            signon(false);
+        }
+        
+        return true;
+    }
+
+    private void checkPasswordNullAndLength(char[] password, String label)
+    { 
+      if (password == null)
+          throw new NullPointerException(label);
+
+      if (password.length > 128)
+          throw new ExtendedIllegalArgumentException(label+".length {" + password.length + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
     }
     
-    // Internal version of validate sign-on; takes checked user ID and twiddled password bytes.
-    // If the signon info is not valid, an exception is thrown.
-    private boolean validateSignon(String userId, CredentialVault pwVault, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
-    {
-        if (Trace.traceOn_) {
-            Trace.log(Trace.DIAGNOSTIC, "Creating temporary connection for validating signon info.");
-        }
-        try (AS400 validationSystem = new AS400(systemName_, userId, pwVault, additionalAuthenticationFactor))
-        {
-            validationSystem.proxyServer_ = proxyServer_;
-            // proxyClientConnection_ is not needed.
-            validationSystem.guiAvailable_ = false;
-            validationSystem.usePasswordCache_ = false;
-            validationSystem.useDefaultUser_ = false;
-            // showCheckboxes_ is not needed.
-            validationSystem.useSSLConnection_ = useSSLConnection_;
-            validationSystem.mustUseSockets_ = true; // force the use of the Signon Server
-            validationSystem.mustUseNetSockets_ = mustUseNetSockets_;
-            validationSystem.mustUseSuppliedProfile_ = mustUseSuppliedProfile_;
-            // threadUsed_ is not needed.
-            // locale_ in not needed.
-            // nlv_ in not needed.
-            validationSystem.socketProperties_ = socketProperties_;
-            // @Z6A Start set socket timeout for validatesignon AS400 object
-            if (validateSignonTimeOut_ > 0)
-                validationSystem.socketProperties_.setSoTimeout(validateSignonTimeOut_);
-            // @Z6A End
-            // ccsid_ is not needed.
-            // connectionListeners_ is not needed.
-            // dispatcher_ is not needed.
-            // propertyChangeListeners_ is not needed.
-            // vetoableChangeListeners_ is not needed.
-            // propertiesFrozen_ is not needed.
-            // impl_ is not copied.
-            // signonInfo_ is not copied.
-
-            validationSystem.signon(false); // signon(false) calls disconnect() when done
-            return true;
-        }
-    }
-
-    //@prompt new method
     /**
     This tells AS400 to force prompt by displaying login dialog (actually the sign-on handler) prior to even trying to authenticate.
     This is useful in cases where an application sends in incorrect dummy id/password and expects Toolbox to display the logon dialog.
@@ -5090,7 +5003,6 @@ public class AS400 implements Serializable, AutoCloseable
         forcePrompt_ = true;
     }
 
-    //@Bidi-HCG3 start
     private int bidiStringType = BidiStringType.DEFAULT;
 
     /**
@@ -5114,8 +5026,7 @@ public class AS400 implements Serializable, AutoCloseable
     /**
      * Determines whether Bidi processing should occur in AS400Text.toBytes() method
      */
-    public boolean bidiAS400Text = false; //@AC8
-    //@Bidi-HCG3 end
+    public boolean bidiAS400Text = false;
     
     /**
      * Determines whether Bidi processing should occur in AS400Varchar.toBytes() method
@@ -5125,32 +5036,25 @@ public class AS400 implements Serializable, AutoCloseable
     // Set the signon information for the connection
     // Typicially used when the signon server has been skipped and the information
     // is retrieved from a different host server
-    /*@V1A*/
-    void setSignonInfo(int serverCCSID, int serverVersion, String userId) {
-      
-      if (signonInfo_ == null ) { 
-        signonInfo_ = new SignonInfo(); 
-      }
+    void setSignonInfo(int serverCCSID, int serverVersion, String userId)
+    {
+        if (signonInfo_ == null)
+            signonInfo_ = new SignonInfo(); 
+
       signonInfo_.serverCCSID = serverCCSID; 
       signonInfo_.version = new ServerVersion(serverVersion);
       signonInfo_.userId = userId;
-      ccsid_ = signonInfo_.serverCCSID; 
-      
+      ccsid_ = signonInfo_.serverCCSID;
     }
     
-    //@W9 Start
-    //For Turkish
-    public static boolean isTurkish() {
+    public static boolean isTurkish()
+    {
         Locale defaultLocale = Locale.getDefault();
         Locale Turkishlocale = new Locale("tr", "TR", "");
-        if (defaultLocale.equals(Turkishlocale) ) {return true;
-        } else {
-            return false;
-        }
+        
+        return (defaultLocale.equals(Turkishlocale) ) ? true : false;
     }
-    //@W9 End
     
-    //@Z6A Start
     public int getvalidateSignonTimeOut() {
         return validateSignonTimeOut_;
     }
@@ -5158,7 +5062,6 @@ public class AS400 implements Serializable, AutoCloseable
     public void setvalidateSignonTimeOut(int validateSignonTimeOut) {
         validateSignonTimeOut_ = validateSignonTimeOut;
     }
-    //@Z6A End
     
     /**
      * Password level
@@ -5169,7 +5072,6 @@ public class AS400 implements Serializable, AutoCloseable
      * @throws  AS400SecurityException  If a security or authority error occurs.
      * @throws  IOException  If an error occurs while communicating with the system.
      */
-    //@AE6A
     public int passwordLevel() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if use password phrase");
@@ -5185,9 +5087,15 @@ public class AS400 implements Serializable, AutoCloseable
         return pwdlvl;
     }
 
+    /**
+     * <p>This method is functionally equivalent to the <i>resetAllServices()</i> method.
+    @see #resetAllServices
+    **/
     @Override
     public void close() {
-        disconnectAllServices();
+        // resetAllServices() ensures that HOSTCNN is disconnected from this AS400.  
+        // disconnectAllServices() does not disconnect HOSTCNN connection.
+        resetAllServices();
     }
     
     // Method to ensure operations for secure AS400 instances are enforced.
@@ -5319,16 +5227,12 @@ public class AS400 implements Serializable, AutoCloseable
        Integer oldValue = Integer.valueOf(useSSLConnection_.proxyEncryptionMode_);
        Integer newValue = Integer.valueOf(proxyEncryptionMode);
        if (vetoableChangeListeners_ != null)
-       {
          vetoableChangeListeners_.fireVetoableChange("proxyEncryptionMode", oldValue, newValue);
-       }
 
        useSSLConnection_.proxyEncryptionMode_ = proxyEncryptionMode;
 
        if (propertyChangeListeners_ != null)
-       {
          propertyChangeListeners_.firePropertyChange("proxyEncryptionMode", oldValue, newValue);
-       }
    }
    
    /**
@@ -5346,8 +5250,6 @@ public class AS400 implements Serializable, AutoCloseable
             newCipherSuites = suites;
         }
     }
-
-
     
     // ======== END =================
     // Previous chunk of code moved from SecureAS400
