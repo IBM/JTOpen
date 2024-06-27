@@ -1561,7 +1561,7 @@ endif */
 		// If the signon server was skipped, we need to manually determine the release
 		// This is important for boolean support
 		// 
-		if (as400.skipSignonServer & ! vrmSet) {
+		if (as400.skipSignonServer_ && ! vrmSet) {
 			try { 
 			  Statement s = connection.createStatement(); 
 			  ResultSet rs = s.executeQuery("SELECT OS_VERSION,OS_RELEASE FROM SYSIBMADM.ENVSYSINFO"); 

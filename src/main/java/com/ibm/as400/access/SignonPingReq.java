@@ -27,6 +27,15 @@ class SignonPingReq extends ClientAccessDataStream
         setReqRepID(0x7FFE);
     }
 
+    public SignonPingReq(int data)
+    {
+        super(new byte[24]);
+        setLength(24);
+        setServerID(0xE009);
+        setReqRepID(0x7FFE);
+        set32bit(data, 20);
+    }
+
     void write(OutputStream out) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending signon server ping request...");

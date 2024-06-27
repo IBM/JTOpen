@@ -22,7 +22,6 @@ package com.ibm.as400.access;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.net.UnknownHostException;
 import java.util.Vector;

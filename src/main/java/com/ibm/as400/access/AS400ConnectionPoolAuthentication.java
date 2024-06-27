@@ -26,100 +26,85 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
  **/
 class AS400ConnectionPoolAuthentication // Package scoped class
 {
-  // This variable will be set to one of the AS400.AUTHENTICATION_SCHEME_xxx values
-  // to indicate the authentication scheme used for this object.
-  private int authenticationScheme_ = -1;
-  
-  // For AS400.AUTHENTICATION_SCHEME_PASSWORD retain the password.
-  private char[] encodedPassword_  = null;
-  
-  // For AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN retain the token.
-  private ProfileTokenCredential profileToken_;
+    // This variable will be set to one of the AS400.AUTHENTICATION_SCHEME_xxx
+    // values to indicate the authentication scheme used for this object.
+    private int authenticationScheme_ = -1;
+
+    // For AS400.AUTHENTICATION_SCHEME_PASSWORD retain the password.
+    private char[] encodedPassword_ = null;
+
+    // For AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN retain the token.
+    private ProfileTokenCredential profileToken_;
+
+    /**
+     *  Constructs an AS400ConnectionPool for AS400.AUTHENTICATION_SCHEME_PASSWORD
+     **/
+    AS400ConnectionPoolAuthentication(char[] password)
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400ConnectionPoolAuthentication object (password)");
+        
+        if (password == null)
+        {
+            Trace.log(Trace.DIAGNOSTIC, "Parameter 'password' is null (password prompt may be used).");
+            //throw new NullPointerException("password");
+        }
+        
+        encodedPassword_ = (password != null) ? AS400JDBCDataSource.xpwConfuse(password) : null;
+
+        authenticationScheme_ = AS400.AUTHENTICATION_SCHEME_PASSWORD;
+    }
 
 
     /**
-   *  Constructs an AS400ConnectionPool for AS400.AUTHENTICATION_SCHEME_PASSWORD
-   **/
-  AS400ConnectionPoolAuthentication(char[] password)
-  {
-    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400ConnectionPoolAuthentication object (password)");
-    if (password == null)
+     *  Constructs an AS400ConnectionPool for AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN
+     **/
+    AS400ConnectionPoolAuthentication(ProfileTokenCredential profileToken)
     {
-        Trace.log(Trace.DIAGNOSTIC, "Parameter 'password' is null (password prompt may be used).");
-        //throw new NullPointerException("password");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400ConnectionPoolAuthentication object (ProfileTokenCredential)");
+        
+        if (profileToken == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'profileToken' is null.");
+            throw new NullPointerException("profileToken");
+        }
+        
+        profileToken_ = profileToken;
+        authenticationScheme_ = AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN;
     }
-    if (password != null)  {
-      encodedPassword_ = AS400JDBCDataSource.xpwConfuse(password);
-    } else {
-      encodedPassword_ = null; 
-    }
-    authenticationScheme_ = AS400.AUTHENTICATION_SCHEME_PASSWORD;
-  }
 
+    /**
+     *  Retrieve the authentication scheme 
+     *  Current supported values: 
+     *     AS400.AUTHENTICATION_SCHEME_PASSWORD
+     *     AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN
+     **/
+    int getAuthenticationScheme() {
+        return authenticationScheme_;
+    }
+  
+    /**
+     *  Retrieve the password if using AS400.AUTHENTICATION_SCHEME_PASSWORD
+     *  else null will be returned.
+     *  @return The password
+     **/
+    char[]  getPassword()
+    {
+        if (authenticationScheme_ == AS400.AUTHENTICATION_SCHEME_PASSWORD && encodedPassword_ != null)
+            return AS400JDBCDataSource.xpwDeconfuseToChar(encodedPassword_);
 
-  /**
-   *  Constructs an AS400ConnectionPool for AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN
-   **/
-  AS400ConnectionPoolAuthentication(ProfileTokenCredential profileToken)
-  {
-    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400ConnectionPoolAuthentication object (ProfileTokenCredential)");
-    if (profileToken == null)
-    {
-        Trace.log(Trace.ERROR, "Parameter 'profileToken' is null.");
-        throw new NullPointerException("profileToken");
+        return null;
     }
-    profileToken_ = profileToken;
-    authenticationScheme_ = AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN;
-  }
+  
+    /**
+     *  Retrieve the ProfileTokenCredential if using AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN
+     *  else null will be returned.
+     *  @return The profile token.
+     **/
+    ProfileTokenCredential getProfileToken()
+    {
+        if (authenticationScheme_ == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN)
+            return profileToken_;
 
-  /**
-   *  Retrieve the authentication scheme 
-   *  Current supported values: 
-   *     AS400.AUTHENTICATION_SCHEME_PASSWORD
-   *     AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN
-   **/
-  int getAuthenticationScheme()
-  {
-    return (authenticationScheme_);
-  }
-  
-  /**
-   *  Retrieve the password if using AS400.AUTHENTICATION_SCHEME_PASSWORD
-   *  else null will be returned.
-   *  @return The password
-   **/
-  char[]  getPassword()
-  {
-    if (authenticationScheme_ == AS400.AUTHENTICATION_SCHEME_PASSWORD)
-    {
-      if (encodedPassword_ != null) { 
-        return AS400JDBCDataSource.xpwDeconfuseToChar(encodedPassword_);
-      } else {
-        return null; 
-      }
+        return null;
     }
-    else
-    {
-      return (null);
-    }
-  }
-  
-  /**
-   *  Retrieve the ProfileTokenCredential if using AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN
-   *  else null will be returned.
-   *  @return The profile token.
-   **/
-  ProfileTokenCredential getProfileToken()
-  {
-    if (authenticationScheme_ == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN)
-    {
-      return (profileToken_);
-    }
-    else
-    {
-      return (null);
-    }
-  }
-  
-  
-} //End of AS400ConnectionPoolAuthentication class
+}

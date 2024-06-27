@@ -3542,8 +3542,8 @@ throws SQLException
             if (portNumber == 0) { 
                 portNumber =  properties.getInt(JDProperties.PORTNUMBER);
             }
-            if (portNumber > 0) { 
-              as400.skipSignonServer = true;
+            if (portNumber > 0) {
+              as400.skipSignonServer_ = true;
               as400.connectService (AS400.DATABASE, portNumber);
               portNumberString = ""+portNumber; 
             } else { 
@@ -3589,7 +3589,7 @@ throws SQLException
           }                                                     //@dbldrvr
         }
 
-        setProperties (dataSourceUrl, properties, as400.getImpl(), false, as400.skipSignonServer);
+        setProperties (dataSourceUrl, properties, as400.getImpl(), false, as400.skipSignonServer_);
     }
 
 
@@ -4699,7 +4699,7 @@ throws SQLException
             // If we did not user the signon server, fix the signon information
             // in the as400 object. /*@V1A*/
             if (as400PublicClassObj_ != null) {
-              if (as400PublicClassObj_.skipSignonServer) {
+              if (as400PublicClassObj_.skipSignonServer_) {
                 as400PublicClassObj_.setSignonInfo(serverCCSID, vrm_, as400_.getUserId()) ; 
               }
             }

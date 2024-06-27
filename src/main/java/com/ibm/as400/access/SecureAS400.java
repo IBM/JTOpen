@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2003 International Business Machines Corporation and     
+// Copyright (C) 1997-2024 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                           
 // Note:  This class was moved 10/20/2010 from the include tree to the 
@@ -182,12 +182,12 @@ public class SecureAS400 extends AS400
     }
     
     /**
-    Checks whether an additional authentication factor is accepted for the given system. 
-    The communications with the host server is performed over a secure connection. 
+    Checks whether an additional authentication factor is accepted for the given system
     @param  systemName  The IP address or hostname of the target system
     @return  whether the server accepts the additional authentication factor
     @exception  IOException  If an error occurs while communicating with the system.
     @throws AS400SecurityException  If an error occurs exchanging client/server information
+    @deprecated Use {@link #isAdditionalAuthenticationFactorAccepted(String, boolean)}
     **/
     public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
        return isAdditionalAuthenticationFactorAccepted(systemName, true);
