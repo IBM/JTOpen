@@ -195,6 +195,10 @@ public class AS400ImplRemote implements AS400Impl
       AS400Server.addReplyStream(new IFSUserHandleSeedRep(), AS400.FILE);
       AS400Server.addReplyStream(new IFSCreateUserHandleRep(), AS400.FILE);
       AS400Server.addReplyStream(new SignonExchangeAttributeRep(), AS400.HOSTCNN);
+      AS400Server.addReplyStream(new HCSUserInfoReplyDS(), AS400.HOSTCNN);
+      AS400Server.addReplyStream(new HCSGetNewConnReplyDS(), AS400.HOSTCNN);
+      AS400Server.addReplyStream(new HCSPrepareNewConnReplyDS(), AS400.HOSTCNN);
+      AS400Server.addReplyStream(new HCSRouteNewConnReplyDS(), AS400.HOSTCNN);
       AS400Server.addReplyStream(new SignonPingRep(), AS400.HOSTCNN);
 
     
@@ -1118,6 +1122,7 @@ public class AS400ImplRemote implements AS400Impl
           implRemote.systemName_ = systemName; 
           implRemote.socketProperties_ = new SocketProperties();
           implRemote.useSSLConnection_ = useSSL ? new SSLOptions()  : null;
+          implRemote.hostcnnConnect(false);
 
           if (implRemote.hostcnnServer_ == null)
               implRemote.signonConnect(); 
@@ -1424,6 +1429,9 @@ public class AS400ImplRemote implements AS400Impl
           Trace.log(Trace.DIAGNOSTIC, "Get connection for as-hostcnn is not allowed ");
           throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
       }
+      
+      // Ensure we have an authenticated connection to hostcnn, if possible
+      hostcnnConnect(true);
 
       // Necessary for case where we are connecting after native sign-on.
       // Skip this test if not using the signon server.
@@ -1616,7 +1624,88 @@ public class AS400ImplRemote implements AS400Impl
           }
           else 
           {
-              // TODO
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Attempting to create connection to " + AS400.getServerName(service) + " via as-hostcnn");
+
+              // -------
+              // Prepare new connection request with server type 
+              // -------
+
+              int requestedServerID = AS400Server.getServerId(service);
+
+              HCSPrepareNewConnDS HCSPrepDS = new HCSPrepareNewConnDS(requestedServerID);
+              if (Trace.traceOn_) HCSPrepDS.setConnectionID(hostcnnServer_.getConnectionID());
+              
+              usingAuthenticatedHostcnnConnection = true;         
+              HCSPrepareNewConnReplyDS HCSPrepReply = (HCSPrepareNewConnReplyDS) hostcnnServer_.sendAndReceive(HCSPrepDS);
+              usingAuthenticatedHostcnnConnection = false;         
+
+              if (HCSPrepReply.getRC() != 0)
+              {
+                  byte[] rcBytes = new byte[4];
+                  BinaryConverter.intToByteArray(HCSPrepReply.getRC(), rcBytes, 0);
+                  Trace.log(Trace.ERROR, "Route prepare connection failed with return code:", rcBytes);
+                  throw AS400ImplRemote.returnSecurityException(HCSPrepReply.getRC(), null, userId_);
+              }
+
+              byte[] connectionReqID = HCSPrepReply.getConnReqID();
+            
+            // -------
+            // Connect to HCS using new socket
+            // -------
+            
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to as-hostcnn using new socket");
+                       
+            socketContainer = PortMapper.getServerSocket((systemNameLocal_) 
+                    ? "localhost" 
+                    : systemName_,  AS400.HOSTCNN, overridePort,  useSSLConnection_, socketProperties_,  mustUseNetSockets_);
+            
+            connectionID = socketContainer.hashCode();
+            inStream     = socketContainer.getInputStream();
+            outStream    = socketContainer.getOutputStream();
+            
+            // -------
+            // Give new connection request with new connection request ID
+            // -------
+            
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Give new connection request with new connection request ID");
+
+            HCSGetNewConnDS HCSGetDS = new HCSGetNewConnDS(connectionReqID);
+            if (Trace.traceOn_) HCSGetDS.setConnectionID(connectionID);
+            HCSGetDS.write(outStream); 
+            
+            HCSGetNewConnReplyDS HCSGetReply = new HCSGetNewConnReplyDS();
+            if (Trace.traceOn_) HCSGetReply.setConnectionID(connectionID);
+            HCSGetReply.read(inStream);
+            
+            if (HCSGetReply.getRC() != 0)
+            {
+                byte[] rcBytes = new byte[4];
+                BinaryConverter.intToByteArray(HCSGetReply.getRC(), rcBytes, 0);
+                Trace.log(Trace.ERROR, "Get new connection failed with return code:", rcBytes);
+                throw AS400ImplRemote.returnSecurityException(HCSGetReply.getRC(), null, userId_);
+            }
+          
+            // -------
+            // Route new connection request with connection request ID
+            // -------
+
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Route new connection request with connection request ID");
+            HCSRouteNewConnDS HCSRouteDS = new HCSRouteNewConnDS(connectionReqID);
+            if (Trace.traceOn_) HCSRouteDS.setConnectionID(connectionID);
+            
+            usingAuthenticatedHostcnnConnection = true;
+            HCSRouteNewConnReplyDS HCSRouteReply = (HCSRouteNewConnReplyDS) hostcnnServer_.sendAndReceive(HCSRouteDS);
+            usingAuthenticatedHostcnnConnection = false;
+
+            if (HCSRouteReply.getRC() != 0)
+            {
+                byte[] rcBytes = new byte[4];
+                BinaryConverter.intToByteArray(HCSRouteReply.getRC(), rcBytes, 0);
+                Trace.log(Trace.ERROR, "Route new connection failed with return code:", rcBytes);
+                throw AS400ImplRemote.returnSecurityException(HCSRouteReply.getRC(), null, userId_);
+            }
+                      
+            jobString = obtainJobIdForConnection(HCSRouteReply.getJobNameBytes());
           }
     }
     catch (IOException | AS400SecurityException | RuntimeException e)
@@ -3220,8 +3309,56 @@ public class AS400ImplRemote implements AS400Impl
   @Override
   public SignonInfo setState(AS400Impl impl, CredentialVault credVault)
   {
-      // TODO
-      return null;
+      if (hostcnnServer_ != null) {
+          Trace.log(Trace.ERROR, "Attempt to set as-hostcnn server when one already exists.");
+          throw new InternalErrorException(InternalErrorException.SECURITY_INVALID_STATE);
+      }
+      
+      if (!(impl instanceof AS400ImplRemote) || ((AS400ImplRemote)impl).hostcnnServer_ == null)
+          return null;
+
+      AS400ImplRemote parentImpl = (AS400ImplRemote)impl;
+      parentImpl.hostcnnServer_.addReference();
+      hostcnnServer_ = parentImpl.hostcnnServer_;
+
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server as-hostcnn being passed to impl, server is: " + hostcnnServer_);
+      
+      // TODO AMRA - need to verify what can be copied. 
+      
+      credVault_ =  credVault;
+      systemName_ = parentImpl.systemName_;
+      userId_ = parentImpl.userId_;
+      systemNameLocal_ = parentImpl.systemNameLocal_;
+      gssCredential_ = parentImpl.gssCredential_;
+      gssName_ = parentImpl.gssName_;
+      useSSLConnection_ = new SSLOptions(parentImpl.useSSLConnection_);
+      canUseNativeOptimization_ = parentImpl.canUseNativeOptimization_;
+      threadUsed_ = parentImpl.threadUsed_;
+      ccsid_ = parentImpl.ccsid_;
+      userOverrideCcsid_ = parentImpl.userOverrideCcsid_;
+      clientNlv_ = parentImpl.clientNlv_;
+      languageLibrary_ = parentImpl.languageLibrary_;
+      skipFurtherSettingOfLanguageLibrary_ = parentImpl.skipFurtherSettingOfLanguageLibrary_;
+      detectedMissingPTF_ = parentImpl.detectedMissingPTF_;
+      ddmRDB_ = parentImpl.ddmRDB_;
+      version_ = parentImpl.version_;
+      serverLevel_ = parentImpl.serverLevel_;
+      passwordLevel_ = parentImpl.passwordLevel_;
+      isPasswordTypeSet_ = parentImpl.isPasswordTypeSet_;
+      signonInfo_ = parentImpl.signonInfo_; // Use same signonInfo object. 
+      aafIndicator_ = parentImpl.aafIndicator_;
+      proxySeed_ = parentImpl.proxySeed_;
+      remoteSeed_ = parentImpl.remoteSeed_;
+      userHandle_ = parentImpl.userHandle_;
+      serverSeed_ = parentImpl.serverSeed_;
+      clientSeed_ = parentImpl.clientSeed_;
+      hostcnn_serverSeed_ = parentImpl.hostcnn_serverSeed_;
+      hostcnn_clientSeed_ = parentImpl.hostcnn_clientSeed_;
+      additionalAuthFactor_ = parentImpl.additionalAuthFactor_; 
+      bidiStringType_ = parentImpl.bidiStringType_;
+      socketProperties_ = parentImpl.socketProperties_;
+      
+      return signonInfo_;
   }
 
   // Only called by changePassword
@@ -3291,6 +3428,16 @@ public class AS400ImplRemote implements AS400Impl
                            char[] additionalAuthFactor)
       throws AS400SecurityException, IOException
   {
+      // If userid, or system has changed, we need to disconnect any connection to HOSTCNN and SIGNON.
+      if (hostcnnServer_ != null && 
+              ( !systemName_.equalsIgnoreCase(systemName) || !userId_.equalsIgnoreCase(userId)))
+      {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Authentication information has changed or as-hostcnn is not connected...");
+
+          hostcnnDisconnect();
+          signonDisconnect();
+      }
+              
       systemName_           = systemName;
       systemNameLocal_      = systemNameLocal;
       userId_               = userId;
@@ -3363,8 +3510,67 @@ public class AS400ImplRemote implements AS400Impl
 
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening a socket to authenticate...");
     
-      // Get connection to authenticating server. 
-      signonConnect();
+      // Get connection to authenticating server. Will try hostcnn, and if that is not up, fall back to signon.
+      hostcnnConnect(true);
+      if (hostcnnServer_ == null)
+          signonConnect();
+    
+      // -------
+      // If we are connected to hostcnn, just use that to retrieve user information
+      // -------
+      if (hostcnnServer_ != null)
+      {
+          if (PASSWORD_TRACE) {
+              Trace.log(Trace.DIAGNOSTIC, "Sending Retrieve Signon Information Request via as-hostcnn...");
+              Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId);
+              Trace.log(Trace.DIAGNOSTIC, "  Client seed:", hostcnn_clientSeed_);
+              Trace.log(Trace.DIAGNOSTIC, "  Server seed:", hostcnn_serverSeed_);
+          }
+        
+          try
+          {
+              HCSUserInfoDS signonReq = new HCSUserInfoDS();
+              HCSUserInfoReplyDS signonRep = (HCSUserInfoReplyDS) hostcnnServer_.sendAndReceive(signonReq);
+    
+              int rc = signonRep.getRC();
+              if (rc != 0)
+              {
+                  byte[] rcBytes = new byte[4];
+                  BinaryConverter.intToByteArray(rc, rcBytes, 0);
+                  Trace.log(Trace.ERROR, "Retrieve Signon Information Request failed with return code:", rcBytes);
+                  throw AS400ImplRemote.returnSecurityException(rc, 
+                      signonRep.getErrorMessages(ConverterImplRemote.getConverter( ExecutionEnvironment.getBestGuessAS400Ccsid(), this)), userId);
+              }
+            
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieve Signon Information Request successful.");
+            
+              // TODO AMRA can/should we share signoninfo object? profileToken?
+              signonInfo_ = new SignonInfo();
+              signonInfo_.currentSignonDate = signonRep.getCurrentSignonDate();
+              signonInfo_.lastSignonDate = signonRep.getLastSignonDate();
+              signonInfo_.expirationDate = signonRep.getExpirationDate();
+              signonInfo_.PWDexpirationWarning = signonRep.getPWDExpirationWarning();
+              signonInfo_.version = version_;
+              signonInfo_.serverCCSID = signonRep.getServerCCSID();
+              
+              signonInfo_.userId = userId_;
+    
+              if (DataStream.getDefaultConverter() == null)
+              {
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server reports CCSID:", signonInfo_.serverCCSID);
+                  DataStream.setDefaultConverter(ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this));
+              }
+          }
+          catch (IOException | AS400SecurityException e)
+          {
+              Trace.log(Trace.ERROR, "Get user information failed:", e);
+              hostcnnServer_.forceDisconnect();
+              hostcnnServer_ = null;
+              throw e;
+          }
+        
+          return signonInfo_;
+      }
     
       // -------
       // If here, use signon server to retrieve user information
@@ -3548,6 +3754,194 @@ public class AS400ImplRemote implements AS400Impl
       }
     }
     return signonInfo_;
+  }
+  
+  // The hostcnn connection takes over for signon server when it comes to authentication and 
+  // getting user attributes. Of course, it also controls the establishing of host server job
+  // connections under the auspices of the initial use of the additional authentication factor. 
+  // And it never goes away unless there is a request to disconnect or the connection has been severed.
+  synchronized private void hostcnnConnect(boolean authenticate) throws AS400SecurityException, IOException
+  {
+      // If we have a hostcnn connection, make sure it is alive
+      
+      boolean reconnecting =  (hostcnnServer_ != null && !isConnectionAlive(AS400.HOSTCNN));
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Reconnecting as-hostcnn connection? " + reconnecting);
+
+      // If already have a connection or this object is not secure, or 
+      //  hostcnn connect was already tried and failed, simply return. 
+      if (!reconnecting)
+          if (hostcnnServer_ != null || useSSLConnection_ == null || (signonInfo_ != null && getVRM() < 0x00070600))
+              return;
+      
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Attempting to connect to as-hostcnn server.");
+
+      boolean connectedSuccessfully = false;
+      
+      SocketContainer socketContainer =  null;
+      int connectionID;
+      
+      AS400NoThreadServer hostcnnServer = (reconnecting) ? hostcnnServer_ : new AS400NoThreadServer(this, AS400.HOSTCNN);
+     
+      try 
+      {
+          // So we need to synchronize since we may be reconnecting and thus we do not want other AS400 objects 
+          // attempting the same process of reconnecting. 
+          hostcnnServer.lock();
+          
+          // We need to check if connection is alive again just in case some other thread has already gone through
+          // the process of reconnecting. 
+          InputStream inStream = null;
+          OutputStream outStream = null;
+          int serverId = AS400Server.getServerId(AS400.HOSTCNN);
+
+          if (!reconnecting || (reconnecting && !isConnectionAlive(AS400.HOSTCNN)))
+          {
+              // If going to releases that do not support MFA, portmapper will throw an exception, need to handle.
+              socketContainer =  PortMapper.getServerSocket( (systemNameLocal_) 
+                      ? "localhost" 
+                      : systemName_, AS400.HOSTCNN, -1, useSSLConnection_, socketProperties_, mustUseNetSockets_);
+              hostcnnServer.setSocket(socketContainer);
+              connectionID = hostcnnServer.getConnectionID();
+              
+              inStream = socketContainer.getInputStream();
+              outStream = socketContainer.getOutputStream();
+              
+              hostcnn_clientSeed_ = (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD)
+                      ? BinaryConverter.longToByteArray(System.currentTimeMillis())
+                      : null;
+    
+              // -------
+              // The first request we send is "exchange client/server attributes"...
+              // -------
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Send exchange client/server attributes request");
+    
+              SignonExchangeAttributeReq attrReq = new SignonExchangeAttributeReq(serverId, hostcnn_clientSeed_);
+    
+              if (Trace.traceOn_) attrReq.setConnectionID(connectionID);
+              attrReq.write(outStream);
+    
+              SignonExchangeAttributeRep attrRep = new SignonExchangeAttributeRep();
+              if (Trace.traceOn_) attrRep.setConnectionID(connectionID);
+              attrRep.read(inStream);
+    
+              if (attrRep.getRC() != 0)
+              {
+                  // Connect failed, throw exception.
+                  byte[] rcBytes = new byte[4];
+                  BinaryConverter.intToByteArray(attrRep.getRC(), rcBytes, 0);
+                  Trace.log(Trace.ERROR, "Server exchange client/server attributes failed, return code:", rcBytes);
+                  throw AS400ImplRemote.returnSecurityException(attrRep.getRC(), null, userId_);
+              }
+    
+              version_ = new ServerVersion(attrRep.getServerVersion());
+              serverLevel_ = attrRep.getServerLevel();
+              passwordLevel_ = attrRep.getPasswordLevel();
+              isPasswordTypeSet_ = true;
+              hostcnn_serverSeed_ = attrRep.getServerSeed();
+              aafIndicator_ = attrRep.getAAFIndicator();
+              
+              if (Trace.traceOn_)
+              {
+                  byte[] versionBytes = new byte[4];
+                  BinaryConverter.intToByteArray(version_.getVersionReleaseModification(), versionBytes, 0);
+                  Trace.log(Trace.DIAGNOSTIC, "Server vrm:", versionBytes);
+                  Trace.log(Trace.DIAGNOSTIC, "Server level: ", serverLevel_);
+                  Trace.log(Trace.DIAGNOSTIC, "MFA enbled: ", aafIndicator_);
+              }
+              
+              // Will be overridden if we authenticate!
+              hostcnnServer.setJobString(obtainJobIdForConnection(attrRep.getJobNameBytes()));
+          }
+          
+          // Only reason we do not authenticate is when we need to retrieve server information
+          // and thus the hostcnn connection MUST be disconnected immediately. 
+          // TODO AMRA move block of code to own method and remove duplication
+          if (authenticate)
+          {
+              connectionID = hostcnnServer.getConnectionID();
+
+              // -------
+              // Next we send the "start server job" request...
+              // -------
+              
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Send start server job request for service as-hostcnn");
+    
+              byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
+              byte[] encryptedPassword = getPassword(hostcnn_clientSeed_, hostcnn_serverSeed_);
+              if (PASSWORD_TRACE)
+              {
+                  Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
+                  Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
+                  Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
+                  Trace.log(Trace.DIAGNOSTIC, "  Client seed:", hostcnn_clientSeed_);
+                  Trace.log(Trace.DIAGNOSTIC, "  Server seed:", hostcnn_serverSeed_);
+                  Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", encryptedPassword);
+                  Trace.log(Trace.DIAGNOSTIC, "  Password level: ", passwordLevel_);
+              }
+    
+              AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType(), additionalAuthFactor_);
+              
+              if (Trace.traceOn_) req.setConnectionID(connectionID);
+              req.write(outStream);
+    
+              AS400StrSvrReplyDS reply = new AS400StrSvrReplyDS();
+              if (Trace.traceOn_) reply.setConnectionID(connectionID);
+              reply.read(inStream);
+    
+              if (reply.getRC() != 0)
+              {
+                  byte[] rcBytes = new byte[4];
+                  BinaryConverter.intToByteArray(reply.getRC(), rcBytes, 0);
+                  Trace.log(Trace.ERROR, "Start server failed with return code:", rcBytes);
+                  throw AS400ImplRemote.returnSecurityException(reply.getRC(), null, userId_);
+              }
+              
+              hostcnnServer.setJobString(obtainJobIdForConnection(reply.getJobNameBytes()));
+          }
+          
+          // -------
+          // Bookkeeping...
+          // -------
+          
+          connectedSuccessfully = true;
+          
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Socket opened successfully - as-hostcnn server job is " + hostcnnServer.getJobString());
+          
+          fireConnectEvent(true, AS400.HOSTCNN);
+      } 
+      catch (ConnectException | ServerStartupException  e)
+      {
+          if (e instanceof ServerStartupException 
+                  && ((ServerStartupException) e).getReturnCode() != ServerStartupException.CONNECTION_PORT_CANNOT_CONNECT_TO)
+              throw e;
+          
+          Trace.log(Trace.DIAGNOSTIC, "The server as-hostcnn is not up and thus cannot be used for authentication");
+      } 
+      catch (IOException | AS400SecurityException | RuntimeException e) {
+          // Some sort of error, may be SSL certificate problem, may be security problem. 
+          Trace.log(Trace.ERROR, "Hostcnn server exchange client/server attributes failed:", e);
+          throw e;
+      }
+      finally
+      {
+          hostcnnServer.unlock();
+          
+          if (connectedSuccessfully)
+              hostcnnServer_ = hostcnnServer;
+          else if (hostcnnServer != null)
+          {
+              // if reconnecting, then that is it, sever ties with shared hostcnn connection. 
+              if (reconnecting)
+              {
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Reconnecting as-hostcnn failed, marking as closed ");
+
+                  hostcnnServer.markClosed();
+                  hostcnnDisconnect();
+              }
+              else
+                  hostcnnServer.forceDisconnect();                  
+          }
+      }
   }
 
   // Connect to sign-on server.
