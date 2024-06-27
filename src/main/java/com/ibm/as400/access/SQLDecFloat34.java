@@ -15,10 +15,10 @@ package com.ibm.as400.access;
 
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.sql.Blob;
 import java.sql.Date;
 /* ifdef JDBC40 */
-import java.sql.NClob;
 import java.sql.RowId;
 /* endif */ 
 import java.sql.SQLException;
@@ -78,7 +78,7 @@ final class SQLDecFloat34 extends SQLDataBase {
 
     private JDProperties properties_;
 
-    private int roundingMode;
+    private RoundingMode roundingMode;
     
     private String roundingModeStr;
     
@@ -104,21 +104,31 @@ final class SQLDecFloat34 extends SQLDataBase {
         //"half down" 
         //"up" 
         
-        if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_UP))
-            roundingMode = BigDecimal.ROUND_UP;
-        else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_DOWN))
-            roundingMode = BigDecimal.ROUND_DOWN;
-        else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_CEILING))
-            roundingMode = BigDecimal.ROUND_CEILING;
-        else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_FLOOR))
-            roundingMode = BigDecimal.ROUND_FLOOR;
-        else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_HALF_UP))
-            roundingMode = BigDecimal.ROUND_HALF_UP;
-        else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_HALF_DOWN))
-            roundingMode = BigDecimal.ROUND_HALF_DOWN;
-        else if ( roundingModeStr.equals(JDProperties.DECFLOAT_ROUNDING_MODE_HALF_EVEN))
-            roundingMode = BigDecimal.ROUND_HALF_EVEN;
-        
+        switch (roundingModeStr) {
+            case JDProperties.DECFLOAT_ROUNDING_MODE_UP:
+                roundingMode = RoundingMode.UP;
+                break;
+            case JDProperties.DECFLOAT_ROUNDING_MODE_DOWN:
+                roundingMode = RoundingMode.DOWN;
+                break;
+            case JDProperties.DECFLOAT_ROUNDING_MODE_CEILING:
+                roundingMode = RoundingMode.CEILING;
+                break;
+            case JDProperties.DECFLOAT_ROUNDING_MODE_FLOOR:
+                roundingMode = RoundingMode.FLOOR;
+                break;
+            case JDProperties.DECFLOAT_ROUNDING_MODE_HALF_UP:
+                roundingMode = RoundingMode.HALF_UP;
+                break;
+            case JDProperties.DECFLOAT_ROUNDING_MODE_HALF_DOWN:
+                roundingMode = RoundingMode.HALF_DOWN;
+                break;
+            case JDProperties.DECFLOAT_ROUNDING_MODE_HALF_EVEN:
+                roundingMode = RoundingMode.HALF_EVEN;
+                break;
+            default:
+                break;
+        }
        
         //for MathContext, methods take strings which are same as JDProperties rounding modes with "round" added.
         roundingModeStr = "ROUND_" + roundingModeStr.toUpperCase().replace(' ', '_');
@@ -245,7 +255,7 @@ final class SQLDecFloat34 extends SQLDataBase {
         //@pdd     truncated_ = 0; outOfBounds_ = false;   // No left side truncation, report nothing       
         //@pdd                      // (even if there was right side truncation).     
  
-        value_ = AS400DecFloat.roundByMode(bigDecimal, 34, roundingModeStr);
+        value_ = AS400DecFloat.roundByMode(bigDecimal, 34, roundingMode);
 
     
         // Check the value is within range

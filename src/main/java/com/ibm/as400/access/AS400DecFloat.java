@@ -13,10 +13,11 @@
 
 package com.ibm.as400.access;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.math.MathContext;
+import java.math.RoundingMode;
+
 //@DFA new class
 /**
  *  The AS400DecFloat class provides a converter between a BigDecimal object and a DecimalFloat type.
@@ -615,7 +616,7 @@ public class AS400DecFloat implements AS400DataType
 
 
             BigInteger bigInt = new java.math.BigInteger (sign, magnitude);
-            return getNewBigDecimal(bigInt, -exponent);
+            return new BigDecimal(bigInt, -exponent);
                 
         }else
         {
@@ -705,7 +706,7 @@ public class AS400DecFloat implements AS400DataType
 
 
             java.math.BigInteger bigInt = new java.math.BigInteger (sign, magnitude);
-            return getNewBigDecimal(bigInt, -exponent);
+            return new BigDecimal(bigInt, -exponent);
         }
     }
 
@@ -853,103 +854,6 @@ public class AS400DecFloat implements AS400DataType
         return decimal;
     }
 
-    /**
-     * This method rounds the number (unscaled integer value and exponent).
-     * mcPrecision and mcRoundingMode are what is in jdk 5.0 MathContext.
-     * What is returned from this method should be the same as what jre 5.0 would
-     * have rounded to using MathContext and BigDecimal.
-     */
-    private static BigDecimal roundByModePreJDK5(BigInteger intVal, int scale, int mcPrecision, String mcRoundingMode)
-    {
- 
-        BigInteger roundingMax = null;
-        if (mcPrecision == 16)
-            roundingMax = new BigInteger("10000000000000000"); // 16 0s
-        else
-            roundingMax = new BigInteger("10000000000000000000000000000000000"); // 34 0s
-
-        BigInteger roundingMin = roundingMax.negate();
-
-        if (roundingMax != null && intVal.compareTo(roundingMax) < 0
-                && intVal.compareTo(roundingMin) > 0)
-            return getNewBigDecimal(intVal, scale); //rounding not needed
-        //get precision from intVal without 0's on right side
-        int[] values = SQLDataFactory.getPrecisionForTruncation(getNewBigDecimal(intVal, scale), mcPrecision); //=precisionStr.length() - trimCount; //@rnd1
-        int precisionNormalized = values[0]; //@rnd1
-        int droppedZeros = values[1];  //@rnd1 decrease scale by number of zeros removed from precision                                       //@rnd1
-        if(droppedZeros != 0)                                                 //@rnd1
-        {                                                                     //@rnd1
-            //adjust intVal number of zeros removed off end                   //@rnd1
-            intVal = intVal.divide( new BigInteger("10").pow(droppedZeros));  //@rnd1
-        }                                                                     //@rnd1
-        
-        //get number of digits to round off
-        int drop = precisionNormalized - mcPrecision;
-        //@rnd1 if (drop <= 0)
-          //@rnd1  return getNewBigDecimal(intVal, scale);
-        BigDecimal rounded = roundOffDigits(intVal, scale, mcRoundingMode, drop);
-        
-        if(droppedZeros != 0)                                  //@rnd1
-        {                                                      //@rnd1
-            //adjust rounded bigdecimal by dropped zero count  //@rnd1
-            rounded = rounded.movePointRight(droppedZeros);    //@rnd1
-        }                                                      //@rnd1
-        
-        return rounded;                                        //@rnd1
-    }
-
-    /**
-     * Helper method to round off digits
-     */
-    private static BigDecimal roundOffDigits(BigInteger intVal, int scale,
-            String mcRoundingMode, int dropCount)
-    {
-
-        BigDecimal divisor = new BigDecimal((new BigInteger("10")).pow(dropCount), 0);
-        BigDecimal preRoundedBD = getNewBigDecimal(intVal, scale);
-        int roundingMode = 0;
-        try
-        {
-            //get int value for RoundingMode from BigDecimal
-            roundingMode = ((Integer) Class.forName("java.math.BigDecimal").getDeclaredField(mcRoundingMode).get(null)).intValue(); 
-        } catch (Exception e)
-        {
-            throw new InternalErrorException(InternalErrorException.UNKNOWN, e); //should never happen
-        }
-        BigDecimal rounded = preRoundedBD.divide(divisor, scale, roundingMode); // do actual rounding here
-        
-        BigInteger bigIntPart = rounded.unscaledValue();
-        
-        rounded = getNewBigDecimal(bigIntPart, scale - dropCount);
-    
-        return rounded;
-    }
-    
-    /**
-    Creates and returns a new BigDecimal based on parameters. 
-    This is a temporary hack due to pre-jre 1.5 not being able to handle negative scales (positive exp)
-    After we no longer support pre-java 1.5, this method can be replaced with new BigDecimal(bigInt, scale).
-    @param  bigInt   BigInteger part.
-    @param  scale    scale part.
-    **/
-    private static BigDecimal getNewBigDecimal(BigInteger bigInt, int scale)
-    {
-        BigDecimal bigDecimal = null; 
-        try{
-            bigDecimal = new BigDecimal(bigInt, scale);
-        }catch(NumberFormatException e)
-        {
-            //note that creating BigDecimal with negative scale is ok in 5, but not in 1.4
-            //deal with negative scale in pre jdk 5.0 here
-            if (scale > 0)
-                throw e;
-            bigDecimal = new BigDecimal(bigInt);
-            bigDecimal = bigDecimal.movePointRight(-scale);
-        }
-        
-        return bigDecimal;
-    }
-    
     //Decimal float.  //@DFA
     /**
       Rounds the precision of a BigDecimal by removing least significant digits from
@@ -959,54 +863,10 @@ public class AS400DecFloat implements AS400DataType
       @param  roundingMode to use when truncating
      * @return the rounded BigDecimal
     **/
-    public static BigDecimal roundByMode(BigDecimal bd, int precision, String roundingMode)
-    {        
-        BigDecimal roundedBD = null;
-        
-        //MathContext is in jdk1.5.  So use reflection so code will build under pre-1.5
-        //later, use this when we move to jdk1.5
-        //All we are doing below is:  bdAbs = inValue.abs(new MathContext(16, roundingMode));
-        boolean isGEJVM50 = true;
-        try
-        {
-            //in this try block, we do rounding via BigDecimal and MathContext
-            Class cls = Class.forName("java.math.MathContext"); //thorw ClassNotFoundException if pre 1.5 jvm
-            Constructor ct = cls.getConstructor(new Class[] { Integer.TYPE, Class.forName("java.math.RoundingMode") }); 
-            Object arglist[] = new Object[2]; 
-            arglist[0] = Integer.valueOf(precision); //MathContext.DECIMAL64 (16 or 34 char decfloat precision)
-            arglist[1] = Class.forName("java.math.RoundingMode").getDeclaredField(roundingMode.substring(6)).get(null); //@pdc remove "ROUND_"
-         
-            Object mathContextRounded = ct.newInstance(arglist);  //ie. new MathContext(16or34, RoundingMode.x);
-            Object[] arglist2 = new Object[]{mathContextRounded};
-            Class[] c = new Class[] { Class.forName("java.math.MathContext") };
-            java.lang.reflect.Method method = java.math.BigDecimal.class.getDeclaredMethod("round", c);
-                  
-            roundedBD = (java.math.BigDecimal) method.invoke(bd, arglist2);
-        }  
-        //Unfortunately, we cannot just catch Exception since we do not want to miss any real exceptions
-        //from rounding etc.  And can't re-throw Exception it since method is not declared with "throws"
-        catch (ClassNotFoundException  e)
-        { 
-            //got exception due to pre-java 5.0.
-            isGEJVM50 = false;
-        }
-        catch (NoSuchMethodException  e)
-        { isGEJVM50 = false; }
-        catch (NoSuchFieldException  e)
-        { isGEJVM50 = false; }
-        catch (IllegalAccessException  e)
-        { isGEJVM50 = false; }
-        catch (InvocationTargetException  e)
-        { isGEJVM50 = false; }
-        catch (InstantiationException  e)
-        { isGEJVM50 = false; }
-        
-        if(isGEJVM50 == false)
-        {
-            //use our rounding code to round in pre java 5.0
-            roundedBD = roundByModePreJDK5(bd.unscaledValue(), bd.scale(), precision, roundingMode);
-        }
-        
+    public static BigDecimal roundByMode(BigDecimal bd, int precision, RoundingMode roundingMode)
+    {
+        MathContext mathContext = new MathContext(precision, roundingMode);
+        BigDecimal roundedBD = bd.round(mathContext);
         return roundedBD;
     }
     
