@@ -15,6 +15,7 @@ package com.ibm.as400.data;
 
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400Message;
+import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ProgramCall;
 import com.ibm.as400.access.ServiceProgramCall;                     // @B1A
 import com.ibm.as400.access.ProgramParameter;
@@ -91,6 +92,7 @@ class PcmlProgram extends PcmlDocNode
     private AS400Message[] msgList;     // Array of AS400Message                         @C1C
     private int m_IntReturnValue;       // Int return value for a service program call   @B1A @C1C
     private int m_Errno;                // Errno for a service program call              @B1A @C1C
+    private int m_MessageOption;
 
     /**
     */
@@ -102,6 +104,7 @@ class PcmlProgram extends PcmlDocNode
         m_IntReturnValue = 0;                                       // @C1A
         m_Errno = 0;                                                // @C1A
         m_ThreadsafeOverrideCalled = false;                         // @D2A
+        m_MessageOption = AS400Message.MESSAGE_OPTION_UP_TO_10;
     }
 
     // Constructor
@@ -116,6 +119,7 @@ class PcmlProgram extends PcmlDocNode
         m_IntReturnValue = 0;                                       // @C1A
         m_Errno = 0;                                                // @C1A
         m_ThreadsafeOverrideCalled = false;                         // @D2A
+        m_MessageOption = AS400Message.MESSAGE_OPTION_UP_TO_10;
 
         // **********************************
         // Set attribute values
@@ -682,6 +686,8 @@ class PcmlProgram extends PcmlDocNode
         m_pgmCall.setThreadSafe(getThreadsafeOverride());             // @C6A
         }
 
+        m_pgmCall.setMessageOption(getMessageOption());
+
         //
         // Call the target program
         //
@@ -692,11 +698,15 @@ class PcmlProgram extends PcmlDocNode
         if (Trace.isTraceOn()) Trace.log(Trace.PCML, "Completed program call: " + m_pgmCall.getProgram());
 
         //
-        // If the program signalled a message, save the message list.
+        // Save the message list in all cases
+        //
+        msgList = m_pgmCall.getMessageList();
+
+        //
+        // If the program signaled a message, stop processing here.
         //
         if (m_pgmRc != true)
         {
-            msgList = m_pgmCall.getMessageList();
             return m_pgmRc;
         }
 
@@ -881,6 +891,21 @@ class PcmlProgram extends PcmlDocNode
     AS400Message[] getMessageList()
     {
         return msgList;
+    }
+
+    int getMessageOption()
+    {
+        return m_MessageOption;
+    }
+
+    void setMessageOption(int messageOption)
+    {
+        // Validate the messageOption parameter.
+        if (messageOption < 0 || messageOption > 2)
+        {
+            throw new ExtendedIllegalArgumentException("messageOption (" + messageOption + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        m_MessageOption = messageOption;
     }
 
     /**
