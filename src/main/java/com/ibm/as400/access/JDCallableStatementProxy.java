@@ -786,12 +786,12 @@ implements CallableStatement
     }
 
     public void registerOutParameter(int parameterIndex,
- /* ifdef JDBC42        
+/* ifdef JDBC42 */
          SQLType  
- endif*/ 
- /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
          Object
- /* endif */
+ endif */ 
                                        sqlType)
                                 throws SQLException{
        int intType = AS400JDBCCallableStatement.mapSQLTypeCS(sqlType);
@@ -800,12 +800,12 @@ implements CallableStatement
 
      
      public void registerOutParameter(int parameterIndex,
-         /* ifdef JDBC42        
+/* ifdef JDBC42 */
          SQLType  
- endif*/ 
- /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
          Object
- /* endif */
+ endif */ 
                                        sqlType,
                                        int scale)
                                 throws SQLException {
@@ -813,12 +813,12 @@ implements CallableStatement
        registerOutParameter(parameterIndex, intType, scale); 
      }
      public void registerOutParameter(int parameterIndex,
- /* ifdef JDBC42        
+/* ifdef JDBC42 */
          SQLType  
- endif*/ 
- /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
          Object
- /* endif */
+ endif */ 
                                        sqlType,
                                        String typeName)
                                 throws SQLException {
@@ -828,12 +828,12 @@ implements CallableStatement
      }
 
     public void registerOutParameter(String parameterName,
-        /* ifdef JDBC42        
+/* ifdef JDBC42 */
         SQLType  
- endif*/ 
- /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
         Object
- /* endif */
+ endif */ 
                                        sqlType)
                                 throws SQLException {
       int intType = AS400JDBCCallableStatement.mapSQLTypeCS(sqlType);
@@ -842,12 +842,12 @@ implements CallableStatement
     }
 
    public void registerOutParameter(String parameterName,
-       /* ifdef JDBC42        
+/* ifdef JDBC42 */
        SQLType  
- endif*/ 
- /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
        Object
- /* endif */
+ endif */ 
                                        sqlType,
                                        int scale)
                                 throws SQLException {
@@ -857,12 +857,12 @@ implements CallableStatement
    }
 
    public void registerOutParameter(String parameterName,
-       /* ifdef JDBC42        
+/* ifdef JDBC42 */
        SQLType  
- endif*/ 
- /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
        Object
- /* endif */
+ endif */ 
                                        sqlType,
                                        String typeName)
                                 throws SQLException
@@ -1849,12 +1849,12 @@ implements CallableStatement
     
     public void setObject(String parameterName,
         Object x,
- /* ifdef JDBC42        
+/* ifdef JDBC42 */
         SQLType  
- endif*/ 
-  /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
   Object
-  /* endif */
+ endif */ 
         targetSqlType,
         int scaleOrLength)                    throws SQLException
 {
@@ -1867,12 +1867,12 @@ setObject(parameterName, x, intType, scaleOrLength);
 
 public void setObject(String parameterName,
         Object x,
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
         SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
   Object
-/* endif */
+ endif */ 
         targetSqlType)
  throws SQLException
  {
@@ -1884,12 +1884,12 @@ setObject(parameterName, x, intType);
 
 public void setObject(int parameter,
     Object x,
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
     SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
 Object
-/* endif */
+ endif */ 
     targetSqlType,
     int scaleOrLength)                    throws SQLException
 {
@@ -1902,12 +1902,12 @@ setObject(parameter, x, intType, scaleOrLength);
 
 public void setObject(int parameter,
     Object x,
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
     SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
 Object
-/* endif */
+ endif */ 
     targetSqlType)
 throws SQLException
 {

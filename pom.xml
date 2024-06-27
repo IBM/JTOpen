@@ -162,8 +162,8 @@
               <goal>compile</goal>
             </goals>
             <configuration>
-              <source>7</source>
-              <target>7</target>
+              <source>8</source>
+              <target>8</target>
               <compileSourceRoots>
                 <compileSourceRoot>${basedir}/build</compileSourceRoot>
               </compileSourceRoots>
@@ -177,8 +177,8 @@
               <goal>compile</goal>
             </goals>
             <configuration>
-              <source>7</source>
-              <target>7</target>
+              <source>8</source>
+              <target>8</target>
               <fork>true</fork>
               <excludes>
                 <exclude>**/module-info.java</exclude>
