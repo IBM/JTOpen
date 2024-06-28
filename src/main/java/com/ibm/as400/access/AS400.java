@@ -4450,6 +4450,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (socketProperties == null)
             throw new NullPointerException("socketProperties");
 
+        
         if (propertiesFrozen_)
         {
             Trace.log(Trace.ERROR, "Cannot set socket properties after connection has been made.");
