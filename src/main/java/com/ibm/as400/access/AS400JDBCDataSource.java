@@ -299,37 +299,12 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         this();
 
         as400_ = as400;
-        if( as400 instanceof SecureAS400 )
+        if( as400 instanceof SecureAS400 || as400.isSecure() )
             setSecure(true);
 
     }
 
-    //@B4A
-    /**
-    *  Constructs an AS400JDBCDataSource object with the specified signon information
-    *  to use for SSL communications with the system.
-    *  @param serverName The name of the IBM i system.
-    *  @param user The user id.
-    *  @param password The user password.
-       *  @param keyRingNameX The key ring class name to be used for SSL communications with the system.
-       *  @param keyRingPasswordX The password for the key ring class to be used for SSL communications with the system.
-       *  @deprecated  Sslight not supported
-    **/
-    public AS400JDBCDataSource(String serverName, String user, String password,
-                               String keyRingNameX, String keyRingPasswordX)
-    {
-        this();
 
-        setSecure(true);  // @F0M
-
-        as400_ = new SecureAS400(as400_);
-
-        setServerName(serverName);
-        setUser(user);
-        setPassword(password);
-    }
-
-    // @F0A - Added the following constructor to avoid creating some extra objects
     /**
     * Constructs an AS400JDBCDataSource object from the specified Reference object
     * @param reference to retrieve the DataSource properties from
@@ -488,7 +463,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getString(JDProperties.ACCESS);
     }
      
-    // @C9 new method
     /**
     *  Returns what behaviors of the Toolbox JDBC driver have been overridden.
     *  Multiple behaviors can be overridden in combination by adding 
@@ -596,8 +570,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         //if the user asks for the object
         //to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object
     	char[] aaf = properties_.getAdditionalAuthenticationFactor(); 
-        if (isSecure_ || isSecure())       {               //@B4A  //@C2C
-        	SecureAS400 newAs400 = new SecureAS400(as400_);
+        if (isSecure_ || isSecure())  {       
+        	SecureAS400 newAs400 = new SecureAS400(as400_); 
         	if (aaf != null) {
         		newAs400.setAdditionalAuthenticationFactor(aaf);
         	}

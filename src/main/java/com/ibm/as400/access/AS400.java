@@ -1030,9 +1030,9 @@ public class AS400 implements Serializable, AutoCloseable
         showCheckboxes_ = system.showCheckboxes_;
 
         // If passed in system has SSL options, deep copy them if this instance is secure
-        if (isSecure() && system.isSecure())
-            useSSLConnection_.proxyEncryptionMode_ = system.useSSLConnection_.proxyEncryptionMode_;
-        
+        if (system.isSecure()) {
+        	useSSLConnection_= new SSLOptions(system.useSSLConnection_); 
+        }
         mustAddLanguageLibrary_ = system.mustAddLanguageLibrary_;
         mustUseSockets_ = system.mustUseSockets_;
         mustUseNetSockets_ = system.mustUseNetSockets_;
@@ -1060,7 +1060,8 @@ public class AS400 implements Serializable, AutoCloseable
             impl_ = (AS400Impl)loadImpl2("com.ibm.as400.access.AS400ImplRemote", "com.ibm.as400.access.AS400ImplProxy");
             signonInfo_ = impl_.setState(system.impl_, credVault_);
             
-            propertiesFrozen_ = true;
+            // Do not freeze properties as these need to be changed for new JDBC connections.
+            // propertiesFrozen_ = true;
         }
     }
 
