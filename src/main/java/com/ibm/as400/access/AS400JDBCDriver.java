@@ -13,9 +13,8 @@
 
 package com.ibm.as400.access;
 
-import java.beans.PropertyVetoException;	// @B9A
 import java.io.IOException;
-import java.net.InetAddress;				// @C2A
+import java.net.InetAddress;				
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;

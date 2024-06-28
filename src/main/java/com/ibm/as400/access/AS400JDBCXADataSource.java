@@ -100,24 +100,6 @@ Constructs an AS400JDBCXADataSource with the specified signon information.
    }
 
 
-//@A1A
-/**
-Constructs an AS400JDBCXADataSource with the specified signon information 
-to use for SSL communications with the IBM i system.
-   
-@param serverName The name of the IBM i system.
-@param user The user id.
-@param password The password.
-@param keyRingNameX Not used.
-@param keyRingPasswordX Not used
-@deprecated	
-**/
-   public AS400JDBCXADataSource(String serverName, String user, String password, 
-				String keyRingNameX, String keyRingPasswordX)
-   {
-      super(serverName, user, password, null, null);
-   }
-
 
 // @F0A - added the following constructor to avoid some object construction
 /**
