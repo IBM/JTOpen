@@ -20,6 +20,7 @@
 package com.ibm.as400.access;
 
 import java.io.IOException;
+import java.util.Hashtable;
 
 /**
  Specifies the methods which the implementation objects for the IFSFile class
@@ -97,6 +98,9 @@ interface IFSFileImpl
   int getCCSID(boolean retrieveAll) throws IOException, AS400SecurityException;
   String getOwnerName(boolean retrieveAll) throws IOException, AS400SecurityException;
   //@AC7 End
+  String getText() throws IOException, AS400SecurityException;
+  String getCodePage() throws IOException, AS400SecurityException;
+  Hashtable<String,Object> getExtendedAttributes() throws IOException, AS400SecurityException;
 
 }
 

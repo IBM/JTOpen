@@ -33,14 +33,14 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Vector;
 import java.beans.PropertyVetoException;
 
 /**
  Provides a full remote implementation for the IFSFile class.
  **/
-class IFSFileImplRemote
-implements IFSFileImpl
+class IFSFileImplRemote implements IFSFileImpl
 {
   // Used for debugging only.  This should always be false for production.
   // When this is false, all debug code will theoretically compile out.
@@ -74,6 +74,8 @@ implements IFSFileImpl
     AS400Server.addReplyStream(new IFSReturnCodeRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSLookupRep(), AS400.FILE);
     AS400Server.addReplyStream(new IFSGetFileSystemRep(), AS400.FILE);
+    AS400Server.addReplyStream(new IFSOpenNodeRep(), AS400.FILE);
+    AS400Server.addReplyStream(new IFSGetEAsRep(), AS400.FILE);
   }
 
   transient private IFSListAttrsRep attributesReply_; // "list attributes" reply
@@ -1519,7 +1521,7 @@ implements IFSFileImpl
                   replys.size() + ")");
       }
       IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
-      Hashtable extendedAttributes = reply.getExtendedAttributeValues();
+      Hashtable<String,Object> extendedAttributes = reply.getExtendedAttributeValues();
       byte[] subtypeAsBytes = (byte[])extendedAttributes.get(".TYPE");
       if (subtypeAsBytes != null)
       {
@@ -2976,5 +2978,212 @@ implements IFSFileImpl
       rmtCmd_.setSystem(fd_.system_);
     }
   }
+  
+  //TODO @ZZA
+  public Hashtable<String,Object> getExtendedAttributes() throws IOException, AS400SecurityException {
+	  Hashtable<String,Object> EAs = new Hashtable<String,Object>();
+      fd_.connect();
+	  try {
+		  IFSGetEAsRep reply = null;
+		  //reply = fd_.listEAs();
+		  byte[] eaName_SUBJECT = fd_.converter_.stringToByteArray(".SUBJECT");
+		  byte[] eaName_CODEPAGE = fd_.converter_.stringToByteArray(".CODEPAGE");
+		  byte[] eaName_TYPE = fd_.converter_.stringToByteArray(".TYPE");
+		  int eaNameBytesLength = eaName_SUBJECT.length + eaName_CODEPAGE.length + eaName_TYPE.length;
+		  byte[][] eaNamesList = new byte[][] { eaName_SUBJECT, eaName_CODEPAGE, eaName_TYPE };
+		  
+		  reply = fd_.getExtendedAttributes(eaNamesList,eaNameBytesLength,fd_.preferredServerCCSID_);
+		  if (reply != null) {
+			  EAs = reply.getExtendedAttributeValues();
+		  } else {
+			  if (Trace.traceOn_) Trace.log(Trace.WARNING, "getOwnerName: " + "IFSReturnCodeRep return code", fd_.errorRC_);
+		      if (fd_.errorRC_ == IFSReturnCodeRep.FILE_NOT_FOUND || fd_.errorRC_ == IFSReturnCodeRep.PATH_NOT_FOUND)
+		      {
+		          throw new ExtendedIOException(fd_.path_, ExtendedIOException.PATH_NOT_FOUND);
+		      }
+		  }
+	   } catch (ExtendedIOException e) {
+		      if (e.getReturnCode() == ExtendedIOException.DIR_ENTRY_EXISTS) {
+		        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unable to determine owner of directory.", e);
+		      } else 
+		    	  throw e;
+	   }
+	  return EAs;
+   }
+
+
+  public String getText() throws IOException, AS400SecurityException {
+    String fileText = "";
+    // Ensure that we are connected to the server.
+    fd_.connect();
+    // Convert the path name to the server CCSID.
+    byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
+    boolean needCodePage;
+    if (fd_.getSystemVRM() >= 0x00060100 &&
+        fd_.path_.indexOf("/QSYS.LIB") != -1) {
+      needCodePage = true;
+    }
+    else
+      needCodePage = false;
+    // Prepare the List Attributes request.
+    // Set up the list of Extended Attributes Names. 
+    //.SUBJECT 
+    //.TYPE
+    //.CODEPAGE
+    byte[] eaName_SUBJECT = fd_.converter_.stringToByteArray(".SUBJECT");
+    int eaNameBytesLength;
+    byte[][] eaNamesList;
+    // Special handling for QSYS files, starting in V6R1.
+    // Starting in V6R1, for QSYS files, the ".TYPE" EA value field is returned in the CCSID of the object.
+    // Prior to V6R1, the field is always returned in EBCDIC.
+    if (needCodePage)
+    {
+      byte[] eaName_CODEPAGE = fd_.converter_.stringToByteArray(".CODEPAGE");
+      eaNameBytesLength = eaName_SUBJECT.length + eaName_CODEPAGE.length;
+      eaNamesList = new byte[][] { eaName_SUBJECT, eaName_CODEPAGE };
+    }
+    else  // not in QSYS, or pre-V6R1
+    {
+      eaNameBytesLength = eaName_SUBJECT.length;
+      eaNamesList = new byte[][] { eaName_SUBJECT };
+    }
+
+    IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
+                              IFSListAttrsReq.NO_AUTHORITY_REQUIRED, NO_MAX_GET_COUNT,
+                              null, false, eaNamesList, eaNameBytesLength, false, fd_.patternMatching_);  // @C3c
+
+    Vector replys = fd_.listAttributes(req);
+
+    // Verify that we got at least one reply.
+    if (replys == null) {
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received null from listAttributes(req).");
+    }
+    else if (replys.size() == 0) {
+      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received no replies from listAttributes(req).");
+    }
+    else
+    {
+      if (replys.size() > 1) {
+        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received multiple replies from listAttributes(req) (" +
+                  replys.size() + ")");
+      }
+      IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
+      Hashtable extendedAttributes = reply.getExtendedAttributeValues();
+      byte[] fileTextBytes = (byte[])extendedAttributes.get(".SUBJECT");
+      if (fileTextBytes != null)
+      {
+        int ccsid;
+        if (!needCodePage) {
+          ccsid = 37; // the returned bytes are in EBCDIC
+        }
+        else {
+          // Get the ".CODEPAGE" extended attribute value from the reply.
+          byte[] codepageAsBytes = (byte[])extendedAttributes.get(".CODEPAGE");
+          // The .CODEPAGE attribute is returned as 2 bytes in little-endian format.
+          // Therefore we need to swap the bytes.
+          byte[] swappedBytes = new byte[2];  // the codepage is returned in 2 bytes
+          swappedBytes[0] = codepageAsBytes[1];
+          swappedBytes[1] = codepageAsBytes[0];
+          ccsid = BinaryConverter.byteArrayToUnsignedShort(swappedBytes,0);
+          if (ccsid == 1400) ccsid = 1200;  // codepage 1400 corresponds to CCSID 1200
+        }
+        try {
+        	fileText = (new CharConverter(ccsid)).byteArrayToString(fileTextBytes, 0).trim();
+        }
+        catch (java.io.UnsupportedEncodingException e) {
+          Trace.log(Trace.ERROR, "Unrecognized codepage returned: " + ccsid, e);
+          fileText = "??";
+        }
+      }
+    }
+    return fileText;
+   }
+  
+  public String getCodePage() throws IOException, AS400SecurityException {
+	    String fileText = "";
+	    // Ensure that we are connected to the server.
+	    fd_.connect();
+	    // Convert the path name to the server CCSID.
+	    byte[] pathname = fd_.converter_.stringToByteArray(fd_.path_);
+	    boolean needCodePage;
+	    if (fd_.getSystemVRM() >= 0x00060100 &&
+	        fd_.path_.indexOf("/QSYS.LIB") != -1) {
+	      needCodePage = true;
+	    }
+	    else needCodePage = false;
+	    // Prepare the List Attributes request.
+	    // Set up the list of Extended Attributes Names. 
+	    //.SUBJECT 
+	    //.TYPE
+	    //.CODEPAGE
+	    byte[] eaName_CODEPAGE = fd_.converter_.stringToByteArray(".CODEPAGE");
+	    int eaNameBytesLength;
+	    byte[][] eaNamesList;
+	    // Special handling for QSYS files, starting in V6R1.
+	    // Starting in V6R1, for QSYS files, the ".TYPE" EA value field is returned in the CCSID of the object.
+	    // Prior to V6R1, the field is always returned in EBCDIC.
+	    /*
+	    if (needCodePage)
+	    {
+	      byte[] eaName_CODEPAGE = fd_.converter_.stringToByteArray(".CODEPAGE");
+	      eaNameBytesLength = eaName_SUBJECT.length + eaName_CODEPAGE.length;
+	      eaNamesList = new byte[][] { eaName_SUBJECT, eaName_CODEPAGE };
+	    }
+	    else  // not in QSYS, or pre-V6R1
+	    {*/
+	      eaNameBytesLength = eaName_CODEPAGE.length;
+	      eaNamesList = new byte[][] { eaName_CODEPAGE };
+	    
+
+	    IFSListAttrsReq req = new IFSListAttrsReq(pathname, fd_.preferredServerCCSID_,
+	                              IFSListAttrsReq.NO_AUTHORITY_REQUIRED, NO_MAX_GET_COUNT,
+	                              null, false, eaNamesList, eaNameBytesLength, false, fd_.patternMatching_);  // @C3c
+
+	    Vector replys = fd_.listAttributes(req);
+
+	    // Verify that we got at least one reply.
+	    if (replys == null) {
+	      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received null from listAttributes(req).");
+	    }
+	    else if (replys.size() == 0) {
+	      if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received no replies from listAttributes(req).");
+	    }
+	    else
+	    {
+	      if (replys.size() > 1) {
+	        if (Trace.traceOn_) Trace.log(Trace.WARNING, "Received multiple replies from listAttributes(req) (" +
+	                  replys.size() + ")");
+	      }
+	      IFSListAttrsRep reply = (IFSListAttrsRep)replys.elementAt(0);
+	      Hashtable extendedAttributes = reply.getExtendedAttributeValues();
+	      byte[] fileTextBytes = (byte[])extendedAttributes.get(".CODEPAGE");
+	      if (fileTextBytes != null)
+	      {
+	        int ccsid;
+	        //if (!needCodePage) {
+	          ccsid = 37; // the returned bytes are in EBCDIC
+	        /*}
+	        else {
+	          // Get the ".CODEPAGE" extended attribute value from the reply.
+	          byte[] codepageAsBytes = (byte[])extendedAttributes.get(".CODEPAGE");
+	          // The .CODEPAGE attribute is returned as 2 bytes in little-endian format.
+	          // Therefore we need to swap the bytes.
+	          byte[] swappedBytes = new byte[2];  // the codepage is returned in 2 bytes
+	          swappedBytes[0] = codepageAsBytes[1];
+	          swappedBytes[1] = codepageAsBytes[0];
+	          ccsid = BinaryConverter.byteArrayToUnsignedShort(swappedBytes,0);
+	          if (ccsid == 1400) ccsid = 1200;  // codepage 1400 corresponds to CCSID 1200
+	        }*/
+	        try {
+	        	fileText = (new CharConverter(ccsid)).byteArrayToString(fileTextBytes, 0).trim();
+	        }
+	        catch (java.io.UnsupportedEncodingException e) {
+	          Trace.log(Trace.ERROR, "Unrecognized codepage returned: " + ccsid, e);
+	          fileText = "??";
+	        }
+	      }
+	    }
+	    return fileText;
+	   }
 
 }

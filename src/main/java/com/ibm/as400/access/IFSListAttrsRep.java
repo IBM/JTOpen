@@ -126,9 +126,9 @@ Get the date/time that the file was created.
 Get the extended attribute values, as a hashtable.
 @return The extended attribute values.
 **/
-  Hashtable getExtendedAttributeValues()
+  Hashtable<String,Object> getExtendedAttributeValues()
   {
-    Hashtable results = new Hashtable();
+    Hashtable<String,Object> results = new Hashtable<String,Object>();
 
     // The offset to the start of the "optional/variable section" depends on the datastream level.
     int optionalSectionOffset = HEADER_LENGTH + get16bit(TEMPLATE_LENGTH_OFFSET);
