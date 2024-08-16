@@ -29,6 +29,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -171,11 +172,9 @@ public class AS400ImplRemote implements AS400Impl
   // hostcnn server client seed, held from hostcnn connection until hostcnn disconnect.
   private byte[] hostcnn_clientSeed_;
   
-  // Additional authentication factor. We have to hold on to it because it may be timed. 
-  private char[] additionalAuthFactor_;
+  // Additional authentication factor. We have to hold on to it because it may be timed, and thus can be reused. 
+  private byte[] additionalAuthFactor_;
   
-  private int UserHandle2_ = UNINITIALIZED;
-
   private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
 
   static {
@@ -561,7 +560,8 @@ public class AS400ImplRemote implements AS400Impl
 
           ChangePasswordReq chgReq = new ChangePasswordReq(userIdEbcdic,
                   encryptedPassword, oldProtected, oldPassword.length * 2,
-                  newProtected, newPassword.length * 2, serverLevel_, additionalAuthenticationFactor);
+                  newProtected, newPassword.length * 2, serverLevel_, 
+                  (additionalAuthenticationFactor != null ? (new String(additionalAuthenticationFactor)).getBytes(StandardCharsets.UTF_8) : null));
           ChangePasswordRep chgRep = (ChangePasswordRep) signonServer_.sendAndReceive(chgReq);
           int rc = chgRep.getRC();
           if (rc == 0)
@@ -644,68 +644,103 @@ public class AS400ImplRemote implements AS400Impl
   // @SAA Create user handle for the connection
   public int createUserHandle() throws AS400SecurityException, IOException
   {
-      if (userHandle_ != UNINITIALIZED && credVault_.getType() != AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+      if (userHandle_ != UNINITIALIZED)
           return userHandle_;
-    
-      if (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
-          return createUserHandle2();
-    
-      ClientAccessDataStream ds = null;
-      int UserHandle = UNINITIALIZED;
+      
+      int authScheme = credVault_.getType();
+      
+      if (authScheme != AS400.AUTHENTICATION_SCHEME_GSS_TOKEN && authScheme != AS400.AUTHENTICATION_SCHEME_PASSWORD)
+          return UNINITIALIZED;
 
-      AS400Server connectedServer = getConnectedServer(new int[] { AS400.FILE });
-      if (connectedServer != null)
+      // Do not want to create more than one user handle
+      synchronized (this)
       {
-          byte[] ClientSeed = BinaryConverter.longToByteArray(System.currentTimeMillis());
-          byte[] ServerSeed = null;
-          try 
-          {
-              IFSUserHandleSeedReq req = new IFSUserHandleSeedReq(ClientSeed);
-              ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
-          } 
-          catch (InterruptedException e)
-          {
-              Trace.log(Trace.ERROR, "Interrupted");
-              InterruptedIOException throwException = new InterruptedIOException( e.getMessage());
-              throwException.initCause(e);
-              throw throwException;
-          }
+          if (userHandle_ != UNINITIALIZED)
+              return userHandle_;
           
-          // Verify that we got a handle back.
+          AS400Server connectedServer = getConnectedServer(new int[] { AS400.FILE });
+          if (connectedServer == null)
+              return UNINITIALIZED;
+          
+          ClientAccessDataStream ds = null;
           int rc = 0;
-          if (ds instanceof IFSUserHandleSeedRep)
-              ServerSeed = ((IFSUserHandleSeedRep) ds).getSeed();
-          else if (ds instanceof IFSReturnCodeRep)
+          
+          if (authScheme == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
           {
-              rc = ((IFSReturnCodeRep) ds).getReturnCode();
-              if (rc != IFSReturnCodeRep.SUCCESS)
-                  Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
-              throw new ExtendedIOException(rc);
+              try
+              {
+                  byte[] authenticationBytes = (gssCredential_ == null) 
+                          ? TokenManager.getGSSToken(systemName_, gssName_)
+                          : TokenManager2.getGSSToken(systemName_, gssCredential_);
+                  
+                  IFSUserHandle2Req req = new IFSUserHandle2Req(authenticationBytes, aafIndicator_ ? additionalAuthFactor_ : null);
+                  ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
+              }
+              catch (InterruptedException e)
+              {
+                  Trace.log(Trace.ERROR, "Interrupted");
+                  InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+                  throwException.initCause(e);
+                  throw throwException;
+              }
+              catch (Throwable e) {
+                  Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+                  throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
+              }
           }
           else
           {
-              // Unknown data stream.
-              Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
-              throw new InternalErrorException(Integer.toHexString(ds.getReqRepID()), InternalErrorException.DATA_STREAM_UNKNOWN);
+              // Password authentication scheme
+              
+              byte[] ClientSeed = BinaryConverter.longToByteArray(System.currentTimeMillis());
+              byte[] ServerSeed = null;
+              try 
+              {
+                  IFSUserHandleSeedReq req = new IFSUserHandleSeedReq(ClientSeed);
+                  ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
+              } 
+              catch (InterruptedException e)
+              {
+                  Trace.log(Trace.ERROR, "Interrupted");
+                  InterruptedIOException throwException = new InterruptedIOException( e.getMessage());
+                  throwException.initCause(e);
+                  throw throwException;
+              }
+              
+              // Verify that we got a handle back.
+              if (ds instanceof IFSUserHandleSeedRep)
+                  ServerSeed = ((IFSUserHandleSeedRep) ds).getSeed();
+              else if (ds instanceof IFSReturnCodeRep)
+              {
+                  rc = ((IFSReturnCodeRep) ds).getReturnCode();
+                  if (rc != IFSReturnCodeRep.SUCCESS) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+                  throw new ExtendedIOException(rc);
+              }
+              else
+              {
+                  // Unknown data stream.
+                  Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
+                  throw new InternalErrorException(Integer.toHexString(ds.getReqRepID()), InternalErrorException.DATA_STREAM_UNKNOWN);
+              }
+    
+              rc = 0;
+              ds = null;
+              byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
+              byte[] encryptedPassword = getPassword(ClientSeed, ServerSeed);
+              IFSCreateUserHandlerReq req = new IFSCreateUserHandlerReq(userIDbytes, encryptedPassword, aafIndicator_ ? additionalAuthFactor_ : null);
+              
+              try {
+                  ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
+              }
+              catch (InterruptedException e)
+              {
+                  Trace.log(Trace.ERROR, "Interrupted");
+                  InterruptedIOException throwException = new InterruptedIOException( e.getMessage());
+                  throwException.initCause(e);
+                  throw throwException;
+              }
           }
-
-          rc = 0;
-          ds = null;
-          byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
-          byte[] encryptedPassword = getPassword(ClientSeed, ServerSeed);
-          IFSCreateUserHandlerReq req = new IFSCreateUserHandlerReq(userIDbytes, encryptedPassword);
           
-          try {
-              ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
-          }
-          catch (InterruptedException e)
-          {
-              Trace.log(Trace.ERROR, "Interrupted");
-              InterruptedIOException throwException = new InterruptedIOException( e.getMessage());
-              throwException.initCause(e);
-              throw throwException;
-          }
-
           // Verify the reply.
           if (ds instanceof IFSCreateUserHandleRep)
           {
@@ -715,13 +750,12 @@ public class AS400ImplRemote implements AS400Impl
                   Trace.log(Trace.ERROR, "IFSCreateUserHandleRep return code", rc);
                   throw new ExtendedIOException(rc);
               }
-              UserHandle = ((IFSCreateUserHandleRep) ds).getHandle();
+              setUserHandle(((IFSCreateUserHandleRep) ds).getHandle());
           }
           else if (ds instanceof IFSReturnCodeRep)
           {
               rc = ((IFSReturnCodeRep) ds).getReturnCode();
-              if (rc != IFSReturnCodeRep.SUCCESS)
-                  Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+              if (rc != IFSReturnCodeRep.SUCCESS) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
               throw new ExtendedIOException(rc);
           }
           else
@@ -732,8 +766,7 @@ public class AS400ImplRemote implements AS400Impl
           }
       }
       
-      setUserHandle(UserHandle);
-      return UserHandle;
+      return userHandle_;
   }
 
   public int getUserHandle() {
@@ -879,7 +912,6 @@ public class AS400ImplRemote implements AS400Impl
   @Override
   public void generateProfileToken(ProfileTokenCredential profileToken, String userIdentity) throws AS400SecurityException, IOException
   {
-      // TODO AMRA - profile tokens via hostcnn
       signonConnect();
 
       try
@@ -940,11 +972,10 @@ public class AS400ImplRemote implements AS400Impl
       }
   }
 
-  // Flow the generate profile token datastream.
+  @Override
   public void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, String gssName)
       throws AS400SecurityException, IOException, InterruptedException
   {
-      // TODO AMRA - profile tokens via hostcnn
       signonConnect();
       
       try
@@ -1079,10 +1110,13 @@ public class AS400ImplRemote implements AS400Impl
                   authenticationBytes = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
               }
           }
+          
+          byte[] aaf             = aafIndicator_ ? additionalAuthFactor_ : null;
 
           AS400GenAuthTknDS req = new AS400GenAuthTknDS(userIdEbcdic,
                   authenticationBytes, authScheme, profileToken.getTokenType(),
-                  profileToken.getTimeoutInterval(), serverLevel_);
+                  profileToken.getTimeoutInterval(), serverLevel_, aaf);
+          
           CredentialVault.clearArray(authenticationBytes);
           AS400GenAuthTknReplyDS rep = (AS400GenAuthTknReplyDS) signonServer_.sendAndReceive(req);
           req.clear(); 
@@ -1403,18 +1437,15 @@ public class AS400ImplRemote implements AS400Impl
       return jobString;
   }
 
-  public AS400Server getConnection(int service, boolean forceNewConnection)
-      throws AS400SecurityException, IOException {
+  public AS400Server getConnection(int service, boolean forceNewConnection) throws AS400SecurityException, IOException {
       return getConnection(service, forceNewConnection, false /*Skip signon server */);
   }
 
-  AS400Server getConnection(int service, boolean forceNewConnection,
-      boolean skipSignonServer) throws AS400SecurityException, IOException {
+  AS400Server getConnection(int service, boolean forceNewConnection, boolean skipSignonServer) throws AS400SecurityException, IOException {
       return getConnection(service, -1, forceNewConnection, skipSignonServer);
   }
   
-  synchronized AS400Server getConnection(int service, int overridePort, boolean forceNewConnection,
-      boolean skipSignonServer) throws AS400SecurityException, IOException
+  synchronized AS400Server getConnection(int service, int overridePort, boolean forceNewConnection, boolean skipSignonServer) throws AS400SecurityException, IOException
   {
       if (Trace.traceOn_)
           Trace.log(Trace.DIAGNOSTIC, "Handling request for host server job connection: " + AS400.getServerName(service));
@@ -1539,6 +1570,7 @@ public class AS400ImplRemote implements AS400Impl
                       Trace.log(Trace.DIAGNOSTIC, "  Server seed:", serverSeed);
                       Trace.log(Trace.DIAGNOSTIC, "  Encrypted password:", ddmSubstitutePassword);
                   }
+                  
                   byte[] iaspBytes = null;
                   if (ddmRDB_ != null)
                   {
@@ -1546,8 +1578,10 @@ public class AS400ImplRemote implements AS400Impl
                       iaspBytes = text18.toBytes(ddmRDB_);
                   }
                   
+                  byte[] aaf             = aafIndicator_ ? additionalAuthFactor_ : null;
+                  
                   ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes, ddmSubstitutePassword, iaspBytes,
-                                                  authScheme, ddmRDB_, systemName_, connectionID);
+                                                  authScheme, ddmRDB_, systemName_, connectionID, aaf);
               }
               else
               {
@@ -2351,11 +2385,65 @@ public class AS400ImplRemote implements AS400Impl
   }
 
   private SignonPingReq signonPingRequest_;
-  private SignonPingReq hostcnnPingRequest_;
   private IFSPingReq ifsPingRequest_;
   private static final int NO_PRIOR_SERVICE = -1;
   private int priorService_ = NO_PRIOR_SERVICE;
 
+  
+  private boolean doPingRequest(AS400Server connectedServer, boolean setPriorService) throws IOException, InterruptedException
+  {
+      int service = connectedServer.getService();
+      
+      if (service == AS400.FILE)
+      {
+          // a dummy request, just to get a reply
+          if (ifsPingRequest_ == null)
+              ifsPingRequest_ = new IFSPingReq();
+
+          // We expect to get back a reply indicating "request not supported".
+          DataStream reply = connectedServer.sendAndReceive(ifsPingRequest_);
+
+          if (DEBUG)
+          {
+              // Sanity-check the reply.
+              if (reply instanceof IFSReturnCodeRep)
+              {
+                  int returnCode = ((IFSReturnCodeRep) reply).getReturnCode();
+                  // We expect the return code to indicate REQUEST_NOT_SUPPORTED.
+                  // That sort of error doesn't clutter the job log with error entries.
+                  if (returnCode != IFSReturnCodeRep.REQUEST_NOT_SUPPORTED && Trace.traceOn_)
+                      Trace.log(Trace.DIAGNOSTIC, "Ping of File Server failed with unexpected return code " + returnCode);
+              }
+              else
+                  Trace.log(Trace.WARNING, "Unexpected IFS reply datastream received.", reply.data_);
+          }
+      }
+      else if (service == AS400.RECORDACCESS)
+      {
+          // If all we have is a connection to the DDM Server, simply return true.
+          // We don't have a way to ping the DDM server without creating an error entry in the job log.
+      }
+      else
+      {
+          // Only for common servers that support signon ping request
+      
+          // To reliably detect a connection is still up, we need to
+          // send a payload and do a receive. Just sending and discarding reply will not detect broken pipe!
+          
+          if (signonPingRequest_ == null)
+              signonPingRequest_ = new SignonPingReq(12345);
+    
+          connectedServer.sendAndReceive(signonPingRequest_);
+      }
+      
+      if (setPriorService)
+          priorService_ = (service != AS400.RECORDACCESS) ? service : NO_PRIOR_SERVICE;
+      
+      // Note that an exception will be thrown if not connected. 
+      return true;
+  }
+  
+  
   // Check connection's current status.
   @Override
   public boolean isConnectionAlive()
@@ -2407,20 +2495,9 @@ public class AS400ImplRemote implements AS400Impl
                       AS400.DATABASE, AS400.PRINT, AS400.DATAQUEUE, AS400.CENTRAL });
           }
 
-          // If we have a connection to a "common" server, send the ping request.
           // If no exception gets thrown, report that the connection is alive.
           if (connectedServer != null)
-          {
-              // the above services all support "ping"
-              if (signonPingRequest_ == null)
-                  signonPingRequest_ = new SignonPingReq();
-
-              connectedServer.sendAndDiscardReply(signonPingRequest_);
-
-              // If no exception was thrown, then the ping succeeded.
-              isAlive = true;
-              priorService_ = connectedServer.getService();
-          }
+              isAlive = doPingRequest(connectedServer, true);
 
           // If we have a connection to the File Server, send the ping request.
           // Then if a reply comes back, swallow the "invalid request" error and
@@ -2428,35 +2505,8 @@ public class AS400ImplRemote implements AS400Impl
           if (connectedServer == null)
           {
               connectedServer = getConnectedServer(new int[] { AS400.FILE });
-              
               if (connectedServer != null)
-              {
-                  // a dummy request, just to get a reply
-                  if (ifsPingRequest_ == null)
-                      ifsPingRequest_ = new IFSPingReq();
-
-                  // We expect to get back a reply indicating "request not supported".
-                  DataStream reply = connectedServer.sendAndReceive(ifsPingRequest_);
-                  // If no exception was thrown, then the ping succeeded.
-
-                  isAlive = true;
-                  priorService_ = connectedServer.getService();
-
-                  if (DEBUG)
-                  {
-                      // Sanity-check the reply.
-                      if (reply instanceof IFSReturnCodeRep)
-                      {
-                          int returnCode = ((IFSReturnCodeRep) reply).getReturnCode();
-                          // We expect the return code to indicate REQUEST_NOT_SUPPORTED.
-                          // That sort of error doesn't clutter the job log with error entries.
-                          if (returnCode != IFSReturnCodeRep.REQUEST_NOT_SUPPORTED && Trace.traceOn_)
-                              Trace.log(Trace.DIAGNOSTIC, "Ping of File Server failed with unexpected return code " + returnCode);
-                      }
-                      else
-                          Trace.log(Trace.WARNING, "Unexpected IFS reply datastream received.", reply.data_);
-                  }
-              }
+                  isAlive = doPingRequest(connectedServer, true);
           }
 
           // If all we have is a connection to the DDM Server, simply return true.
@@ -2466,8 +2516,7 @@ public class AS400ImplRemote implements AS400Impl
           {
               if (isConnected(AS400.RECORDACCESS))
               {
-                  Trace.log(Trace.DIAGNOSTIC,
-                          "For the RECORDACCESS service, isConnectionAlive() defaults to the behavior of isConnected().");
+                  Trace.log(Trace.DIAGNOSTIC, "For the RECORDACCESS service, isConnectionAlive() defaults to the behavior of isConnected().");
                   isAlive = true;
               }
 
@@ -2476,8 +2525,7 @@ public class AS400ImplRemote implements AS400Impl
       }
       catch (Exception e)
       {
-          if (Trace.traceOn_)
-              Trace.log(Trace.DIAGNOSTIC, e);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, e);
           isAlive = false;
       }
 
@@ -2516,85 +2564,12 @@ public class AS400ImplRemote implements AS400Impl
 
           // If we have a connection to the specified service, send the ping request.
           // If no exception gets thrown, report that the connection is alive.
-
           if (connectedServer != null)
-          {
-              if (service == AS400.RECORDACCESS)
-              {
-                  // Special handling for the DDM Server.
-
-                  // For the DDM Server, simply return true.
-                  // We don't have a way to ping the DDM server without creating an
-                  // error entry in the host server's job log.
-
-                  Trace.log(Trace.DIAGNOSTIC,
-                          "For the RECORDACCESS service, isConnectionAlive() defaults to the behavior of isConnected().");
-                  isAlive = true;
-              }
-              else if (service == AS400.FILE)
-              {
-                  // Special handling for the File Server.
-
-                  // a dummy request, just to get a reply
-                  if (ifsPingRequest_ == null)
-                      ifsPingRequest_ = new IFSPingReq();
-
-                  // We expect to get back a reply indicating "request not supported".
-                  DataStream reply = connectedServer.sendAndReceive(ifsPingRequest_);
-                  // If no exception was thrown, then the ping succeeded.
-
-                  isAlive = true;
-
-                  if (DEBUG)
-                  {
-                      // Sanity-check the reply.
-                      if (reply instanceof IFSReturnCodeRep)
-                      {
-                          int returnCode = ((IFSReturnCodeRep) reply).getReturnCode();
-                          // We expect the return code to indicate REQUEST_NOT_SUPPORTED.
-                          // That sort of error doesn't clutter the job log with error
-                          // entries.
-                          if (returnCode != IFSReturnCodeRep.REQUEST_NOT_SUPPORTED && Trace.traceOn_)
-                              Trace.log(Trace.DIAGNOSTIC,
-                                      "Ping of File Server failed with unexpected return code " + returnCode);
-                      }
-                      else
-                          Trace.log(Trace.WARNING, "Unexpected IFS reply datastream received.", reply.data_);
-                  }
-              }
-              else if (service == AS400.HOSTCNN)
-              {
-                  // TODO maybe should be the default for all isAlive tests?
-                  
-                  // To reliably detect a connection is still up, we need to 
-                  // to send a payload and do a receive. 
-                  
-                  // It's a "common service", which will accept a Signon Ping Request.
-                  if (hostcnnPingRequest_ == null)
-                      hostcnnPingRequest_ = new SignonPingReq(12345);
-
-                  connectedServer.sendAndReceive(hostcnnPingRequest_);
-                  // If no exception was thrown, then the ping succeeded.
-
-                  isAlive = true;
-              }
-              else
-              {
-                  // It's a "common service", which will accept a Signon Ping Request.
-                  if (signonPingRequest_ == null)
-                      signonPingRequest_ = new SignonPingReq();
-
-                  connectedServer.sendAndDiscardReply(signonPingRequest_);
-                  // If no exception was thrown, then the ping succeeded.
-
-                  isAlive = true;
-              }
-          }
+              isAlive = doPingRequest(connectedServer, false);
       }
       catch (Exception e)
       {
-          if (Trace.traceOn_)
-              Trace.log(Trace.DIAGNOSTIC, e);
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, e);
           isAlive = false;
       }
 
@@ -3349,7 +3324,7 @@ public class AS400ImplRemote implements AS400Impl
       aafIndicator_ = parentImpl.aafIndicator_;
       proxySeed_ = parentImpl.proxySeed_;
       remoteSeed_ = parentImpl.remoteSeed_;
-      userHandle_ = parentImpl.userHandle_;
+      userHandle_ = UNINITIALIZED;
       serverSeed_ = parentImpl.serverSeed_;
       clientSeed_ = parentImpl.clientSeed_;
       hostcnn_serverSeed_ = parentImpl.hostcnn_serverSeed_;
@@ -3770,7 +3745,7 @@ public class AS400ImplRemote implements AS400Impl
       // If already have a connection or this object is not secure, or 
       //  hostcnn connect was already tried and failed, simply return. 
       if (!reconnecting)
-          if (hostcnnServer_ != null || useSSLConnection_ == null || (signonInfo_ != null && getVRM() < 0x00070600))
+          if (hostcnnServer_ != null || useSSLConnection_ == null || (signonInfo_ != null && getVRM() <= 0x00070500))
               return;
       
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Attempting to connect to as-hostcnn server.");
@@ -3953,20 +3928,22 @@ public class AS400ImplRemote implements AS400Impl
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Attempting to connect to as-signon server.");
 
       boolean connectedSuccessfully = false;
-      
-      SocketContainer signonConnection = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_,
-              AS400.SIGNON, useSSLConnection_, socketProperties_, mustUseNetSockets_);
-      AS400NoThreadServer signonServer = new AS400NoThreadServer(this, AS400.SIGNON, signonConnection, "");
-      int connectionID = signonConnection.hashCode();
+      AS400NoThreadServer signonServer = null;
       
       try
       {
+          SocketContainer signonConnection = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_,
+                  AS400.SIGNON, useSSLConnection_, socketProperties_, mustUseNetSockets_);
+          
+          signonServer = new AS400NoThreadServer(this, AS400.SIGNON, signonConnection, "");
+          
+          int connectionID = signonConnection.hashCode();
+
           InputStream inStream = signonConnection.getInputStream();
           OutputStream outStream = signonConnection.getOutputStream();
 
           clientSeed_ = (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD)
-                  ? BinaryConverter.longToByteArray(System.currentTimeMillis())
-                  : null;
+                  ? BinaryConverter.longToByteArray(System.currentTimeMillis()) : null;
 
           SignonExchangeAttributeReq attrReq = new SignonExchangeAttributeReq(AS400Server.getServerId(AS400.SIGNON), clientSeed_);
           if (Trace.traceOn_) attrReq.setConnectionID(connectionID);
@@ -4988,63 +4965,6 @@ public class AS400ImplRemote implements AS400Impl
   }
   // @Bidi-HCG3 end
   
-  //@ACAA Start
-  public int createUserHandle2() throws AS400SecurityException, IOException
-  {
-      if (UserHandle2_ != UNINITIALIZED)
-          return UserHandle2_;
-          
-      ClientAccessDataStream ds = null;
-
-      AS400Server connectedServer = getConnectedServer(new int[] { AS400.FILE });
-      if (connectedServer != null)
-      {
-          try
-          {
-              byte[] authenticationBytes = (gssCredential_ == null) 
-                      ? TokenManager.getGSSToken(systemName_, gssName_)
-                      : TokenManager2.getGSSToken(systemName_, gssCredential_);
-              
-              IFSUserHandle2Req req = new IFSUserHandle2Req(authenticationBytes);
-              ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
-          } catch (InterruptedException e) {
-              Trace.log(Trace.ERROR, "Interrupted");
-              InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-              throwException.initCause(e);
-              throw throwException;
-          } catch (Throwable e) {
-              Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-              throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
-          }
-          
-          int rc = 0;
-          // Verify the reply.
-          if (ds instanceof IFSCreateUserHandleRep)
-          {
-              rc = ((IFSCreateUserHandleRep) ds).getReturnCode();
-              if (rc != IFSReturnCodeRep.SUCCESS) Trace.log(Trace.ERROR, "IFSCreateUserHandleRep return code", rc);
-
-              UserHandle2_ = ((IFSCreateUserHandleRep) ds).getHandle();
-          }
-          else if (ds instanceof IFSReturnCodeRep)
-          {
-              rc = ((IFSReturnCodeRep) ds).getReturnCode();
-              if (rc != IFSReturnCodeRep.SUCCESS) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
-
-              throw new ExtendedIOException(rc);
-          }
-          else
-          {
-              // Unknown data stream.
-              Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
-              throw new InternalErrorException(InternalErrorException.DATA_STREAM_UNKNOWN, Integer.toHexString(ds.getReqRepID()), null);
-          }
-      }
-      
-      setUserHandle(UserHandle2_);
-      return UserHandle2_;
-  }
-  
   //Generate salt for password level 4
   /*
    * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
@@ -5170,8 +5090,7 @@ public class AS400ImplRemote implements AS400Impl
   @Override
   public void setAdditionalAuthenticationFactor(char[] additionalAuthFactor)
   {
-      additionalAuthFactor_ = null;
-      if (null != additionalAuthFactor && 0 < additionalAuthFactor.length )
-          additionalAuthFactor_ = Arrays.copyOf(additionalAuthFactor, additionalAuthFactor.length);
+      additionalAuthFactor_ = (null != additionalAuthFactor && 0 < additionalAuthFactor.length )
+              ? (new String(additionalAuthFactor)).getBytes(StandardCharsets.UTF_8) : null;
   }
 }

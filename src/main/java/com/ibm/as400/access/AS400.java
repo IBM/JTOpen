@@ -41,23 +41,25 @@ import com.ibm.as400.security.auth.ProfileTokenCredential;
 import com.ibm.as400.security.auth.ProfileTokenProvider;
 
 /**
- Represents the authentication information and a set of connections to the IBM i host servers.
- <p>If running on IBM i or an older version of that operating system, the system name, user ID,
-    and password do not need to be supplied.  These values default to the local system.
-    For the system name, the keyword <code>localhost</code> can be used to specify the local system.
-    For the user ID and password, *CURRENT can be used.
- <p>If running on another operating system, the system name, user ID, and password need to be supplied.
-    If not supplied, the first 'open' request associated with this object will trigger a prompt to the
-    workstation user.  Subsequent opens associated with the same object will not prompt the workstation
-    user.  Keywords <code>localhost</code> and *CURRENT will not work when running on another operating
-    system.
- <p>For example:
- <pre>
- *    AS400 system = new AS400();
- *    system.connectService(AS400.DATAQUEUE);   // This causes a password prompt.
- *    ...
- *    system.connectService(AS400.FILE);        // This does not cause a prompt.
- </pre>
+ * Represents the authentication information and a set of connections to the IBM i host servers.
+ * <p>
+ * If running on IBM i or an older version of that operating system, the system name, user ID, and password do not need
+ * to be supplied. These values default to the local system. For the system name, the keyword <code>localhost</code> can
+ * be used to specify the local system. For the user ID and password, *CURRENT can be used.
+ * <p>
+ * If running on another operating system, the system name, user ID, and password need to be supplied. If not supplied,
+ * the first 'open' request associated with this object will trigger a prompt to the workstation user. Subsequent opens
+ * associated with the same object will not prompt the workstation user. Keywords <code>localhost</code> and *CURRENT
+ * will not work when running on another operating system.
+ * <p>
+ * For example:
+ * 
+ * <pre>
+      AS400 system = new AS400();
+      system.connectService(AS400.DATAQUEUE);   // This causes a password prompt.
+      ...
+      system.connectService(AS400.FILE);        // This does not cause a prompt.
+ * </pre>
  **/
 public class AS400 implements Serializable, AutoCloseable
 {
@@ -421,11 +423,13 @@ public class AS400 implements Serializable, AutoCloseable
     private int validateSignonTimeOut_ = 0;
 
     /**
-     Constructs an AS400 object.
-     <p>If running on IBM i, the target is the local system.  This has the same effect as using <code>localhost</code> 
-     for the system name, *CURRENT for the user ID, and *CURRENT for the password.
-     <p>If running on another operating system, a sign-on prompt may be displayed.  The user is then able to specify 
-     the system name, user ID, and password.
+     * Constructs an AS400 object.
+     * <p>
+     * If running on IBM i, the target is the local system. This has the same effect as using <code>localhost</code> for
+     * the system name, *CURRENT for the user ID, and *CURRENT for the password.
+     * <p>
+     * If running on another operating system, a sign-on prompt may be displayed. The user is then able to specify the
+     * system name, user ID, and password.
      **/
     public AS400()
     {
@@ -440,11 +444,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Constructs an AS400 object.  It uses the specified system name.
-     <p>If running on IBM i to another system or to itself, the user ID and password of the current job are used.
-     <p>If running on another operating system, the user may be prompted for the user ID and password if a default
-     user has not been established for this system name.
-     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
+     * Constructs an AS400 object. It uses the specified system name.
+     * <p>
+     * If running on IBM i to another system or to itself, the user ID and password of the current job are used.
+     * <p>
+     * If running on another operating system, the user may be prompted for the user ID and password if a default user
+     * has not been established for this system name.
+     * 
+     * @param systemName The name of the IBM i system. Use <code>localhost</code> to access data locally.
      **/
     public AS400(String systemName)
     {
@@ -463,11 +470,12 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Constructs an AS400 object.  It uses the specified system name and user ID.  If the sign-on prompt is displayed, 
-     the user is able to specify the password.  Note that the user ID may be overridden.
-     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may 
-     be used to specify the current user ID.
+     * Constructs an AS400 object. It uses the specified system name and user ID. If the sign-on prompt is displayed,
+     * the user is able to specify the password. Note that the user ID may be overridden.
+     * 
+     * @param systemName The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @param userId     The user profile name to use to authenticate to the system. If running on IBM i, *CURRENT may
+     *                   be used to specify the current user ID.
      **/
     public AS400(String systemName, String userId)
     {
@@ -499,9 +507,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Constructs an AS400 object.  It uses the specified system name and profile token.
-     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-     @param  profileToken  The profile token to use to authenticate to the system.
+     * Constructs an AS400 object. It uses the specified system name and profile token.
+     * 
+     * @param systemName   The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @param profileToken The profile token to use to authenticate to the system.
      **/
     public AS400(String systemName, ProfileTokenCredential profileToken)
     {
@@ -516,9 +525,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     * Constructs an AS400 object.  The specified ProfileTokenProvider is used.
-     * The token refresh threshold is determined by the ProfileTokenProvider.
-     * @param systemName  The name of the IBM i system.
+     * Constructs an AS400 object. The specified ProfileTokenProvider is used. The token refresh threshold is determined
+     * by the ProfileTokenProvider.
+     * 
+     * @param systemName    The name of the IBM i system.
      * @param tokenProvider The provider to use when a new profile token needs to be generated.
      * @see #AS400(String,ProfileTokenProvider,int)
      */
@@ -527,12 +537,13 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     * Constructs an AS400 object.  The specified ProfileTokenProvider is used.
-     * @param systemName  The name of the IBM i system.
-     * @param tokenProvider The provider to use when a new profile token needs to be generated.
-     * @param refreshThreshold The refresh threshold, in seconds, for the profile token.
-     *                         Used by the vault to manage the currency of the profile token
-     *                         to help ensure it remains current for an indefinite period of time.
+     * Constructs an AS400 object. The specified ProfileTokenProvider is used.
+     * 
+     * @param systemName       The name of the IBM i system.
+     * @param tokenProvider    The provider to use when a new profile token needs to be generated.
+     * @param refreshThreshold The refresh threshold, in seconds, for the profile token. Used by the vault to manage the
+     *                         currency of the profile token to help ensure it remains current for an indefinite period
+     *                         of time.
      * @see #AS400(String,ProfileTokenProvider)
      */
     public AS400(String systemName, ProfileTokenProvider tokenProvider, int refreshThreshold) {
@@ -549,11 +560,9 @@ public class AS400 implements Serializable, AutoCloseable
 
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "profile token provider:", tokenProvider.getClass().getName());
 
-        // Was a refresh threshold specified?
-        if (refreshThreshold != null)
-            constructWithProfileToken(systemName, new ManagedProfileTokenVault(tokenProvider, refreshThreshold.intValue()));
-        else
-            constructWithProfileToken(systemName, new ManagedProfileTokenVault(tokenProvider));
+        constructWithProfileToken(systemName, (refreshThreshold != null) 
+                                                   ? new ManagedProfileTokenVault(tokenProvider, refreshThreshold.intValue())
+                                                   : new ManagedProfileTokenVault(tokenProvider));
     }
 
     /**
@@ -575,15 +584,17 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is 
-     displayed unless the sign-on fails.
-     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be 
-     used to specify the current user ID.
-     @param  password  The user profile password to use to authenticate to the system.  If running on IBM i, 
-     *CURRENT may be used to specify the current user ID.
-     @deprecated   Use AS400(String systemName, String userId, char[] password) instead
+     * Constructs an AS400 object. It uses the specified system name, user ID, and password. No sign-on prompt is
+     * displayed unless the sign-on fails.
+     * 
+     * @param systemName The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @param userId     The user profile name to use to authenticate to the system. If running on IBM i, *CURRENT may
+     *                   be used to specify the current user ID.
+     * @param password   The user profile password to use to authenticate to the system. If running on IBM i, CURRENT
+     *                   may be used to specify the current user ID.
+     * @deprecated Use AS400(String systemName, String userId, char[] password) instead
      **/
+    @Deprecated
     public AS400(String systemName, String userId, String password)
     {
         super();
@@ -624,29 +635,34 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Constructs an AS400 object.  It uses the specified system name, user ID, password, and additional authentication
-     factor.  No sign-on prompt is displayed unless the sign-on fails. 
-     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT 
-             may be used to specify the current user ID.
-     @param  password  The user profile password to use to authenticate to the system.
-     @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
-     The caller is responsible for clearing the password array to keep the password from residing in memory. 
+     * Constructs an AS400 object. It uses the specified system name, user ID, password, and additional authentication
+     * factor. No sign-on prompt is displayed unless the sign-on fails.
+     * 
+     * @param systemName           The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @param userId               The user profile name to use to authenticate to the system. If running on IBM i,
+     *                             *CURRENT may be used to specify the current user ID.
+     * @param password             The user profile password to use to authenticate to the system.
+     * @param additionalAuthFactor Additional authentication factor (or null if not providing one). The caller is
+     *                             responsible for clearing the password array to keep the password from residing in
+     *                             memory.
+     * @throws AS400SecurityException If a security or authority error occurs.
+     * @throws IOException            If an error occurs while communicating with the system.
      **/
-    public AS400(String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
+    public AS400(String systemName, String userId, char[] password, char[] additionalAuthFactor) throws AS400SecurityException, IOException
     {
         this(systemName, userId, password);
-        setAdditionalAuthenticationFactor(additionalAuthenticationFactor);
+        setAdditionalAuthenticationFactor(additionalAuthFactor);
     }
 
     /**
-     Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt 
-     is displayed unless the sign-on fails.
-     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT 
-             may be used to specify the current user ID.
-     @param  password  The user profile password to use to authenticate to the system.   
-     The caller is responsible for clearing the password array to keep the password from residing in memory. 
+     * Constructs an AS400 object. It uses the specified system name, user ID, and password. No sign-on prompt is
+     * displayed unless the sign-on fails.
+     * 
+     * @param systemName The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @param userId     The user profile name to use to authenticate to the system. If running on IBM i, *CURRENT may
+     *                   be used to specify the current user ID.
+     * @param password   The user profile password to use to authenticate to the system. The caller is responsible for
+     *                   clearing the password array to keep the password from residing in memory.
      **/
     public AS400(String systemName, String userId, char[] password)
     {
@@ -687,19 +703,19 @@ public class AS400 implements Serializable, AutoCloseable
     public String aspName="";
 
     /**
-     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to 
-     * change the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection.  
-     * Current library default is *CURUSR.
-     * Libraries for current thread default is *CURUSR.
-     * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
-     * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible 
-     * and objects in those libraries can be referenced using regular library-qualified object name syntax.
+     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to change
+     * the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection. Current
+     * library default is *CURUSR. Libraries for current thread default is *CURUSR. If an ASP group had already been
+     * set, it will remove the old ASP group and set the specified ASP group for the current thread. Once the specified
+     * ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in
+     * those libraries can be referenced using regular library-qualified object name syntax.
+     * 
      * @param IASPGroup asp group name
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws PropertyVetoException           If the recipient wishes the property change to be rolled back.
      */
     public void setIASPGroup(String IASPGroup) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
     {
@@ -716,19 +732,21 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to 
-     * change the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection. 
-     * Libraries for current thread default is *CURUSR.
-     * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
-     * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible 
-     * and objects in those libraries can be referenced using regular library-qualified object name syntax.
-     * @param IASPGroup asp group name
-     * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
+     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to change
+     * the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection.
+     * Libraries for current thread default is *CURUSR. If an ASP group had already been set, it will remove the old ASP
+     * group and set the specified ASP group for the current thread. Once the specified ASP group has been set, all
+     * libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be
+     * referenced using regular library-qualified object name syntax.
+     * 
+     * @param IASPGroup  asp group name
+     * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default
+     *                   value *CURUSR is used.
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws PropertyVetoException           If the recipient wishes the property change to be rolled back.
      */
     public void setIASPGroup(String IASPGroup, String currentLib) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
     {
@@ -750,18 +768,24 @@ public class AS400 implements Serializable, AutoCloseable
       } else
         aspName = IASPGroup;
     } 
+    
     /**
-     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to change the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection.
-     * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
-     * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
-     * @param IASPGroup asp group name
-     * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
-     * @param librariesForThread Libraries for current thread with single value. If null or "" is set, default value *CURUSR is used.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
+     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to change
+     * the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection. If an
+     * ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current
+     * thread. Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are
+     * accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
+     * 
+     * @param IASPGroup          asp group name
+     * @param currentLib         Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set,
+     *                           default value *CURUSR is used.
+     * @param librariesForThread Libraries for current thread with single value. If null or "" is set, default value
+     *                           *CURUSR is used.
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws PropertyVetoException           If the recipient wishes the property change to be rolled back.
      */
     public void setIASPGroup(String IASPGroup, String currentLib, String librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
     {
@@ -794,17 +818,22 @@ public class AS400 implements Serializable, AutoCloseable
     }
     
     /**
-     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to change the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection.
-     * If an ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current thread. 
-     * Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
-     * @param IASPGroup asp group name
-     * @param currentLib Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set, default value *CURUSR is used.
-     * @param librariesForThread Libraries for current thread. If null is set, default value *CURUSR is used. Up to 250 libraries can be set.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  PropertyVetoException  If the recipient wishes the property change to be rolled back.
+     * Set ASP group for the AS400 connection to the Remote Command Host server. It calls SETASPGRP command to change
+     * the asp setting for corresponding CommandCall, ProgramCall and ServiceProgramCall in the same connection. If an
+     * ASP group had already been set, it will remove the old ASP group and set the specified ASP group for the current
+     * thread. Once the specified ASP group has been set, all libraries in the independent ASPs in the ASP group are
+     * accessible and objects in those libraries can be referenced using regular library-qualified object name syntax.
+     * 
+     * @param IASPGroup          asp group name
+     * @param currentLib         Current library which can be *CURSYSBAS, *CURUSR, *CRTDFT, name. If null or "" is set,
+     *                           default value *CURUSR is used.
+     * @param librariesForThread Libraries for current thread. If null is set, default value *CURUSR is used. Up to 250
+     *                           libraries can be set.
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws PropertyVetoException           If the recipient wishes the property change to be rolled back.
      */
     public void setIASPGroup(String IASPGroup, String currentLib, String[] librariesForThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, PropertyVetoException
     {
@@ -858,7 +887,7 @@ public class AS400 implements Serializable, AutoCloseable
     
     // Private constructor for use when a new object is needed and the password is already twiddled.
     // Used by password cache and password verification code.
-    private AS400(String systemName, String userId, CredentialVault pwVault, char[] additionalAuthenticationFactor)
+    private AS400(String systemName, String userId, CredentialVault pwVault, char[] additionalAuthFactor)
     {
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing internal AS400 object, system name: '" + systemName + "' user ID: '" + userId + "'");
@@ -894,18 +923,24 @@ public class AS400 implements Serializable, AutoCloseable
         // that behavior, but we need to do so using two different credential vaults,
         // because each AS400 object must always have its very own credential vault.
         credVault_ = pwVault.clone();
-        setAdditionalAuthenticationFactor(additionalAuthenticationFactor);
+        setAdditionalAuthenticationFactor(additionalAuthFactor);
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
     /**
-     Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
-     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
-     @param  password  The user profile password to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
-     @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
-     @deprecated  Use AS400((String systemName, String userId, char[] password, String proxyServer) instead.
+     * Constructs an AS400 object. It uses the specified system name, user ID, and password. No sign-on prompt is
+     * displayed unless the sign-on fails.
+     * 
+     * @param systemName  The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @param userId      The user profile name to use to authenticate to the system. If running on IBM i, *CURRENT may
+     *                    be used to specify the current user ID.
+     * @param password    The user profile password to use to authenticate to the system. If running on IBM i, *CURRENT
+     *                    may be used to specify the current user ID.
+     * @param proxyServer The name and port of the proxy server in the format <code>serverName[:port]</code>. If no port
+     *                    is specified, a default will be used.
+     * @deprecated Use AS400((String systemName, String userId, char[] password, String proxyServer) instead.
      **/
+    @Deprecated
     public AS400(String systemName, String userId, String password, String proxyServer)
     {
         super();
@@ -948,12 +983,17 @@ public class AS400 implements Serializable, AutoCloseable
         proxyServer_ = resolveProxyServer(proxyServer);
     }
 
-       /**
-     Constructs an AS400 object.  It uses the specified system name, user ID, and password.  No sign-on prompt is displayed unless the sign-on fails.
-     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-     @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
-     @param  password  The user profile password to use to authenticate to the system.   The caller is responsible fore clearing sensitive data from password after the constructor runs.
-     @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
+    /**
+     * Constructs an AS400 object. It uses the specified system name, user ID, and password. No sign-on prompt is
+     * displayed unless the sign-on fails.
+     * 
+     * @param systemName  The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @param userId      The user profile name to use to authenticate to the system. If running on IBM i, *CURRENT may
+     *                    be used to specify the current user ID.
+     * @param password    The user profile password to use to authenticate to the system. The caller is responsible fore
+     *                    clearing sensitive data from password after the constructor runs.
+     * @param proxyServer The name and port of the proxy server in the format <code>serverName[:port]</code>. If no port
+     *                    is specified, a default will be used.
      **/
     public AS400(String systemName, String userId, char[] password, String proxyServer)
     {
@@ -989,8 +1029,10 @@ public class AS400 implements Serializable, AutoCloseable
 
 
     /**
-     Constructs an AS400 object.  It uses the same system name and user ID.  This does not create a clone.  The new object has the same behavior, but results in a new set of socket connections.
-     @param  system  A previously instantiated AS400 object.
+     * Constructs an AS400 object. It uses the same system name and user ID. This does not create a clone. The new
+     * object has the same behavior, but results in a new set of socket connections.
+     * 
+     * @param system A previously instantiated AS400 object.
      **/
     public AS400(AS400 system)
     {
@@ -1030,9 +1072,9 @@ public class AS400 implements Serializable, AutoCloseable
         showCheckboxes_ = system.showCheckboxes_;
 
         // If passed in system has SSL options, deep copy them if this instance is secure
-        if (system.isSecure()) {
+        if (system.isSecure())
         	useSSLConnection_= new SSLOptions(system.useSSLConnection_); 
-        }
+        
         mustAddLanguageLibrary_ = system.mustAddLanguageLibrary_;
         mustUseSockets_ = system.mustUseSockets_;
         mustUseNetSockets_ = system.mustUseNetSockets_;
@@ -1066,13 +1108,18 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-    Returns a new instance of an AS400 object.  It uses the specified system name.
-    <p>If running on IBM i to another system or to itself, the user ID and password of the current job are used.
-    <p>If running on another operating system, the user may be prompted for the user ID and password if a default 
-    user has not been established for this system name.
-    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
-    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-    **/
+     * Returns a new instance of an AS400 object. It uses the specified system name.
+     * <p>
+     * If running on IBM i to another system or to itself, the user ID and password of the current job are used.
+     * <p>
+     * If running on another operating system, the user may be prompted for the user ID and password if a default user
+     * has not been established for this system name.
+     * 
+     * @param useSSL     Whether or not the new AS400 object should use secure connections when communicating with the
+     *                   host servers.
+     * @param systemName The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @return AS400 object.
+     **/
     public static AS400 newInstance(boolean useSSL, String systemName)
     {
         return (useSSL) ? new SecureAS400(systemName) 
@@ -1080,12 +1127,19 @@ public class AS400 implements Serializable, AutoCloseable
     }
     
     /**
-    Returns a new instance of an AS400 object.  It uses the specified system name, and user ID.  When the sign-on prompt is displayed, 
-     the user is able to specify the password.  Note that the user ID may be overridden in the AS400 object.
-    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
-    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-    @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
-    **/
+     * Returns a new instance of an AS400 object. It uses the specified system name, and user ID. When the sign-on
+     * prompt is displayed, the user is able to specify the password. Note that the user ID may be overridden in the
+     * AS400 object.
+     * 
+     * @param useSSL     Whether or not the new AS400 object should use secure connections when communicating with the
+     *                   host servers.
+     * @param systemName The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @param userId     The user profile name to use to authenticate to the system. If running on IBM i, *CURRENT may
+     *                   be used to specify the current user ID.
+     * @return AS400 object.
+     * @throws IOException            If an error occurs while communicating with the system.
+     * @throws AS400SecurityException If a security or authority error occurs.
+     **/
     public static AS400 newInstance(boolean useSSL, String systemName, String userId) throws IOException, AS400SecurityException
     {
         return (useSSL) ? new SecureAS400(systemName, userId) 
@@ -1093,30 +1147,43 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-    Returns a new instance of an AS400 object.  It uses the specified system name, user ID, password, and additional authentication
-    factor.  No sign-on prompt is displayed unless the sign-on fails.
-    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
-    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-    @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
-    @param  password  The user profile password to use to authenticate to the system.
-            The caller is responsible for clearing the password array to keep the password from residing in memory. 
-    @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
-    **/
-    public static AS400 newInstance(boolean useSSL, String systemName, String userId, char[] password, char[] additionalAuthenticationFactor) throws IOException, AS400SecurityException
+     * Returns a new instance of an AS400 object. It uses the specified system name, user ID, password, and additional
+     * authentication factor. No sign-on prompt is displayed unless the sign-on fails.
+     * 
+     * @param useSSL               Whether or not the new AS400 object should use secure connections when communicating
+     *                             with the host servers.
+     * @param systemName           The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @param userId               The user profile name to use to authenticate to the system. If running on IBM i,
+     *                             *CURRENT may be used to specify the current user ID.
+     * @param password             The user profile password to use to authenticate to the system. The caller is
+     *                             responsible for clearing the password array to keep the password from residing in
+     *                             memory.
+     * @param additionalAuthFactor Additional authentication factor (or null if not providing one).
+     * @return AS400 object.
+     * @throws IOException            If an error occurs while communicating with the system.
+     * @throws AS400SecurityException If a security or authority error occurs.
+     **/
+    public static AS400 newInstance(boolean useSSL, String systemName, String userId, char[] password, char[] additionalAuthFactor) throws IOException, AS400SecurityException
     {
-        return (useSSL) ? new SecureAS400(systemName, userId, password, additionalAuthenticationFactor) 
-                        : new AS400(systemName, userId, password, additionalAuthenticationFactor);
+        return (useSSL) ? new SecureAS400(systemName, userId, password, additionalAuthFactor) 
+                        : new AS400(systemName, userId, password, additionalAuthFactor);
     }
     
     /**
-    Returns a new instance of an AS400 object.  It uses the specified system name, user ID, and password. 
-    No sign-on prompt is displayed unless the sign-on fails.
-    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
-    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-    @param  userId  The user profile name to use to authenticate to the system.  If running on IBM i, *CURRENT may be used to specify the current user ID.
-    @param  password  The user profile password to use to authenticate to the system.   The caller is responsible fore clearing sensitive data from password after the constructor runs.
-    @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
-    **/
+     * Returns a new instance of an AS400 object. It uses the specified system name, user ID, and password. No sign-on
+     * prompt is displayed unless the sign-on fails.
+     * 
+     * @param useSSL      Whether or not the new AS400 object should use secure connections when communicating with the
+     *                    host servers.
+     * @param systemName  The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @param userId      The user profile name to use to authenticate to the system. If running on IBM i, *CURRENT may
+     *                    be used to specify the current user ID.
+     * @param password    The user profile password to use to authenticate to the system. The caller is responsible fore
+     *                    clearing sensitive data from password after the constructor runs.
+     * @param proxyServer The name and port of the proxy server in the format <code>serverName[:port]</code>. If no port
+     *                    is specified, a default will be used.
+     * @return AS400 object.
+     **/
     public static AS400 newInstance(boolean useSSL, String systemName, String userId, char[] password, String proxyServer)
     {
         return (useSSL) ? new SecureAS400(systemName, userId, password, proxyServer) 
@@ -1124,11 +1191,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
     
     /**
-    Returns a new instance of an AS400 object.  It uses the specified system name and profile token.
-    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host servers.
-    @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-    @param  profileToken  The profile token to use to authenticate to the system.
-    **/
+     * Returns a new instance of an AS400 object. It uses the specified system name and profile token.
+     * 
+     * @param useSSL       Whether or not the new AS400 object should use secure connections when communicating with the
+     *                     host servers.
+     * @param systemName   The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @param profileToken The profile token to use to authenticate to the system.
+     * @return AS400 object.
+     **/
     public static AS400 newInstance(boolean useSSL, String systemName, ProfileTokenCredential profileToken)   
     {
         return (useSSL) ? new SecureAS400(systemName, profileToken) 
@@ -1136,11 +1206,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
     
     /**
-    Returns a new instance of an AS400 object.  It uses the same system name and user ID.  This does not create a clone.  
-    The new object has the same behavior, but results in a new set of socket connections.
-    @param  useSSL  Whether or not the new AS400 object should use secure connections when communicating with the host server.
-    @param  system  A previously instantiated AS400 object.
-    **/    
+     * Returns a new instance of an AS400 object. It uses the same system name and user ID. This does not create a
+     * clone. The new object has the same behavior, but results in a new set of socket connections.
+     * 
+     * @param useSSL Whether or not the new AS400 object should use secure connections when communicating with the host
+     *               server.
+     * @param system A previously instantiated AS400 object.
+     * @return AS400 object.
+     **/
     public static AS400 newInstance(boolean useSSL, AS400 system)   
     {
         return (useSSL) ? new SecureAS400(system) 
@@ -1148,8 +1221,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Adds a listener to be notified when a connection event occurs.
-     @param  listener  The listener object.
+     * Adds a listener to be notified when a connection event occurs.
+     * 
+     * @param listener The listener object.
      **/
     public void addConnectionListener(ConnectionListener listener)
     {
@@ -1185,26 +1259,28 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Validates the user ID and password, and if successful, adds the information to the password cache.
-     @param  systemName  The name of the IBM i system.
-     @param  userId  The user profile name.
-     @param  password  The user profile password.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password) instead    
+     * Validates the user ID and password, and if successful, adds the information to the password cache.
+     * 
+     * @param systemName The name of the IBM i system.
+     * @param userId     The user profile name.
+     * @param password   The user profile password.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password) instead
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, String password) throws AS400SecurityException, IOException
     {
         addPasswordCacheEntry(systemName, userId, (password == null) ? (char[])null : password.toCharArray(), false);
     }
 
-       /**
-     Validates the user ID and password, and if successful, adds the information to the password cache.
-     @param  systemName  The name of the IBM i system.
-     @param  userId  The user profile name.
-     @param  password  The user profile password.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+    /**
+     * Validates the user ID and password, and if successful, adds the information to the password cache.
+     * 
+     * @param systemName The name of the IBM i system.
+     * @param userId     The user profile name.
+     * @param password   The user profile password.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public static void addPasswordCacheEntry(String systemName, String userId, char[] password) throws AS400SecurityException, IOException
     {
@@ -1212,14 +1288,15 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Validates the user ID and password, and if successful, adds the information to the password cache.
-     @param  systemName  The name of the IBM i system.
-     @param  userId  The user profile name.
-     @param  password  The user profile password.
-     @param  useSSL  Whether or not secure connections should be used when communicating with the host servers.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-    **/
+     * Validates the user ID and password, and if successful, adds the information to the password cache.
+     * 
+     * @param systemName The name of the IBM i system.
+     * @param userId     The user profile name.
+     * @param password   The user profile password.
+     * @param useSSL     Whether or not secure connections should be used when communicating with the host servers.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     **/
     public static void addPasswordCacheEntry(String systemName, String userId, char[] password, boolean useSSL) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "'" + " useSSL: " + useSSL);
@@ -1227,44 +1304,52 @@ public class AS400 implements Serializable, AutoCloseable
     }    
     
     /**
-     Validates the user ID and password, and if successful, adds the information to the password cache.
-     @param  systemName  The name of the IBM i system.
-     @param  userId  The user profile name.
-     @param  password  The user profile password.
-     @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) instead. 
+     * Validates the user ID and password, and if successful, adds the information to the password cache.
+     * 
+     * @param systemName  The name of the IBM i system.
+     * @param userId      The user profile name.
+     * @param password    The user profile password.
+     * @param proxyServer The name and port of the proxy server in the format <code>serverName[:port]</code>. If no port
+     *                    is specified, a default will be used.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @deprecated Use addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer)
+     *             instead.
      **/
+    @Deprecated
     public static void addPasswordCacheEntry(String systemName, String userId, String password, String proxyServer) throws AS400SecurityException, IOException
     {
         addPasswordCacheEntry(systemName, userId, (password == null) ? (char[])null : password.toCharArray(), proxyServer, false);
     }
 
     /**
-    Validates the user ID and password, and if successful, adds the information to the password cache.
-    @param  systemName  The name of the IBM i system.
-    @param  userId  The user profile name.
-    @param  password  The user profile password.
-    @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
-    @exception  AS400SecurityException  If a security or authority error occurs.
-    @exception  IOException  If an error occurs while communicating with the system.
-    **/
+     * Validates the user ID and password, and if successful, adds the information to the password cache.
+     * 
+     * @param systemName  The name of the IBM i system.
+     * @param userId      The user profile name.
+     * @param password    The user profile password.
+     * @param proxyServer The name and port of the proxy server in the format <code>serverName[:port]</code>. If no port
+     *                    is specified, a default will be used.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     **/
    public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer) throws AS400SecurityException, IOException
    {
        addPasswordCacheEntry(systemName, userId, password, proxyServer, false);
    }
    
-    /**
-     Validates the user ID and password, and if successful, adds the information to the password cache.
-     @param  systemName  The name of the IBM i system.
-     @param  userId  The user profile name.
-     @param  password  The user profile password.
-     @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
-     @param  useSSL  Whether or not secure connections should be used when communicating with the host servers.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     **/
+   /**
+    * Validates the user ID and password, and if successful, adds the information to the password cache.
+    * 
+    * @param systemName  The name of the IBM i system.
+    * @param userId      The user profile name.
+    * @param password    The user profile password.
+    * @param proxyServer The name and port of the proxy server in the format <code>serverName[:port]</code>. If no port
+    *                    is specified, a default will be used.
+    * @param useSSL      Whether or not secure connections should be used when communicating with the host servers.
+    * @exception AS400SecurityException If a security or authority error occurs.
+    * @exception IOException            If an error occurs while communicating with the system.
+    **/
     public static void addPasswordCacheEntry(String systemName, String userId, char[] password, String proxyServer, boolean useSSL) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Adding password cache entry, system name: '" + systemName + "' user ID: '" + userId + "' proxy server: '" + proxyServer + "'" + "' useSSL: '" + useSSL);
@@ -1278,8 +1363,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Adds a listener to be notified when the value of any property is changed.
-     @param  listener  The listener object.
+     * Adds a listener to be notified when the value of any property is changed.
+     * 
+     * @param listener The listener object.
      **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
@@ -1298,8 +1384,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Adds a listener to be notified when the value of any constrained property is changed.  The vetoableChange method will be called.
-     @param  listener  The listener object.
+     * Adds a listener to be notified when the value of any constrained property is changed. The vetoableChange method
+     * will be called.
+     * 
+     * @param listener The listener object.
      **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
@@ -1318,8 +1406,11 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates if properties are frozen.  If this is true, property changes should not be made.  Properties are not the same thing as attributes.  Properties are basic pieces of information which must be set to make the object usable, such as the system name, user ID or other properties that identify the resource.
-     @return  true if properties are frozen, false otherwise.
+     * Indicates if properties are frozen. If this is true, property changes should not be made. Properties are not the
+     * same thing as attributes. Properties are basic pieces of information which must be set to make the object usable,
+     * such as the system name, user ID or other properties that identify the resource.
+     * 
+     * @return true if properties are frozen, false otherwise.
      **/
     public boolean arePropertiesFrozen()
     {
@@ -1328,25 +1419,26 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-    Checks whether an additional authentication factor is accepted for the given system.  
-    The communications with the host server is done over a secure channel if the AS400 object
-    was created to use SSL; otherwise, the communications with the host server is done over
-    an unsecure channel. 
-    @return  whether the server accepts the additional authentication factor
-    @exception  IOException  If an error occurs while communicating with the system.
-    @throws AS400SecurityException  If an error occurs exchanging client/server information
-    **/
+     * Checks whether an additional authentication factor is accepted for the given system. The communications with the
+     * host server is done over a secure channel if the AS400 object was created to use SSL; otherwise, the
+     * communications with the host server is done over an unsecure channel.
+     * 
+     * @return whether the server accepts the additional authentication factor
+     * @exception IOException If an error occurs while communicating with the system.
+     * @throws AS400SecurityException If an error occurs exchanging client/server information
+     **/
     public boolean isAdditionalAuthenticationFactorAccepted() throws IOException, AS400SecurityException {
         return isAdditionalAuthenticationFactorAccepted(getSystemName(), isSecure());
     }
    
     /**
-     Checks whether an additional authentication factor is accepted for the given system
-     @param  systemName  The IP address or hostname of the target system
-     @param  useSSL  Whether or not secure connections should be used when communicating with the host servers.
-     @return  whether the server accepts the additional authentication factor
-     @exception  IOException  If an error occurs while communicating with the system.
-     @throws AS400SecurityException  If an error occurs exchanging client/server information
+     * Checks whether an additional authentication factor is accepted for the given system
+     * 
+     * @param systemName The IP address or hostname of the target system
+     * @param useSSL     Whether or not secure connections should be used when communicating with the host servers.
+     * @return whether the server accepts the additional authentication factor
+     * @exception IOException If an error occurs while communicating with the system.
+     * @throws AS400SecurityException If an error occurs exchanging client/server information
      **/
     public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName, boolean useSSL) throws IOException, AS400SecurityException {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting whether additional factor accepted: " + systemName + ", use SSL:", useSSL);
@@ -1354,31 +1446,38 @@ public class AS400 implements Serializable, AutoCloseable
     }
     
     /**
-    Checks whether an additional authentication factor is accepted for the given system
-    @param  systemName  The IP address or hostname of the target system
-    @return  whether the server accepts the additional authentication factor
-    @exception  IOException  If an error occurs while communicating with the system.
-    @throws AS400SecurityException  If an error occurs exchanging client/server information
-    @deprecated Use {@link #isAdditionalAuthenticationFactorAccepted(String, boolean)}
-    **/
+     * Checks whether an additional authentication factor is accepted for the given system
+     * 
+     * @param systemName The IP address or hostname of the target system
+     * @return whether the server accepts the additional authentication factor
+     * @exception IOException If an error occurs while communicating with the system.
+     * @throws AS400SecurityException If an error occurs exchanging client/server information
+     * @deprecated Use {@link #isAdditionalAuthenticationFactorAccepted(String, boolean)}
+     **/
+    @Deprecated
     public static boolean  isAdditionalAuthenticationFactorAccepted(String systemName) throws IOException, AS400SecurityException {
        return isAdditionalAuthenticationFactorAccepted(systemName, false);
     }
 
     /**
-    Authenticate the user ID and password on the system and adds to the signon-list.  This means that authentication
-    is performed using the AS400 object instance for which this method is invoked - a new AS400 object is not created to do
-    the authentication (unlike the other authenticate(String, String) or validateSignon() methods).  
-    <P>If the AS400 object has previously 
-    been authenticated, either by using authenticate() or indirectly such as when establishing a connection to a host server, and
-    if any of the setter methods are used after the authentication to change credentials, such as user ID or system name,
-    the AS400.HOSTCNN and/or AS400.SIGNON server connections, if they exist, may be discarded if the change is different than what 
-    was previously used in the authentication process. 
-     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
-     <p><b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is used.
-     @return  true if successful.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+     * Authenticate the user ID and password on the system and adds to the signon-list. This means that authentication
+     * is performed using the AS400 object instance for which this method is invoked - a new AS400 object is not created
+     * to do the authentication (unlike the other authenticate(String, String) or validateSignon() methods).
+     * <P>
+     * If the AS400 object has previously been authenticated, either by using authenticate() or indirectly such as when
+     * establishing a connection to a host server, and if any of the setter methods are used after the authentication to
+     * change credentials, such as user ID or system name, the AS400.HOSTCNN and/or AS400.SIGNON server connections, if
+     * they exist, may be discarded if the change is different than what was previously used in the authentication
+     * process.
+     * <p>
+     * <b>Note:</b> This will return true if the information is successfully validated. An unsuccessful validation will
+     * cause an exception to be thrown, false is never returned.
+     * <p>
+     * <b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is used.
+     * 
+     * @return true if successful.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public boolean authenticate() throws AS400SecurityException, IOException
     {
@@ -1401,19 +1500,28 @@ public class AS400 implements Serializable, AutoCloseable
     }
     
     /**
-     Authenticates the user profile name and user profile password.
-     <p>This method is functionally equivalent to the <i>validateSignon()</i> method, except it does not alter the user profile assigned to this object, 
-     impact the status of existing connections, or otherwise impact the user and authorities on which the application is running.
-     <p>The system name needs to be set prior to calling this method.
-     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.
-     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
-     @param  userId  The user profile name.
-     @param  password  The user profile password.
-     @return  true if successful.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Using a String as a password is insecure. 
+     * Authenticates the user profile name and user profile password.
+     * <p>
+     * This method is functionally equivalent to the <i>validateSignon()</i> method, except it does not alter the user
+     * profile assigned to this object, impact the status of existing connections, or otherwise impact the user and
+     * authorities on which the application is running.
+     * <p>
+     * The system name needs to be set prior to calling this method.
+     * <p>
+     * <b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user
+     * profile, and can result in the profile being disabled.
+     * <p>
+     * <b>Note:</b> This will return true if the information is successfully validated. An unsuccessful validation will
+     * cause an exception to be thrown, false is never returned.
+     * 
+     * @param userId   The user profile name.
+     * @param password The user profile password.
+     * @return true if successful.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @deprecated Using a String as a password is insecure.
      **/
+    @Deprecated
     public boolean authenticate(String userId, String password) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Authenticating signon information:", userId);
@@ -1421,18 +1529,26 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     
-        /**
-     Authenticates the user profile name and user profile password.
-     <p>This method is functionally equivalent to the <i>validateSignon()</i> method, except it does not alter the user profile assigned to this object,
-     impact the status of existing connections, or otherwise impact the user and authorities on which the application is running.
-     <p>The system name needs to be set prior to calling this method.
-     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.
-     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
-     @param  userId  The user profile name.
-     @param  password  The user profile password.
-     @return  true if successful.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+    /**
+     * Authenticates the user profile name and user profile password.
+     * <p>
+     * This method is functionally equivalent to the <i>validateSignon()</i> method, except it does not alter the user
+     * profile assigned to this object, impact the status of existing connections, or otherwise impact the user and
+     * authorities on which the application is running.
+     * <p>
+     * The system name needs to be set prior to calling this method.
+     * <p>
+     * <b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user
+     * profile, and can result in the profile being disabled.
+     * <p>
+     * <b>Note:</b> This will return true if the information is successfully validated. An unsuccessful validation will
+     * cause an exception to be thrown, false is never returned.
+     * 
+     * @param userId   The user profile name.
+     * @param password The user profile password.
+     * @return true if successful.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public boolean authenticate(String userId, char[] password) throws AS400SecurityException, IOException
     {
@@ -1463,12 +1579,15 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates if this AS400 object is enabled to exploit Toolbox native optimizations.  This requires that the native optimization classes are available on the classpath, and this AS400 object represents the local system and is configured to allow the native optimizations to be used.
-     Note: If the authentication scheme is other than {@link #AUTHENTICATION_SCHEME_PASSWORD AUTHENTICATION_SCHEME_PASSWORD}, native optimizations will not be used.
-     @return true if the native optimizations can be used; false otherwise.
-     @see #isLocal
-     @see #isMustUseSockets
-     @see #getAuthenticationScheme
+     * Indicates if this AS400 object is enabled to exploit Toolbox native optimizations. This requires that the native
+     * optimization classes are available on the classpath, and this AS400 object represents the local system and is
+     * configured to allow the native optimizations to be used. Note: If the authentication scheme is other than
+     * {@link #AUTHENTICATION_SCHEME_PASSWORD AUTHENTICATION_SCHEME_PASSWORD}, native optimizations will not be used.
+     * 
+     * @return true if the native optimizations can be used; false otherwise.
+     * @see #isLocal
+     * @see #isMustUseSockets
+     * @see #getAuthenticationScheme
      **/
     public boolean canUseNativeOptimizations()
     {        
@@ -1528,13 +1647,16 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Changes the user profile password.  The system name and user profile name need to be set prior to calling this method.
-     @param  oldPassword  The old user profile password.
-     @param  newPassword  The new user profile password.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Use changePassword(char[] oldPassword, char[] newPassword) instead
+     * Changes the user profile password. The system name and user profile name need to be set prior to calling this
+     * method.
+     * 
+     * @param oldPassword The old user profile password.
+     * @param newPassword The new user profile password.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @deprecated Use changePassword(char[] oldPassword, char[] newPassword) instead
      **/
+    @Deprecated
     public void changePassword(String oldPassword, String newPassword) throws AS400SecurityException, IOException
     {
         char[] oldPasswordChars = (oldPassword == null) ? null : oldPassword.toCharArray();
@@ -1550,12 +1672,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     
-        /**
-     Changes the user profile password.  The system name and user profile name need to be set prior to calling this method.
-     @param  oldPassword  The old user profile password.
-     @param  newPassword  The new user profile password.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+    /**
+     * Changes the user profile password. The system name and user profile name need to be set prior to calling this
+     * method.
+     * 
+     * @param oldPassword The old user profile password.
+     * @param newPassword The new user profile password.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public void changePassword(char[] oldPassword, char[] newPassword) throws AS400SecurityException, IOException
     {
@@ -1563,15 +1687,17 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     
-        /**
-     Changes the user profile password.  The system name and user profile name need to be set prior to calling this method.
-     @param  oldPassword  The old user profile password.
-     @param  newPassword  The new user profile password.
-     @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+    /**
+     * Changes the user profile password. The system name and user profile name need to be set prior to calling this
+     * method.
+     * 
+     * @param oldPassword          The old user profile password.
+     * @param newPassword          The new user profile password.
+     * @param additionalAuthFactor Additional authentication factor (or null if not providing one).
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
-    public void changePassword(char[] oldPassword, char[] newPassword, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
+    public void changePassword(char[] oldPassword, char[] newPassword, char[] additionalAuthFactor) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Changing password.");
         if (PASSWORD_TRACE)
@@ -1628,7 +1754,7 @@ public class AS400 implements Serializable, AutoCloseable
                 byte[] encodeNewBytes = CredentialVault.encode(proxySeed, remoteSeed, newbytes);
 
                 signonInfo_ = impl_.changePassword(systemName_,  systemNameLocal_, userId_,  
-                                               encodeOldBytes,  encodeNewBytes,  additionalAuthenticationFactor);
+                                               encodeOldBytes,  encodeNewBytes,  additionalAuthFactor);
             }
             finally {
                 CredentialVault.clearArray(oldbytes); 
@@ -1674,7 +1800,7 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Clears the password cache for all systems within this Java virtual machine.
+     * Clears the password cache for all systems within this Java virtual machine.
      **/
     public static void clearPasswordCache()
     {
@@ -1686,8 +1812,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Clears all the passwords that are cached for the given system name within this Java virtual machine.
-     @param  systemName  The name of the IBM i system.
+     * Clears all the passwords that are cached for the given system name within this Java virtual machine.
+     * 
+     * @param systemName The name of the IBM i system.
      **/
     public static void clearPasswordCache(String systemName)
     {
@@ -1729,45 +1856,50 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-    Connects to a service.  Security is validated and a connection is established.
-    <p>Services typically connect implicitly; therefore, this method does not have to be called to use a service.  This method can be used to control when the connection is established.
-    @param  service  The name of the service.  Valid services are:
-    <ul>
-    <li>{@link #FILE FILE} - IFS file classes.
-    <li>{@link #PRINT PRINT} - print classes.
-    <li>{@link #COMMAND COMMAND} - command and program call classes.
-    <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
-    <li>{@link #DATABASE DATABASE} - JDBC classes.
-    <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-    <li>{@link #CENTRAL CENTRAL} - license management classes.
-    <li>{@link #SIGNON SIGNON} - sign-on classes.
-    </ul>
-    @exception  AS400SecurityException  If a security or authority error occurs.
-    @exception  IOException  If an error occurs while communicating with the system.
-    **/
+     * Connects to a service. Security is validated and a connection is established.
+     * <p>
+     * Services typically connect implicitly; therefore, this method does not have to be called to use a service. This
+     * method can be used to control when the connection is established.
+     * 
+     * @param service The name of the service. Valid services are:
+     *                <ul>
+     *                <li>{@link #FILE FILE} - IFS file classes.
+     *                <li>{@link #PRINT PRINT} - print classes.
+     *                <li>{@link #COMMAND COMMAND} - command and program call classes.
+     *                <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     *                <li>{@link #DATABASE DATABASE} - JDBC classes.
+     *                <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     *                <li>{@link #CENTRAL CENTRAL} - license management classes.
+     *                <li>{@link #SIGNON SIGNON} - sign-on classes.
+     *                </ul>
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     **/
    public void connectService(int service) throws AS400SecurityException, IOException {
        connectService(service, -1); 
    }
     
-    /**
-     Connects to a service.  Security is validated and a connection is established.
-     <p>Services typically connect implicitly; therefore, this method does not have to be called to use a service.  This method can be used to control when the connection is established.
-     @param  service  The name of the service.  Valid services are:
-     <ul>
-     <li>{@link #FILE FILE} - IFS file classes.
-     <li>{@link #PRINT PRINT} - print classes.
-     <li>{@link #COMMAND COMMAND} - command and program call classes.
-     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
-     <li>{@link #DATABASE DATABASE} - JDBC classes.
-     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - license management classes.
-     <li>{@link #SIGNON SIGNON} - sign-on classes.
-     </ul>
-     @param  overridePort  If non-negative, used to override the port to be 
-             used for the connection.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     **/
+   /**
+    * Connects to a service. Security is validated and a connection is established.
+    * <p>
+    * Services typically connect implicitly; therefore, this method does not have to be called to use a service. This
+    * method can be used to control when the connection is established.
+    * 
+    * @param service      The name of the service. Valid services are:
+    *                     <ul>
+    *                     <li>{@link #FILE FILE} - IFS file classes.
+    *                     <li>{@link #PRINT PRINT} - print classes.
+    *                     <li>{@link #COMMAND COMMAND} - command and program call classes.
+    *                     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+    *                     <li>{@link #DATABASE DATABASE} - JDBC classes.
+    *                     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+    *                     <li>{@link #CENTRAL CENTRAL} - license management classes.
+    *                     <li>{@link #SIGNON SIGNON} - sign-on classes.
+    *                     </ul>
+    * @param overridePort If non-negative, used to override the port to be used for the connection.
+    * @exception AS400SecurityException If a security or authority error occurs.
+    * @exception IOException            If an error occurs while communicating with the system.
+    **/
     public void connectService(int service, int overridePort) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connecting service:", service);
@@ -1802,11 +1934,12 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Connects to a port on the server, via DHCP.  Security is validated and a connection is established.
-     @param  port  The port number to connect to.
-     @return  A Socket object representing the connection.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+     * Connects to a port on the server, via DHCP. Security is validated and a connection is established.
+     * 
+     * @param port The port number to connect to.
+     * @return A Socket object representing the connection.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public Socket connectToPort(int port) throws AS400SecurityException, IOException
     {
@@ -1820,13 +1953,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
     
     /**
-    Connects to a port on the server, via DHCP.  Security is validated and a connection is established.
-    @param  port  The port number to connect to.
-    @param  forceNonLocalhost whether to use localhost when connect to the port if running on as400
-    @return  A Socket object representing the connection.
-    @exception  AS400SecurityException  If a security or authority error occurs.
-    @exception  IOException  If an error occurs while communicating with the system.
-    **/
+     * Connects to a port on the server, via DHCP. Security is validated and a connection is established.
+     * 
+     * @param port              The port number to connect to.
+     * @param forceNonLocalhost whether to use localhost when connect to the port if running on as400
+     * @return A Socket object representing the connection.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     **/
     // Add this interface for L1C for the issue of DHCP server has listened on 942 for STRTCPSVR on localhost. 
    public Socket connectToPort(int port,boolean forceNonLocalhost) throws AS400SecurityException, IOException
    {
@@ -1865,9 +1999,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Disconnects all services.  All socket connections associated with this object will be closed.  
-     The signon information is not changed, and connection properties remain frozen.
-     @see #resetAllServices
+     * Disconnects all services. All socket connections associated with this object will be closed. The signon
+     * information is not changed, and connection properties remain frozen.
+     * 
+     * @see #resetAllServices
      **/
     public void disconnectAllServices()
     {
@@ -1889,19 +2024,20 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Disconnects the service.  All socket connections associated with this service and this object will be closed.
-     @param  service  The name of the service.  Valid services are:
-     <ul>
-     <li>{@link #FILE FILE} - IFS file classes.
-     <li>{@link #PRINT PRINT} - print classes.
-     <li>{@link #COMMAND COMMAND} - command and program call classes.
-     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
-     <li>{@link #DATABASE DATABASE} - JDBC classes.
-     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - license management classes.
-     <li>{@link #SIGNON SIGNON} - sign-on classes.
-     <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
-     </ul>
+     * Disconnects the service. All socket connections associated with this service and this object will be closed.
+     * 
+     * @param service The name of the service. Valid services are:
+     *                <ul>
+     *                <li>{@link #FILE FILE} - IFS file classes.
+     *                <li>{@link #PRINT PRINT} - print classes.
+     *                <li>{@link #COMMAND COMMAND} - command and program call classes.
+     *                <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     *                <li>{@link #DATABASE DATABASE} - JDBC classes.
+     *                <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     *                <li>{@link #CENTRAL CENTRAL} - license management classes.
+     *                <li>{@link #SIGNON SIGNON} - sign-on classes.
+     *                <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
+     *                </ul>
      **/
     public void disconnectService(int service)
     {
@@ -1933,21 +2069,30 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Generates a profile token on behalf of the provided user identity.  This user identity must be associated with a user profile via EIM.
-     <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.  
-     The profile associated with this system object must have enough authority to generate an authentication token for another user.
-     <p>This function is only supported on i5/OS V5R3M0 or greater.
-     @param  userIdentity  The LDAP distinguished name.
-     @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
-     <ul>
-     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE TYPE_SINGLE_USE}
-     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE TYPE_MULTIPLE_USE_NON_RENEWABLE}
-     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_RENEWABLE TYPE_MULTIPLE_USE_RENEWABLE}
-     </ul>
-     @param  timeoutInterval  The number of seconds to expiration when the token is created (1-3600).
-     @return  A ProfileTokenCredential representing the provided user identity.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+     * Generates a profile token on behalf of the provided user identity. This user identity must be associated with a
+     * user profile via EIM.
+     * <p>
+     * Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user
+     * or authorities under which the application is running. The profile associated with this system object must have
+     * enough authority to generate an authentication token for another user.
+     * <p>
+     * This function is only supported on i5/OS V5R3M0 or greater.
+     * 
+     * @param userIdentity    The LDAP distinguished name.
+     * @param tokenType       The type of profile token to create. Possible types are defined as fields on the
+     *                        ProfileTokenCredential class:
+     *                        <ul>
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE
+     *                        TYPE_SINGLE_USE}
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                        TYPE_MULTIPLE_USE_NON_RENEWABLE}
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_RENEWABLE
+     *                        TYPE_MULTIPLE_USE_RENEWABLE}
+     *                        </ul>
+     * @param timeoutInterval The number of seconds to expiration when the token is created (1-3600).
+     * @return A ProfileTokenCredential representing the provided user identity.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public ProfileTokenCredential generateProfileToken(String userIdentity, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException
     {
@@ -1978,11 +2123,13 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Generates a VRM from a version, release, and modification.  This can then be used to compare against the VRM returned by getVRM().
-     @param  version  The version.
-     @param  release  The release.
-     @param  modification  The modification level.
-     @return  The generated VRM.
+     * Generates a VRM from a version, release, and modification. This can then be used to compare against the VRM
+     * returned by getVRM().
+     * 
+     * @param version      The version.
+     * @param release      The release.
+     * @param modification The modification level.
+     * @return The generated VRM.
      **/
     public static int generateVRM(int version, int release, int modification)
     {
@@ -2000,14 +2147,17 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the authentication scheme for this object.  By default this object starts in password mode.  This value may not be correct before a connection to the system has been made.  Valid authentication schemes are:
-     <ul>
-     <li>{@link #AUTHENTICATION_SCHEME_PASSWORD AUTHENTICATION_SCHEME_PASSWORD} - passwords are used.
-     <li>{@link #AUTHENTICATION_SCHEME_GSS_TOKEN AUTHENTICATION_SCHEME_GSS_TOKEN} - GSS tokens are used.
-     <li>{@link #AUTHENTICATION_SCHEME_PROFILE_TOKEN AUTHENTICATION_SCHEME_PROFILE_TOKEN} - profile tokens are used.
-     <li>{@link #AUTHENTICATION_SCHEME_IDENTITY_TOKEN AUTHENTICATION_SCHEME_IDENTITY_TOKEN} - identity tokens are used.
-     </ul>
-     @return  The authentication scheme in use for this object.
+     * Returns the authentication scheme for this object. By default this object starts in password mode. This value may
+     * not be correct before a connection to the system has been made. Valid authentication schemes are:
+     * <ul>
+     * <li>{@link #AUTHENTICATION_SCHEME_PASSWORD AUTHENTICATION_SCHEME_PASSWORD} - passwords are used.
+     * <li>{@link #AUTHENTICATION_SCHEME_GSS_TOKEN AUTHENTICATION_SCHEME_GSS_TOKEN} - GSS tokens are used.
+     * <li>{@link #AUTHENTICATION_SCHEME_PROFILE_TOKEN AUTHENTICATION_SCHEME_PROFILE_TOKEN} - profile tokens are used.
+     * <li>{@link #AUTHENTICATION_SCHEME_IDENTITY_TOKEN AUTHENTICATION_SCHEME_IDENTITY_TOKEN} - identity tokens are
+     * used.
+     * </ul>
+     * 
+     * @return The authentication scheme in use for this object.
      **/
     public int getAuthenticationScheme()
     {
@@ -2016,8 +2166,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the CCSID for this object.  The CCSID returned either is the one retrieved based on the user profile or is set by the setCcsid() method.
-     @return  The CCSID in use for this object.
+     * Returns the CCSID for this object. The CCSID returned either is the one retrieved based on the user profile or is
+     * set by the setCcsid() method.
+     * 
+     * @return The CCSID in use for this object.
      **/
     public int getCcsid()
     {
@@ -2065,11 +2217,13 @@ public class AS400 implements Serializable, AutoCloseable
       return 365;
   }
 
-    /**
-     Returns the default sign-on handler.  If none has been specified, returns an instance of the Toolbox's internal sign-on handler.
-     @return  The default sign-on handler.  Never returns null.
-     @see  #setDefaultSignonHandler
-     **/
+  /**
+   * Returns the default sign-on handler. If none has been specified, returns an instance of the Toolbox's internal
+   * sign-on handler.
+   * 
+   * @return The default sign-on handler. Never returns null.
+   * @see #setDefaultSignonHandler
+   **/
     public static SignonHandler getDefaultSignonHandler()
     {
         if (defaultSignonHandler_ != null) return defaultSignonHandler_;
@@ -2084,9 +2238,12 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name corresponds to the independent auxiliary storage pool (IASP) that is being used.
-     @return  The name of the IASP or RDB that is in use by this object's RECORDACCESS service, or null if the IASP used will be the default system pool (*SYSBAS).
-     @see  #setDDMRDB
+     * Returns the relational database name (RDB name) used for record-level access (DDM) connections. The RDB name
+     * corresponds to the independent auxiliary storage pool (IASP) that is being used.
+     * 
+     * @return The name of the IASP or RDB that is in use by this object's RECORDACCESS service, or null if the IASP
+     *         used will be the default system pool (*SYSBAS).
+     * @see #setDDMRDB
      **/
     public String getDDMRDB()
     {
@@ -2094,9 +2251,11 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the default user ID for this system name.  This user ID is used to connect if a user ID was not used to construct the object.
-     @param  systemName  The name of the IBM i system.
-     @return  The default user ID for this system.  A null is returned if there is not a default user.
+     * Returns the default user ID for this system name. This user ID is used to connect if a user ID was not used to
+     * construct the object.
+     * 
+     * @param systemName The name of the IBM i system.
+     * @return The default user ID for this system. A null is returned if there is not a default user.
      **/
     public static String getDefaultUser(String systemName)
     {
@@ -2110,8 +2269,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the GSS name string.  This method will only return the information provided on the setGSSName() method.
-     @return  The GSS name string, or an empty string ("") if not set.
+     * Returns the GSS name string. This method will only return the information provided on the setGSSName() method.
+     * 
+     * @return The GSS name string, or an empty string ("") if not set.
      **/
     public synchronized String getGSSName()
     {
@@ -2120,13 +2280,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the option for how the JGSS framework will be used.
-     @return  A constant indicating how the JGSS framework will be used.  Valid values are:
-     <ul>
-     <li>{@link #GSS_OPTION_MANDATORY GSS_OPTION_MANDATORY}
-     <li>{@link #GSS_OPTION_FALLBACK GSS_OPTION_FALLBACK}
-     <li>{@link #GSS_OPTION_NONE GSS_OPTION_NONE}
-     </ul>
+     * Returns the option for how the JGSS framework will be used.
+     * 
+     * @return A constant indicating how the JGSS framework will be used. Valid values are:
+     *         <ul>
+     *         <li>{@link #GSS_OPTION_MANDATORY GSS_OPTION_MANDATORY}
+     *         <li>{@link #GSS_OPTION_FALLBACK GSS_OPTION_FALLBACK}
+     *         <li>{@link #GSS_OPTION_NONE GSS_OPTION_NONE}
+     *         </ul>
      **/
     public int getGSSOption()
     {
@@ -2134,8 +2295,9 @@ public class AS400 implements Serializable, AutoCloseable
         return gssOption_;
     }
 
-    /**  Get underlying AS400Impl object.
-     *   Should only be used by code internal to the driver.
+    /**
+     * Get underlying AS400Impl object. Should only be used by code internal to the driver.
+     * 
      * @return underlying AS400Impl object
      */
     public AS400Impl getImpl()
@@ -2155,11 +2317,12 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the encoding that corresponds to the job CCSID.
-     @return  The encoding.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  InterruptedException  If this thread is interrupted.
+     * Returns the encoding that corresponds to the job CCSID.
+     * 
+     * @return The encoding.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @exception InterruptedException   If this thread is interrupted.
      **/
     public String getJobCCSIDEncoding() throws AS400SecurityException, IOException, InterruptedException
     {
@@ -2175,21 +2338,23 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns an array of Job objects representing the jobs to which this object is connected.  This information 
-     is only available when connecting to i5/OS V5R2M0 and later systems.  The array will be of length zero if no connections are currently active.
-     @param  service  The name of the service.  Valid services are:
-     <ul>
-     <li>{@link #FILE FILE} - IFS file classes.
-     <li>{@link #PRINT PRINT} - print classes.
-     <li>{@link #COMMAND COMMAND} - command and program call classes.
-     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
-     <li>{@link #DATABASE DATABASE} - JDBC classes.
-     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - license management classes.
-     <li>{@link #SIGNON SIGNON} - sign-on classes.
-     <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
-     </ul>
-     @return  The array of job objects.
+     * Returns an array of Job objects representing the jobs to which this object is connected. This information is only
+     * available when connecting to i5/OS V5R2M0 and later systems. The array will be of length zero if no connections
+     * are currently active.
+     * 
+     * @param service The name of the service. Valid services are:
+     *                <ul>
+     *                <li>{@link #FILE FILE} - IFS file classes.
+     *                <li>{@link #PRINT PRINT} - print classes.
+     *                <li>{@link #COMMAND COMMAND} - command and program call classes.
+     *                <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     *                <li>{@link #DATABASE DATABASE} - JDBC classes.
+     *                <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     *                <li>{@link #CENTRAL CENTRAL} - license management classes.
+     *                <li>{@link #SIGNON SIGNON} - sign-on classes.
+     *                <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
+     *                </ul>
+     * @return The array of job objects.
      **/
     public Job[] getJobs(int service)
     {
@@ -2220,8 +2385,12 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the Locale associated with this system object.  The Locale may have been set with the setLocale() method, or it may be the default Locale for the client environment.  Unless specifically overridden, this Locale is used to set the National Language Version (NLV) on the system.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
-     @return  The Locale object.
+     * Returns the Locale associated with this system object. The Locale may have been set with the setLocale() method,
+     * or it may be the default Locale for the client environment. Unless specifically overridden, this Locale is used
+     * to set the National Language Version (NLV) on the system. Only the COMMAND, PRINT, and DATABASE services accept
+     * an NLV.
+     * 
+     * @return The Locale object.
      **/
     public Locale getLocale()
     {
@@ -2230,11 +2399,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the modification level of the IBM i system.
-     <p>A connection is required to the system to retrieve this information.  If a connection has not been established, one is created to retrieve the information.
-     @return  The modification level.  For example, version 5, release 1, modification level 0 returns 0.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+     * Returns the modification level of the IBM i system.
+     * <p>
+     * A connection is required to the system to retrieve this information. If a connection has not been established,
+     * one is created to retrieve the information.
+     * 
+     * @return The modification level. For example, version 5, release 1, modification level 0 returns 0.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public int getModification() throws AS400SecurityException, IOException
     {
@@ -2250,8 +2422,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the National Language Version (NLV) that will be sent to the system.  Only the COMMAND, PRINT, and DATABASE services accept an NLV.
-     @return  The NLV.
+     * Returns the National Language Version (NLV) that will be sent to the system. Only the COMMAND, PRINT, and
+     * DATABASE services accept an NLV.
+     * 
+     * @return The NLV.
      **/
     public String getNLV()
     {
@@ -2260,11 +2434,15 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the password expiration date for the signed-on user.  If the profile's password expiration interval is set to *NOMAX, null is returned.
-     <p>A connection is required to retrieve this information.  If a connection has not been established, one is created to retrieve the information.
-     @return  The password expiration date.  If the profile has no password expiration data (*NOMAX), null is returned.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+     * Returns the password expiration date for the signed-on user. If the profile's password expiration interval is set
+     * to *NOMAX, null is returned.
+     * <p>
+     * A connection is required to retrieve this information. If a connection has not been established, one is created
+     * to retrieve the information.
+     * 
+     * @return The password expiration date. If the profile has no password expiration data (*NOMAX), null is returned.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public GregorianCalendar getPasswordExpirationDate() throws AS400SecurityException, IOException
     {
@@ -2279,13 +2457,13 @@ public class AS400 implements Serializable, AutoCloseable
         return (expire == null) ? null : (GregorianCalendar)expire.clone();
     }
     
-    
     /**
-     * Set a flag to indicate whether or not to use the password expiration warning days
-     * from the QPWDEXPWRN system value.  This capability is supported with V6R1M0
-     * and later systems with V6R1M0 5761SS1 PTF SI48808 or V7R1M0 5770SS1 PTF SI48809.
-     * @param  useSystem  indicates whether or not to use password expiration warning days
-     *                    from the QPWDEXPWRN system value
+     * Set a flag to indicate whether or not to use the password expiration warning days from the QPWDEXPWRN system
+     * value. This capability is supported with V6R1M0 and later systems with V6R1M0 5761SS1 PTF SI48808 or V7R1M0
+     * 5770SS1 PTF SI48809.
+     * 
+     * @param useSystem indicates whether or not to use password expiration warning days from the QPWDEXPWRN system
+     *                  value
      */
     public void setUseSystemPasswordExpirationWarningDays(boolean useSystem)
     {
@@ -2299,15 +2477,15 @@ public class AS400 implements Serializable, AutoCloseable
     }
    
     /**
-     * Returns the number of days before password expiration to start warning the user
-     * based on the value of the QPWDEXPWRN system value.  This capability is supported
-     * with V6R1M0 and later systems with V6R1M0 5761SS1 PTF SI48808 or V7R1M0 5770SS1 PTF SI48809.
-     * @return  The number of days before password expiration to start warning the user.
-     *          If {@link #setUseSystemPasswordExpirationWarningDays} is enabled and supported,
-     *          return the value of the QPWDEXPWRN system value. Otherwise, return
-     *          {@link #getPasswordExpirationWarningDays}.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  IOException  If an error occurs while communicating with the system.
+     * Returns the number of days before password expiration to start warning the user based on the value of the
+     * QPWDEXPWRN system value. This capability is supported with V6R1M0 and later systems with V6R1M0 5761SS1 PTF
+     * SI48808 or V7R1M0 5770SS1 PTF SI48809.
+     * 
+     * @return The number of days before password expiration to start warning the user. If
+     *         {@link #setUseSystemPasswordExpirationWarningDays} is enabled and supported, return the value of the
+     *         QPWDEXPWRN system value. Otherwise, return {@link #getPasswordExpirationWarningDays}.
+     * @throws AS400SecurityException If a security or authority error occurs.
+     * @throws IOException            If an error occurs while communicating with the system.
      */
     public int getSystemPasswordExpirationWarningDays()throws AS400SecurityException, IOException
     {
@@ -2327,14 +2505,14 @@ public class AS400 implements Serializable, AutoCloseable
         return getPasswordExpirationWarningDays();
     }
    
-     /**
-     * Determines if the password expiration date for the user profile is within the
-     * password expiration warning days for the system returned by
-     * {@link #getPasswordExpirationDays()}.
-     * @return  true if the password expiration date for the user profile is within the
-     *          password expiration days; otherwise, return false
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  IOException  If an error occurs while communicating with the system.
+    /**
+     * Determines if the password expiration date for the user profile is within the password expiration warning days
+     * for the system returned by {@link #getPasswordExpirationDays()}.
+     * 
+     * @return true if the password expiration date for the user profile is within the password expiration days;
+     *         otherwise, return false
+     * @throws AS400SecurityException If a security or authority error occurs.
+     * @throws IOException            If an error occurs while communicating with the system.
      */
     public boolean isInPasswordExpirationWarningDays() throws AS400SecurityException, IOException
     {
@@ -2351,11 +2529,13 @@ public class AS400 implements Serializable, AutoCloseable
 
     /**
      * Returns the number of days until the user profile's password expires.
-     * <p>A connection is required to retrieve this information.  If a connection
-     * has not been established, one is created to retrieve the information.
-     * @return  The number of days until the user profiles' password expires.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  IOException  If an error occurs while communicating with the system.
+     * <p>
+     * A connection is required to retrieve this information. If a connection has not been established, one is created
+     * to retrieve the information.
+     * 
+     * @return The number of days until the user profiles' password expires.
+     * @throws AS400SecurityException If a security or authority error occurs.
+     * @throws IOException            If an error occurs while communicating with the system.
      */
     public int getPasswordExpirationDays() throws AS400SecurityException, IOException
     {
@@ -2371,8 +2551,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
     
     /**
-     Returns the number of days before password expiration to start warning the user.
-     @return  The number of days before expiration to warn the user.
+     * Returns the number of days before password expiration to start warning the user.
+     * 
+     * @return The number of days before expiration to warn the user.
      **/
     public static int getPasswordExpirationWarningDays()
     {
@@ -2381,11 +2562,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the date of the last successful sign-on.
-     <p>A connection is required to retrieve this information.  If a connection has not been established, one is created to retrieve the information.
-     @return  The date of the last successful sign-on.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+     * Returns the date of the last successful sign-on.
+     * <p>
+     * A connection is required to retrieve this information. If a connection has not been established, one is created
+     * to retrieve the information.
+     * 
+     * @return The date of the last successful sign-on.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public GregorianCalendar getPreviousSignonDate() throws AS400SecurityException, IOException
     {
@@ -2401,16 +2585,25 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns a profile token representing the signed-on user profile.
-     <p>The returned token will be created single-use with a one hour time to expiration. Subsequent method calls will return the same token, regardless of the token status.
-     <p>This function is not supported if the assigned password is *CURRENT.
-     <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
-     @return  A ProfileTokenCredential representing the currently signed on user.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  InterruptedException  If this thread is interrupted.
-     @deprecated  Use {@link #getProfileToken(int,int) getProfileToken(int,int)} instead.
+     * Returns a profile token representing the signed-on user profile.
+     * <p>
+     * The returned token will be created single-use with a one hour time to expiration. Subsequent method calls will
+     * return the same token, regardless of the token status.
+     * <p>
+     * This function is not supported if the assigned password is *CURRENT.
+     * <p>
+     * This function is only supported if the system is at i5/OS V4R5M0 or greater.
+     * <p>
+     * <b>Note:</b> If an additional authentication factor has been set for the AS400 object, it will be used when
+     * generating the profile token.
+     * 
+     * @return A ProfileTokenCredential representing the currently signed on user.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @exception InterruptedException   If this thread is interrupted.
+     * @deprecated Use {@link #getProfileToken(int,int) getProfileToken(int,int)} instead.
      **/
+    @Deprecated
     public ProfileTokenCredential getProfileToken() throws AS400SecurityException, IOException, InterruptedException
     {
         connectService(AS400.SIGNON);
@@ -2422,18 +2615,28 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Authenticates the assigned user profile and password and returns a corresponding ProfileTokenCredential if successful.
-     <p>This function is not supported if the assigned password is *CURRENT and cannot be used to generate a renewable token.  This function is only supported if the system is at i5/OS V4R5M0 or greater.
-     @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
-     <ul>
-     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE TYPE_SINGLE_USE}
-     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE TYPE_MULTIPLE_USE_NON_RENEWABLE}
-     </ul>
-     @param  timeoutInterval  The number of seconds to expiration when the token is created (1-3600).
-     @return  A ProfileTokenCredential representing the signed-on user.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  InterruptedException  If this thread is interrupted.
+     * Authenticates the assigned user profile and password and returns a corresponding ProfileTokenCredential if
+     * successful.
+     * <p>
+     * This function is not supported if the assigned password is *CURRENT and cannot be used to generate a renewable
+     * token. This function is only supported if the system is at i5/OS V4R5M0 or greater.
+     * <p>
+     * <b>Note:</b> If an additional authentication factor has been set for the AS400 object, it will be used when
+     * generating the profile token.
+     * 
+     * @param tokenType       The type of profile token to create. Possible types are defined as fields on the
+     *                        ProfileTokenCredential class:
+     *                        <ul>
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE
+     *                        TYPE_SINGLE_USE}
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                        TYPE_MULTIPLE_USE_NON_RENEWABLE}
+     *                        </ul>
+     * @param timeoutInterval The number of seconds to expiration when the token is created (1-3600).
+     * @return A ProfileTokenCredential representing the signed-on user.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @exception InterruptedException   If this thread is interrupted.
      **/
     public ProfileTokenCredential getProfileToken(int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException
     {
@@ -2474,71 +2677,99 @@ public class AS400 implements Serializable, AutoCloseable
 
             CredentialVault tempVault = (CredentialVault)credVault_.clone();
             tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));
-            impl_.generateProfileToken(profileToken, userId_, tempVault, gssName_);   // @mds
+            impl_.generateProfileToken(profileToken, userId_, tempVault, gssName_);
         }
         
         return profileToken;
     }
 
     /**
-     Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if successful.
-     <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.
-     <p>This method generates a single use token with a timeout of one hour.
-     <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
-     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
-     @param  userId  The user profile name.
-     @param  password  The user profile password.
-     @return  A ProfileTokenCredential representing the authenticated profile and password.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  InterruptedException  If this thread is interrupted.
-     @deprecated  Use {@link #getProfileToken(String, char[]) getProfileToken(String, char[])} instead.
+     * Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if
+     * successful.
+     * <p>
+     * Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user
+     * or authorities under which the application is running.
+     * <p>
+     * This method generates a single use token with a timeout of one hour.
+     * <p>
+     * This function is only supported if the system is at i5/OS V4R5M0 or greater.
+     * <p>
+     * <b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user
+     * profile, and can result in the profile being disabled. Refer to documentation on the
+     * <i>ProfileTokenCredential</i> class for additional restrictions.
+     * 
+     * @param userId   The user profile name.
+     * @param password The user profile password.
+     * @return A ProfileTokenCredential representing the authenticated profile and password.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @exception InterruptedException   If this thread is interrupted.
+     * @deprecated Use {@link #getProfileToken(String, char[]) getProfileToken(String, char[])} instead.
      **/
-    public ProfileTokenCredential getProfileToken(String userId, String password) throws AS400SecurityException, IOException, InterruptedException
-    {
+    @Deprecated
+    public ProfileTokenCredential getProfileToken(String userId, String password) throws AS400SecurityException, IOException, InterruptedException {
         return getProfileToken(userId, password, ProfileTokenCredential.TYPE_SINGLE_USE, 3600);
     }
 
     /**
-     Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if successful.
-     <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.
-     <p>This method generates a single use token with a timeout of one hour.
-     <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
-     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, 
-     and can result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
-     @param  userId  The user profile name.
-     @param  password  The user profile password.
-     @return  A ProfileTokenCredential representing the authenticated profile and password.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  InterruptedException  If this thread is interrupted.
+     * Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if
+     * successful.
+     * <p>
+     * Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user
+     * or authorities under which the application is running.
+     * <p>
+     * This method generates a single use token with a timeout of one hour.
+     * <p>
+     * This function is only supported if the system is at i5/OS V4R5M0 or greater.
+     * <p>
+     * <b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user
+     * profile, and can result in the profile being disabled. Refer to documentation on the
+     * <i>ProfileTokenCredential</i> class for additional restrictions.
+     * 
+     * @param userId   The user profile name.
+     * @param password The user profile password.
+     * @return A ProfileTokenCredential representing the authenticated profile and password.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @exception InterruptedException   If this thread is interrupted.
      **/
-    public ProfileTokenCredential getProfileToken(String userId, char[] password) throws AS400SecurityException, IOException, InterruptedException
-    {
+    public ProfileTokenCredential getProfileToken(String userId, char[] password) throws AS400SecurityException, IOException, InterruptedException {
         return getProfileToken(userId, password, ProfileTokenCredential.TYPE_SINGLE_USE, 3600);
     }
 
     /**
-     Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if successful.
-     <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.
-     <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
-     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can 
-     result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
-     @param  userId  The user profile name.
-     @param  password  The user profile password.
-     @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
-     <ul>
-     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE TYPE_SINGLE_USE}
-     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE TYPE_MULTIPLE_USE_NON_RENEWABLE}
-     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_RENEWABLE TYPE_MULTIPLE_USE_RENEWABLE}
-     </ul>
-     @param  timeoutInterval  The number of seconds to expiration when the token is created (1-3600).
-     @return  A ProfileTokenCredential representing the authenticated profile and password.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  InterruptedException  If this thread is interrupted.
-     @deprecated  Use {@link #getProfileToken(String, char[],int,int) getProfileToken(String, char[],int,int)} instead.
+     * Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if
+     * successful.
+     * <p>
+     * Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user
+     * or authorities under which the application is running.
+     * <p>
+     * This function is only supported if the system is at i5/OS V4R5M0 or greater.
+     * <p>
+     * <b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user
+     * profile, and can result in the profile being disabled. Refer to documentation on the
+     * <i>ProfileTokenCredential</i> class for additional restrictions.
+     * 
+     * @param userId          The user profile name.
+     * @param password        The user profile password.
+     * @param tokenType       The type of profile token to create. Possible types are defined as fields on the
+     *                        ProfileTokenCredential class:
+     *                        <ul>
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE
+     *                        TYPE_SINGLE_USE}
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                        TYPE_MULTIPLE_USE_NON_RENEWABLE}
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_RENEWABLE
+     *                        TYPE_MULTIPLE_USE_RENEWABLE}
+     *                        </ul>
+     * @param timeoutInterval The number of seconds to expiration when the token is created (1-3600).
+     * @return A ProfileTokenCredential representing the authenticated profile and password.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @exception InterruptedException   If this thread is interrupted.
+     * @deprecated Use {@link #getProfileToken(String, char[],int,int) getProfileToken(String, char[],int,int)} instead.
      **/
+    @Deprecated
     public ProfileTokenCredential getProfileToken(String userId, String password, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException
     {
         char[] passwordChars = (password == null) ? null : password.toCharArray();
@@ -2554,24 +2785,35 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if successful.
-     <p>Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user or authorities under which the application is running.
-     <p>This function is only supported if the system is at i5/OS V4R5M0 or greater.
-     <p><b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user profile, and can 
-     result in the profile being disabled.  Refer to documentation on the <i>ProfileTokenCredential</i> class for additional restrictions.
-     @param  userId  The user profile name.
-     @param  password  The user profile password.
-     @param  tokenType  The type of profile token to create.  Possible types are defined as fields on the ProfileTokenCredential class:
-     <ul>
-     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE TYPE_SINGLE_USE}
-     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE TYPE_MULTIPLE_USE_NON_RENEWABLE}
-     <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_RENEWABLE TYPE_MULTIPLE_USE_RENEWABLE}
-     </ul>
-     @param  timeoutInterval  The number of seconds to expiration when the token is created (1-3600).
-     @return  A ProfileTokenCredential representing the authenticated profile and password.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  InterruptedException  If this thread is interrupted.
+     * Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if
+     * successful.
+     * <p>
+     * Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user
+     * or authorities under which the application is running.
+     * <p>
+     * This function is only supported if the system is at i5/OS V4R5M0 or greater.
+     * <p>
+     * <b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user
+     * profile, and can result in the profile being disabled. Refer to documentation on the
+     * <i>ProfileTokenCredential</i> class for additional restrictions.
+     * 
+     * @param userId          The user profile name.
+     * @param password        The user profile password.
+     * @param tokenType       The type of profile token to create. Possible types are defined as fields on the
+     *                        ProfileTokenCredential class:
+     *                        <ul>
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE
+     *                        TYPE_SINGLE_USE}
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                        TYPE_MULTIPLE_USE_NON_RENEWABLE}
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_RENEWABLE
+     *                        TYPE_MULTIPLE_USE_RENEWABLE}
+     *                        </ul>
+     * @param timeoutInterval The number of seconds to expiration when the token is created (1-3600).
+     * @return A ProfileTokenCredential representing the authenticated profile and password.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @exception InterruptedException   If this thread is interrupted.
      **/
     public ProfileTokenCredential getProfileToken(String userId, char[] password, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException
     {
@@ -2618,8 +2860,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the name of the middle-tier machine where the proxy server is running.
-     @return  The name of the middle-tier machine where the proxy server is running, or an empty string ("") if not set.
+     * Returns the name of the middle-tier machine where the proxy server is running.
+     * 
+     * @return The name of the middle-tier machine where the proxy server is running, or an empty string ("") if not
+     *         set.
      **/
     public String getProxyServer()
     {
@@ -2628,18 +2872,21 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the release of the IBM i system.
-     <p>A connection is required to the system in order to retrieve this information.  If a connection has not been established, one is created to retrieve the system information.
-     @return  The release of the IBM i system.  For example, version 5, release 1, modification level 0, returns 1.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+     * Returns the release of the IBM i system.
+     * <p>
+     * A connection is required to the system in order to retrieve this information. If a connection has not been
+     * established, one is created to retrieve the system information.
+     * 
+     * @return The release of the IBM i system. For example, version 5, release 1, modification level 0, returns 1.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public int getRelease() throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting release level.");
         if (signonInfo_ == null) {
-          chooseImpl();
-          signon(false);
+            chooseImpl();
+            signon(false);
         }
         int release = signonInfo_.version.getRelease();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Release level:", release);
@@ -2647,8 +2894,14 @@ public class AS400 implements Serializable, AutoCloseable
         return release;
     }
 
-    // Converts a service constant to a service name.
-    public static String getServerName(int service)//@Q10
+    /**
+     * Converts a service constant to the string representation of the service. For example, the integer AS400.File
+     * corresponds to the string "as-file".
+     * 
+     * @param service The service represented by it's integer value.
+     * @return The string representation of the service.
+     */
+    public static String getServerName(int service)
     {
         switch (service)
         {
@@ -2676,20 +2929,22 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the service port stored in the service port table for the specified service.
-     @param  service  The name of the service.  Valid services are:
-     <ul>
-     <li>{@link #FILE FILE} - IFS file classes.
-     <li>{@link #PRINT PRINT} - print classes.
-     <li>{@link #COMMAND COMMAND} - command and program call classes.
-     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
-     <li>{@link #DATABASE DATABASE} - JDBC classes.
-     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - license management classes.
-     <li>{@link #SIGNON SIGNON} - sign-on classes.
-     <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
-     </ul>
-     @return  The port specified in the service port table.  The value {@link #USE_PORT_MAPPER USE_PORT_MAPPER} will be returned if the service has not been set, and the service has not been connected.
+     * Returns the service port stored in the service port table for the specified service.
+     * 
+     * @param service The name of the service. Valid services are:
+     *                <ul>
+     *                <li>{@link #FILE FILE} - IFS file classes.
+     *                <li>{@link #PRINT PRINT} - print classes.
+     *                <li>{@link #COMMAND COMMAND} - command and program call classes.
+     *                <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     *                <li>{@link #DATABASE DATABASE} - JDBC classes.
+     *                <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     *                <li>{@link #CENTRAL CENTRAL} - license management classes.
+     *                <li>{@link #SIGNON SIGNON} - sign-on classes.
+     *                <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
+     *                </ul>
+     * @return The port specified in the service port table. The value {@link #USE_PORT_MAPPER USE_PORT_MAPPER} will be
+     *         returned if the service has not been set, and the service has not been connected.
      **/
     public int getServicePort(int service)
     {
@@ -2714,11 +2969,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the date for the current sign-on.
-     <p>A connection is required to the system to retrieve this information.  If a connection has not been established, one is created to retrieve the system information.
-     @return  The date for the current sign-on.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+     * Returns the date for the current sign-on.
+     * <p>
+     * A connection is required to the system to retrieve this information. If a connection has not been established,
+     * one is created to retrieve the system information.
+     * 
+     * @return The date for the current sign-on.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public GregorianCalendar getSignonDate() throws AS400SecurityException, IOException
     {
@@ -2734,10 +2992,11 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the sign-on handler that is used by this object.  Never returns null.
-     @return  The sign-on handler.
-     @see  #setSignonHandler
-     @see  #setDefaultSignonHandler
+     * Returns the sign-on handler that is used by this object. Never returns null.
+     * 
+     * @return The sign-on handler.
+     * @see #setSignonHandler
+     * @see #setDefaultSignonHandler
      **/
     public SignonHandler getSignonHandler()
     {
@@ -2745,8 +3004,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns a copy of the socket options object.
-     @return  The socket options object.
+     * Returns a copy of the socket options object.
+     * 
+     * @return The socket options object.
      **/
     public SocketProperties getSocketProperties()
     {
@@ -2757,8 +3017,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the name of the IBM i system.  The system name is provided on the constructor or may have been provided by the user at the sign-on prompt.
-     @return  The name of the IBM i system, or an empty string ("") if not set.
+     * Returns the name of the IBM i system. The system name is provided on the constructor or may have been provided by
+     * the user at the sign-on prompt.
+     * 
+     * @return The name of the IBM i system, or an empty string ("") if not set.
      **/
     public String getSystemName()
     {
@@ -2767,20 +3029,19 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the time zone of the IBM i system.
-     The TimeZone object will have the correct UTC offset for the system.
-     @return A TimeZone object representing the time zone for the system.
-     @exception AS400SecurityException If a security or authority error
-     occurs.
-     @exception ErrorCompletingRequestException If an error occurs before
-     the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException If an error occurs while communicating with
-     the system.
-     @exception ObjectDoesNotExistException If the API used to retrieve the information does not exist on the system.
-     @see DateTimeConverter#timeZoneForSystem
-     @deprecated Use {@link #getTimeZone() getTimeZone()} instead.
+     * Returns the time zone of the IBM i system. The TimeZone object will have the correct UTC offset for the system.
+     * 
+     * @return A TimeZone object representing the time zone for the system.
+     * @exception AS400SecurityException          If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException            If this thread is interrupted.
+     * @exception IOException                     If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException     If the API used to retrieve the information does not exist on the
+     *                                            system.
+     * @see DateTimeConverter#timeZoneForSystem
+     * @deprecated Use {@link #getTimeZone() getTimeZone()} instead.
      **/
+    @Deprecated
     public TimeZone getSystemTimeZone()
       throws AS400SecurityException,
              ErrorCompletingRequestException,
@@ -2792,18 +3053,16 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the time zone of the IBM i system.
-     The TimeZone object will have the correct UTC offset for the system.
-     @return A TimeZone object representing the time zone for the system.
-     @exception AS400SecurityException If a security or authority error
-     occurs.
-     @exception ErrorCompletingRequestException If an error occurs before
-     the request is completed.
-     @exception InterruptedException If this thread is interrupted.
-     @exception IOException If an error occurs while communicating with
-     the system.
-     @exception ObjectDoesNotExistException If the API used to retrieve the information does not exist on the system.
-     @see DateTimeConverter#timeZoneForSystem
+     * Returns the time zone of the IBM i system. The TimeZone object will have the correct UTC offset for the system.
+     * 
+     * @return A TimeZone object representing the time zone for the system.
+     * @exception AS400SecurityException          If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException            If this thread is interrupted.
+     * @exception IOException                     If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException     If the API used to retrieve the information does not exist on the
+     *                                            system.
+     * @see DateTimeConverter#timeZoneForSystem
      **/
     public TimeZone getTimeZone()
       throws AS400SecurityException,
@@ -2821,10 +3080,11 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     * Returns the timezone of the IBM i, if available.  If the timezone is not available,
-     * then the default timezone for the client will be return.
-     * @param system   System to get the timezone from
-     * @return  The timezone of the IBM i if available.
+     * Returns the timezone of the IBM i, if available. If the timezone is not available, then the default timezone for
+     * the client will be return.
+     * 
+     * @param system System to get the timezone from
+     * @return The timezone of the IBM i if available.
      */
     public static TimeZone getDefaultTimeZone(AS400 system)
     {
@@ -2849,8 +3109,10 @@ public class AS400 implements Serializable, AutoCloseable
 
 
     /**
-     Returns the user ID.  The user ID returned may be set as a result of the constructor, or it may be what the user typed in at the sign-on prompt.
-     @return  The user ID, or an empty string ("") if not set.
+     * Returns the user ID. The user ID returned may be set as a result of the constructor, or it may be what the user
+     * typed in at the sign-on prompt.
+     * 
+     * @return The user ID, or an empty string ("") if not set.
      **/
     public String getUserId()
     {
@@ -2860,9 +3122,15 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the user ID.  The user ID returned may be set as a result of the constructor, or it may be what the user typed in at the sign-on prompt.
-     @param forceRefresh If true, force the current userID information to be reloaded. When running natively with system name specified as <code>localhost</code>, this will obtain the user profile under which the thread is currently running. This may have changed since object construction, if a profile swap has been performed on the thread. If false, or if running remotely, then this method behaves identically to {@link #getUserId getUserId()}.
-     @return  The user ID, or an empty string ("") if not set.
+     * Returns the user ID. The user ID returned may be set as a result of the constructor, or it may be what the user
+     * typed in at the sign-on prompt.
+     * 
+     * @param forceRefresh If true, force the current userID information to be reloaded. When running natively with
+     *                     system name specified as <code>localhost</code>, this will obtain the user profile under
+     *                     which the thread is currently running. This may have changed since object construction, if a
+     *                     profile swap has been performed on the thread. If false, or if running remotely, then this
+     *                     method behaves identically to {@link #getUserId getUserId()}.
+     * @return The user ID, or an empty string ("") if not set.
      **/
     public String getUserId(boolean forceRefresh)
     {
@@ -2891,11 +3159,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the version of the IBM i system.
-     <p>A connection is required to the system to retrieve this information.  If a connection has not been established, one is created to retrieve the system information.
-     @return  The version of the IBM i system.  For example, version 5, release 1, modification level 0, returns 5.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+     * Returns the version of the IBM i system.
+     * <p>
+     * A connection is required to the system to retrieve this information. If a connection has not been established,
+     * one is created to retrieve the system information.
+     * 
+     * @return The version of the IBM i system. For example, version 5, release 1, modification level 0, returns 5.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public int getVersion() throws AS400SecurityException, IOException
     {
@@ -2911,11 +3182,15 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the version, release, and modification level for the system.
-     <p>A connection is required to the system to retrieve this information.  If a connection has not been established, one is created to retrieve the system information.
-     @return  The high 16-bit is the version, the next 8 bits is the release, and the low 8 bits is the modification level.  Thus version 5, release 1, modification level 0, returns 0x00050100.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+     * Returns the version, release, and modification level for the system.
+     * <p>
+     * A connection is required to the system to retrieve this information. If a connection has not been established,
+     * one is created to retrieve the system information.
+     * 
+     * @return The high 16-bit is the version, the next 8 bits is the release, and the low 8 bits is the modification
+     *         level. Thus version 5, release 1, modification level 0, returns 0x00050100.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public int getVRM() throws AS400SecurityException, IOException
     {
@@ -2953,9 +3228,11 @@ public class AS400 implements Serializable, AutoCloseable
     }
     
     /**
-     Initialize conversion table for the given CCSID.  The default EBCDIC to unicode converters are not shipped with some browsers.  This method can be used to check and download converters if they are not available locally.
-     @param  ccsid  the CCSID for the conversion table to initialize.
-     * @throws UnsupportedEncodingException If the Character Encoding is not supported. 
+     * Initialize conversion table for the given CCSID. The default EBCDIC to unicode converters are not shipped with
+     * some browsers. This method can be used to check and download converters if they are not available locally.
+     * 
+     * @param ccsid the CCSID for the conversion table to initialize.
+     * @throws UnsupportedEncodingException If the Character Encoding is not supported.
      **/
     public void initializeConverter(int ccsid) throws UnsupportedEncodingException
     {
@@ -2974,10 +3251,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates if any service is currently connected through this object.
-     <p>A service is considered "connected" if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  If the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
-     @return  true if any service is connected; false otherwise.
-     @see #isConnectionAlive
+     * Indicates if any service is currently connected through this object.
+     * <p>
+     * A service is considered "connected" if connectService() has been called, or an implicit connect has been done by
+     * the service, and disconnectService() or disconnectAllServices() has not been called. If the most recent attempt
+     * to contact the service failed with an exception, the service is considered disconnected.
+     * 
+     * @return true if any service is connected; false otherwise.
+     * @see #isConnectionAlive
      **/
     public boolean isConnected()
     {
@@ -2993,22 +3274,26 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates if a service is currently connected through this object.
-     <p>A service is considered "connected" if connectService() has been called, or an implicit connect has been done by the service, and disconnectService() or disconnectAllServices() has not been called.  If the most recent attempt to contact the service failed with an exception, the service is considered disconnected.
-     @param  service  The name of the service.  Valid services are:
-     <ul>
-     <li>{@link #FILE FILE} - IFS file classes.
-     <li>{@link #PRINT PRINT} - print classes.
-     <li>{@link #COMMAND COMMAND} - command and program call classes.
-     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
-     <li>{@link #DATABASE DATABASE} - JDBC classes.
-     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - license management classes.
-     <li>{@link #SIGNON SIGNON} - sign-on classes.
-     <li>{@link #HOSTCNN HOSTCNN} - host connection classes.
-     </ul>
-     @return  true if service is connected; false otherwise.
-     @see #isConnectionAlive
+     * Indicates if a service is currently connected through this object.
+     * <p>
+     * A service is considered "connected" if connectService() has been called, or an implicit connect has been done by
+     * the service, and disconnectService() or disconnectAllServices() has not been called. If the most recent attempt
+     * to contact the service failed with an exception, the service is considered disconnected.
+     * 
+     * @param service The name of the service. Valid services are:
+     *                <ul>
+     *                <li>{@link #FILE FILE} - IFS file classes.
+     *                <li>{@link #PRINT PRINT} - print classes.
+     *                <li>{@link #COMMAND COMMAND} - command and program call classes.
+     *                <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     *                <li>{@link #DATABASE DATABASE} - JDBC classes.
+     *                <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     *                <li>{@link #CENTRAL CENTRAL} - license management classes.
+     *                <li>{@link #SIGNON SIGNON} - sign-on classes.
+     *                <li>{@link #HOSTCNN HOSTCNN} - host connection classes.
+     *                </ul>
+     * @return true if service is connected; false otherwise.
+     * @see #isConnectionAlive
      **/
     public boolean isConnected(int service)
     {
@@ -3023,14 +3308,20 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Tests the connection to the system, to verify that it is still working.
-     This is similar in concept to "pinging" the system over the connection.
-     If no services have been connected, this method returns false; it doesn't implicitly connect services.
-     <p>Note: This method is <b>not fully supported until IBM i 7.1</b>.  If running to IBM i 6.1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
-     <p>Note: If the only service connected is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the behavior of {@link #isConnected() isConnected()}.
-     @return  true if the connection is still working; false otherwise.
-     @see #isConnected
-     @see AS400JPing
+     * Tests the connection to the system, to verify that it is still working. This is similar in concept to "pinging"
+     * the system over the connection. If no services have been connected, this method returns false; it doesn't
+     * implicitly connect services.
+     * <p>
+     * Note: This method is <b>not fully supported until IBM i 7.1</b>. If running to IBM i 6.1 or lower, then the
+     * behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly
+     * return <tt>true</tt> if the connection has failed recently.
+     * <p>
+     * Note: If the only service connected is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the
+     * behavior of {@link #isConnected() isConnected()}.
+     * 
+     * @return true if the connection is still working; false otherwise.
+     * @see #isConnected
+     * @see AS400JPing
      **/
     public boolean isConnectionAlive()
     {
@@ -3041,28 +3332,33 @@ public class AS400 implements Serializable, AutoCloseable
       return alive;
     }
 
-
     /**
-     Tests the connection to a service on the system, to verify that it is still working.
-     This is similar in concept to "pinging" the system over the connection.
-     If no services have been connected, this method returns false; it doesn't implicitly connect services.
-     <p>Note: This method is <b>not fully supported until IBM i 7.1</b>.  If running to IBM i 6.1 or lower, then the behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly return <tt>true</tt> if the connection has failed recently.
-     <p>Note: If the specified service is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the behavior of {@link #isConnected() isConnected()}.
-     @param  service  The name of the service.  Valid services are:
-     <ul>
-     <li>{@link #FILE FILE} - IFS file classes.
-     <li>{@link #PRINT PRINT} - print classes.
-     <li>{@link #COMMAND COMMAND} - command and program call classes.
-     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
-     <li>{@link #DATABASE DATABASE} - JDBC classes.
-     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - license management classes.
-     <li>{@link #SIGNON SIGNON} - sign-on classes.
-     <li>{@link #HOSTCNN HOSTCNN} - host connection classes.
-     </ul>
-     @return  true if the connection to the service is still working; false otherwise.
-     @see #isConnected
-     @see AS400JPing
+     * Tests the connection to a service on the system, to verify that it is still working. This is similar in concept
+     * to "pinging" the system over the connection. If no services have been connected, this method returns false; it
+     * doesn't implicitly connect services.
+     * <p>
+     * Note: This method is <b>not fully supported until IBM i 7.1</b>. If running to IBM i 6.1 or lower, then the
+     * behavior of this method matches that of {@link #isConnected() isConnected()}, and therefore may incorrectly
+     * return <tt>true</tt> if the connection has failed recently.
+     * <p>
+     * Note: If the specified service is {@link #RECORDACCESS RECORDACCESS}, then this method defaults to the behavior
+     * of {@link #isConnected() isConnected()}.
+     * 
+     * @param service The name of the service. Valid services are:
+     *                <ul>
+     *                <li>{@link #FILE FILE} - IFS file classes.
+     *                <li>{@link #PRINT PRINT} - print classes.
+     *                <li>{@link #COMMAND COMMAND} - command and program call classes.
+     *                <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     *                <li>{@link #DATABASE DATABASE} - JDBC classes.
+     *                <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     *                <li>{@link #CENTRAL CENTRAL} - license management classes.
+     *                <li>{@link #SIGNON SIGNON} - sign-on classes.
+     *                <li>{@link #HOSTCNN HOSTCNN} - host connection classes.
+     *                </ul>
+     * @return true if the connection to the service is still working; false otherwise.
+     * @see #isConnected
+     * @see AS400JPing
      **/
     public boolean isConnectionAlive(int service)
     {
@@ -3075,8 +3371,11 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the sign-on prompting mode for this object.  If true, then messages are displayed.  If warnings or errors occur, the sign-on and change password dialogs are displayed if needed.  If false, warnings and errors result in exceptions, and password dialogs are not displayed.  The caller has to provide the user ID and password.
-     @return  true if using GUI; false otherwise.
+     * Returns the sign-on prompting mode for this object. If true, then messages are displayed. If warnings or errors
+     * occur, the sign-on and change password dialogs are displayed if needed. If false, warnings and errors result in
+     * exceptions, and password dialogs are not displayed. The caller has to provide the user ID and password.
+     * 
+     * @return true if using GUI; false otherwise.
      **/
     public boolean isGuiAvailable()
     {
@@ -3085,8 +3384,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates if this object is representing the system you are currently running on.
-     @return  true if you are running on the local system; false otherwise.
+     * Indicates if this object is representing the system you are currently running on.
+     * 
+     * @return true if you are running on the local system; false otherwise.
      **/
     public boolean isLocal()
     {
@@ -3095,8 +3395,12 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     When your Java program runs on the system, some Toolbox classes access data via a call to an API instead of making a socket call to the system.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can check whether the Toolbox classes will use socket calls instead of API calls by using this method.
-     @return  true if you have indicated that the services must use sockets; false otherwise.
+     * When your Java program runs on the system, some Toolbox classes access data via a call to an API instead of
+     * making a socket call to the system. There are minor differences in the behavior of the classes when they use API
+     * calls instead of socket calls. If your program is affected by these differences you can check whether the Toolbox
+     * classes will use socket calls instead of API calls by using this method.
+     * 
+     * @return true if you have indicated that the services must use sockets; false otherwise.
      **/
     public boolean isMustUseSockets()
     {
@@ -3105,8 +3409,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates if checkboxes should be shown on the sign-on dialog.
-     @return  true if checkboxes should be shown; false otherwise.
+     * Indicates if checkboxes should be shown on the sign-on dialog.
+     * 
+     * @return true if checkboxes should be shown; false otherwise.
      **/
     public boolean isShowCheckboxes()
     {
@@ -3144,8 +3449,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates whether threads are used in communication with the host servers.
-     @return  true if threads are used; false otherwise.
+     * Indicates whether threads are used in communication with the host servers.
+     * 
+     * @return true if threads are used; false otherwise.
      **/
     public boolean isThreadUsed()
     {
@@ -3154,8 +3460,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates if the default user should be used by this object.  If the default user is not used and a user ID was not specified on the constructor, then the user will be prompted for a user ID.
-     @return  true if default user should be used; false otherwise.
+     * Indicates if the default user should be used by this object. If the default user is not used and a user ID was
+     * not specified on the constructor, then the user will be prompted for a user ID.
+     * 
+     * @return true if default user should be used; false otherwise.
      **/
     public boolean isUseDefaultUser()
     {
@@ -3164,8 +3472,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates if the password cache is being used by this object.  If the password cache is not used, the user will always be prompted for password if one was not provided.
-     @return  true if password cache is being used; false otherwise.
+     * Indicates if the password cache is being used by this object. If the password cache is not used, the user will
+     * always be prompted for password if one was not provided.
+     * 
+     * @return true if password cache is being used; false otherwise.
      **/
     public boolean isUsePasswordCache()
     {
@@ -3175,9 +3485,10 @@ public class AS400 implements Serializable, AutoCloseable
     
     /**
      * Is the AS400 object configured to use a pass phrase
+     * 
      * @return true if pass phrase can be used
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  IOException  If an error occurs while communicating with the system.
+     * @throws AS400SecurityException If a security or authority error occurs.
+     * @throws IOException            If an error occurs while communicating with the system.
      */
     public boolean isUsePassphrase() throws AS400SecurityException, IOException
     {
@@ -3518,8 +3829,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Removes a listener from the connection event list.
-     @param  listener  The listener object.
+     * Removes a listener from the connection event list.
+     * 
+     * @param listener The listener object.
      **/
     public void removeConnectionListener(ConnectionListener listener)
     {
@@ -3544,8 +3856,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Removes the default user for the given system name.
-     @param  systemName  The name of the IBM i system.
+     * Removes the default user for the given system name.
+     * 
+     * @param systemName The name of the IBM i system.
      **/
     public static void removeDefaultUser(String systemName)
     {
@@ -3557,9 +3870,11 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Removes the password cache entry associated with this system name and user ID.  Only applies within this Java virtual machine.
-     @param  systemName  The name of the IBM i system.
-     @param  userId  The user profile name.
+     * Removes the password cache entry associated with this system name and user ID. Only applies within this Java
+     * virtual machine.
+     * 
+     * @param systemName The name of the IBM i system.
+     * @param userId     The user profile name.
      **/
     public static void removePasswordCacheEntry(String systemName, String userId)
     {
@@ -3618,8 +3933,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Removes a property changed listener from the listener list.
-     @param  listener  The listener object.
+     * Removes a property changed listener from the listener list.
+     * 
+     * @param listener The listener object.
      **/
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
@@ -3633,8 +3949,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Removes a listener from the veto list.
-     @param  listener  The listener object.
+     * Removes a listener from the veto list.
+     * 
+     * @param listener The listener object.
      **/
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
@@ -3648,10 +3965,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Disconnects all services, and clears the sign-on information.
-     This intent of this method is to "wipe the slate clean" for this AS400 object, enabling connection 
-     properties to be subsequently changed.
-     @see #disconnectAllServices
+     * Disconnects all services, and clears the sign-on information. This intent of this method is to "wipe the slate
+     * clean" for this AS400 object, enabling connection properties to be subsequently changed.
+     * 
+     * @see #disconnectAllServices
      **/
     public synchronized void resetAllServices()
     {
@@ -3810,9 +4127,13 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets or resets the identity token for this object.  Using this method will clear any previously set authentication information.
-     <p>Note: Authentication via IdentityToken is supported in operating system release V5R3M0 and by PTF in operating system releases V5R2M0 and V5R1M0.
-     @param  identityToken  The identity token.
+     * Sets or resets the identity token for this object. Using this method will clear any previously set authentication
+     * information.
+     * <p>
+     * Note: Authentication via IdentityToken is supported in operating system release V5R3M0 and by PTF in operating
+     * system releases V5R2M0 and V5R1M0.
+     * 
+     * @param identityToken The identity token.
      **/
     public void setIdentityToken(byte[] identityToken)
     {
@@ -3829,14 +4150,22 @@ public class AS400 implements Serializable, AutoCloseable
         }
     }
 
-    public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor)
+    /**
+     * Set the additional authentication factor for the AS400 object. This will be used when establishing host server
+     * connections if the IBM i server supports multifactor authentication.
+     * 
+     * @param additionalAuthFactor The additional authentication factor.
+     */
+    public void setAdditionalAuthenticationFactor(char[] additionalAuthFactor)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting additional authentication factor. Length: " 
-                     + ((additionalAuthenticationFactor == null) ? 0 : additionalAuthenticationFactor.length));
+                     + ((additionalAuthFactor == null) ? 0 : additionalAuthFactor.length));
 
-        additionalAuthenticationFactor_ = null;
-        if (null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length )
-            additionalAuthenticationFactor_ = Arrays.copyOf(additionalAuthenticationFactor, additionalAuthenticationFactor.length);
+        additionalAuthenticationFactor_ = (null != additionalAuthFactor && 0 < additionalAuthFactor.length ) 
+                ?  Arrays.copyOf(additionalAuthFactor, additionalAuthFactor.length) : null;
+        
+        if (impl_ != null)
+            impl_.setAdditionalAuthenticationFactor(additionalAuthenticationFactor_);
     }
     
     // Store information in password cache.
@@ -3865,10 +4194,11 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the CCSID to be used for this object.  The CCSID property cannot be changed once a connection to the 
-     system has been established.
-     @param  ccsid  The CCSID to use for this object.
-     @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     * Sets the CCSID to be used for this object. The CCSID property cannot be changed once a connection to the system
+     * has been established.
+     * 
+     * @param ccsid The CCSID to use for this object.
+     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
      **/
     public void setCcsid(int ccsid) throws PropertyVetoException
     {
@@ -3897,13 +4227,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the relational database name (RDB name) used for record-level access (DDM) connections.  The RDB name 
-     corresponds to the independent auxiliary storage pool (IASP) that it is using on the system.  The RDB name 
-     cannot be changed while this object is actively connected to the {@link #RECORDACCESS RECORDACCESS} service;
-     you must call {@link #disconnectService(int) AS400.disconnectService(AS400.RECORDACCESS)} first.
-     @param  ddmRDB  The name of the IASP or RDB to use, or null to indicate the default system ASP should be used.
-     @see  #isConnected(int)
-     @see  #getDDMRDB
+     * Sets the relational database name (RDB name) used for record-level access (DDM) connections. The RDB name
+     * corresponds to the independent auxiliary storage pool (IASP) that it is using on the system. The RDB name cannot
+     * be changed while this object is actively connected to the {@link #RECORDACCESS RECORDACCESS} service; you must
+     * call {@link #disconnectService(int) AS400.disconnectService(AS400.RECORDACCESS)} first.
+     * 
+     * @param ddmRDB The name of the IASP or RDB to use, or null to indicate the default system ASP should be used.
+     * @see #isConnected(int)
+     * @see #getDDMRDB
      **/
     public void setDDMRDB(String ddmRDB)
     {
@@ -3923,14 +4254,22 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the default sign-on handler, globally across the JVM.
-     The specified handler object will be called at runtime if any AS400 object needs to obtain additional signon information, and a sign-on handler has not been set on the AS400 object via {@link #setSignonHandler setSignonHandler()}.
-     <br>Users are advised to implement the default sign-on handler in a thread-safe manner, since it may occasionally be in simultaneous use by multiple threads.
-     <br>If a default sign-on handler is not set, then the name of the default sign-on handler class is retrieved from the <em>com.ibm.as400.access.AS400.signonHandler</em> <a href="doc-files/SystemProperties.html">system property</a>.
-     <br>If not specified, an internal AWT-based sign-on handler is used.
-     <p>Note: This property may also be set by specifying a fully-qualified class name in Java system property <tt>com.ibm.as400.access.AS400.signonHandler</tt>
-     @param handler The sign-on handler.  Specifying <tt>null</tt> will reset the default sign-on handler to the internal AWT-based handler.
-     @see #getDefaultSignonHandler
+     * Sets the default sign-on handler, globally across the JVM. The specified handler object will be called at runtime
+     * if any AS400 object needs to obtain additional signon information, and a sign-on handler has not been set on the
+     * AS400 object via {@link #setSignonHandler setSignonHandler()}. <br>
+     * Users are advised to implement the default sign-on handler in a thread-safe manner, since it may occasionally be
+     * in simultaneous use by multiple threads. <br>
+     * If a default sign-on handler is not set, then the name of the default sign-on handler class is retrieved from the
+     * <em>com.ibm.as400.access.AS400.signonHandler</em> <a href="doc-files/SystemProperties.html">system property</a>.
+     * <br>
+     * If not specified, an internal AWT-based sign-on handler is used.
+     * <p>
+     * Note: This property may also be set by specifying a fully-qualified class name in Java system property
+     * <tt>com.ibm.as400.access.AS400.signonHandler</tt>
+     * 
+     * @param handler The sign-on handler. Specifying <tt>null</tt> will reset the default sign-on handler to the
+     *                internal AWT-based handler.
+     * @see #getDefaultSignonHandler
      **/
     public static void setDefaultSignonHandler(SignonHandler handler)
     {
@@ -3943,10 +4282,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the default user for a given system name.  The default user is the user ID that is used to connect if a user ID is not provided for that system name.  There can be only one default user per system name.  Once the default user is set, it cannot be overridden.  To change the default user, the caller should remove the default user and then set it.
-     @param  systemName  The name of the IBM i system.
-     @param  userId  The user profile name.
-     @return  true if default user has been set; false otherwise.
+     * Sets the default user for a given system name. The default user is the user ID that is used to connect if a user
+     * ID is not provided for that system name. There can be only one default user per system name. Once the default
+     * user is set, it cannot be overridden. To change the default user, the caller should remove the default user and
+     * then set it.
+     * 
+     * @param systemName The name of the IBM i system.
+     * @param userId     The user profile name.
+     * @return true if default user has been set; false otherwise.
      **/
     public static boolean setDefaultUser(String systemName, String userId)
     {
@@ -3983,8 +4326,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
     
     /**
-     * Sets the GSS manager to be used for all GSS operations. 
-     * @param  gssMgr  The GSS manager object.
+     * Sets the GSS manager to be used for all GSS operations.
+     * 
+     * @param gssMgr The GSS manager object.
      **/
     public static void setGSSManager(GSSManager gssMgr)
     {
@@ -3997,8 +4341,12 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the GSS credential for this object.  Using this method will set the authentication scheme to {@link #AUTHENTICATION_SCHEME_GSS_TOKEN AUTHENTICATION_SCHEME_GSS_TOKEN}.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any previously set authentication information.
-     @param  gssCredential  The GSS credential object.
+     * Sets the GSS credential for this object. Using this method will set the authentication scheme to
+     * {@link #AUTHENTICATION_SCHEME_GSS_TOKEN AUTHENTICATION_SCHEME_GSS_TOKEN}. Only one authentication means (Kerberos
+     * ticket, profile token, identity token, or password) can be used at a single time. Using this method will clear
+     * any previously set authentication information.
+     * 
+     * @param gssCredential The GSS credential object.
      **/
     public void setGSSCredential(GSSCredential gssCredential)
     {
@@ -4021,13 +4369,17 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the option for how the JGSS framework will be used to retrieve a GSS token for authenticating to the system.  By default, if no password or profile token is set on this object, it will attempt to retrieve a GSS token.  If that retrieval fails, a sign-on dialog can be presented, or on the system, the current user profile information can be used.  This option can also be set to only do the GSS token retrieval or to skip the GSS token retrieval.
-     @param  gssOption  A constant indicating how GSS will be used.  Valid values are:
-     <ul>
-     <li>{@link #GSS_OPTION_MANDATORY GSS_OPTION_MANDATORY}
-     <li>{@link #GSS_OPTION_FALLBACK GSS_OPTION_FALLBACK}
-     <li>{@link #GSS_OPTION_NONE GSS_OPTION_NONE}
-     </ul>
+     * Sets the option for how the JGSS framework will be used to retrieve a GSS token for authenticating to the system.
+     * By default, if no password or profile token is set on this object, it will attempt to retrieve a GSS token. If
+     * that retrieval fails, a sign-on dialog can be presented, or on the system, the current user profile information
+     * can be used. This option can also be set to only do the GSS token retrieval or to skip the GSS token retrieval.
+     * 
+     * @param gssOption A constant indicating how GSS will be used. Valid values are:
+     *                  <ul>
+     *                  <li>{@link #GSS_OPTION_MANDATORY GSS_OPTION_MANDATORY}
+     *                  <li>{@link #GSS_OPTION_FALLBACK GSS_OPTION_FALLBACK}
+     *                  <li>{@link #GSS_OPTION_NONE GSS_OPTION_NONE}
+     *                  </ul>
      **/
     public void setGSSOption(int gssOption)
     {
@@ -4039,8 +4391,12 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the GSS name for this object.  Using this method will set the authentication scheme to {@link #AUTHENTICATION_SCHEME_GSS_TOKEN AUTHENTICATION_SCHEME_GSS_TOKEN}.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any previously set authentication information.
-     @param  gssName  The GSS name string.
+     * Sets the GSS name for this object. Using this method will set the authentication scheme to
+     * {@link #AUTHENTICATION_SCHEME_GSS_TOKEN AUTHENTICATION_SCHEME_GSS_TOKEN}. Only one authentication means (Kerberos
+     * ticket, profile token, identity token, or password) can be used at a single time. Using this method will clear
+     * any previously set authentication information.
+     * 
+     * @param gssName The GSS name string.
      **/
     public void setGSSName(String gssName)
     {
@@ -4060,11 +4416,18 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the environment in which you are running.  If guiAvailable is set to true, then prompting may occur during sign-on to display error conditions, to prompt for additional information, or to prompt for change password.  If guiAvailable is set to false, then error conditions or missing information will result in exceptions.  Applications that are running as IBM i applications or want to control the sign-on user interface may want to run with prompting mode set to false.  Prompting mode is set to true by default.
-     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.guiAvailable</tt>
-     @param  guiAvailable  true to prompt; false otherwise.
-     @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
-     @see SignonHandler
+     * Sets the environment in which you are running. If guiAvailable is set to true, then prompting may occur during
+     * sign-on to display error conditions, to prompt for additional information, or to prompt for change password. If
+     * guiAvailable is set to false, then error conditions or missing information will result in exceptions.
+     * Applications that are running as IBM i applications or want to control the sign-on user interface may want to run
+     * with prompting mode set to false. Prompting mode is set to true by default.
+     * <p>
+     * Note: This property may also be set by specifying 'true' or 'false' in Java system property
+     * <tt>com.ibm.as400.access.AS400.guiAvailable</tt>
+     * 
+     * @param guiAvailable true to prompt; false otherwise.
+     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
+     * @see SignonHandler
      **/
     public void setGuiAvailable(boolean guiAvailable) throws PropertyVetoException
     {
@@ -4087,9 +4450,11 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the Locale used to set the National Language Version (NLV) on the system.  Only the COMMAND, PRINT, 
-     and DATABASE services accept an NLV.  This method will set the NLV based on a mapping from the Locale object to the NLV.
-     @param  locale  The Locale object.
+     * Sets the Locale used to set the National Language Version (NLV) on the system. Only the COMMAND, PRINT, and
+     * DATABASE services accept an NLV. This method will set the NLV based on a mapping from the Locale object to the
+     * NLV.
+     * 
+     * @param locale The Locale object.
      **/
     public void setLocale(Locale locale)
     {
@@ -4121,10 +4486,11 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the Locale and a specific National Language Version (NLV) to send to the system.  Only the COMMAND, PRINT, 
-     and DATABASE services accept an NLV.
-     @param  locale  The Locale object.
-     @param  nlv  The NLV.
+     * Sets the Locale and a specific National Language Version (NLV) to send to the system. Only the COMMAND, PRINT,
+     * and DATABASE services accept an NLV.
+     * 
+     * @param locale The Locale object.
+     * @param nlv    The NLV.
      **/
     public void setLocale(Locale locale, String nlv)
     {
@@ -4147,11 +4513,16 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets this object to attempt to add the appropriate secondary language library to the library list, when running on the system.  
-     The default is false.  Setting the language library will ensure that any system error messages that are returned, will be returned in the appropriate national language for the client locale.  If the user profile has insufficient authority to call CHGSYSLIBL, an error entry will appear in the job log, and the Toolbox will disregard the error and proceed normally.
-     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property 
-     <tt>com.ibm.as400.access.AS400.mustAddLanguageLibrary</tt>
-     @param  mustAddLanguageLibrary  true to add language library; false otherwise.
+     * Sets this object to attempt to add the appropriate secondary language library to the library list, when running
+     * on the system. The default is false. Setting the language library will ensure that any system error messages that
+     * are returned, will be returned in the appropriate national language for the client locale. If the user profile
+     * has insufficient authority to call CHGSYSLIBL, an error entry will appear in the job log, and the Toolbox will
+     * disregard the error and proceed normally.
+     * <p>
+     * Note: This property may also be set by specifying 'true' or 'false' in Java system property
+     * <tt>com.ibm.as400.access.AS400.mustAddLanguageLibrary</tt>
+     * 
+     * @param mustAddLanguageLibrary true to add language library; false otherwise.
      **/
     public void setMustAddLanguageLibrary(boolean mustAddLanguageLibrary)
     {
@@ -4166,8 +4537,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates whether this object will attempt to add the appropriate secondary language library to the library list, when running on the system.
-     @return true if you have indicated that the secondary language library must be added; false otherwise.
+     * Indicates whether this object will attempt to add the appropriate secondary language library to the library list,
+     * when running on the system.
+     * 
+     * @return true if you have indicated that the secondary language library must be added; false otherwise.
      **/
     public boolean isMustAddLanguageLibrary()
     {
@@ -4177,9 +4550,16 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets this object to using sockets.  When your Java program runs on the system, some Toolbox classes access data via a call to an API instead of making a socket call to the system.  There are minor differences in the behavior of the classes when they use API calls instead of socket calls.  If your program is affected by these differences you can force the Toolbox classes to use socket calls instead of API calls by using this method.  The default is false. The must use sockets property cannot be changed once a connection to the system has been established.
-     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.mustUseSockets</tt>
-     @param  mustUseSockets  true to use sockets; false otherwise.
+     * Sets this object to using sockets. When your Java program runs on the system, some Toolbox classes access data
+     * via a call to an API instead of making a socket call to the system. There are minor differences in the behavior
+     * of the classes when they use API calls instead of socket calls. If your program is affected by these differences
+     * you can force the Toolbox classes to use socket calls instead of API calls by using this method. The default is
+     * false. The must use sockets property cannot be changed once a connection to the system has been established.
+     * <p>
+     * Note: This property may also be set by specifying 'true' or 'false' in Java system property
+     * <tt>com.ibm.as400.access.AS400.mustUseSockets</tt>
+     * 
+     * @param mustUseSockets true to use sockets; false otherwise.
      **/
     public void setMustUseSockets(boolean mustUseSockets)
     {
@@ -4193,8 +4573,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates if Internet domain sockets only will be used.
-     @return  true if must use Internet domain sockets only; false otherwise.
+     * Indicates if Internet domain sockets only will be used.
+     * 
+     * @return true if must use Internet domain sockets only; false otherwise.
      **/
     public boolean isMustUseNetSockets()
     {
@@ -4203,9 +4584,15 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets this object to using Internet domain sockets only.  When your Java program runs on the system, some Toolbox classes create UNIX domain socket connections.  Using this method forces the Toolbox to only use Internet domain sockets.  The default is false. The must use net sockets property cannot be changed once a connection to the system has been established.
-     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.mustUseNetSockets</tt>
-     @param  mustUseNetSockets  true to use Internet domain sockets only; false otherwise.
+     * Sets this object to using Internet domain sockets only. When your Java program runs on the system, some Toolbox
+     * classes create UNIX domain socket connections. Using this method forces the Toolbox to only use Internet domain
+     * sockets. The default is false. The must use net sockets property cannot be changed once a connection to the
+     * system has been established.
+     * <p>
+     * Note: This property may also be set by specifying 'true' or 'false' in Java system property
+     * <tt>com.ibm.as400.access.AS400.mustUseNetSockets</tt>
+     * 
+     * @param mustUseNetSockets true to use Internet domain sockets only; false otherwise.
      **/
     public void setMustUseNetSockets(boolean mustUseNetSockets)
     {
@@ -4219,8 +4606,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates if only a supplied profile will be used.
-     @return  true if must use a supplied profile only; false otherwise.
+     * Indicates if only a supplied profile will be used.
+     * 
+     * @return true if must use a supplied profile only; false otherwise.
      **/
     public boolean isMustUseSuppliedProfile()
     {
@@ -4229,9 +4617,15 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets this object to using a supplied profile only.  When your Java program runs on the system, the information from the currently signed-on user profile can be used.  Using this method prevents the Toolbox from retrieving the current user profile information.  The default is false. The <tt>must use supplied profile</tt> property cannot be changed once a connection to the system has been established.
-     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.mustUseSuppliedProfile</tt>
-     @param  mustUseSuppliedProfile  true to use a supplied profile only; false otherwise.
+     * Sets this object to using a supplied profile only. When your Java program runs on the system, the information
+     * from the currently signed-on user profile can be used. Using this method prevents the Toolbox from retrieving the
+     * current user profile information. The default is false. The <tt>must use supplied profile</tt> property cannot be
+     * changed once a connection to the system has been established.
+     * <p>
+     * Note: This property may also be set by specifying 'true' or 'false' in Java system property
+     * <tt>com.ibm.as400.access.AS400.mustUseSuppliedProfile</tt>
+     * 
+     * @param mustUseSuppliedProfile true to use a supplied profile only; false otherwise.
      **/
     public void setMustUseSuppliedProfile(boolean mustUseSuppliedProfile)
     {
@@ -4245,10 +4639,14 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the password for this object.  Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any previously set authentication information.
-     @param  password  The user profile password.
-     @deprecated 
+     * Sets the password for this object. Only one authentication means (Kerberos ticket, profile token, identity token,
+     * or password) can be used at a single time. Using this method will clear any previously set authentication
+     * information.
+     * 
+     * @param password The user profile password.
+     * @deprecated
      **/
+    @Deprecated
     public void setPassword(String password)
     {
         char[] passwordChars = (password == null) ? null : password.toCharArray(); 
@@ -4261,11 +4659,12 @@ public class AS400 implements Serializable, AutoCloseable
         }
     }
 
-        /**
-     Sets the password for this object using a char array.  
-     The caller is responsible for clearing the array after the method returns. 
-     Only one authentication means (Kerberos ticket, profile token, identity token, or password) can be used at a single time.  Using this method will clear any previously set authentication information.
-     @param  password  The user profile password.
+    /**
+     * Sets the password for this object using a char array. The caller is responsible for clearing the array after the
+     * method returns. Only one authentication means (Kerberos ticket, profile token, identity token, or password) can
+     * be used at a single time. Using this method will clear any previously set authentication information.
+     * 
+     * @param password The user profile password.
      **/
     public void setPassword(char[] password)
     {
@@ -4281,10 +4680,10 @@ public class AS400 implements Serializable, AutoCloseable
         }
     }
 
-
     /**
-     Sets the number of days before password expiration to warn the user.
-     @param  days  The number of days before expiration to start the warning.  Set to -1 to turn off warning.
+     * Sets the number of days before password expiration to warn the user.
+     * 
+     * @param days The number of days before expiration to start the warning. Set to -1 to turn off warning.
      **/
     public static void setPasswordExpirationWarningDays(int days)
     {
@@ -4293,8 +4692,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets or resets the profile token for this object.  Using this method will clear any previously set authentication information.
-     @param  profileToken  The profile token.
+     * Sets or resets the profile token for this object. Using this method will clear any previously set authentication
+     * information.
+     * 
+     * @param profileToken The profile token.
      **/
     public void setProfileToken(ProfileTokenCredential profileToken)
     {
@@ -4312,10 +4713,18 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the name and port of the middle-tier machine where the proxy server is running.  If this is not set, then the name is retrieved from the <em>com.ibm.as400.access.AS400.proxyServer</em> <a href="doc-files/SystemProperties.html">system property</a>.  The <a href="ProxyServer.html">ProxyServer</a> must be running on the middle-tier machine.
-     <p>The name of the middle-tier machine is ignored in a two-tier environment.  If no middle-tier machine is specified, then it is assumed that no middle-tier will be accessed.  The name of the middle-tier machine cannot be changed once a connection to this machine has been established.
-     @param  proxyServer  The name and port of the proxy server in the format <code>serverName[:port]</code>.  If no port is specified, a default will be used.
-     @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     * Sets the name and port of the middle-tier machine where the proxy server is running. If this is not set, then the
+     * name is retrieved from the <em>com.ibm.as400.access.AS400.proxyServer</em>
+     * <a href="doc-files/SystemProperties.html">system property</a>. The <a href="ProxyServer.html">ProxyServer</a>
+     * must be running on the middle-tier machine.
+     * <p>
+     * The name of the middle-tier machine is ignored in a two-tier environment. If no middle-tier machine is specified,
+     * then it is assumed that no middle-tier will be accessed. The name of the middle-tier machine cannot be changed
+     * once a connection to this machine has been established.
+     * 
+     * @param proxyServer The name and port of the proxy server in the format <code>serverName[:port]</code>. If no port
+     *                    is specified, a default will be used.
+     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
      **/
     public void setProxyServer(String proxyServer) throws PropertyVetoException
     {
@@ -4344,20 +4753,23 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the service port in the service port table for the specified service for this system name.
-     @param  service  The name of the service.  Valid services are:
-     <ul>
-     <li>{@link #FILE FILE} - IFS file classes.
-     <li>{@link #PRINT PRINT} - print classes.
-     <li>{@link #COMMAND COMMAND} - command and program call classes.
-     <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
-     <li>{@link #DATABASE DATABASE} - JDBC classes.
-     <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
-     <li>{@link #CENTRAL CENTRAL} - license management classes.
-     <li>{@link #SIGNON SIGNON} - sign-on classes.
-     <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
-     </ul>
-     @param  port  The port to use for this service.  The value {@link #USE_PORT_MAPPER USE_PORT_MAPPER} can be used to specify that the next connection to this service should ask the port mapper server for the port number.
+     * Sets the service port in the service port table for the specified service for this system name.
+     * 
+     * @param service The name of the service. Valid services are:
+     *                <ul>
+     *                <li>{@link #FILE FILE} - IFS file classes.
+     *                <li>{@link #PRINT PRINT} - print classes.
+     *                <li>{@link #COMMAND COMMAND} - command and program call classes.
+     *                <li>{@link #DATAQUEUE DATAQUEUE} - data queue classes.
+     *                <li>{@link #DATABASE DATABASE} - JDBC classes.
+     *                <li>{@link #RECORDACCESS RECORDACCESS} - record level access classes.
+     *                <li>{@link #CENTRAL CENTRAL} - license management classes.
+     *                <li>{@link #SIGNON SIGNON} - sign-on classes.
+     *                <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
+     *                </ul>
+     * @param port    The port to use for this service. The value {@link #USE_PORT_MAPPER USE_PORT_MAPPER} can be used
+     *                to specify that the next connection to this service should ask the port mapper server for the port
+     *                number.
      **/
     public void setServicePort(int service, int port)
     {
@@ -4382,7 +4794,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the ports in the service port table for all the services for this system name to their default values.  This causes the connections to this system name to use the default ports for those services rather than querying the port number through a port mapper connection.  The use of this method can reduce the number of connections made to the system.
+     * Sets the ports in the service port table for all the services for this system name to their default values. This
+     * causes the connections to this system name to use the default ports for those services rather than querying the
+     * port number through a port mapper connection. The use of this method can reduce the number of connections made to
+     * the system.
      **/
     public void setServicePortsToDefault()
     {
@@ -4399,8 +4814,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Indicates if checkboxes should be shown on the sign-on dialog.
-     @param  showCheckboxes  true to show checkboxes; false otherwise.
+     * Indicates if checkboxes should be shown on the sign-on dialog.
+     * 
+     * @param showCheckboxes true to show checkboxes; false otherwise.
      **/
     public void setShowCheckboxes(boolean showCheckboxes)
     {
@@ -4409,11 +4825,15 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the sign-on handler for this AS400 object.  The specified handler will be called at runtime if the AS400 object needs to obtain additional signon information.
-     <br>By default, an internal AWT-based implementation is used, if no sign-on handler has been statically set via setDefaultSignonHandler().
-     @param handler The sign-on handler.  Specifying <tt>null</tt> will reset the default sign-on handler to the internal AWT-based handler.
-     @see #getSignonHandler
-     @see #setDefaultSignonHandler
+     * Sets the sign-on handler for this AS400 object. The specified handler will be called at runtime if the AS400
+     * object needs to obtain additional signon information. <br>
+     * By default, an internal AWT-based implementation is used, if no sign-on handler has been statically set via
+     * setDefaultSignonHandler().
+     * 
+     * @param handler The sign-on handler. Specifying <tt>null</tt> will reset the default sign-on handler to the
+     *                internal AWT-based handler.
+     * @see #getSignonHandler
+     * @see #setDefaultSignonHandler
      **/
     public void setSignonHandler(SignonHandler handler)
     {
@@ -4426,13 +4846,16 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Set the stay-alve interval. When enabled, a request is sent at the specified milliseconds interval to all currently opened
-     connections to help keep the connections alive. This is sometimes needed to prevent firewalls from dropping stale connections.
-     The use of this method applies only to connections created after this method is called. This stay-alive functionality 
-     only applies to connections to the following host servers: {@link #COMMAND COMMAND}, {@link #DATABASE DATABASE},
-     {@link #DATAQUEUE DATAQUEUE}, {@link #FILE FILE}, and {@link #PRINT PRINT}.
-     @param  milliseconds  The number of milliseconds between requests to the server.  If set to zero, then this stay-alive
-                           capability will not be used.
+     * Set the stay-alve interval. When enabled, a request is sent at the specified milliseconds interval to all
+     * currently opened connections to help keep the connections alive. This is sometimes needed to prevent firewalls
+     * from dropping stale connections. The use of this method applies only to connections created after this method is
+     * called. This stay-alive functionality only applies to connections to the following host servers: {@link #COMMAND
+     * COMMAND}, {@link #DATABASE DATABASE}, {@link #DATAQUEUE DATAQUEUE}, {@link #FILE FILE}, and {@link #PRINT PRINT}.
+     * <P>
+     * NOTE: NOT YET IMPLEMENTED. 
+     * 
+     * @param milliseconds The number of milliseconds between requests to the server. If set to zero, then this
+     *                     stay-alive capability will not be used.
      **/
     public void setStayAlive(long milliseconds)
     {
@@ -4441,8 +4864,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the socket options the IBM Toolbox for Java will set on its client side sockets.  The socket properties cannot be changed once a connection to the system has been established.
-     @param  socketProperties  The set of socket options to set.  The options are copied from this object, not shared.
+     * Sets the socket options the IBM Toolbox for Java will set on its client side sockets. The socket properties
+     * cannot be changed once a connection to the system has been established.
+     * 
+     * @param socketProperties The set of socket options to set. The options are copied from this object, not shared.
      **/
     public void setSocketProperties(SocketProperties socketProperties)
     {
@@ -4450,7 +4875,6 @@ public class AS400 implements Serializable, AutoCloseable
         if (socketProperties == null)
             throw new NullPointerException("socketProperties");
 
-        
         if (propertiesFrozen_)
         {
             Trace.log(Trace.ERROR, "Cannot set socket properties after connection has been made.");
@@ -4460,9 +4884,11 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the system name for this object.  The system name cannot be changed once a connection to the system has been established.
-     @param  systemName  The name of the IBM i system.  Use <code>localhost</code> to access data locally.
-     @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     * Sets the system name for this object. The system name cannot be changed once a connection to the system has been
+     * established.
+     * 
+     * @param systemName The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
      **/
     public void setSystemName(String systemName) throws PropertyVetoException
     {
@@ -4498,14 +4924,17 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets whether the IBM Toolbox for Java uses threads in communication with the host servers.  The default is true.
-     Letting the IBM Toolbox for Java use threads may be beneficial to performance, turning threads off may be necessary
-     if your application needs to be compliant with the Enterprise Java Beans specification.
-     The thread used property cannot be changed once a connection to the system has been established.
-
-     <p>Note: This property may also be set by specifying 'true' or 'false' in Java system property <tt>com.ibm.as400.access.AS400.threadUsed</tt>
-     @param  useThreads  true to use threads; false otherwise.
-     @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     * Sets whether the IBM Toolbox for Java uses threads in communication with the host servers. The default is true.
+     * Letting the IBM Toolbox for Java use threads may be beneficial to performance, turning threads off may be
+     * necessary if your application needs to be compliant with the Enterprise Java Beans specification. The thread used
+     * property cannot be changed once a connection to the system has been established.
+     * 
+     * <p>
+     * Note: This property may also be set by specifying 'true' or 'false' in Java system property
+     * <tt>com.ibm.as400.access.AS400.threadUsed</tt>
+     * 
+     * @param useThreads true to use threads; false otherwise.
+     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
      **/
     public void setThreadUsed(boolean useThreads) throws PropertyVetoException
     {
@@ -4534,9 +4963,12 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the indicator for whether the default user is used.  The default user is used if a system name is provided, but a user ID is not.  If a default user is set for that system, then the default user is used.
-     @param  useDefaultUser  The value indicating if the default user should be used.  Set to true if default user should be used; false otherwise.  The default is true, indicating that the default user is used.
-     @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     * Sets the indicator for whether the default user is used. The default user is used if a system name is provided,
+     * but a user ID is not. If a default user is set for that system, then the default user is used.
+     * 
+     * @param useDefaultUser The value indicating if the default user should be used. Set to true if default user should
+     *                       be used; false otherwise. The default is true, indicating that the default user is used.
+     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
      **/
     public void setUseDefaultUser(boolean useDefaultUser) throws PropertyVetoException
     {
@@ -4559,10 +4991,15 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the indicator for whether the password cache is used.  If password cache is used, then the user would only have to enter password once within a Java virtual machine.  The default is to use the cache.
-     <br>Unless the application is running in its own private JVM, users are advised to turn off password caching, in order to ensure that another application within the same JVM cannot create a connection using the cached password.
-     @param  usePasswordCache  The value indicating whether the password cache should be used.  Set to true to use the password cache; false otherwise.
-     @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     * Sets the indicator for whether the password cache is used. If password cache is used, then the user would only
+     * have to enter password once within a Java virtual machine. The default is to use the cache. <br>
+     * Unless the application is running in its own private JVM, users are advised to turn off password caching, in
+     * order to ensure that another application within the same JVM cannot create a connection using the cached
+     * password.
+     * 
+     * @param usePasswordCache The value indicating whether the password cache should be used. Set to true to use the
+     *                         password cache; false otherwise.
+     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
      **/
     public void setUsePasswordCache(boolean usePasswordCache) throws PropertyVetoException
     {
@@ -4585,11 +5022,12 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Sets the user ID for this object.  The user ID cannot be changed once a connection to the system has been established.  If this 
-     method is used in conjunction with a Kerberos ticket, profile token, or identity token, the user profile associated with 
-     the authentication token must match this user ID.
-     @param  userId  The user profile name.
-     @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+     * Sets the user ID for this object. The user ID cannot be changed once a connection to the system has been
+     * established. If this method is used in conjunction with a Kerberos ticket, profile token, or identity token, the
+     * user profile associated with the authentication token must match this user ID.
+     * 
+     * @param userId The user profile name.
+     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
      **/
     public void setUserId(String userId) throws PropertyVetoException
     {
@@ -4716,8 +5154,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Returns the text representation of this AS400 object.
-     @return  The string representing this AS400 object.
+     * Returns the text representation of this AS400 object.
+     * 
+     * @return The string representing this AS400 object.
      **/
     public String toString() {
         return "AS400 (system name: '" + systemName_ + "' user ID: '" + userId_ + "'):" + super.toString();
@@ -4763,13 +5202,18 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Validates the user ID and password on the system but does not add to the signed-on list.  This means that a new 
-     AS400 object instance is created to do the validation. The user ID and system name need to be set before calling this method.
-     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
-     <p><b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is used.
-     @return  true if successful.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+     * Validates the user ID and password on the system but does not add to the signed-on list. This means that a new
+     * AS400 object instance is created to do the validation. The user ID and system name need to be set before calling
+     * this method.
+     * <p>
+     * <b>Note:</b> This will return true if the information is successfully validated. An unsuccessful validation will
+     * cause an exception to be thrown, false is never returned.
+     * <p>
+     * <b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is used.
+     * 
+     * @return true if successful.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public boolean validateSignon() throws AS400SecurityException, IOException
     {
@@ -4791,17 +5235,22 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Validates the user ID and password on the system but does not add to the signed-on list.  This means that a new 
-     AS400 object instance is created to do the validation. 
-     The user ID and system name need to be set before calling this method.
-     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
-     <p><b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is used.
-     @param  password  The user profile password to validate.
-     @return  true if successful.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated
+     * Validates the user ID and password on the system but does not add to the signed-on list. This means that a new
+     * AS400 object instance is created to do the validation. The user ID and system name need to be set before calling
+     * this method.
+     * <p>
+     * <b>Note:</b> This will return true if the information is successfully validated. An unsuccessful validation will
+     * cause an exception to be thrown, false is never returned.
+     * <p>
+     * <b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is used.
+     * 
+     * @param password The user profile password to validate.
+     * @return true if successful.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @deprecated
      **/
+    @Deprecated
     public boolean validateSignon(String password) throws AS400SecurityException, IOException
     {
         char[] passwordChars = (password == null) ? null : password.toCharArray();
@@ -4815,15 +5264,19 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     Validates the user ID and password on the system but does not add to the signed-on list.  This means that a new 
-     AS400 object instance is created to do the validation. 
-     The user ID and system name need to be set before calling this method.
-     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
-     <p><b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is used.
-     @param  password  The user profile password to validate.
-     @return  true if successful.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+     * Validates the user ID and password on the system but does not add to the signed-on list. This means that a new
+     * AS400 object instance is created to do the validation. The user ID and system name need to be set before calling
+     * this method.
+     * <p>
+     * <b>Note:</b> This will return true if the information is successfully validated. An unsuccessful validation will
+     * cause an exception to be thrown, false is never returned.
+     * <p>
+     * <b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is used.
+     * 
+     * @param password The user profile password to validate.
+     * @return true if successful.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public boolean validateSignon(char[] password) throws AS400SecurityException, IOException
     {
@@ -4848,19 +5301,24 @@ public class AS400 implements Serializable, AutoCloseable
     }
       
     /**
-     Validates the user ID and password on the system but does not add to the signed-on list.  This means that a new 
-     AS400 object instance is created to do the validation. 
-     The system name needs to be set prior to calling this method.
-     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
-     <p><b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is not used. If you want to use an additional authentication factor, 
-     see {@link #validateSignon(String, char[], char[])}
-     @param  userId  The user profile name to validate.
-     @param  password  The user profile password to validate.
-     @return  true if successful.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @deprecated Using a string as a password is insecure
+     * Validates the user ID and password on the system but does not add to the signed-on list. This means that a new
+     * AS400 object instance is created to do the validation. The system name needs to be set prior to calling this
+     * method.
+     * <p>
+     * <b>Note:</b> This will return true if the information is successfully validated. An unsuccessful validation will
+     * cause an exception to be thrown, false is never returned.
+     * <p>
+     * <b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is not used. If you want
+     * to use an additional authentication factor, see {@link #validateSignon(String, char[], char[])}
+     * 
+     * @param userId   The user profile name to validate.
+     * @param password The user profile password to validate.
+     * @return true if successful.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @deprecated Using a string as a password is insecure
      **/
+    @Deprecated
     public boolean validateSignon(String userId, String password) throws AS400SecurityException, IOException
     {
         char[] passwordChars = (password == null) ? null : password.toCharArray();
@@ -4873,37 +5331,44 @@ public class AS400 implements Serializable, AutoCloseable
         }
     }
 
-     /**
-     Validates the user ID and password on the system but does not add to the signed-on list.  This means that a new 
-     AS400 object instance is created to do the validation. 
-     The system name needs to be set prior to calling this method.
-     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
-     <p><b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is not used. If you want to use an additional authentication factor, 
-     see {@link #validateSignon(String, char[], char[])}
-     @param  userId  The user profile name to validate.
-     @param  password  The user profile password to validate.
-     @return  true if successful.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+    /**
+     * Validates the user ID and password on the system but does not add to the signed-on list. This means that a new
+     * AS400 object instance is created to do the validation. The system name needs to be set prior to calling this
+     * method.
+     * <p>
+     * <b>Note:</b> This will return true if the information is successfully validated. An unsuccessful validation will
+     * cause an exception to be thrown, false is never returned.
+     * <p>
+     * <b>Note:</b>If an additional authentication factor has been set in the AS400 object, it is not used. If you want
+     * to use an additional authentication factor, see {@link #validateSignon(String, char[], char[])}
+     * 
+     * @param userId   The user profile name to validate.
+     * @param password The user profile password to validate.
+     * @return true if successful.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
     public boolean validateSignon(String userId, char[] password) throws AS400SecurityException, IOException
     {
         return validateSignon(userId, password, null);
     }
 
-     /**
-     Validates the user ID and password on the system but does not add to the signed-on list.  This means that a new 
-     AS400 object instance is created to do the validation. 
-     The system name needs to be set prior to calling this method.
-     <p><b>Note:</b> This will return true if the information is successfully validated.  An unsuccessful validation will cause an exception to be thrown, false is never returned.
-     @param  userId  The user profile name to validate.
-     @param  password  The user profile password to validate.
-     @param  additionalAuthenticationFactor Additional authentication factor (or null if not providing one).
-     @return  true if successful.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  IOException  If an error occurs while communicating with the system.
+    /**
+     * Validates the user ID and password on the system but does not add to the signed-on list. This means that a new
+     * AS400 object instance is created to do the validation. The system name needs to be set prior to calling this
+     * method.
+     * <p>
+     * <b>Note:</b> This will return true if the information is successfully validated. An unsuccessful validation will
+     * cause an exception to be thrown, false is never returned.
+     * 
+     * @param userId               The user profile name to validate.
+     * @param password             The user profile password to validate.
+     * @param additionalAuthFactor Additional authentication factor (or null if not providing one).
+     * @return true if successful.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
      **/
-    public boolean validateSignon(String userId, char[] password, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
+    public boolean validateSignon(String userId, char[] password, char[] additionalAuthFactor) throws AS400SecurityException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Validating signon, password and additional factor, user ID: '" + userId + "'");
 
@@ -4927,12 +5392,12 @@ public class AS400 implements Serializable, AutoCloseable
           userId = userId.toUpperCase(Locale.ENGLISH);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-        return validateSignon(true, userId.toUpperCase(), tempVault, additionalAuthenticationFactor);
+        return validateSignon(true, userId.toUpperCase(), tempVault, additionalAuthFactor);
     }
     
     // Internal version of validate sign-on; takes checked user ID and twiddled password bytes.
     // If the signon info is not valid, an exception is thrown.
-    private boolean validateSignon(boolean useNewInstance, String userId, CredentialVault pwVault, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException
+    private boolean validateSignon(boolean useNewInstance, String userId, CredentialVault pwVault, char[] additionalAuthFactor) throws AS400SecurityException, IOException
     {
          // Use a new instance when system, userid, and credentials are not part of this
         // instance of AS400 class;  otherwise, use this instance. 
@@ -4940,7 +5405,7 @@ public class AS400 implements Serializable, AutoCloseable
         {
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating temporary connection for validating signon info.");
 
-            try (AS400 validationSystem = new AS400(systemName_, userId, pwVault, additionalAuthenticationFactor))
+            try (AS400 validationSystem = new AS400(systemName_, userId, pwVault, additionalAuthFactor))
             {
                 validationSystem.proxyServer_ = proxyServer_;
                 // proxyClientConnection_ is not needed.
@@ -5003,8 +5468,9 @@ public class AS400 implements Serializable, AutoCloseable
     private int bidiStringType = BidiStringType.DEFAULT;
 
     /**
-     * Sets bidi string type of the connection.
-     * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     * Sets bidi string type of the connection. See <a href="BidiStringType.html">BidiStringType</a> for more
+     * information and valid values.
+     * 
      * @param bidiStringType bidi string type to use for the connection.
      */
     public void setBidiStringType(int bidiStringType){
@@ -5012,8 +5478,9 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     * Returns bidi string type of the connection.
-     * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
+     * Returns bidi string type of the connection. See <a href="BidiStringType.html">BidiStringType</a> for more
+     * information and valid values.
+     * 
      * @return The bidi string type of the connection.
      */
     public int getBidiStringType(){
@@ -5044,6 +5511,11 @@ public class AS400 implements Serializable, AutoCloseable
         ccsid_ = signonInfo_.serverCCSID;
     }
     
+    /**
+     * Return whether default locale is Turkish. 
+     * 
+     * @return true if Turkish; otherwise, false.
+     */
     public static boolean isTurkish()
     {
         Locale defaultLocale = Locale.getDefault();
@@ -5052,22 +5524,31 @@ public class AS400 implements Serializable, AutoCloseable
         return (defaultLocale.equals(Turkishlocale) ) ? true : false;
     }
     
+    /**
+     * Returns the timeout value when attempting to validate the sign on information.
+     * 
+     * @return The timeout value in milliseconds.
+     */
     public int getvalidateSignonTimeOut() {
         return validateSignonTimeOut_;
     }
     
+    /**
+     * Set the the timeout value when when attempting to validate the sign on information.
+     * 
+     * @param validateSignonTimeOut The timeout value in milliseconds.
+     */
     public void setvalidateSignonTimeOut(int validateSignonTimeOut) {
         validateSignonTimeOut_ = validateSignonTimeOut;
     }
     
     /**
      * Password level
-     * @return  -1   - Not remote method, such as proxy method.
-     *          0, 1 - password type is DES
-     *          2, 3 - password type is SHA-1
-     *          4    - password type is SHA-512
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  IOException  If an error occurs while communicating with the system.
+     * 
+     * @return -1 - Not remote method, such as proxy method. 0, 1 - password type is DES 2, 3 - password type is SHA-1 4
+     *         - password type is SHA-512
+     * @throws AS400SecurityException If a security or authority error occurs.
+     * @throws IOException            If an error occurs while communicating with the system.
      */
     public int passwordLevel() throws AS400SecurityException, IOException
     {
@@ -5085,9 +5566,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
-     * <p>This method is functionally equivalent to the <i>resetAllServices()</i> method.
-    @see #resetAllServices
-    **/
+     * This method is functionally equivalent to the <i>resetAllServices()</i> method.
+     * 
+     * @see #resetAllServices
+     **/
     @Override
     public void close() {
         // resetAllServices() ensures that HOSTCNN is disconnected from this AS400.  
@@ -5106,9 +5588,10 @@ public class AS400 implements Serializable, AutoCloseable
     }
     
     /**
-    Returns true if host server communications is performed over a secure channel. 
-    @return  true if communications is done over secure channel; otherwise false.
-    **/
+     * Returns true if host server communications is performed over a secure channel.
+     * 
+     * @return true if communications is done over secure channel; otherwise false.
+     **/
     public boolean isSecure() {
         return (this instanceof SecureAS400);
     }
@@ -5118,12 +5601,15 @@ public class AS400 implements Serializable, AutoCloseable
     // ======== START =================
     
     /**
-    Returns the key ring class name used for SSL communications with the system.  The 
-    class <i>com.ibm.as400.access.KeyRing</i> is the default and will be returned if not overridden.
-     <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
-    @return  The key ring class name.
-    @deprecated
-    **/
+     * Returns the key ring class name used for SSL communications with the system. The class
+     * <i>com.ibm.as400.access.KeyRing</i> is the default and will be returned if not overridden.
+     * <p>
+     * <b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+     * 
+     * @return The key ring class name.
+     * @deprecated
+     **/
+    @Deprecated
    public String getKeyRingName()
    {
        ensureSecureInstance();
@@ -5133,10 +5619,12 @@ public class AS400 implements Serializable, AutoCloseable
    }
 
    /**
-    Returns the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications 
-    between the client, proxy server, and IBM i system are encrypted.
-    <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
-    @return  The proxy encryption mode.
+    * Returns the proxy encryption mode. The proxy encryption mode specifies which portions of the communications
+    * between the client, proxy server, and IBM i system are encrypted.
+    * <p>
+    * <b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    * 
+    * @return The proxy encryption mode.
     **/
    public int getProxyEncryptionMode()
    {
@@ -5147,11 +5635,13 @@ public class AS400 implements Serializable, AutoCloseable
    }
 
    /**
-    Sets the key ring class name used for SSL communications with the system.  
-    This method is no longer supported because sslight is not longer supported. 
-    <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
-    @param  keyRingName  The key ring class name.
-    @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+    * Sets the key ring class name used for SSL communications with the system. This method is no longer supported
+    * because sslight is not longer supported.
+    * <p>
+    * <b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    * 
+    * @param keyRingName The key ring class name.
+    * @exception PropertyVetoException If any of the registered listeners vetos the property change.
     **/
    public void setKeyRingName(String keyRingName) throws PropertyVetoException
    {
@@ -5162,12 +5652,14 @@ public class AS400 implements Serializable, AutoCloseable
    }
 
    /**
-    Sets the key ring class name used for SSL communications with the system.  
-    This method is no longer available since support for sslight has been removed. 
-     <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
-    @param  keyRingName  The key ring class name.
-    @param  keyRingPassword  The password for the key ring class.
-    @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+    * Sets the key ring class name used for SSL communications with the system. This method is no longer available since
+    * support for sslight has been removed.
+    * <p>
+    * <b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    * 
+    * @param keyRingName     The key ring class name.
+    * @param keyRingPassword The password for the key ring class.
+    * @exception PropertyVetoException If any of the registered listeners vetos the property change.
     **/
    public void setKeyRingName(String keyRingName, String keyRingPassword) throws PropertyVetoException
    {
@@ -5178,11 +5670,14 @@ public class AS400 implements Serializable, AutoCloseable
    }
 
    /**
-    Sets the key ring password used for SSL communications with the system.
-     <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
-    @param  keyRingPassword  The password for the key ring class.
-    @deprecated
+    * Sets the key ring password used for SSL communications with the system.
+    * <p>
+    * <b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    * 
+    * @param keyRingPassword The password for the key ring class.
+    * @deprecated
     **/
+   @Deprecated
    public void setKeyRingPassword(String keyRingPassword)
    {
        ensureSecureInstance();
@@ -5192,14 +5687,18 @@ public class AS400 implements Serializable, AutoCloseable
    }
 
    /**
-    Sets the proxy encryption mode.  The proxy encryption mode specifies which portions of the communications between the client, proxy server, and IBM i system are encrypted.  The default is to encrypt all communications.  This value is ignored if a proxy server is not used.
-    <br>Valid proxy encryption modes are:
-    <br>{@link #CLIENT_TO_PROXY_SERVER CLIENT_TO_PROXY_SERVER} - encrypt between client and proxy server.
-    <br>{@link #PROXY_SERVER_TO_SERVER PROXY_SERVER_TO_SERVER} - encrypt between proxy server and IBM i system.
-    <br>{@link #CLIENT_TO_SERVER CLIENT_TO_SERVER} - encrypt both portions of connection.
-    <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
-    @param  proxyEncryptionMode  The proxy encryption mode.
-    @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
+    * Sets the proxy encryption mode. The proxy encryption mode specifies which portions of the communications between
+    * the client, proxy server, and IBM i system are encrypted. The default is to encrypt all communications. This value
+    * is ignored if a proxy server is not used. <br>
+    * Valid proxy encryption modes are: <br>
+    * {@link #CLIENT_TO_PROXY_SERVER CLIENT_TO_PROXY_SERVER} - encrypt between client and proxy server. <br>
+    * {@link #PROXY_SERVER_TO_SERVER PROXY_SERVER_TO_SERVER} - encrypt between proxy server and IBM i system. <br>
+    * {@link #CLIENT_TO_SERVER CLIENT_TO_SERVER} - encrypt both portions of connection.
+    * <p>
+    * <b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    * 
+    * @param proxyEncryptionMode The proxy encryption mode.
+    * @exception PropertyVetoException If any of the registered listeners vetos the property change.
     **/
    public void setProxyEncryptionMode(int proxyEncryptionMode) throws PropertyVetoException
    {
@@ -5232,9 +5731,11 @@ public class AS400 implements Serializable, AutoCloseable
    }
    
    /**
-    Set list of cipher suites. 
-    <p><b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
-    @param suites Array of cipher suites.
+    * Set list of cipher suites.
+    * <p>
+    * <b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    * 
+    * @param suites Array of cipher suites.
     **/
     public void setEnabledCipherSuites(String[] suites)
     {

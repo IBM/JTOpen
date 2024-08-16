@@ -194,7 +194,8 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     private byte[] token_ = null; // encoded token
     private int type_ = TYPE_SINGLE_USE;
     private int timeoutInterval_ = 3600;
-    
+
+
     private boolean noRefresh_ = false;
 
     private final static int MAX_USERPROFILE_LENGTH = 10;
@@ -259,10 +260,6 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * Constructs and initializes a ProfileTokenCredential object.
      *
      * <p>
-     * The <i>system</i>, <i>token</i>, <i>tokenType</i>, and <i>timeoutInterval</i>
-     * properties are initialized to the specified values.
-     *
-     * <p>
      * This method allows a credential to be constructed based on an existing token
      * (i.e. previously created using the QSYGENPT system API). It is the
      * responsibility of the application to ensure the token attributes, such as the
@@ -285,7 +282,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * @param timeoutInterval The number of seconds to expiration, used as the
      *                        default value when the token is refreshed (1-3600).
      */
-    public ProfileTokenCredential(AS400 system, byte[] token, int tokenType, int timeoutInterval)
+    public ProfileTokenCredential(AS400 system, byte[] token, int tokenType, int timeoutInterval) 
     {
         this();
         try {
@@ -293,8 +290,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
             setToken(token);
             setTokenType(tokenType);
             setTimeoutInterval(timeoutInterval);
-        }
-        catch (PropertyVetoException pve) {
+        } catch (PropertyVetoException pve) {
             AuthenticationSystem.handleUnexpectedException(pve);
         }
     }
@@ -443,57 +439,17 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         return hash;
     }
 
-    /**
-     * Returns the name of the class providing an implementation for code delegated
-     * by the credential that performs native optimization when running on an IBM i
-     * system.
-     *
-     * @return The qualified class name for native optimizations.
-     */
     @Override
     String implClassNameNative() {
         return "com.ibm.as400.access.ProfileTokenImplNative";
     }
 
-    /**
-     * Returns the name of the class providing an implementation for code delegated
-     * by the credential when no native optimization is to be performed.
-     *
-     * @return The qualified class name.
-     */
     @Override
     String implClassNameRemote() {
         return "com.ibm.as400.security.auth.ProfileTokenImplRemote";
     }
 
-    /**
-     * Initializes and validates a credential for the local IBM i system.
-     *
-     * @param principal       The principal identifying the authenticated user. If
-     *                        not an instance of AS400Principal, a corresponding
-     *                        UserProfilePrincipal is generated and assigned.
-     *
-     * @param password        The password for the authenticated user.
-     *
-     * @param isPrivate       Indicates whether the credential is considered
-     *                        private.
-     *
-     * @param isReusable      true if the credential can be used to swap thread
-     *                        identity multiple times; otherwise false.
-     *
-     * @param isRenewable     true if the validity period of the credential can be
-     *                        programmatically updated or extended; otherwise false.
-     *
-     * @param timeoutInterval The number of seconds to expiration when the
-     *                        credential is initially created; ignored if the
-     *                        credential does not expire based on time.
-     *
-     * @exception Exception If an exception occurs.
-     *
-     * @deprecated Use initialize(AS400BasicAuthenticationPrincipal principal,
-     *             char[] password, boolean isPrivate, boolean isReusable, boolean
-     *             isRenewable, int timeoutInterval) instead.
-     */
+    @Deprecated
     @Override
     public void initialize(AS400BasicAuthenticationPrincipal principal, String password, boolean isPrivate,
             boolean isReusable, boolean isRenewable, int timeoutInterval) throws Exception
@@ -507,93 +463,50 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         }
     }
 
-    /**
-    * Initializes and validates a credential for the local IBM i system.
-    *
-    * @param principal
-    *        The principal identifying the authenticated user.
-    *        If not an instance of AS400Principal, a corresponding
-    *        UserProfilePrincipal is generated and assigned.
-    *
-    * @param password
-    *        The password for the authenticated user.
-    *
-    * @param isPrivate
-    *        Indicates whether the credential is considered private.
-    *
-    * @param isReusable
-    *        true if the credential can be used to swap
-    *        thread identity multiple times;
-    *        otherwise false.
-    *
-    * @param isRenewable
-    *        true if the validity period of the credential
-    *        can be programmatically updated or extended;
-    *        otherwise false.
-    *
-    * @param timeoutInterval
-    *        The number of seconds to expiration when the credential
-    *        is initially created; ignored if the credential
-    *        does not expire based on time.
-    *
-    * @exception Exception
-    *        If an exception occurs.
-    *
-    */
-    public void initialize(AS400BasicAuthenticationPrincipal principal,
-            char[] password, boolean isPrivate, boolean isReusable, 
-            boolean isRenewable, int timeoutInterval)
-        throws Exception {
+    @Override
+    public void initialize(AS400BasicAuthenticationPrincipal principal, char[] password, boolean isPrivate,
+            boolean isReusable, boolean isRenewable, int timeoutInterval) throws Exception
+    {
         if (Trace.isTraceOn())
+        {
             Trace.log(Trace.INFORMATION,
-                new StringBuffer("Initializing credential >> "
-                        ).append(toString()
-                        ).append(", for principal >> "
-                        ).append(principal.toString()
-                        ).append(", isPrivate == "
-                        ).append(isPrivate
-                        ).append(", isReusable == "
-                        ).append(isReusable
-                        ).append(", isRenewable == "
-                        ).append(isRenewable
-                        ).append(", timeoutInterval == "
-                        ).append(timeoutInterval
-                        ).toString());
+                    new StringBuffer("Initializing credential >> ").append(toString()).append(", for principal >> ")
+                            .append(principal.toString()).append(", isPrivate == ").append(isPrivate)
+                            .append(", isReusable == ").append(isReusable).append(", isRenewable == ")
+                            .append(isRenewable).append(", timeoutInterval == ").append(timeoutInterval)
+                            .toString());
+        }
 
         // Validate parameters
-        if (isRenewable && !isReusable) {
-            Trace.log(Trace.ERROR, "Profile tokens must be multi-use" +
-                    " if declared as regenerable.");
+        if (isRenewable && !isReusable)
+        {
+            Trace.log(Trace.ERROR, "Profile tokens must be multi-use if declared as regenerable.");
             throw new ExtendedIllegalArgumentException("isReusable",
-                ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                    ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
+
         // Assign to the local host system
         AS400 sys = AuthenticationSystem.localHost();
         setSystem(sys);
         // Assign an appropriate principal
-        AS400Principal pr =
-            (AS400Principal.class.isAssignableFrom(principal.getClass()))
-                ? (AS400Principal)principal
+        AS400Principal pr = (AS400Principal.class.isAssignableFrom(principal.getClass())) ? (AS400Principal) principal
                 : new UserProfilePrincipal(sys, principal.getUserProfileName());
         setPrincipal(pr);
+
         // Assign profile token attributes
         private_ = isPrivate;
         setTimeoutInterval(timeoutInterval);
-        if (isRenewable) setTokenType(TYPE_MULTIPLE_USE_RENEWABLE);
-            else if (isReusable) setTokenType(TYPE_MULTIPLE_USE_NON_RENEWABLE);
-                else setTokenType(TYPE_SINGLE_USE);
+        if (isRenewable)
+            setTokenType(TYPE_MULTIPLE_USE_RENEWABLE);
+        else if (isReusable)
+            setTokenType(TYPE_MULTIPLE_USE_NON_RENEWABLE);
+        else
+            setTokenType(TYPE_SINGLE_USE);
+        
         // Generate the token
         setTokenExtended(pr, password);
     }
 
-    /**
-     * Reset the value of all properties used to define the credential.
-     *
-     * <p>
-     * These are the values initialized prior to accessing host information for or
-     * taking action against the credential and not modified thereafter until the
-     * credential is destroyed.
-    */
     @Override
     void invalidateProperties()
     {
@@ -601,14 +514,6 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         token_ = null;
     }
 
-    /**
-     * Indicates if the credential can be refreshed.
-     *
-     * @return true if the validity period of the credential can be programmatically
-     *         updated or extended using <i>refresh()</i>; otherwise false.
-     *
-     * @see #refresh
-     */
     @Override
     public boolean isRenewable() {
         return type_ == TYPE_MULTIPLE_USE_RENEWABLE;
@@ -634,20 +539,6 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         token_ = encode(addr_, mask_, bytes);
     }
 
-    /**
-     * Updates or extends the validity period for the credential.
-     *
-     * <p>
-     * Does nothing if the credential cannot be programmatically updated or
-     * extended.
-     *
-     * <p>
-     * Otherwise, generates a new profile token based on the previously established
-     * <i>token</i>, <i>type</i>, and <i>timeoutInterval</i>.
-     *
-     * @exception AS400SecurityException If an IBM i system security or
-     *                                   authentication error occurs.
-     */
     @Override
     public void refresh() throws AS400SecurityException {
         refresh(getTokenType(), getTimeoutInterval());
@@ -884,6 +775,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *                                             initialized due to the current
      *                                             state.
      */
+    @Deprecated
     public void setToken(AS400Principal principal, String password) throws PropertyVetoException, AS400SecurityException {
         setToken(principal.getUserProfileName(), password);
     }
@@ -938,6 +830,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *                                             state.
      *
      */
+    @Deprecated
     public void setToken(String name, String password) throws PropertyVetoException, AS400SecurityException
     {
         // Validate state
@@ -1111,8 +1004,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
             break;
         default:
             Trace.log(Trace.ERROR, "Special value for password is not valid");
-            throw new ExtendedIllegalArgumentException("password",
-                    ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("password", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
         // Instantiate a new impl but do not yet set as the default impl_
@@ -1163,6 +1055,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * @deprecated Use setTokenExtended(AS400Principal principal, char[] password)
      *             instead
      */
+    @Deprecated
     public void setTokenExtended(AS400Principal principal, String password) throws PropertyVetoException, AS400SecurityException {
         setTokenExtended(principal.getUserProfileName(), password);
     }
@@ -1238,6 +1131,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *
      * @deprecated Use setTokenExtended(String name, char[] password) instead.
      */
+    @Deprecated
     public void setTokenExtended(String name, String password) throws PropertyVetoException, AS400SecurityException
     {
         char[] passwordChars = (password == null) ? null : password.toCharArray();
@@ -1307,12 +1201,8 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         ProfileTokenImpl impl = (ProfileTokenImpl)getImplPrimitive();
 
         // Generate and set the token value
-        setToken(
-            impl.generateTokenExtended(
-                name,
-                password,
-                getTokenType(),
-                getTimeoutInterval()));
+        setToken(impl.generateTokenExtended(name, password,  
+                                            getTokenType(), getTimeoutInterval()));
 
         // If successful, all defining attributes are now set.
         // Set the impl for subsequent references.
@@ -1369,11 +1259,6 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         firePropertyChange("tokenType", old, typ);
     }
 
-    /**
-     * Returns a string representation of the object
-     *
-     * @return a string representation of the object.
-     */
     @Override
     public String toString()
     {
@@ -1381,47 +1266,16 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
                 .append(getTimeoutInterval()).append(']').toString();
     }
 
-    /**
-     * Indicates if instances of the class are sufficient by themselves to change
-     * the OS thread identity.
-     *
-     * <p>
-     * Typically this behavior is dictated by the type of credential and need not be
-     * changed for individual instances.
-     *
-     * @return true
-     */
     @Override
     boolean typeIsStandalone() {
         return true;
     }
 
-    /**
-     * Indicates if instances of the class will expire based on time.
-     *
-     * <p>
-     * Typically this behavior is dictated by the type of credential and need not be
-     * changed for individual instances.
-     *
-     * @return true
-     */
     @Override
     boolean typeIsTimed() {
         return true;
     }
 
-    /**
-     * Validates that all properties required to define the credential have been
-     * set.
-     *
-     * <p>
-     * These are the values initialized prior to accessing host information for or
-     * taking action against the credential and not modified thereafter until the
-     * credential is destroyed.
-     *
-     * @exception ExtendedIllegalStateException If a required property is not set.
-     *
-     */
     @Override
     void validateProperties() {
         super.validateProperties();

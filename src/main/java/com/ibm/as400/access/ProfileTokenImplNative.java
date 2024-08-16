@@ -14,6 +14,8 @@
 
 package com.ibm.as400.access;
 
+import java.io.IOException;
+
 import com.ibm.as400.security.auth.*;
 
 /**
@@ -116,53 +118,12 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         return nativeCreateTokenChar(uid.toUpperCase(), pwd, type, timeoutInterval);
     }
 
-    
-    
-    /**
-    * Generates and returns a new profile token based on
-    * the provided information using a password special value.
-    *
-    * @param uid
-    *		The name of the user profile for which the token
-    *		is to be generated.
-    *
-    * @param pwdSpecialValue
-    *		A password special value.
-    *      Possible types are defined as fields on the 
-    *      ProfileTokenCredential class:
-    *		  <ul>
-    * 			<li>PW_NOPWD
-    * 			<li>PW_NOPWDCHK
-    *		  </ul>
-    *		<p>
-    *
-    * @param type
-    *		The type of token.
-    *		Possible types are defined as fields on the 
-    *       ProfileTokenCredential class:
-    *		  <ul>
-    * 			<li>TYPE_SINGLE_USE
-    * 			<li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-    * 			<li>TYPE_MULTIPLE_USE_RENEWABLE
-    *		  </ul>
-    *		<p>
-    *
-    * @param timeoutInterval
-    *    The number of seconds to expiration.
-    *
-    * @return
-    *		The token bytes.
-    *
-    * @exception RetrieveFailedException
-    *		If errors occur while generating the token.
-    *
-    */
-    public byte[] generateToken(String uid, int pwdSpecialValue, int type,
-            int timeoutInterval) throws RetrieveFailedException {
-
+    @Override
+    public byte[] generateToken(String uid, int pwdSpecialValue, int type, int timeoutInterval) throws RetrieveFailedException {
         // Convert password special value from int to string
         String pwdSpecialVal;
-        switch(pwdSpecialValue) {
+        switch(pwdSpecialValue)
+        {
             case ProfileTokenCredential.PW_NOPWD:
                 pwdSpecialVal = ProfileTokenImpl.PW_STR_NOPWD;
                 break;
@@ -170,51 +131,47 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
                 pwdSpecialVal = ProfileTokenImpl.PW_STR_NOPWDCHK;
                 break;
             default:
-                Trace.log(Trace.ERROR, "Password special value = " + 
-                    pwdSpecialValue + " is not valid.");
-                throw new ExtendedIllegalArgumentException(
-                    "password special value",
-                    ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+                Trace.log(Trace.ERROR, "Password special value = " +  pwdSpecialValue + " is not valid.");
+                throw new ExtendedIllegalArgumentException("password special value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
-        // Call native method and return token bytes
-        return nativeCreateTokenChar(
-            uid.toUpperCase(), pwdSpecialVal.toCharArray(), type, timeoutInterval);
+        // Call native method and return token bytes, we rely on the fact this class is only called if running on AS400.
+        return nativeCreateTokenChar(uid.toUpperCase(), pwdSpecialVal.toCharArray(), type, timeoutInterval);
     }
 
     /**
     * Generates and returns a new profile token based on
     * the provided information using a password string.
-    *
+    * 
     * @deprecated Use {@link #generateTokenExtended(String,char[],int,int)}
     *
     * @param uid
-    *		The name of the user profile for which the token
-    *		is to be generated.
+    *        The name of the user profile for which the token
+    *        is to be generated.
     *
     * @param pwd
-    *		The user profile password (encoded). 
+    *        The user profile password (encoded). 
     *       Special values are not supported by this method.
     *
     * @param type
-    *		The type of token.
-    *		Possible types are defined as fields on the 
+    *        The type of token.
+    *        Possible types are defined as fields on the 
     *       ProfileTokenCredential class:
-    *		  <ul>
-    * 			<li>TYPE_SINGLE_USE
-    * 			<li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-    * 			<li>TYPE_MULTIPLE_USE_RENEWABLE
-    *		  </ul>
-    *		<p>
+    *          <ul>
+    *             <li>TYPE_SINGLE_USE
+    *             <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+    *             <li>TYPE_MULTIPLE_USE_RENEWABLE
+    *          </ul>
+    *        <p>
     *
     * @param timeoutInterval
     *    The number of seconds to expiration.
     *
     * @return
-    *		The token bytes.
+    *        The token bytes.
     *
     * @exception RetrieveFailedException
-    *		If errors occur while generating the token.
+    *        If errors occur while generating the token.
     *
     */
     @Deprecated
@@ -222,131 +179,75 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     {
         char[] passwordChars = (pwd == null) ? null : pwd.toCharArray();
 
-	    try {
+        try {
             return generateTokenExtended(uid, passwordChars, type, timeoutInterval);
         } finally {
             AS400Credential.clearArray(passwordChars);
-	    }
-	}
+        }
+    }
 
+    @Override
+    public byte[] generateTokenExtended(String uid, char [] pwd, int type, int timeoutInterval) throws RetrieveFailedException {
+        AS400 sys = getCredential().getSystem();
 
-    /**
-    * Generates and returns a new profile token based on
-    * the provided information using a password string.
-    *
-    * @param uid
-    *   The name of the user profile for which the token
-    *   is to be generated.
-    *
-    * @param pwd
-    *   The user profile password (encoded). 
-    *       Special values are not supported by this method.
-    *
-    * @param type
-    *   The type of token.
-    *   Possible types are defined as fields on the 
-    *       ProfileTokenCredential class:
-    *     <ul>
-    *       <li>TYPE_SINGLE_USE
-    *       <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-    *       <li>TYPE_MULTIPLE_USE_RENEWABLE
-    *     </ul>
-    *   <p>
-    *
-    * @param timeoutInterval
-    *    The number of seconds to expiration.
-    *
-    * @return
-    *   The token bytes.
-    *
-    * @exception RetrieveFailedException
-    *   If errors occur while generating the token.
-    *
-    */
-    public byte[] generateTokenExtended(String uid, char [] pwd, int type,
-            int timeoutInterval) throws RetrieveFailedException {
-
-      AS400 sys = getCredential().getSystem();
-
-      ProgramParameter[] parmlist = new ProgramParameter[8];
+        // Setup parameters
+        ProgramParameter[] parmlist = new ProgramParameter[8];
       
-      // Output: Profile token.
-      parmlist[0] = new ProgramParameter(
-          ProfileTokenCredential.TOKEN_LENGTH);
+        // Output: Profile token.
+        parmlist[0] = new ProgramParameter(ProfileTokenCredential.TOKEN_LENGTH);
 
         // Input: User profile name. Uppercase, get bytes (ccsid 37).
         try {
-            parmlist[1] = new ProgramParameter(
-                SignonConverter.stringToByteArray(uid.toUpperCase()));
+            parmlist[1] = new ProgramParameter(SignonConverter.stringToByteArray(uid.toUpperCase()));
         }
         catch (AS400SecurityException se) {
             throw new RetrieveFailedException(se.getReturnCode());
         }
         
-      // Input: User password. String to char[], char[] to byte[] (unicode).
-        parmlist[2] = new ProgramParameter(
-            BinaryConverter.charArrayToByteArray(pwd));
+        // Input: User password. String to char[], char[] to byte[] (unicode).
+        parmlist[2] = new ProgramParameter(BinaryConverter.charArrayToByteArray(pwd));
 
-      // Input: Time out interval. Int to byte[].
-      parmlist[3] = new ProgramParameter(
-          BinaryConverter.intToByteArray(timeoutInterval));
+        // Input: Time out interval. Int to byte[].
+        parmlist[3] = new ProgramParameter(BinaryConverter.intToByteArray(timeoutInterval));
 
-      // Input: Profile token type. Int to string, get bytes.
-      parmlist[4] = new ProgramParameter(
-          CharConverter.stringToByteArray(
-          sys, Integer.toString(type)));
+        // Input: Profile token type. Int to string, get bytes.
+        parmlist[4] = new ProgramParameter(CharConverter.stringToByteArray(sys, Integer.toString(type)));
 
-      // Input/output: Error code. NULL.
-      parmlist[5] = new ProgramParameter(
-          BinaryConverter.intToByteArray(0));
+        // Input/output: Error code. NULL.
+        parmlist[5] = new ProgramParameter(BinaryConverter.intToByteArray(0));
 
-      // Input: Length of user password. Int to byte[].
-      parmlist[6] = new ProgramParameter(
-          BinaryConverter.intToByteArray(
-          parmlist[2].getInputData().length));
-      
-      // Input: CCSID of user password. Int to byte[]. Unicode = 13488.
-      parmlist[7] = new ProgramParameter(
-          BinaryConverter.intToByteArray(13488));
+        // Input: Length of user password. Int to byte[].
+        parmlist[6] = new ProgramParameter(BinaryConverter.intToByteArray(parmlist[2].getInputData().length));
 
-      ProgramCall programCall = new ProgramCall(sys);
+        // Input: CCSID of user password. Int to byte[]. Unicode = 13488.
+        parmlist[7] = new ProgramParameter(BinaryConverter.intToByteArray(13488));
 
-      try {
-        programCall.setProgram(
-            QSYSObjectPathName.toPath(
-            "QSYS", "QSYGENPT", "PGM"), parmlist);
-        programCall.suggestThreadsafe(); // Run on-thread if possible; allows app to use disabled profile.
-        if (!programCall.run()) {
-          Trace.log(Trace.ERROR, "Call to QSYGENPT failed.");
-          throw new RetrieveFailedException(
-              programCall.getMessageList());
+        ProgramCall programCall = new ProgramCall(sys);
+
+        try
+        {
+            programCall.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYGENPT", "PGM"), parmlist);
+            programCall.suggestThreadsafe(); // Run on-thread if possible; allows app to use disabled profile.
+            if (!programCall.run())
+            {
+                Trace.log(Trace.ERROR, "Call to QSYGENPT failed.");
+                throw new RetrieveFailedException(programCall.getMessageList());
+            }
         }
-      }
-      catch (RetrieveFailedException e) {
-        throw e; // just rethrow
-    }
-      catch (java.io.IOException ioe) {
-          Trace.log(Trace.ERROR, "Unexpected IOException: ", ioe);
-          throw new InternalErrorException(
-              InternalErrorException.UNEXPECTED_EXCEPTION);
-      }
-      catch (java.beans.PropertyVetoException pve) {
-          Trace.log(Trace.ERROR, "Unexpected PropertyVetoException: ", pve);
-          throw new InternalErrorException(
-              InternalErrorException.UNEXPECTED_EXCEPTION);
-      }
-      catch (InterruptedException ine) {
-          Trace.log(Trace.ERROR, "Unexpected InterruptedException: ", ine);
-          throw new InternalErrorException(
-              InternalErrorException.UNEXPECTED_EXCEPTION);
-      }
-      catch (Exception e) {
-          Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
-        throw new RetrieveFailedException(); 
-    }
+        catch (RetrieveFailedException e) {
+            throw e;
+        }
+        catch (java.io.IOException|java.beans.PropertyVetoException|InterruptedException e) {
+            Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        }
+        catch (Exception e) {
+            Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
+            throw new RetrieveFailedException();
+        }
 
-      return parmlist[0].getOutputData();
-  }
+        return parmlist[0].getOutputData();
+    }
 
     // Returns the credential delegating behavior to the implementation 
     // object.
@@ -378,7 +279,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         }
     }
 
-    /** 
+    /**
      * Generates and returns a new profile token based on a user profile and
      * password special value.
      * 
@@ -405,7 +306,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
      *                                    
      * @deprecated Use {@link #nativeCreateToken(String,char[],int,int)}
      */
-   @Deprecated
+    @Deprecated
     native byte[] nativeCreateToken(
             String user, 
             String password, 
@@ -436,8 +337,8 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     
     // TODO:  Write native code in /osxpf/v7r5m0.xpf/cur/cmvc/base.pgm/yjsp.xpf
     native byte[] nativeCreateTokenChar(
-            String user,
-            char[] password,
+            String user, 
+            char[] password, 
             int type,
             int timeoutInterval) throws RetrieveFailedException;
 
@@ -463,7 +364,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     // @param  timeoutInterval  The number of seconds before expiration.
     // @exception  RefreshFailedException  If errors occur during refresh.
     native void nativeRefreshToken(
-            byte[] token,
+            byte[] token, 
             int type,
             int timeoutInterval) throws RefreshFailedException;
 

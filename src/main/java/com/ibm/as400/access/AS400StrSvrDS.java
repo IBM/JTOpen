@@ -15,7 +15,6 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 
 // A class representing a "start server" request data stream.
 class AS400StrSvrDS extends ClientAccessDataStream
@@ -82,7 +81,7 @@ class AS400StrSvrDS extends ClientAccessDataStream
     }
     
         
-    AS400StrSvrDS(int serverId, byte[] userIDbytes, byte[] authenticationBytes, int byteType, char[] addAuthFactor)
+    AS400StrSvrDS(int serverId, byte[] userIDbytes, byte[] authenticationBytes, int byteType, byte[] addAuthFactor)
     {
         super(new byte[((userIDbytes == null) 
               ? 28 + authenticationBytes.length 
@@ -149,25 +148,15 @@ class AS400StrSvrDS extends ClientAccessDataStream
       
         if (addAuthFactor != null && addAuthFactor.length > 0)
         {
-            byte[] aafBytes;
-            try {
-                aafBytes = new String(addAuthFactor).getBytes("UTF-8");
-            } 
-            catch (UnsupportedEncodingException e) { 
-                // should never happen
-                Trace.log(Trace.ERROR, e);
-                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-            }
-
             // Set additional authentication factor
             //   LL
-            set32bit(4 + 2 + 4 + aafBytes.length, offset);
+            set32bit(4 + 2 + 4 + addAuthFactor.length, offset);
             //   CP
             set16bit(0x112F, offset + 4);
             //   CCSID
             set32bit(1208, offset + 6);
             //   Data (Additional authentication factor in UTF-8)
-            System.arraycopy(aafBytes, 0, data_, offset + 10, aafBytes.length);
+            System.arraycopy(addAuthFactor, 0, data_, offset + 10, addAuthFactor.length);
         }
     }
 
