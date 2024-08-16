@@ -23,7 +23,10 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 /**
- Used with {@link ProgramCall ProgramCall} and {@link ServiceProgramCall ServiceProgramCall} to pass parameter data, either to a program, from a program, or both.  Input data is passed to a program as a byte array with {@link #setInputData setInputData()}.  Output data is requested from a program by specifying the amount of data to return with {@link #setOutputDataLength setOutputDataLength()}.  To get the output data once the program has run, use {@link #getOutputData getOutputData()}.  These values may also be set on the constructor.
+ Used with {@link ProgramCall ProgramCall} and {@link ServiceProgramCall ServiceProgramCall} to pass parameter data, either to a program, 
+ from a program, or both.  Input data is passed to a program as a byte array with {@link #setInputData setInputData()}.  
+ Output data is requested from a program by specifying the amount of data to return with {@link #setOutputDataLength setOutputDataLength()}.  
+ To get the output data once the program has run, use {@link #getOutputData getOutputData()}.  These values may also be set on the constructor.
  **/
 public class ProgramParameter implements Serializable
 {

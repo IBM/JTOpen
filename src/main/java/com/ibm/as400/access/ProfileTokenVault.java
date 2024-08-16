@@ -98,6 +98,15 @@ class ProfileTokenVault extends CredentialVault implements Cloneable, Serializab
     public void storeProfileTokenCredential(ProfileTokenCredential credential) {
         this.profileTokenCredential_ = credential;
     }
+    
+    /**
+     * Retrieve ProfileTokenCredential object in vault if one exists.
+     * 
+     * @return The ProfileTokenCredential object or null.
+     */
+    public ProfileTokenCredential getProfileTokenCredential() {
+        return profileTokenCredential_;
+    }
   
     /**
      * Retrieves unencoded credential from a vault

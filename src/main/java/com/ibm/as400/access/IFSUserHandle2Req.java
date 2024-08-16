@@ -13,27 +13,48 @@
 ///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.access;
 
-public class IFSUserHandle2Req extends IFSDataStreamReq {
-	private static final int TEMPLATE_LENGTH = 10;
+public class IFSUserHandle2Req extends IFSDataStreamReq
+{
+	private static final int TEMPLATE_LENGTH = 2;
 	private static final int LLCP_LENGTH = 6;
-	private static final int SERVER_TICKET_LL_OFFSET = 22;
-	private static final int SERVER_TICKET_CP_OFFSET = 26;
-	private static final int SERVER_TICKET_OFFSET = 28;
 	
 	IFSUserHandle2Req(byte[] authenticationBytes) {
-	    super(HEADER_LENGTH + TEMPLATE_LENGTH + LLCP_LENGTH + authenticationBytes.length);
+	    this(authenticationBytes, null);
+	}
+	
+	IFSUserHandle2Req(byte[] authenticationBytes, byte[] addAuthFactor)
+	{
+	    super(HEADER_LENGTH + TEMPLATE_LENGTH + LLCP_LENGTH + authenticationBytes.length
+	            + (null != addAuthFactor && 0 < addAuthFactor.length ? 10 + addAuthFactor.length :0));
 	    setLength(data_.length);
 	    setTemplateLen(TEMPLATE_LENGTH);
-	    setReqRepID(0x0023);
+	    setReqRepID(0x002B);
 	    
-	    // Set the 'Server Ticket' LL.
-	    set32bit(authenticationBytes.length + LLCP_LENGTH, SERVER_TICKET_LL_OFFSET);
-
-	    // Set the 'filename' code point.
-	    set16bit(0x0013, SERVER_TICKET_CP_OFFSET);
-
-	    // Set the 'filename' value.
-	    System.arraycopy(authenticationBytes, 0, data_, SERVER_TICKET_OFFSET, authenticationBytes.length);
+	    int offset = 22;
+	    
+	    // Server Ticket
+	    // LL
+	    set32bit(authenticationBytes.length + LLCP_LENGTH, offset);
+	    // CP
+	    set16bit(0x0013, offset + 4);
+	    // Data
+	    System.arraycopy(authenticationBytes, 0, data_, offset + 6, authenticationBytes.length);
+	    
+	    offset += (6 + authenticationBytes.length);
+	    
+        // Authentication factor
+        if (addAuthFactor != null && addAuthFactor.length > 0)
+        {
+            //LL
+            set32bit(addAuthFactor.length + 4 + 2 + 4, offset);
+            // CP
+            set16bit(0x0015, offset + 4);
+            // CCSID
+            set32bit(1208, offset + 6);
+            // data 
+            System.arraycopy(addAuthFactor, 0, data_, offset + 10, addAuthFactor.length);
+            
+            offset += 10 + addAuthFactor.length;
+        }
 	}
-
 }

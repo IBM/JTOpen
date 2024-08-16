@@ -15,15 +15,17 @@ package com.ibm.as400.access;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 
 class ChangePasswordReq extends ClientAccessDataStream
 {
     ChangePasswordReq(byte[] userID, byte[] encryptedPw, byte[] oldPassword, int oldPasswordLength, 
-            byte[] newPassword, int newPasswordLength, int serverLevel, char[] addAuthFactor)
+            byte[] newPassword, int newPasswordLength, int serverLevel, byte[] addAuthFactor)
     {
-        super(new byte[(encryptedPw.length == 64 ? 107 : 63) + oldPassword.length + newPassword.length
-                + (encryptedPw.length == 8 ? 0 : 42) + (serverLevel < 5 ? 0 : 7) + (serverLevel >= 18 && null != addAuthFactor && 0 < addAuthFactor.length ? 10 + addAuthFactor.length :0)]);
+        super(new byte[(encryptedPw.length == 64 ? 107 : 63) 
+                       + oldPassword.length + newPassword.length
+                       + (encryptedPw.length == 8 ? 0 : 42) 
+                       + (serverLevel < 5 ? 0 : 7) 
+                       + (serverLevel >= 18 && null != addAuthFactor && 0 < addAuthFactor.length ? 10 + addAuthFactor.length :0)]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);
@@ -127,30 +129,21 @@ class ChangePasswordReq extends ClientAccessDataStream
 
             if (serverLevel >= 18 && null != addAuthFactor && 0 < addAuthFactor.length)
             {
-                byte[] aafBytes;
-                try {
-                    aafBytes = new String(addAuthFactor).getBytes("UTF-8");
-                } 
-                catch (UnsupportedEncodingException e) { 
-                    // should never happen
-                    Trace.log(Trace.ERROR, e);
-                    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-                }
-
                 // LL
-                set32bit(aafBytes.length + 4 + 2 + 4, offset);
+                set32bit(addAuthFactor.length + 4 + 2 + 4, offset);
                 // CP
                 set16bit(0x112F, offset + 4);
                 // CCSID
                 set32bit(1208, offset + 6);
                 // data
-                System.arraycopy(aafBytes, 0, data_, offset + 10, aafBytes.length);
+                System.arraycopy(addAuthFactor, 0, data_, offset + 10, addAuthFactor.length);
                 
-                offset += 10 + aafBytes.length;
+                offset += 10 + addAuthFactor.length;
             }
         }
     }
 
+    @Override
     void write(OutputStream out) throws IOException {
         if (Trace.traceOn_)
             Trace.log(Trace.DIAGNOSTIC, "Sending change password request...");

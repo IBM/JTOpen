@@ -17,7 +17,6 @@ import java.io.*;
 import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 /**
@@ -37,8 +36,9 @@ public class ClassDecoupler
 //        AS400Server.addReplyStream(new DDMASPReplyDataStream(), AS400.RECORDACCESS);
 //    }
 
-    /* @U4A force the use of ENCUSRPWD or AES using JVM properties */
+    /** force the use of ENCUSRPWD using JVM properties */
     public static boolean forceENCUSRPWD = false;
+    /** force the use of AES using JVM properties */
     public static boolean forceAES = false;
     static
     {
@@ -232,16 +232,16 @@ public class ClassDecoupler
         return new Object[] { clientSeed, serverSeed, jobString, encryptUserId, keyPair };
   }
 
-  /*@U4C*/ 
   static void connectDDMPhase2(OutputStream outStream, InputStream inStream, byte[] userIDbytes, 
                                byte[] ddmSubstitutePassword, byte[] iaspBytes, int authScheme, String ddmRDB, 
-                               String systemName, int connectionID) throws ServerStartupException, IOException, AS400SecurityException
+                               String systemName, int connectionID, 
+                               byte[] addAuthFactor) throws ServerStartupException, IOException, AS400SecurityException
   {
       // If the ddmSubstitutePassword length is 8, then we are using DES encryption.
       // If its length is 20, then we are using SHA encryption.
       // Build the SECCHK request; we build the request here so that we are not
       // passing the password around anymore than we have to.
-      DDMSECCHKRequestDataStream SECCHKReq = new DDMSECCHKRequestDataStream(userIDbytes, ddmSubstitutePassword, iaspBytes, authScheme);
+      DDMSECCHKRequestDataStream SECCHKReq = new DDMSECCHKRequestDataStream(userIDbytes, ddmSubstitutePassword, iaspBytes, authScheme, addAuthFactor);
       if (Trace.traceOn_) SECCHKReq.setConnectionID(connectionID);
 
       // Send the SECCHK request.

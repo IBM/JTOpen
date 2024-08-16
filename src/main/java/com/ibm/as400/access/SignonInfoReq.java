@@ -16,10 +16,11 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 class SignonInfoReq extends ClientAccessDataStream
 {
-    SignonInfoReq(byte[] userIDbytes, byte[] authenticationBytes, int authScheme,  int serverLevel, char[] addAuthFactor)
+    SignonInfoReq(byte[] userIDbytes, byte[] authenticationBytes, int authScheme,  int serverLevel, byte[] addAuthFactor)
     {
         super(new byte[37 + authenticationBytes.length + 
                        (userIDbytes == null ? 0 : 16) + (serverLevel < 5 ? 0 : 7) + (serverLevel >= 18 && null != addAuthFactor && 0 < addAuthFactor.length ? 10 + addAuthFactor.length :0)]);
@@ -101,30 +102,21 @@ class SignonInfoReq extends ClientAccessDataStream
                     
             if (serverLevel >= 18 && null != addAuthFactor && 0 < addAuthFactor.length)
             {
-                byte[] aafBytes;
-                try {
-                    aafBytes = new String(addAuthFactor).getBytes("UTF-8");
-                } 
-                catch (UnsupportedEncodingException e) { 
-                    // should never happen
-                    Trace.log(Trace.ERROR, e);
-                    throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-                }
-
                 //LL
-                set32bit(aafBytes.length + 4 + 2 + 4, offset);
+                set32bit(addAuthFactor.length + 4 + 2 + 4, offset);
                 // CP
                 set16bit(0x112F, offset + 4);
                 // CCSID
                 set32bit(1208, offset + 6);
                 // data 
-                System.arraycopy(aafBytes, 0, data_, offset + 10, aafBytes.length);
+                System.arraycopy(addAuthFactor, 0, data_, offset + 10, addAuthFactor.length);
                 
-                offset += 10 + aafBytes.length;
+                offset += 10 + addAuthFactor.length;
             }
         }
     }
 
+    @Override
     void write(OutputStream out) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending retrieve signon information request...");
