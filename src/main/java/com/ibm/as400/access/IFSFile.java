@@ -1895,7 +1895,7 @@ public int getASP(boolean retrieveAll) throws IOException, AS400SecurityExceptio
       
       if (getSystem().getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PASSWORD
               || getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
-          impl_.getASP();
+          return impl_.getASP();
       
       return -1;
   }
@@ -1922,7 +1922,8 @@ public int getASP(boolean retrieveAll) throws IOException, AS400SecurityExceptio
       if (impl_ == null)
           chooseImpl();
         
-      if (getSystem().getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PASSWORD)
+      if (getSystem().getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PASSWORD
+              || getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
           return (retrieveAll) ? impl_.getFileSystemType(this.isDirectory()) : impl_.getFileSystemType();
       
       return "";
@@ -1948,7 +1949,11 @@ public int getASP(boolean retrieveAll) throws IOException, AS400SecurityExceptio
       if (impl_ == null)
           chooseImpl();
 
-      return (getSystem().getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PASSWORD) ? impl_.getFileSystemType() : "";
+      if (getSystem().getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PASSWORD
+            || getSystem().getAuthenticationScheme()== AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+           return impl_.getFileSystemType();
+
+      return "";
   }
   
   /**
