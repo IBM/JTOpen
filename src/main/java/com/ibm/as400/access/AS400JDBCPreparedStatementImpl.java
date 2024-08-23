@@ -2885,21 +2885,23 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
     // JDError.EXC_PARAMETER_TYPE_INVALID);
 
     if (JDTrace.isTraceOn()) { // @H1A
-      JDTrace.logInformation(this, "setClob()"); // @H1A
+      JDTrace.logInformation(this, "setClob(int,Clob)"); // @H1A
       if (parameterValue == null) // @H1A
         JDTrace.logInformation(this, "parameter index: " + parameterIndex
             + " value: NULL"); // @H1A
-      else if (parameterValue.length() > maxToLog_) // @H1A
+      else if (parameterValue.length() < maxToLog_) // @H1A
         JDTrace
             .logInformation(
                 this,
                 "parameter index: "
                     + parameterIndex
+            		+ " class: "+parameterValue.getClass().getName()
                     + " value: "
                     + parameterValue.getSubString(1,
                         (int) parameterValue.length())); // @H1A
       else
         JDTrace.logInformation(this, "parameter index: " + parameterIndex
+        		+ " class: "+parameterValue.getClass().getName()
             + " length: " + parameterValue.length()); // @H1A
     } // @H1A
 
@@ -4054,12 +4056,13 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
   public void setClob(int parameterIndex, Reader reader, long length)
       throws SQLException {
     if (JDTrace.isTraceOn()) {
-      JDTrace.logInformation(this, "setClob()");
+      JDTrace.logInformation(this, "setClob(int,Reader,long)");
       if (reader == null)
         JDTrace.logInformation(this, "parameter index: " + parameterIndex
             + " value: NULL");
       else
         JDTrace.logInformation(this, "parameter index: " + parameterIndex
+        		+ " class: "+reader.getClass().getName()
             + " length: " + length);
     }
 
