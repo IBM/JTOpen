@@ -25,6 +25,9 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.sql.Statement;
 import java.util.logging.Logger;
+
+import javax.net.ssl.SSLSocketFactory;
+
 /* endif */ 
 import java.util.Properties;
 import java.util.MissingResourceException;
@@ -123,6 +126,8 @@ implements java.sql.Driver
 	static final String DATABASE_PRODUCT_NAME_  = "DB2 UDB for AS/400";  // @D0A
 	static final String DRIVER_NAME_            = "AS/400 Toolbox for Java JDBC Driver"; // @D0C @C5C @C6C
 	static final String DRIVER_LEVEL_            = Copyright.DRIVER_LEVEL;
+	
+	public static final String PROPERTY_SSL_SOCKET_FACTORY = "property.ssl-socket-factory";
 
 /* ifdef JDBC40 */
     public static final int JDBC_MAJOR_VERSION_ = 4; // JDBC spec version: 4.0
@@ -1198,6 +1203,10 @@ endif */
 			else
 				as400 = new SecureAS400 (serverName, userName, clearPassword, additionalAuthenticationFactor);
 			
+			Object sslSocketFactoryObject = jdProperties.getOriginalInfo().get(PROPERTY_SSL_SOCKET_FACTORY);
+		    if ((sslSocketFactoryObject != null) && (sslSocketFactoryObject instanceof SSLSocketFactory)) {
+		        as400.setSSLSocketFactory((SSLSocketFactory) sslSocketFactoryObject);
+		    }
 		}
 		else
 		{

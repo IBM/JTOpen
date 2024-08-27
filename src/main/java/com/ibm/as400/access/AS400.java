@@ -34,6 +34,8 @@ import java.util.StringTokenizer;
 import java.util.TimeZone;
 import java.util.Vector;
 
+import javax.net.ssl.SSLSocketFactory;
+
 import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSManager;
 
@@ -5751,4 +5753,18 @@ public class AS400 implements Serializable, AutoCloseable
     // ======== END =================
     // Previous chunk of code moved from SecureAS400
     // ======== END =================
+    
+    /**
+     * Set the {@link SSLSocketFactory} that will be used when making secure connections.
+    * <p>
+    * <b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
+    * 
+     * @param sslSocketFactory the {@link SSLSocketFactory} to use
+     */
+    public void setSSLSocketFactory(SSLSocketFactory sslSocketFactory)
+    {
+        ensureSecureInstance();
+
+        useSSLConnection_.sslSocketFactory_ = sslSocketFactory;
+    }
 }

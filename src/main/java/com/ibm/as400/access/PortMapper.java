@@ -214,7 +214,7 @@ class PortMapper
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a secure socket to " + serviceName);
             { // JSSE is supported since v5r4.
                 sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerJSSE");
-                sc.setProperties(socket, null, systemName, srvPort, null);
+                sc.setProperties(socket, null, systemName, srvPort, useSSL);
             }
         }
         else
