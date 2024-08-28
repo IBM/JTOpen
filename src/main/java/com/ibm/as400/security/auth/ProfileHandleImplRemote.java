@@ -13,35 +13,30 @@ package com.ibm.as400.security.auth;
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
 import com.ibm.as400.access.Trace;
-/**
- * The ProfileHandleImplRemote class provides an implementation for
- * behavior delegated by a ProfileHandleCredential object.
- *
- */
-class ProfileHandleImplRemote extends AS400CredentialImplRemote implements ProfileHandleImpl {
 
 /**
- * Generates and returns a profile handle based on
- * the current IBM i thread identity.
- *
- * <p> The remote implementation always throws an
- * exception. The ProfileHandleCredential has little use
- * in remote environments and is introduced in a
- * limited capacity to support reestablishing thread
- * identity after performing a swap based on another
- * credential. Swapping the IBM i thread ID is not
- * supported in remote environments.
- *
- * @return
- *		The handle bytes.
- *
- * @exception RetrieveFailedException
- *		If errors occur while generating the handle.
+ * The ProfileHandleImplRemote class provides an implementation for behavior delegated by a ProfileHandleCredential
+ * object.
  *
  */
-public byte[] getCurrentHandle() throws RetrieveFailedException {
-	Trace.log(Trace.ERROR, "Unsupported remote operation");
-	throw new RetrieveFailedException(
-		RetrieveFailedException.REQUEST_NOT_SUPPORTED);
-}
+class ProfileHandleImplRemote extends AS400CredentialImplRemote implements ProfileHandleImpl
+{
+    /**
+     * Generates and returns a profile handle based on the current IBM i thread identity.
+     *
+     * <p>
+     * The remote implementation always throws an exception. The ProfileHandleCredential has little use in remote
+     * environments and is introduced in a limited capacity to support reestablishing thread identity after performing a
+     * swap based on another credential. Swapping the IBM i thread ID is not supported in remote environments.
+     *
+     * @return The handle bytes.
+     *
+     * @exception RetrieveFailedException If errors occur while generating the handle.
+     *
+     */
+    public byte[] getCurrentHandle() throws RetrieveFailedException
+    {
+        Trace.log(Trace.ERROR, "Unsupported remote operation");
+        throw new RetrieveFailedException(RetrieveFailedException.REQUEST_NOT_SUPPORTED);
+    }
 }
