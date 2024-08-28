@@ -691,7 +691,7 @@ public class JobLog implements Serializable
         };
 
         // Call the program. This API is not thread safe. 
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLJBL.PGM", parameters);  // not a threadsafe API
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGYOLJBL.PGM", parameters);  // not a threadsafe API
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());
