@@ -178,6 +178,12 @@ class PortMapper
 
             // Now we construct and send a "port map" request to get the port number for the requested service...
             String fullServiceName = (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER) ? serviceName + "-s" : serviceName;
+            
+            // since no non-TLS as-hostcnn server, ensure that it is always as-hostcnn-s.
+            // This is purely a precautionary step.
+            if (fullServiceName.equals("as-hostcnn")) 
+                fullServiceName += "-s";
+            
             AS400PortMapDS pmreq = new AS400PortMapDS(fullServiceName);
             if (Trace.traceOn_) pmreq.setConnectionID(pmSocket.hashCode());
             pmreq.write(pmOutstream);
