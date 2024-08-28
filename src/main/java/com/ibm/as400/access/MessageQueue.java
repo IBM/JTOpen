@@ -862,7 +862,7 @@ public class MessageQueue implements Serializable
         };
 
         // Call the program.
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLMSG.PGM", parameters); // not a threadsafe API
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGYOLMSG.PGM", parameters); // not a threadsafe API
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());

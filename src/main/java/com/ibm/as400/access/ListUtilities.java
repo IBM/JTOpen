@@ -161,7 +161,7 @@ class ListUtilities
       new ProgramParameter(listHandle),
       new ErrorCodeParameter()
     };
-    ProgramCall pc = new ProgramCall(system, "/QSYS.LIB/QGY.LIB/QGYCLST.PGM", parameters);  // not a threadsafe API
+    ProgramCall pc = new ProgramCall(system, "/QSYS.LIB/QGYCLST.PGM", parameters);  // not a threadsafe API
     if (!pc.run())
     {
       throw new AS400Exception(pc.getMessageList());
@@ -197,7 +197,7 @@ class ListUtilities
         new ErrorCodeParameter()
 
       };          
-      try { pgmCall.setProgram("/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parameters); }
+      try { pgmCall.setProgram("/QSYS.LIB/QGYGTLE.PGM", parameters); }
       catch (java.beans.PropertyVetoException pve) {} // will never happen
     }
 
@@ -290,7 +290,7 @@ class ListUtilities
       new ErrorCodeParameter()
     };
 
-    ProgramCall pc = new ProgramCall(system, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parameters); // not a threadsafe API
+    ProgramCall pc = new ProgramCall(system, "/QSYS.LIB/QGYGTLE.PGM", parameters); // not a threadsafe API
 
     byte[] listInformation;
     int recordsReturned;
