@@ -98,5 +98,9 @@ class SocketContainerJSSE extends SocketContainer
     void setSoTimeout(int timeout) throws SocketException {
       sslSocket_.setSoTimeout(timeout); 
     }
-
+    
+    @Override
+    String getLocalAddress() {
+        return sslSocket_.getLocalAddress().getHostAddress();
+    }
 }
