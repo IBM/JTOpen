@@ -155,7 +155,7 @@ private void closeList(byte[] handle) throws PersistenceException {
 	ProgramCall pgm = new ProgramCall(getAS400());
 	ProgramParameter[] parmList = new ProgramParameter[2];
 	try {
-		pgm.setProgram(QSYSObjectPathName.toPath("QGY", "QGYCLST", "PGM"), parmList);
+		pgm.setProgram(QSYSObjectPathName.toPath("QSYS", "QGYCLST", "PGM"), parmList);
 	} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 
 	// Refer to documentation for the QGYCLST generic list API for a complete description of parameters
@@ -322,7 +322,7 @@ public ValidationListEntry[] getEntries() throws PersistenceException {
 	ProgramParameter[] parmList = new ProgramParameter[7];
 	int bufferLength = LISTBUFFER_LENGTH_INITIAL;
 	try {
-		pgm.setProgram(QSYSObjectPathName.toPath("QGY", "QSYOLVLE", "PGM"), parmList);
+		pgm.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYOLVLE", "PGM"), parmList);
 	} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 	
 	// Refer to documentation for the QSYOLVLE Security API for a complete description of parameters
@@ -420,7 +420,7 @@ private int getNextEntries(byte[] listHandle, int listPosition, ValidationListEn
 		// Try & retrieve all remaining entries in a single call; keeps it simple for now
 		int bufferLength = LISTBUFFER_LENGTH_NEXT;
 		try {
-			pgm.setProgram(QSYSObjectPathName.toPath("QGY", "QGYGTLE", "PGM"), parmList);
+			pgm.setProgram(QSYSObjectPathName.toPath("QSYS", "QGYGTLE", "PGM"), parmList);
 		} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 
 		// Refer to documentation for the QGYGTLE generic list API for a complete description of parameters
@@ -451,7 +451,7 @@ public int getNumberOfEntries() throws PersistenceException {
 	ProgramParameter[] parmList = new ProgramParameter[7];
 	int bufferLength = 512;
 	try {
-		pgm.setProgram(QSYSObjectPathName.toPath("QGY", "QSYOLVLE", "PGM"), parmList);
+		pgm.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYOLVLE", "PGM"), parmList);
 	} catch (PropertyVetoException pve) { Trace.log(Trace.ERROR, pve); }
 	
 	// Refer to documentation for the QSYOLVLE Security API for a complete description of parameters
