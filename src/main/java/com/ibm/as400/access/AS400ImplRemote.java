@@ -193,6 +193,7 @@ public class AS400ImplRemote implements AS400Impl
       AS400Server.addReplyStream(new SignonExchangeAttributeRep(), AS400.SIGNON);
       AS400Server.addReplyStream(new IFSUserHandleSeedRep(), AS400.FILE);
       AS400Server.addReplyStream(new IFSCreateUserHandleRep(), AS400.FILE);
+      AS400Server.addReplyStream(new IFSUserHandle2Rep(), AS400.FILE);
       AS400Server.addReplyStream(new SignonExchangeAttributeRep(), AS400.HOSTCNN);
       AS400Server.addReplyStream(new HCSUserInfoReplyDS(), AS400.HOSTCNN);
       AS400Server.addReplyStream(new HCSGetNewConnReplyDS(), AS400.HOSTCNN);
@@ -369,7 +370,7 @@ public class AS400ImplRemote implements AS400Impl
       }
 
       // Get a socket connection.
-      // TODO AMRA - need to first authenticate to hostcnn
+      // TODO AMRA - need to first authenticate to hostcnn?
       boolean needToDisconnect = (signonServer_ == null);
       signonConnect();
 
@@ -752,6 +753,16 @@ public class AS400ImplRemote implements AS400Impl
               }
               setUserHandle(((IFSCreateUserHandleRep) ds).getHandle());
           }
+          else if (ds instanceof IFSUserHandle2Rep)
+          {
+              rc = ((IFSUserHandle2Rep) ds).getReturnCode();
+              if (rc != IFSReturnCodeRep.SUCCESS)
+              {
+                  Trace.log(Trace.ERROR, "IFSUserHandle2Rep return code", rc);
+                  throw new ExtendedIOException(rc);
+              }
+              setUserHandle(((IFSUserHandle2Rep) ds).getHandle());
+          }
           else if (ds instanceof IFSReturnCodeRep)
           {
               rc = ((IFSReturnCodeRep) ds).getReturnCode();
@@ -940,9 +951,13 @@ public class AS400ImplRemote implements AS400Impl
               throw AS400ImplRemote.returnSecurityException(reply.getRC(), null, userId_);
           }
 
+          // [0]=factor, [1]=verification ID, [2]=remote ip address 
+          Object[] additonalAuthInfo = getAdditionalAuthInfo(profileToken, null);
+          
           SignonGenAuthTokenRequestDS req2 = new SignonGenAuthTokenRequestDS(
                   BinaryConverter.charArrayToByteArray(userIdentity.toCharArray()), profileToken.getTokenType(),
-                  profileToken.getTimeoutInterval(), serverLevel_);
+                  profileToken.getTimeoutInterval(), serverLevel_, 
+                  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
           SignonGenAuthTokenReplyDS rep = (SignonGenAuthTokenReplyDS) signonServer_.sendAndReceive(req2);
 
           int rc = rep.getRC();
@@ -957,6 +972,7 @@ public class AS400ImplRemote implements AS400Impl
           }
           try {
               profileToken.setToken(rep.getProfileTokenBytes());
+              profileToken.setTokenCreator(ProfileTokenCredential.CREATOR_SIGNON_SERVER);
           }
           catch (PropertyVetoException e) {
               Trace.log(Trace.ERROR, e);
@@ -1111,11 +1127,16 @@ public class AS400ImplRemote implements AS400Impl
               }
           }
           
-          byte[] aaf             = aafIndicator_ ? additionalAuthFactor_ : null;
+          if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "AS400ImplRemote generating profile token for user: " + userId);
+
+          
+          // [0]=factor, [1]=verification ID, [2]=remote ip address 
+          Object[] additonalAuthInfo = getAdditionalAuthInfo(profileToken, null);
 
           AS400GenAuthTknDS req = new AS400GenAuthTknDS(userIdEbcdic,
                   authenticationBytes, authScheme, profileToken.getTokenType(),
-                  profileToken.getTimeoutInterval(), serverLevel_, aaf);
+                  profileToken.getTimeoutInterval(), serverLevel_, 
+                  (byte[])additonalAuthInfo[0],  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
           
           CredentialVault.clearArray(authenticationBytes);
           AS400GenAuthTknReplyDS rep = (AS400GenAuthTknReplyDS) signonServer_.sendAndReceive(req);
@@ -1133,6 +1154,7 @@ public class AS400ImplRemote implements AS400Impl
       
           try {
               profileToken.setToken(rep.getProfileTokenBytes());
+              profileToken.setTokenCreator(ProfileTokenCredential.CREATOR_SIGNON_SERVER);
           } catch (PropertyVetoException e) {
               Trace.log(Trace.ERROR, e);
               throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
@@ -1147,10 +1169,21 @@ public class AS400ImplRemote implements AS400Impl
       } 
   }
   
-  public static boolean getAdditionalAuthenticationIndicator(String systemName, boolean useSSL) throws AS400SecurityException, IOException
-  { 
-      AS400ImplRemote implRemote = new AS400ImplRemote(); 
+
+  private static class SystemInformation {
+      ServerVersion version;
+      int serverLevel;
+      int passwordLevel;
+      boolean aafIndicator;
+  }
+  
+  private static SystemInformation getSystemInformation(String systemName, boolean useSSL) throws AS400SecurityException, IOException
+  {
+      if (systemName == null)
+          throw new NullPointerException("systemName");
       
+      AS400ImplRemote implRemote = new AS400ImplRemote(); 
+            
       try 
       {
           implRemote.systemName_ = systemName; 
@@ -1160,7 +1193,14 @@ public class AS400ImplRemote implements AS400Impl
 
           if (implRemote.hostcnnServer_ == null)
               implRemote.signonConnect(); 
-          return implRemote.aafIndicator_; 
+          
+          SystemInformation si = new SystemInformation();
+          si.version = implRemote.version_;
+          si.serverLevel = implRemote.serverLevel_;
+          si.passwordLevel = implRemote.passwordLevel_;
+          si.aafIndicator = implRemote.aafIndicator_ ; 
+          
+          return si;
       }
       finally {
           if (implRemote.hostcnnServer_ != null)
@@ -1168,6 +1208,14 @@ public class AS400ImplRemote implements AS400Impl
           else
               implRemote.signonDisconnect(); 
       }
+  }
+  
+  public static boolean getAdditionalAuthenticationIndicator(String systemName, boolean useSSL) throws AS400SecurityException, IOException { 
+      return (getSystemInformation(systemName, useSSL)).aafIndicator;
+  }
+  
+  public static int getVRM(String systemName, boolean useSSL) throws AS400SecurityException, IOException { 
+      return (getSystemInformation(systemName, useSSL)).version.getVersionReleaseModification();
   }
 
   // Get either the user's CCSID, the signon server CCSID, or our best guess.
@@ -1578,10 +1626,12 @@ public class AS400ImplRemote implements AS400Impl
                       iaspBytes = text18.toBytes(ddmRDB_);
                   }
                   
-                  byte[] aaf             = aafIndicator_ ? additionalAuthFactor_ : null;
+                  // [0]=factor, [1]=verification ID, [2]=remote ip address 
+                  Object[] additonalAuthInfo = getAdditionalAuthInfo(null, aafIndicator_);
                   
                   ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes, ddmSubstitutePassword, iaspBytes,
-                                                  authScheme, ddmRDB_, systemName_, connectionID, aaf);
+                                                  authScheme, ddmRDB_, systemName_, connectionID, 
+                                                  (byte[])additonalAuthInfo[0],  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
               }
               else
               {
@@ -1634,9 +1684,11 @@ public class AS400ImplRemote implements AS400Impl
                       Trace.log(Trace.DIAGNOSTIC, "  Password level: ", passwordLevel_);
                   }
 
-                  // Do not pass authentication factor if server does not support it. Otherwise, you will get an error.
+                  // [0]=factor, [1]=verification ID, [2]=remote ip address 
+                  Object[] additonalAuthInfo = getAdditionalAuthInfo(null, xChgReply.getAAFIndicator());
+                  
                   AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType(),
-                          (xChgReply.getAAFIndicator()) ? additionalAuthFactor_ : null);
+                          (byte[])additonalAuthInfo[0],  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
                   
                   if (Trace.traceOn_) req.setConnectionID(connectionID);
                   req.write(outStream);
@@ -1689,9 +1741,8 @@ public class AS400ImplRemote implements AS400Impl
             
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to as-hostcnn using new socket");
                        
-            socketContainer = PortMapper.getServerSocket((systemNameLocal_) 
-                    ? "localhost" 
-                    : systemName_,  AS400.HOSTCNN, overridePort,  useSSLConnection_, socketProperties_,  mustUseNetSockets_);
+            socketContainer = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_,  
+                    AS400.HOSTCNN, overridePort,  useSSLConnection_, socketProperties_,  mustUseNetSockets_);
             
             connectionID = socketContainer.hashCode();
             inStream     = socketContainer.getInputStream();
@@ -3519,7 +3570,7 @@ public class AS400ImplRemote implements AS400Impl
             
               if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieve Signon Information Request successful.");
             
-              // TODO AMRA can/should we share signoninfo object? profileToken?
+              // TODO AMRA can/should we share signoninfo object?
               signonInfo_ = new SignonInfo();
               signonInfo_.currentSignonDate = signonRep.getCurrentSignonDate();
               signonInfo_.lastSignonDate = signonRep.getLastSignonDate();
@@ -3841,8 +3892,11 @@ public class AS400ImplRemote implements AS400Impl
               
               if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Send start server job request for service as-hostcnn");
     
-              byte[] userIDbytes = SignonConverter.stringToByteArray(userId_);
-              byte[] encryptedPassword = getPassword(hostcnn_clientSeed_, hostcnn_serverSeed_);
+              byte[] userIDbytes = (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD) 
+                      ? SignonConverter.stringToByteArray(userId_) : null;
+              byte[] encryptedPassword = (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+                      ? credVault_.getClearCredential() : getPassword(hostcnn_clientSeed_, hostcnn_serverSeed_);
+                
               if (PASSWORD_TRACE)
               {
                   Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
@@ -3854,7 +3908,11 @@ public class AS400ImplRemote implements AS400Impl
                   Trace.log(Trace.DIAGNOSTIC, "  Password level: ", passwordLevel_);
               }
     
-              AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType(), additionalAuthFactor_);
+              // [0]=factor, [1]=verification ID, [2]=remote ip address 
+              Object[] additonalAuthInfo = getAdditionalAuthInfo(null, aafIndicator_);
+              
+              AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType(), 
+                      (byte[])additonalAuthInfo[0],  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
               
               if (Trace.traceOn_) req.setConnectionID(connectionID);
               req.write(outStream);
@@ -3872,6 +3930,14 @@ public class AS400ImplRemote implements AS400Impl
               }
               
               hostcnnServer.setJobString(obtainJobIdForConnection(reply.getJobNameBytes()));
+              
+              // Set authenticated user if not already set. 
+              if (userId_.length() == 0)
+              {
+                  byte[] b = reply.getUserIdBytes();
+                  if (b != null)
+                     userId_ = SignonConverter.byteArrayToString(b);
+              }
           }
           
           // -------
@@ -5092,5 +5158,59 @@ public class AS400ImplRemote implements AS400Impl
   {
       additionalAuthFactor_ = (null != additionalAuthFactor && 0 < additionalAuthFactor.length )
               ? (new String(additionalAuthFactor)).getBytes(StandardCharsets.UTF_8) : null;
+  }
+  
+  private Object[] getAdditionalAuthInfo(ProfileTokenCredential profileToken, Boolean aafIndicator)
+  {
+      Object[] authdata = new Object[] { null, null, null };
+      
+      int vrm = (version_ != null) ? version_.getVersionReleaseModification() : getVRM();
+      if (vrm > 0x00070500 || (aafIndicator != null && aafIndicator))
+      {
+          authdata[0] = additionalAuthFactor_;
+          
+          // If profile token is null,  means we are not generating a profile token, so profile token should be in credential.
+          boolean creatingToken = (profileToken != null);
+          if (profileToken == null && (credVault_ instanceof ProfileTokenVault))
+              profileToken = ((ProfileTokenVault)credVault_).getProfileTokenCredential();
+          
+          if (profileToken != null)
+          {
+              String verificationID_s  = profileToken.getVerificationID();
+              authdata[1] = (verificationID_s != null && !verificationID_s.isEmpty()) ? verificationID_s.getBytes(StandardCharsets.UTF_8) : null;
+              
+              String clientIPAddress_s = profileToken.getRemoteIPAddress();
+              authdata[2] = (clientIPAddress_s != null && !clientIPAddress_s.isEmpty()) ? clientIPAddress_s.getBytes(StandardCharsets.UTF_8) : null;
+              
+              // Verification ID will always be set to something.  However, depending on where token was created, the client IP address
+              // may or may not be set.  If creating the token and it is not set, use the IP address of the sign-on server. Thus, all tokens
+              // that signon server creates should have client IP address. 
+              if (authdata[2] == null)
+              {
+                  // Note that not setting client IP address will result in sign-on host server setting the client IP address.
+                  if (creatingToken && signonServer_ != null)
+                  {
+                      // We are creating token, try to set client IP address using sign-on server.
+                      clientIPAddress_s = signonServer_.getLocalAddress();
+                      authdata[2] = (clientIPAddress_s != null && !clientIPAddress_s.isEmpty()) ? clientIPAddress_s.getBytes(StandardCharsets.UTF_8) : null;
+                      try {
+                          profileToken.setRemoteIPAddress(clientIPAddress_s);
+                      } catch (PropertyVetoException e) {
+                        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+                      }
+                  }
+                  else if (profileToken.getTokenCreator() != ProfileTokenCredential.CREATOR_SIGNON_SERVER)
+                      authdata[2] = "*NOUSE".getBytes(StandardCharsets.UTF_8);
+              }
+          }
+      }
+      
+      if (Trace.traceOn_)
+      {
+          Trace.log(Trace.DIAGNOSTIC, "Verification ID: " + (authdata[1] != null ? new String((byte[])authdata[1]) : null));
+          Trace.log(Trace.DIAGNOSTIC, "Client IP address: " + (authdata[2] != null ? new String((byte[])authdata[2]) : null));
+      }
+      
+      return authdata;
   }
 }

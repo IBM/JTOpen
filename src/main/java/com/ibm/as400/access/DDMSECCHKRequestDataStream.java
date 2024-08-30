@@ -24,14 +24,16 @@ class DDMSECCHKRequestDataStream extends DDMDataStream
     private static final String copyright = "Copyright (C) 1997-2024 International Business Machines Corporation and others.";
 
     DDMSECCHKRequestDataStream(byte[] userIDbytes, byte[] authenticationBytes, byte[] iasp, int authScheme, 
-                               byte[] addAuthFactor)
+                               byte[] addAuthFactor, byte[] verificationID, byte[] clientIPAddr)
     {
         super(new byte[authenticationBytes.length + userIDbytes.length +
                    (iasp == null ? 0 : 22) + 
                    ((authScheme == AS400.AUTHENTICATION_SCHEME_PASSWORD 
                          || authScheme == AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD) ? 24 : 16) +
                    (((authScheme == AS400.AUTHENTICATION_SCHEME_PASSWORD 
-                         || authScheme == AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD) && addAuthFactor != null) ? addAuthFactor.length + 12: 0)]);
+                         || authScheme == AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD) && addAuthFactor != null) ? addAuthFactor.length + 12: 0) +
+                   ((authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN && verificationID != null) ? verificationID.length + 8: 0) +
+                   ((authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN && clientIPAddr != null) ? clientIPAddr.length + 8: 0)]);
         
         // Initialize the header: Don't continue on error, not chained, GDS id = D0,
         // type = RQSDSS, no same request correlation.
@@ -39,13 +41,20 @@ class DDMSECCHKRequestDataStream extends DDMDataStream
         if ((authScheme != AS400.AUTHENTICATION_SCHEME_PASSWORD)
                 && (authScheme != AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD))
         { 
-            setLength(16);
+            byte[] verficationIDBytes = (authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN) ? verificationID : null;
+            byte[] clientIPAddrBytes  = (authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN) ? clientIPAddr : null;
+            
+            setLength(16 +  
+                    + ((verficationIDBytes != null) ? verficationIDBytes.length + 8 : 0)
+                    + ((clientIPAddrBytes != null) ? clientIPAddrBytes.length + 8 : 0));
             setIsChained(true);
             // setContinueOnError(false);
             setHasSameRequestCorrelation(true);
             setType(1); // 1 = RQSDSS
-            set16bit(10, 6); // Set total length remaining after header.
             
+            set16bit(10 +
+                    + ((verficationIDBytes != null) ? verficationIDBytes.length + 8 : 0)
+                    + ((clientIPAddrBytes != null) ? clientIPAddrBytes.length + 8 : 0), 6); // Set total length remaining after header.
             set16bit(DDMTerm.SECCHK, 8); // Set code point for SECCHK.
             
             set16bit(6, 10); // Set LL for SECMEC term.
@@ -56,14 +65,46 @@ class DDMSECCHKRequestDataStream extends DDMDataStream
             else
                 set16bit(DDMTerm.EUSRIDONL, 14);
 
-            set16bit(authenticationBytes.length + 10, 16); // Set LL for entire token-related data
-            set16bit(0xD003, 18); // Set code point
+            int offset = 16;
 
-            set16bit(authenticationBytes.length + 4, 22); // Set LL token
-            set16bit(DDMTerm.SECTKN, 24); // Set code point 
-            System.arraycopy(authenticationBytes, 0, data_, 26, authenticationBytes.length);
+            if (authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN)
+            {
+                if (verficationIDBytes != null)
+                {
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending SECCHK request with verification ID.");
+
+                    set16bit(8 + verficationIDBytes.length, offset); // LL
+                    set16bit(DDMTerm.SXXVERID, offset + 2); // Term/Code point
+                    set32bit(1208, offset + 4); // ccsid
+                    System.arraycopy(verficationIDBytes, 0, data_, offset + 8, verficationIDBytes.length); // Data
+                    
+                    offset += 8 + verficationIDBytes.length;
+                }
+                
+                if (clientIPAddrBytes != null)
+                {
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending SECCHK request with client IP address.");
+
+                    set16bit(8 + clientIPAddrBytes.length, offset); // LL
+                    set16bit(DDMTerm.SXXCLTIP, offset + 2); // Term/Code point
+                    set32bit(1208, offset + 4); // ccsid
+                    System.arraycopy(clientIPAddrBytes, 0, data_, offset + 8, clientIPAddrBytes.length); // Data
+                    
+                    offset += 8 + clientIPAddrBytes.length;
+                }
+            }
             
-            int offset = 26 + authenticationBytes.length;
+            set16bit(authenticationBytes.length + 10, offset); // Set LL for entire token-related data
+            set16bit(0xD003, offset + 2); // Set code point
+
+            // Request correlator included
+            offset += 6;
+            
+            set16bit(authenticationBytes.length + 4, offset); // Set LL token
+            set16bit(DDMTerm.SECTKN, offset + 2); // Set code point 
+            System.arraycopy(authenticationBytes, 0, data_, offset + 4, authenticationBytes.length);
+            
+            offset += 4 + authenticationBytes.length;
         } 
         else
         {            

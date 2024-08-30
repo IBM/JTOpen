@@ -15,10 +15,13 @@ package com.ibm.as400.security.auth;
 
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400SecurityException;
+import com.ibm.as400.access.AuthenticationIndicator;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ExtendedIllegalStateException;
+import com.ibm.as400.access.ProfileTokenImplNative;
 import com.ibm.as400.access.Trace;
 import java.beans.PropertyVetoException;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -189,17 +192,44 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
 {
     static final long serialVersionUID = 4L;
 
+    // In order for old applications that do not have ability to change code, you
+    // can tell the toolbox not to use enhanced profile tokens by setting
+    // com.ibm.as400.access.AS400.useEnhancedProfileTokens property to false.
+    private static boolean useEnhancedProfileTokens_ = true;
+    static {
+        String property = System.getProperty("com.ibm.as400.access.AS400.useEnhancedProfileTokens");
+        if (property != null && property.toLowerCase().equals("false"))
+            useEnhancedProfileTokens_ = false;
+    }
+
     private byte[] addr_ = new byte[9]; // Encode/decode adder
     private byte[] mask_ = new byte[7]; // Encode/decode mask
     private byte[] token_ = null; // encoded token
     private int type_ = TYPE_SINGLE_USE;
     private int timeoutInterval_ = 3600;
 
+    private String verificationID_ = DEFAULT_VERIFICATION_ID;
+    private String localIPAddress_ = null;
+    private String remoteIPAddress_ = null;
+    private int    localPort_ = 0;
+    private int    remotePort_ = 0;
+    private char[] additionalAuthenticationFactor_ = null;
+    private int authenticationIndicator_ = AuthenticationIndicator.APPLICATION_AUTHENTICATION;
+
 
     private boolean noRefresh_ = false;
 
+    private int creator_ = CREATOR_UNKNOWN;
+
     private final static int MAX_USERPROFILE_LENGTH = 10;
     final static int MAX_PASSWORD_LENGTH = 128;
+
+    /** Maximum length of additional authentication factor */
+    public final static int MAX_ADDITIONALAUTHENTICATIONFACTOR_LENGTH = 64;
+    /** Maximum length of verification ID. */
+    public final static int MAX_VERIFICATIONID_LENGTH = 30;
+    /** Maximum length of IP address. */
+    public final static int MAX_IPADDRESS_LENGTH = 46;
 
     /** ID indicating a single use token. **/
     public final static int TYPE_SINGLE_USE = 1;
@@ -212,6 +242,13 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
 
     /** Indicates the length of a profile token (in bytes) **/
     public final static int TOKEN_LENGTH = 32;
+    
+    /** ID indicating the creator of token is not known **/
+    public final static int CREATOR_UNKNOWN = 0;
+    /** ID indicating the creator of token the file server **/
+    public final static int CREATOR_SIGNON_SERVER = 1;
+    /** ID indicating the creator of token is a native API **/
+    public final static int CREATOR_NATIVE_API = 2;
 
     /**
      * Password special value indicating that the current password is not verified.
@@ -242,6 +279,9 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      */
     public final static int PW_NOPWDCHK = 2;
 
+    /** Default verification ID that is used when generating a profile token is "QIBM_OS400_JT400". */
+    public final static String DEFAULT_VERIFICATION_ID = "QIBM_OS400_JT400";
+    
     /**
      * Constructs a ProfileTokenCredential object.
      *
@@ -282,7 +322,89 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * @param timeoutInterval The number of seconds to expiration, used as the
      *                        default value when the token is refreshed (1-3600).
      */
-    public ProfileTokenCredential(AS400 system, byte[] token, int tokenType, int timeoutInterval) 
+    public ProfileTokenCredential(AS400 system, byte[] token, int tokenType, int timeoutInterval) {
+        this(system, token, tokenType, timeoutInterval, null, null, null, 0, null, 0);
+    }
+
+    /**
+     * Constructs and initializes a ProfileTokenCredential object.
+     *
+     * <p>
+     * This method allows a credential to be constructed based on an existing token
+     * (i.e. previously created using the QSYGENPT system API). It is the
+     * responsibility of the application to ensure the token attributes, such as
+     * <i>tokenType</i> and <i>timeoutInterval</i>, are consistent with the
+     * specified token value.
+     *
+     * @param system          The system associated with the credential.
+     *
+     * @param token           The actual bytes for the token as it exists on the IBM
+     *                        i system.
+     *
+     * @param tokenType       The type of token provided. Possible types are defined
+     *                        as fields on this class:
+     *                        <ul>
+     *                        <li>TYPE_SINGLE_USE
+     *                        <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                        <li>TYPE_MULTIPLE_USE_RENEWABLE
+     *                        </ul>
+     *
+     * @param timeoutInterval The number of seconds to expiration, used as the
+     *                        default value when the token is refreshed (1-3600).
+     *                        
+     * @param additionalAuthFactor           The additional authentication factor
+     *                                       for the user
+     * 
+     * @param verificationID                 The verification ID is the label that
+     *                                       identifies the specific application,
+     *                                       service, or action associated with the
+     *                                       profile handle request. This value must
+     *                                       be 30-characters or less. This value
+     *                                       will be passed to the authentication
+     *                                       exit program registered under the
+     *                                       QIBM_QSY_AUTH exit point if the
+     *                                       specified user profile has *REGFAC as
+     *                                       an authentication method. The
+     *                                       authentication exit program may use the
+     *                                       verification ID as a means to restrict
+     *                                       the use of the user profile. If running
+     *                                       on an IBM i, the verification ID should
+     *                                       be the DCM application ID or a similar
+     *                                       value that identifies the application
+     *                                       or service.
+     * 
+     * @param remoteIPAddress                If the API is used by a server to
+     *                                       provide access to a the system, the
+     *                                       remote IP address should be obtained
+     *                                       from the socket connection (i.e. using
+     *                                       Socket.getInetAddress). Otherwise, null
+     *                                       should be passed.
+     * 
+     * @param remotePort                     If the API is used by a server to
+     *                                       provide access to a the system, the
+     *                                       remote port should be obtained from the
+     *                                       socket connection (i.e. using
+     *                                       Socket.getPort ). Otherwise, use 0 if
+     *                                       there is not an associated connection.
+     * 
+     * @param localIPAddress                 If the API is used by a server to
+     *                                       provide access to a the system, the
+     *                                       local IP address should be obtained
+     *                                       from the socket connection (i.e. using
+     *                                       Socket.getLocalAddress). Otherwise,
+     *                                       null should be passed.
+     * 
+     * @param localPort                      If the API is used by a server to
+     *                                       provide access to a the system, the
+     *                                       local port should be obtained from the
+     *                                       socket connection
+     *                                       (Socket.getLocalPort). Otherwise, use 0
+     *                                       if there is not an associated
+     *                                       connection.
+     */
+    public ProfileTokenCredential(AS400 system, byte[] token, int tokenType, int timeoutInterval, 
+                                 char[] additionalAuthFactor, String verificationID, 
+                                 String remoteIPAddress, int remotePort, String localIPAddress, int localPort)
     {
         this();
         try {
@@ -290,6 +412,12 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
             setToken(token);
             setTokenType(tokenType);
             setTimeoutInterval(timeoutInterval);
+            setAdditionalAuthenticationFactor(additionalAuthFactor);
+            setVerificationID(verificationID);
+            setRemoteIPAddress(remoteIPAddress);
+            setLocalIPAddress(localIPAddress);
+            setRemotePort(remotePort);
+            setLocalPort(localPort);
         } catch (PropertyVetoException pve) {
             AuthenticationSystem.handleUnexpectedException(pve);
         }
@@ -467,6 +595,16 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     public void initialize(AS400BasicAuthenticationPrincipal principal, char[] password, boolean isPrivate,
             boolean isReusable, boolean isRenewable, int timeoutInterval) throws Exception
     {
+        initialize(principal, password, additionalAuthenticationFactor_, authenticationIndicator_,
+                verificationID_, remoteIPAddress_, remotePort_, localIPAddress_, localPort_,
+                isPrivate, isReusable, isRenewable, timeoutInterval);
+    }
+
+    @Override
+    public void initialize(AS400BasicAuthenticationPrincipal principal, char[] password, char[] additionalAuthFactor, int authenticationIndicator,
+            String verificationID, String remoteIPAddress, int remotePort, String localIPAddress, int localPort,
+            boolean isPrivate, boolean isReusable, boolean isRenewable, int timeoutInterval) throws Exception
+    {
         if (Trace.isTraceOn())
         {
             Trace.log(Trace.INFORMATION,
@@ -474,6 +612,11 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
                             .append(principal.toString()).append(", isPrivate == ").append(isPrivate)
                             .append(", isReusable == ").append(isReusable).append(", isRenewable == ")
                             .append(isRenewable).append(", timeoutInterval == ").append(timeoutInterval)
+                            .append(", verificationID == ").append(verificationID)
+                            .append(", localIPAddress == ").append(localIPAddress)
+                            .append(", localPort == ").append(localPort)
+                            .append(", remoteIPAddress == ").append(remoteIPAddress)
+                            .append(", remotePort == ").append(remotePort)
                             .toString());
         }
 
@@ -502,6 +645,14 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
             setTokenType(TYPE_MULTIPLE_USE_NON_RENEWABLE);
         else
             setTokenType(TYPE_SINGLE_USE);
+
+        setAdditionalAuthenticationFactor(additionalAuthFactor);
+        setAuthenticationIndicator(authenticationIndicator);
+        setVerificationID(verificationID);
+        setRemoteIPAddress(remoteIPAddress);
+        setLocalIPAddress(localIPAddress);
+        setRemotePort(remotePort);
+        setLocalPort(localPort);
         
         // Generate the token
         setTokenExtended(pr, password);
@@ -512,6 +663,8 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     {
         super.invalidateProperties();
         token_ = null;
+        verificationID_ = null;
+        localIPAddress_ = null;
     }
 
     @Override
@@ -1011,7 +1164,12 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         ProfileTokenImpl impl = (ProfileTokenImpl) getImplPrimitive();
 
         // Generate and set the token value
-        setToken(impl.generateToken(name, passwordSpecialValue, getTokenType(), getTimeoutInterval()));
+        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenCredential generating profile token w/special value for user: " + name);
+        
+        setToken(impl.generateToken(name, passwordSpecialValue, additionalAuthenticationFactor_, authenticationIndicator_, getVerificationID(),
+                                    getRemoteIPAddress(), getRemotePort(), getLocalIPAddress(), getLocalPort(),
+                                    getTokenType(), getTimeoutInterval()));
+        setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
 
         // If successful, all defining attributes are now set. Set the impl for
         // subsequent references.
@@ -1201,8 +1359,13 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         ProfileTokenImpl impl = (ProfileTokenImpl)getImplPrimitive();
 
         // Generate and set the token value
-        setToken(impl.generateTokenExtended(name, password,  
+        setToken(impl.generateTokenExtended(name, password, getAdditionalAuthenticationFactor(), getVerificationID(),
+                                            getRemoteIPAddress(), getRemotePort(), getLocalIPAddress(),  getLocalPort(), 
                                             getTokenType(), getTimeoutInterval()));
+        
+        // When remote, it will be already set to CREATOR_FILE_SERVER. 
+        if (impl instanceof ProfileTokenImplNative)
+            setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
 
         // If successful, all defining attributes are now set.
         // Set the impl for subsequent references.
@@ -1306,5 +1469,302 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
 
         noRefresh_ = false;
         notify();
+    }
+
+    /**
+     * Return whether enhanced profile token should be used based on whether the JVM 
+     * property com.ibm.as400.access.AS400.useEnhancedProfileTokens.  By default, enhanced
+     * profile tokens will be used.  Set the property to false if enhanced profile tokens 
+     * should not be used. 
+     * 
+     * @return true if enhanced profile tokens should be used; otherwise, false.
+     */
+    public static boolean useEnhancedProfileTokens() {
+        return useEnhancedProfileTokens_;
+    }
+    
+    /**
+     * Set the additional authentication factor to be used when generating the profile token. 
+     * Note that a copy of the value will be made and stored in the object.
+     * 
+     * @param additionalAuthenticationFactor The additional authentication factor.
+     * @throws PropertyVetoException
+     */
+    public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor) throws PropertyVetoException
+    {
+        validatePropertyChange("additionalAuthenticationFactor");
+
+        if (additionalAuthenticationFactor != null && additionalAuthenticationFactor.length > ProfileTokenCredential.MAX_ADDITIONALAUTHENTICATIONFACTOR_LENGTH)
+            throw new ExtendedIllegalArgumentException("additionalAuthenticationFactor", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+
+        char[] old = additionalAuthenticationFactor_;
+        fireVetoableChange("additionalAuthenticationFactor", old, additionalAuthenticationFactor);
+        additionalAuthenticationFactor_ = (additionalAuthenticationFactor != null) 
+                ? Arrays.copyOf(additionalAuthenticationFactor, additionalAuthenticationFactor.length) : null;
+        firePropertyChange("additionalAuthenticationFactor", old, additionalAuthenticationFactor);
+    }
+
+    /**
+     * Returns a copy of the additional authentication factor.
+     *
+     * @return The additional authentication factor. The value can be null if it has not been set.
+     */
+    public char[] getAdditionalAuthenticationFactor() {
+        return (additionalAuthenticationFactor_ != null) 
+                ? Arrays.copyOf(additionalAuthenticationFactor_, additionalAuthenticationFactor_.length) : null;
+    }
+
+    /**
+     * Set the verification ID to be associated with the profile token. The
+     * verification ID is the label that identifies the specific application,
+     * service, or action associated with the profile token request.
+     * 
+     * @param verificationID The verification ID.
+     * @throws PropertyVetoException
+     */
+    public void setVerificationID(String verificationID) throws PropertyVetoException
+    {
+        validatePropertyChange("verificationID");
+
+        if (verificationID != null && verificationID.length() > ProfileTokenCredential.MAX_VERIFICATIONID_LENGTH)
+            throw new ExtendedIllegalArgumentException("verificationID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+
+        String old = verificationID_;
+        fireVetoableChange("verificationID", old, verificationID);
+        verificationID_ = verificationID;
+        firePropertyChange("verificationID", old, verificationID);
+    }
+
+    /**
+     * Returns the verification ID associated with the profile token.
+     *
+     * @return The verification ID. If the value is not set to a value, the default verification ID of 
+     *         "QIBM_OS400_JT400" will be returned.
+     */
+    public String getVerificationID()
+    {
+        if (!useEnhancedProfileTokens_) 
+            return "*NOUSE";
+        
+        return (verificationID_ != null) ? verificationID_ : DEFAULT_VERIFICATION_ID;
+    }
+
+    /**
+     * Set the local IP address to be associated with the profile token. Note that
+     * the method does not validate the value to ensure it is a valid IP address.
+     * 
+     * @param localIPAddress The local IP address.
+     * @throws PropertyVetoException
+     */
+    public void setLocalIPAddress(String localIPAddress) throws PropertyVetoException
+    {
+        validatePropertyChange("localIPAddress");
+
+        if (localIPAddress != null && localIPAddress.length() > ProfileTokenCredential.MAX_IPADDRESS_LENGTH)
+            throw new ExtendedIllegalArgumentException("localIPAddress", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+
+        String old = localIPAddress_;
+        fireVetoableChange("localIPAddress", old, localIPAddress);
+        localIPAddress_ = localIPAddress;
+        firePropertyChange("localIPAddress", old, localIPAddress);
+    }
+
+    /**
+     * Returns the local IP address associated with the profile token.
+     *
+     * @return The client IP address. The value can be null if it has not been set.
+     */
+    public String getLocalIPAddress() {
+        return localIPAddress_;
+    }
+    
+    /**
+     * Set the remote IP address to be associated with the profile token. Note that
+     * the method does not validate the value to ensure it is a valid IP address.
+     * 
+     * @param remoteIPAddress IP address.
+     * @throws PropertyVetoException
+     */
+    public void setRemoteIPAddress(String remoteIPAddress) throws PropertyVetoException
+    {
+        validatePropertyChange("remoteIPAddress");
+
+        if (remoteIPAddress != null && remoteIPAddress.length() > ProfileTokenCredential.MAX_IPADDRESS_LENGTH)
+            throw new ExtendedIllegalArgumentException("remoteIPAddress", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+
+        String old = remoteIPAddress_;
+        fireVetoableChange("remoteIPAddress", old, remoteIPAddress);
+        remoteIPAddress_ = remoteIPAddress;
+        firePropertyChange("remoteIPAddress", old, remoteIPAddress);
+    }
+
+    /**
+     * Returns the remote IP address associated with the profile token.
+     *
+     * @return The remote IP address. The value can be null if it has not been set.
+     */
+    public String getRemoteIPAddress() {
+        return useEnhancedProfileTokens_ ? remoteIPAddress_ : "*NOUSE";
+    }
+    
+    /**
+     * Set the remote port of the network connection associated with the profile token request. 
+     * A value of 0 indicates that the remote port is not specified. 
+     * 
+     * @param remotePort The remote port.
+     * @throws PropertyVetoException
+     */
+    public void setRemotePort(int remotePort) throws PropertyVetoException
+    {
+        validatePropertyChange("remotePort");
+
+        if (remotePort < 0 || remotePort > 65535)
+            throw new ExtendedIllegalArgumentException("remotePort", ExtendedIllegalArgumentException.PATH_NOT_VALID);
+
+        int old = remotePort;
+        fireVetoableChange("remotePort", old, remotePort);
+        remotePort_ = remotePort;
+        firePropertyChange("remotePort", old, remotePort);
+    }
+
+    /**
+     * Returns the remote port of the network connection associated with the profile token request. 
+     *
+     * @return The remote port. A value of 0 indicates that the remote port is not specified.
+     */
+    public int getRemotePort() {
+        return remotePort_;
+    }
+
+    /**
+     * Set the local port of the network connection associated with the profile token request. 
+     * A value of 0 indicates that the local port is not specified. 
+     * 
+     * @param localPort the local Port.
+     * @throws PropertyVetoException
+     */
+    public void setLocalPort(int localPort) throws PropertyVetoException
+    {
+        validatePropertyChange("localPort");
+
+        if (localPort < 0 || localPort > 65535)
+            throw new ExtendedIllegalArgumentException("localPort", ExtendedIllegalArgumentException.PATH_NOT_VALID);
+
+        int old = localPort;
+        fireVetoableChange("localPort", old, localPort);
+        localPort_ = localPort;
+        firePropertyChange("localPort", old, localPort);
+    }
+
+    /**
+     * Returns the local port of the network connection associated with the profile token request. 
+     *
+     * @return The local port. A value of 0 indicates that the local port is not specified.
+     */
+    public int getLocalPort() {
+        return localPort_;
+    }
+    
+    /**
+     * Set the authentication indicator. The default value for the authentication indicator is
+     * AuthenticationIndicator.APPLICATION_AUTHENTICATION.  @see com.ibm.as400.access.AuthenticationIndicator
+     * for further information. 
+     * 
+     * @param authenticationIndicator        Indicates how the caller authenticated the user.
+     * @throws PropertyVetoException
+     */
+    public void setAuthenticationIndicator(int authenticationIndicator) throws PropertyVetoException
+    {
+        validatePropertyChange("authenticationIndicator");
+
+        if (authenticationIndicator < 1 || authenticationIndicator > 5)
+            throw new ExtendedIllegalArgumentException("authenticationIndicator", ExtendedIllegalArgumentException.PATH_NOT_VALID);
+
+        int old = authenticationIndicator;
+        fireVetoableChange("authenticationIndicator", old, authenticationIndicator);
+        authenticationIndicator_ = authenticationIndicator;
+        firePropertyChange("authenticationIndicator", old, authenticationIndicator);
+    }
+
+    /**
+     * Returns the authentication indicator.  @see com.ibm.as400.access.AuthenticationIndicator
+     * for further information. 
+     *
+     * @return The authentication indicator.
+     */
+    public int getAuthenticationIndicator() {
+        return authenticationIndicator_;
+    }
+
+    /**
+     * Returns an integer indicating how profile token was created.
+     * 
+     * @return The creator of token. Possible values are defined as fields on this
+     *         class:
+     *         <ul>
+     *         <li>CREATOR_UNKNOWN
+     *         <li>CREATOR_FILESERVER
+     *         <li>CREATOR_NATIVEAPI
+     *         </ul>
+     * 
+     */
+    public int getTokenCreator() {
+        return creator_ ;
+    }
+    
+    /**
+     * Sets the token creator.
+     *
+     * <p>
+     * It is the application's responsibility to maintain consistency between
+     * explicitly set token values (those not generated from a user and password)
+     * and token attributes, such as the <i>tokenType</i>, <i>timeoutInterval</i>, and <i>tokenCreator</i>.
+     *
+     * <p>
+     * This property cannot be changed once a request initiates a connection for the
+     * object to the IBM i system (for example, refresh).
+     *
+     * @param type The creator of the token. Possible values are defined as fields on this
+     *             class:
+     *         <ul>
+     *         <li>CREATOR_UNKNOWN
+     *         <li>CREATOR_FILESERVER
+     *         <li>CREATOR_NATIVEAPI
+     *         </ul>
+     *
+     * @exception PropertyVetoException            If the change is vetoed.
+     *
+     * @exception ExtendedIllegalArgumentException If the provided value is out of
+     *                                             range.
+     *
+     * @exception ExtendedIllegalStateException    If the property cannot be changed
+     *                                             due to the current state.
+     *
+     */
+    public void setTokenCreator(int tokenCreator) throws PropertyVetoException
+    {
+        // Validate state
+        validatePropertyChange("tokenCreator");
+
+        // Validate parms
+        if (tokenCreator < 0 || tokenCreator > 2) {
+            Trace.log(Trace.ERROR, "Token creator " + tokenCreator + " out of range");
+            throw new ExtendedIllegalArgumentException("type", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+        }
+
+        Integer old = Integer.valueOf(tokenCreator);
+        Integer typ = Integer.valueOf(tokenCreator);
+        fireVetoableChange("tokenCreator", old, typ);
+        creator_ = tokenCreator;
+        firePropertyChange("tokenCreator", old, typ);
+    }
+    
+    /**
+     * Returns whether token has been set. 
+     * 
+     * @return true if token has been set; false if token has not been set. 
+     */
+    boolean isTokenSet() {
+        return token_ != null;
     }
 }
