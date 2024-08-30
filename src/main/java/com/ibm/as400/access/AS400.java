@@ -1108,6 +1108,24 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     /**
+     * Returns a new instance of an AS400 object. 
+     * <p>
+     * If running on IBM i, the target is the local system. This has the same effect as using <code>localhost</code> for
+     * the system name, *CURRENT for the user ID, and *CURRENT for the password.
+     * <p>
+     * If running on another operating system, a sign-on prompt may be displayed. The user is then able to specify the
+     * system name, user ID, and password. 
+     * @param useSSL     Whether or not the new AS400 object should use secure connections when communicating with the
+     *                   host servers.
+     * @return AS400 object.
+     **/
+    public static AS400 newInstance(boolean useSSL)
+    {
+        return (useSSL) ? new SecureAS400() 
+                        : new AS400();
+    }
+    
+    /**
      * Returns a new instance of an AS400 object. It uses the specified system name.
      * <p>
      * If running on IBM i to another system or to itself, the user ID and password of the current job are used.
@@ -1987,7 +2005,7 @@ public class AS400 implements Serializable, AutoCloseable
         
         if (isSecure())
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing SecureAS400 object.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing secure AS400 object.");
 
             useSSLConnection_ = new SSLOptions();
 
@@ -2094,7 +2112,44 @@ public class AS400 implements Serializable, AutoCloseable
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception IOException            If an error occurs while communicating with the system.
      **/
-    public ProfileTokenCredential generateProfileToken(String userIdentity, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException
+    public ProfileTokenCredential generateProfileToken(String userIdentity, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException {
+        return generateProfileToken(userIdentity, tokenType, timeoutInterval, null, null);
+    }
+
+    /**
+     * Generates a profile token on behalf of the provided user identity. This user identity must be associated with a
+     * user profile via EIM.
+     * <p>
+     * Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user
+     * or authorities under which the application is running. The profile associated with this system object must have
+     * enough authority to generate an authentication token for another user.
+     * <p>
+     * This function is only supported on i5/OS V5R3M0 or greater.
+     * 
+     * @param userIdentity    The LDAP distinguished name.
+     * @param tokenType       The type of profile token to create. Possible types are defined as fields on the
+     *                        ProfileTokenCredential class:
+     *                        <ul>
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE
+     *                        TYPE_SINGLE_USE}
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                        TYPE_MULTIPLE_USE_NON_RENEWABLE}
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_RENEWABLE
+     *                        TYPE_MULTIPLE_USE_RENEWABLE}
+     *                        </ul>
+     * @param timeoutInterval The number of seconds to expiration when the token is created (1-3600).
+     * @param verificationID       The verification ID that will be associated with profile token. The verification ID
+     *                             is the label that identifies the specific application, service, or action associated
+     *                             with the profile token request. A null value will result in the host server using a
+     *                             default value.
+     * @param remoteIPAddress      The remote IP address (the IP address of the requester) that will be associated with
+     *                             profile token. A null value will result in the host server using a default value.
+     * 
+     * @return A ProfileTokenCredential representing the provided user identity.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     **/
+    public ProfileTokenCredential generateProfileToken(String userIdentity, int tokenType, int timeoutInterval, String verificationID, String remoteIPAddress) throws AS400SecurityException, IOException
     {
         connectService(AS400.SIGNON);
 
@@ -2107,6 +2162,8 @@ public class AS400 implements Serializable, AutoCloseable
             profileToken.setSystem(this);
             profileToken.setTokenType(tokenType);
             profileToken.setTimeoutInterval(timeoutInterval);
+            profileToken.setVerificationID(verificationID);
+            profileToken.setRemoteIPAddress(remoteIPAddress);
         }
         catch (PropertyVetoException e)
         {
@@ -2638,7 +2695,41 @@ public class AS400 implements Serializable, AutoCloseable
      * @exception IOException            If an error occurs while communicating with the system.
      * @exception InterruptedException   If this thread is interrupted.
      **/
-    public ProfileTokenCredential getProfileToken(int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException
+    public ProfileTokenCredential getProfileToken(int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException {
+        return getProfileToken(tokenType, timeoutInterval, null, null);
+    }
+
+    /**
+     * Authenticates the assigned user profile and password and returns a corresponding ProfileTokenCredential if
+     * successful.
+     * <p>
+     * This function is not supported if the assigned password is *CURRENT and cannot be used to generate a renewable
+     * token. This function is only supported if the system is at i5/OS V4R5M0 or greater.
+     * <p>
+     * <b>Note:</b> If an additional authentication factor has been set for the AS400 object, it will be used when
+     * generating the profile token.
+     * 
+     * @param tokenType       The type of profile token to create. Possible types are defined as fields on the
+     *                        ProfileTokenCredential class:
+     *                        <ul>
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE
+     *                        TYPE_SINGLE_USE}
+     *                        <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                        TYPE_MULTIPLE_USE_NON_RENEWABLE}
+     *                        </ul>
+     * @param timeoutInterval The number of seconds to expiration when the token is created (1-3600).
+     * @param verificationID       The verification ID that will be associated with profile token. The verification ID
+     *                             is the label that identifies the specific application, service, or action associated
+     *                             with the profile token request. A null value will result in the host server using a
+     *                             default value.
+     * @param remoteIPAddress      The remote IP address (the IP address of the requester) that will be associated with
+     *                             profile token. A null value will result in the host server using a default value.
+     * @return A ProfileTokenCredential representing the signed-on user.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @exception InterruptedException   If this thread is interrupted.
+     **/
+    public ProfileTokenCredential getProfileToken(int tokenType, int timeoutInterval, String verificationID, String remoteIPAddress) throws AS400SecurityException, IOException, InterruptedException
     {
         connectService(AS400.SIGNON);
 
@@ -2658,6 +2749,9 @@ public class AS400 implements Serializable, AutoCloseable
             profileToken.setSystem(this);
             profileToken.setTokenType(tokenType);
             profileToken.setTimeoutInterval(timeoutInterval);
+            profileToken.setVerificationID(verificationID);
+            profileToken.setRemoteIPAddress(remoteIPAddress);
+            profileToken.setAdditionalAuthenticationFactor(additionalAuthenticationFactor_);
         }
         catch (PropertyVetoException e)
         {
@@ -2682,7 +2776,7 @@ public class AS400 implements Serializable, AutoCloseable
         
         return profileToken;
     }
-
+    
     /**
      * Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if
      * successful.
@@ -2817,6 +2911,50 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public ProfileTokenCredential getProfileToken(String userId, char[] password, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException
     {
+        return getProfileToken(userId, password, null, tokenType, timeoutInterval, null, null);
+    }
+    
+    /**
+     * Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if
+     * successful.
+     * <p>
+     * Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user
+     * or authorities under which the application is running.
+     * <p>
+     * This function is only supported if the system is at i5/OS V4R5M0 or greater.
+     * <p>
+     * <b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user
+     * profile, and can result in the profile being disabled. Refer to documentation on the
+     * <i>ProfileTokenCredential</i> class for additional restrictions.
+     * 
+     * @param userId               The user profile name.
+     * @param password             The user profile password.
+     * @param additionalAuthFactor The additional authentication factor or null if not specifying one.
+     * @param tokenType            The type of profile token to create. Possible types are defined as fields on the
+     *                             ProfileTokenCredential class:
+     *                             <ul>
+     *                             <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE
+     *                             TYPE_SINGLE_USE}
+     *                             <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                             TYPE_MULTIPLE_USE_NON_RENEWABLE}
+     *                             <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_RENEWABLE
+     *                             TYPE_MULTIPLE_USE_RENEWABLE}
+     *                             </ul>
+     * @param timeoutInterval      The number of seconds to expiration when the token is created (1-3600).
+     * @param verificationID       The verification ID that will be associated with profile token. The verification ID
+     *                             is the label that identifies the specific application, service, or action associated
+     *                             with the profile token request. A null value will result in the host server using a
+     *                             default value.
+     * @param remoteIPAddress      The remote IP address (the IP address of the requester) that will be associated with
+     *                             profile token. A null value will result in the host server using a default value.
+     * @return A ProfileTokenCredential representing the authenticated profile and password.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @exception InterruptedException   If this thread is interrupted.
+     **/
+    public ProfileTokenCredential getProfileToken(String userId, char[] password, char[] additionalAuthFactor, int tokenType, int timeoutInterval, 
+                                                  String verificationID, String remoteIPAddress) throws AS400SecurityException, IOException, InterruptedException
+    {
         connectService(AS400.SIGNON);
 
         if (userId == null)
@@ -2840,6 +2978,9 @@ public class AS400 implements Serializable, AutoCloseable
             profileToken.setSystem(this);
             profileToken.setTokenType(tokenType);
             profileToken.setTimeoutInterval(timeoutInterval);
+            profileToken.setVerificationID(verificationID);
+            profileToken.setRemoteIPAddress(remoteIPAddress);
+            profileToken.setAdditionalAuthenticationFactor(additionalAuthFactor);
         }
         catch (PropertyVetoException e)
         {
@@ -3179,6 +3320,22 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Version level:", version);
 
         return version;
+    }
+    
+    /**
+     * Returns the version, release, and modification level a given system.
+     * 
+     * @param systemName The IP address or hostname of the target system.
+     * @param useSSL     Whether or not secure connections should be used when communicating with the host servers.
+     * 
+     * @return The high 16-bit is the version, the next 8 bits is the release, and the low 8 bits is the modification
+     *         level. Thus version 5, release 1, modification level 0, returns 0x00050100.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     **/
+    public static int getVRM(String systemName, boolean useSSL) throws AS400SecurityException, IOException {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting vrm for system: " + systemName + ", use SSL:", useSSL);
+        return AS400ImplRemote.getVRM(systemName, useSSL);
     }
 
     /**
@@ -5589,11 +5746,16 @@ public class AS400 implements Serializable, AutoCloseable
     
     /**
      * Returns true if host server communications is performed over a secure channel.
+     * <p>
+     * <b>Note:</b>This method is the only reliable way to determine whether
+     * host server communications is performed over a secure channel. 
+     * An AS400 object that is not an instance of SecureAS400 class can use 
+     * secure communications in some instances. 
      * 
      * @return true if communications is done over secure channel; otherwise false.
      **/
     public boolean isSecure() {
-        return (this instanceof SecureAS400);
+        return ((useSSLConnection_ != null) || (this instanceof SecureAS400));
     }
     
     // ======== START =================

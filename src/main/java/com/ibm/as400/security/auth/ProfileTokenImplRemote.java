@@ -13,6 +13,8 @@
 
 package com.ibm.as400.security.auth;
 
+import java.io.IOException;
+
 import com.ibm.as400.access.*;
 
 /**
@@ -70,6 +72,16 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     @Override
     public byte[] generateToken(String uid, int pwdSpecialValue, int type, int timeoutInterval) throws RetrieveFailedException
     {
+        return generateToken(uid, pwdSpecialValue, null, AuthenticationIndicator.APPLICATION_AUTHENTICATION,
+                null, null, 0, null, 0, type, timeoutInterval);
+
+    }
+    
+    @Override
+    public byte[] generateToken(String uid, int pwdSpecialValue, char[] additionalAuthenticationFactor,
+            int authenticationIndicator, String verificationId, String remoteIpAddress, int remotePort,
+            String localIpAddress, int localPort, int type, int timeoutInterval) throws RetrieveFailedException
+    {
         // Convert password special value from enumerated int to String
         String pwd;
         switch(pwdSpecialValue) {
@@ -89,8 +101,31 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         // do not use with real passwords
 
         AS400 sys = getCredential().getSystem();
+        
+        // Determine if we are using enhanced profile tokens
+        boolean useEPT = false;
+        try {
+            useEPT = (ProfileTokenCredential.useEnhancedProfileTokens() && sys.getVRM() > 0x00070500);
+        }
+        catch (AS400SecurityException|IOException e) {
+            Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
+            throw new RetrieveFailedException();
+        }
+        
+        // The API QSYGENPT requires all parameters to be non-null. 
+        boolean isAAFNull = (additionalAuthenticationFactor == null || additionalAuthenticationFactor.length == 0);
+        if (isAAFNull) additionalAuthenticationFactor = new char[] { ' ' };
+        
+        boolean isVfyIDNull = (verificationId == null || verificationId.length() == 0);
+        if (isVfyIDNull) verificationId = " ";
 
-        ProgramParameter[] parmlist = new ProgramParameter[6];
+        boolean isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
+        if (isRemoteIPNull) remoteIpAddress = " ";
+
+        boolean isLocalIPNull =  (localIpAddress == null || localIpAddress.length() == 0);
+        if (isLocalIPNull) localIpAddress = " ";
+
+        ProgramParameter[] parmlist = new ProgramParameter[useEPT ? 19 : 6];
         
         // Output: Profile token   
         parmlist[0] = new ProgramParameter(ProfileTokenCredential.TOKEN_LENGTH);
@@ -115,6 +150,55 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
 
         // Input/output: Error code. NULL.
         parmlist[5] = new ProgramParameter(BinaryConverter.intToByteArray(0));
+        
+        // If enhanced profile tokens supported then set parameters
+        if (useEPT)
+        {
+            // -- Optional Parameter Group 1
+            
+            // Input: Length of user password. Int to byte[]. Special value is used, thus must be 10
+            parmlist[6] = new ProgramParameter(BinaryConverter.intToByteArray(10));
+
+            // Input: CCSID of user password. Int to byte[]. Special value is used, thus must be 37
+            parmlist[7] = new ProgramParameter(BinaryConverter.intToByteArray(37));
+            
+            // -- Optional Parameter Group 2
+            
+            // Input: Additional authentication factor (unicode)
+            parmlist[8] = new ProgramParameter(BinaryConverter.charArrayToByteArray(additionalAuthenticationFactor));
+
+            // Input: Length of additional authentication factor
+            parmlist[9] = new ProgramParameter(BinaryConverter.intToByteArray((isAAFNull) ? 0 : parmlist[8].getInputData().length));
+            
+            // Input: CCSID of additional authentication factor
+            parmlist[10] = new ProgramParameter(BinaryConverter.intToByteArray(13488));
+
+            // Input: Authentication indicator (for passwords, it is ignored)
+            parmlist[11] = new ProgramParameter(BinaryConverter.intToByteArray(authenticationIndicator));
+
+            // Input: Verification ID - must be 30 in length, blank padded
+            parmlist[12] = new ProgramParameter(CharConverter.stringToByteArray(sys, (verificationId + "                              ").substring(0, 30)));
+            
+            // Input: Remote IP address
+            parmlist[13] = new ProgramParameter(CharConverter.stringToByteArray(sys, remoteIpAddress));
+
+            // Input: Length of remote IP address
+            parmlist[14] = new ProgramParameter(BinaryConverter.intToByteArray((isRemoteIPNull) ? 0 : parmlist[13].getInputData().length));
+            
+            // Input: Remote port
+            parmlist[15] = new ProgramParameter(BinaryConverter.intToByteArray(remotePort));
+
+            // Input: Local IP address
+            parmlist[16] = new ProgramParameter(CharConverter.stringToByteArray(sys, localIpAddress));
+
+            // Input: Length of local IP address
+            parmlist[17] = new ProgramParameter(BinaryConverter.intToByteArray((isLocalIPNull) ? 0 : parmlist[16].getInputData().length));
+
+            // Input: Local port
+            parmlist[18] = new ProgramParameter(BinaryConverter.intToByteArray(remotePort));
+        }
+
+        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenImpleRemote generating profile token w/special value for user: " + uid);
 
         ProgramCall programCall = new ProgramCall(sys);
 
@@ -196,14 +280,106 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     }
     
     @Override
-    public byte[] generateTokenExtended(String uid, char[] pwd, int type, int timeoutInterval) throws RetrieveFailedException
+    public byte[] generateTokenExtended(String uid, char[] pwd, int type, int timeoutInterval) throws RetrieveFailedException {
+        return generateTokenExtended(uid, pwd, null, null, null, 0, null, 0, type, timeoutInterval);
+    }
+    
+    /**
+     * Generates and returns a new profile token based on a user profile, password,
+     * and additional authentication factor.
+     * 
+     * @param uid                            The name of the user profile for which
+     *                                       the token is to be generated.
+     * 
+     * @param password                       The password for the user
+     * 
+     * @param additionalAuthenticationFactor The additional authentication factor
+     *                                       for the user
+     * 
+     * @param verificationId                 The verification ID is the label that
+     *                                       identifies the specific application,
+     *                                       service, or action associated with the
+     *                                       profile handle request. This value must
+     *                                       be 30-characters or less. This value
+     *                                       will be passed to the authentication
+     *                                       exit program registered under the
+     *                                       QIBM_QSY_AUTH exit point if the
+     *                                       specified user profile has *REGFAC as
+     *                                       an authentication method. The
+     *                                       authentication exit program may use the
+     *                                       verification ID as a means to restrict
+     *                                       the use of the user profile. If running
+     *                                       on an IBM i, the verification ID should
+     *                                       be the DCM application ID or a similar
+     *                                       value that identifies the application
+     *                                       or service.
+     * 
+     * @param remoteIpAddress                If the API is used by a server to
+     *                                       provide access to a the system, the
+     *                                       remote IP address should be obtained
+     *                                       from the socket connection (i.e. using
+     *                                       Socket.getInetAddress). Otherwise, null
+     *                                       should be passed.
+     * 
+     * @param remotePort                     If the API is used by a server to
+     *                                       provide access to a the system, the
+     *                                       remote port should be obtained from the
+     *                                       socket connection (i.e. using
+     *                                       Socket.getPort ). Otherwise, use 0 if
+     *                                       there is not an associated connection.
+     *                                       This parameter is not used in a remote
+     *                                       environment.  The host server will 
+     *                                       retrieve the port from the network connection. 
+     * 
+     * @param localIpAddress                 If the API is used by a server to
+     *                                       provide access to a the system, the
+     *                                       local IP address should be obtained
+     *                                       from the socket connection (i.e. using
+     *                                       Socket.getLocalAddress). Otherwise,
+     *                                       null should be passed.
+     *                                       This parameter is not used in a remote
+     *                                       environment.  The host server will 
+     *                                       retrieve the information from the system. 
+     *                                                                              
+     * @param localPort                      If the API is used by a server to
+     *                                       provide access to a the system, the
+     *                                       local port should be obtained from the
+     *                                       socket connection
+     *                                       (Socket.getLocalPort). Otherwise, use 0
+     *                                       if there is not an associated
+     *                                       connection.
+     *                                       This parameter is not used in a remote
+     *                                       environment.  The host server will 
+     *                                       retrieve the port from the network connection. 
+     * 
+     * 
+     * @param type                           The type of token. Possible types are
+     *                                       defined as fields on the
+     *                                       ProfileTokenCredential class:
+     *                                       <ul>
+     *                                       <li>ProfileTokenCredential.TYPE_SINGLE_USE
+     *                                       <li>ProfileTokenCredential.TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                                       <li>ProfileTokenCredential.TYPE_MULTIPLE_USE_RENEWABLE
+     *                                       </ul>
+     * 
+     * @param timeoutInterval                The number of seconds to expiration.
+     * 
+     * @return The token bytes.
+     * @exception RetrieveFailedException If errors occur while generating the
+     *                                    token.
+     */
+    @Override
+    public byte[] generateTokenExtended(String uid, char[] password, char[] additionalAuthenticationFactor,
+            String verificationId, String remoteIpAddress, int remotePort, String localIpAddress, int localPort,
+            int type, int timeoutInterval) throws RetrieveFailedException
     {
         // Use the AS400 object to obtain the token.
         // This will obtain the token by interacting with the IBM i 
         // system signon server and avoid transmitting a cleartext password.
         byte[] tkn = null;
         try {
-            tkn = getCredential().getSystem().getProfileToken(uid, pwd, type, timeoutInterval).getToken();
+            tkn = getCredential().getSystem().getProfileToken(uid, password, additionalAuthenticationFactor, type, timeoutInterval, 
+                                                              verificationId, remoteIpAddress).getToken();
         }
         catch (AS400SecurityException se) {
             throw new RetrieveFailedException(se.getReturnCode());
@@ -250,13 +426,45 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
 	    ProfileTokenCredential tgt = (ProfileTokenCredential)getCredential();
 	    AS400 sys = tgt.getSystem();
 	    ProgramCall programCall = new ProgramCall(tgt.getSystem());
+	    
+        // Determine if we are using enhanced profile tokens
+        boolean useEPT = false;
+        try {
+            useEPT = (ProfileTokenCredential.useEnhancedProfileTokens() && sys.getVRM() > 0x00070500);
+        }
+        catch (AS400SecurityException|IOException e) {
+            Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
+            throw new RefreshFailedException();
+        }
+        
+        // Parameters cannot be null!
+        String verificationId = tgt.getVerificationID();
+        boolean isVfyIDNull = (verificationId == null || verificationId.length() == 0);
+        if (isVfyIDNull) verificationId = " ";
 
-	    ProgramParameter[] parmlist = new ProgramParameter[5];
+        String remoteIpAddress = tgt.getRemoteIPAddress();
+        boolean isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
+        if (isRemoteIPNull) remoteIpAddress = " ";
+
+	    ProgramParameter[] parmlist = new ProgramParameter[useEPT ? 8 : 5];
+	    
 	    parmlist[0] = new ProgramParameter(ProfileTokenCredential.TOKEN_LENGTH);
 	    parmlist[1] = new ProgramParameter(new AS400ByteArray(ProfileTokenCredential.TOKEN_LENGTH).toBytes(tgt.getToken()));
 	    parmlist[2] = new ProgramParameter(new AS400Bin4().toBytes(timeoutInterval));
 	    parmlist[3] = new ProgramParameter(new AS400Text(1, sys.getCcsid(), sys).toBytes(Integer.toString(type)));
 	    parmlist[4] = new ProgramParameter(new AS400Bin4().toBytes(0));
+	    
+	    if (useEPT)
+	    {
+            // Input: Verification ID - must be 30 in length, blank padded
+            parmlist[5] = new ProgramParameter(CharConverter.stringToByteArray(sys, (verificationId + "                              ").substring(0, 30)));
+            
+            // Input: Remote IP address
+            parmlist[6] = new ProgramParameter(CharConverter.stringToByteArray(sys, remoteIpAddress));
+
+            // Input: Length of remote IP address
+            parmlist[7] = new ProgramParameter(BinaryConverter.intToByteArray((isRemoteIPNull) ? 0 : parmlist[13].getInputData().length));
+	    }
 
 	    try {
 		    programCall.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYGENFT", "PGM"), parmlist);

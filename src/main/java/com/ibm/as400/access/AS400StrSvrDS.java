@@ -81,12 +81,15 @@ class AS400StrSvrDS extends ClientAccessDataStream
     }
     
         
-    AS400StrSvrDS(int serverId, byte[] userIDbytes, byte[] authenticationBytes, int byteType, byte[] addAuthFactor)
+    AS400StrSvrDS(int serverId, byte[] userIDbytes, byte[] authenticationBytes, int authScheme, byte[] addAuthFactor, byte[] verificationID, byte[] clientIPAddr)
     {
         super(new byte[((userIDbytes == null) 
               ? 28 + authenticationBytes.length 
               : 44 + authenticationBytes.length) +
-                     ((addAuthFactor != null && addAuthFactor.length > 0) ? (addAuthFactor.length + 10) : 0)]);
+                     ((authScheme == AS400.AUTHENTICATION_SCHEME_PASSWORD && addAuthFactor != null && addAuthFactor.length > 0) ? (addAuthFactor.length + 10) : 0) + 
+                     ((authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN && verificationID != null) ? (verificationID.length + 10) : 0) +
+                     ((authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN && clientIPAddr != null) ? (clientIPAddr.length + 10) : 0)
+              ]);
 
         setLength(data_.length);
         // Header ID replaced with Attributes.
@@ -100,15 +103,15 @@ class AS400StrSvrDS extends ClientAccessDataStream
       
         int offset = 20;
       
-        if (byteType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) 
+        if (authScheme == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) 
             data_[20] = (byte)0x06;
         else 
             data_[20] = (byte)0x02;
       
-        if (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+        if (authScheme == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
             data_[20] = (byte)0x05;
       
-        if (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD)
+        if (authScheme == AS400.AUTHENTICATION_SCHEME_PASSWORD)
         {
             if (authenticationBytes.length == 8)
                 data_[20] = (byte) 0x01;
@@ -124,7 +127,7 @@ class AS400StrSvrDS extends ClientAccessDataStream
         //   LL
         set32bit(6 + authenticationBytes.length, 22);
         //   CP
-        if (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD)
+        if (authScheme == AS400.AUTHENTICATION_SCHEME_PASSWORD)
             set16bit(0x1105, 26);
         else
             set16bit(0x1115, 26);
@@ -146,17 +149,55 @@ class AS400StrSvrDS extends ClientAccessDataStream
             offset += 16;
         }
       
-        if (addAuthFactor != null && addAuthFactor.length > 0)
+        if (authScheme == AS400.AUTHENTICATION_SCHEME_PASSWORD) 
         {
-            // Set additional authentication factor
-            //   LL
-            set32bit(4 + 2 + 4 + addAuthFactor.length, offset);
-            //   CP
-            set16bit(0x112F, offset + 4);
-            //   CCSID
-            set32bit(1208, offset + 6);
-            //   Data (Additional authentication factor in UTF-8)
-            System.arraycopy(addAuthFactor, 0, data_, offset + 10, addAuthFactor.length);
+            if (addAuthFactor != null && addAuthFactor.length > 0)
+            {
+                // Set additional authentication factor
+                //   LL
+                set32bit(4 + 2 + 4 + addAuthFactor.length, offset);
+                //   CP
+                set16bit(0x112F, offset + 4);
+                //   CCSID
+                set32bit(1208, offset + 6);
+                //   Data (Additional authentication factor in UTF-8)
+                System.arraycopy(addAuthFactor, 0, data_, offset + 10, addAuthFactor.length);
+                
+                offset += 10 + addAuthFactor.length;
+            }
+        }
+        
+        if (authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN)
+        {
+            if (verificationID != null)
+            {
+                // Set verification ID
+                //   LL
+                set32bit(4 + 2 + 4 + verificationID.length, offset);
+                //   CP
+                set16bit(0x1130, offset + 4);
+                //   CCSID
+                set32bit(1208, offset + 6);
+                //   Data (verification ID in UTF-8)
+                System.arraycopy(verificationID, 0, data_, offset + 10, verificationID.length);
+                
+                offset += 10 + verificationID.length;
+            }
+            
+            if (clientIPAddr != null)
+            {
+                // Set client IP address
+                //   LL
+                set32bit(4 + 2 + 4 + clientIPAddr.length, offset);
+                //   CP
+                set16bit(0x1131, offset + 4);
+                //   CCSID
+                set32bit(1208, offset + 6);
+                //   Data (client IP address in UTF-8)
+                System.arraycopy(clientIPAddr, 0, data_, offset + 10, clientIPAddr.length);
+                
+                offset += 10 + clientIPAddr.length;
+            }
         }
     }
 

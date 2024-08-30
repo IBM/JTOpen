@@ -19,9 +19,14 @@ import java.io.OutputStream;
 // The SignonGenAuthTokenRequestDS class represents the data stream for the 'Generate authentication token on behalf of another user' request.
 class SignonGenAuthTokenRequestDS extends ClientAccessDataStream
 {
-    SignonGenAuthTokenRequestDS(byte[] userIdentity, int profileTokenType, int profileTokenTimeout, int serverLevel)
+    SignonGenAuthTokenRequestDS(byte[] userIdentity, int profileTokenType, int profileTokenTimeout, int serverLevel,
+            byte[] verificationID, byte[] clientIPAddr)
     {
-        super(new byte[51 + userIdentity.length + (serverLevel < 5 ? 0 : 7)]);
+        super(new byte[51 + userIdentity.length 
+                       + (serverLevel < 5 ? 0 : 7) + 
+                       + ((serverLevel >= 18 && null != verificationID && 0 < verificationID.length) ? verificationID.length + 10: 0)
+                       + ((serverLevel >= 18 && null != clientIPAddr && 0 < clientIPAddr.length) ? clientIPAddr.length + 10: 0)
+                       ]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);
@@ -57,9 +62,10 @@ class SignonGenAuthTokenRequestDS extends ClientAccessDataStream
         //   Data.
         System.arraycopy(userIdentity, 0, data_, 51, userIdentity.length);
 
+        int offset = 51 + userIdentity.length;
+
         if (serverLevel >= 5)
         {
-            int offset = 51 + userIdentity.length;
             // Set return error messages.
             //   LL
             set32bit(7, offset);
@@ -67,6 +73,39 @@ class SignonGenAuthTokenRequestDS extends ClientAccessDataStream
             set16bit(0x1128, offset + 4);
             //   Data.
             data_[offset + 6] = 0x01;
+            
+            offset += 7;
+        }
+        
+        if (serverLevel >= 18)
+        {   
+            if (null != verificationID && 0 < verificationID.length)
+            {
+                // LL
+                set32bit(verificationID.length + 4 + 2 + 4, offset);
+                // CP
+                set16bit(0x1130, offset + 4);
+                // CCSID
+                set32bit(1208, offset + 6);
+                // data
+                System.arraycopy(verificationID, 0, data_, offset + 10, verificationID.length);
+                
+                offset += 10 + verificationID.length;
+            }
+            
+            if (null != clientIPAddr && 0 < clientIPAddr.length)
+            {
+                // LL
+                set32bit(clientIPAddr.length + 4 + 2 + 4, offset);
+                // CP
+                set16bit(0x1131, offset + 4);
+                // CCSID
+                set32bit(1208, offset + 6);
+                // data
+                System.arraycopy(clientIPAddr, 0, data_, offset + 10, clientIPAddr.length);
+                
+                offset += 10 + clientIPAddr.length;
+            }
         }
     }
 

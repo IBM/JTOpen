@@ -120,6 +120,15 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
 
     @Override
     public byte[] generateToken(String uid, int pwdSpecialValue, int type, int timeoutInterval) throws RetrieveFailedException {
+        return generateToken(uid, pwdSpecialValue, null, AuthenticationIndicator.APPLICATION_AUTHENTICATION, null, null, 0, null, 0, type, timeoutInterval);
+    }
+    
+
+    @Override
+    public byte[] generateToken(String uid, int pwdSpecialValue, char[] additionalAuthenticationFactor, int authenticationIndicator, 
+            String verificationId, String remoteIpAddress, int remotePort, String localIpAddress, int localPort,
+            int type, int timeoutInterval) throws RetrieveFailedException 
+    {
         // Convert password special value from int to string
         String pwdSpecialVal;
         switch(pwdSpecialValue)
@@ -134,9 +143,17 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
                 Trace.log(Trace.ERROR, "Password special value = " +  pwdSpecialValue + " is not valid.");
                 throw new ExtendedIllegalArgumentException("password special value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
+        
+        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenImplNative generating profile token w/special value for user: " + uid);
+
 
         // Call native method and return token bytes, we rely on the fact this class is only called if running on AS400.
-        return nativeCreateTokenChar(uid.toUpperCase(), pwdSpecialVal.toCharArray(), type, timeoutInterval);
+        if (!ProfileTokenCredential.useEnhancedProfileTokens() || AS400.nativeVRM.getVersionReleaseModification() <= 0x00070500)
+            return nativeCreateTokenChar(uid.toUpperCase(), pwdSpecialVal.toCharArray(), type, timeoutInterval);
+
+        return EnhancedProfileTokenImplNative.nativeCreateTokenSpecialPassword(uid.toUpperCase(), pwdSpecialVal.toCharArray(), 
+                additionalAuthenticationFactor, authenticationIndicator, verificationId, remoteIpAddress, remotePort, localIpAddress, localPort, 
+                type, timeoutInterval);
     }
 
     /**
@@ -188,10 +205,41 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
 
     @Override
     public byte[] generateTokenExtended(String uid, char [] pwd, int type, int timeoutInterval) throws RetrieveFailedException {
+        return  generateTokenExtended(uid, pwd, null, null, null, 0, null, 0, type, timeoutInterval);
+    }
+    
+    @Override
+    public byte[] generateTokenExtended(String uid, char[] pwd, char[] additionalAuthenticationFactor,
+            String verificationId, String remoteIpAddress, int remotePort, String localIpAddress, int localPort,
+            int type, int timeoutInterval) throws RetrieveFailedException
+    {
         AS400 sys = getCredential().getSystem();
+        
+        // Determine if we are using enhanced profile tokens
+        boolean useEPT = false;
+        try {
+            useEPT = (ProfileTokenCredential.useEnhancedProfileTokens() && sys.getVRM() > 0x00070500);
+        }
+        catch (AS400SecurityException|IOException e) {
+            Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
+            throw new RetrieveFailedException();
+        }
+        
+        // The API QSYGENPT requires all parameters to be non-null. 
+        boolean isAAFNull = (additionalAuthenticationFactor == null || additionalAuthenticationFactor.length == 0);
+        if (isAAFNull) additionalAuthenticationFactor = new char[] { ' ' };
+        
+        boolean isVfyIDNull = (verificationId == null || verificationId.length() == 0);
+        if (isVfyIDNull) verificationId = " ";
+
+        boolean isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
+        if (isRemoteIPNull) remoteIpAddress = " ";
+
+        boolean isLocalIPNull =  (localIpAddress == null || localIpAddress.length() == 0);
+        if (isLocalIPNull) localIpAddress = " ";
 
         // Setup parameters
-        ProgramParameter[] parmlist = new ProgramParameter[8];
+        ProgramParameter[] parmlist = new ProgramParameter[useEPT ? 19 : 8];
       
         // Output: Profile token.
         parmlist[0] = new ProgramParameter(ProfileTokenCredential.TOKEN_LENGTH);
@@ -221,6 +269,43 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
 
         // Input: CCSID of user password. Int to byte[]. Unicode = 13488.
         parmlist[7] = new ProgramParameter(BinaryConverter.intToByteArray(13488));
+        
+        // If enhanced profile tokens supported then set parameters
+        if (useEPT)
+        {   
+            // Input: Additional authentication factor (unicode)
+            parmlist[8] = new ProgramParameter(BinaryConverter.charArrayToByteArray(additionalAuthenticationFactor));
+            
+            // Input: Length of additional authentication factor
+            parmlist[9] = new ProgramParameter(BinaryConverter.intToByteArray((isAAFNull) ? 0 : parmlist[8].getInputData().length));
+            
+            // Input: CCSID of additional authentication factor
+            parmlist[10] = new ProgramParameter(BinaryConverter.intToByteArray(13488));
+
+            // Input: Authentication indicator (for passwords, it is ignored)
+            parmlist[11] = new ProgramParameter(BinaryConverter.intToByteArray(0));
+
+            // Input: Verification ID - must be 30 in length, blank padded
+            parmlist[12] = new ProgramParameter(CharConverter.stringToByteArray(sys, (verificationId + "                              ").substring(0, 30)));
+
+            // Input: Remote IP address
+            parmlist[13] = new ProgramParameter(CharConverter.stringToByteArray(sys, remoteIpAddress));
+            
+            // Input: Length of remote IP address
+            parmlist[14] = new ProgramParameter(BinaryConverter.intToByteArray((isRemoteIPNull) ? 0 : parmlist[13].getInputData().length));
+            
+            // Input: Remote port
+            parmlist[15] = new ProgramParameter(BinaryConverter.intToByteArray(remotePort));
+
+            // Input: Local IP address
+            parmlist[16] = new ProgramParameter(CharConverter.stringToByteArray(sys, localIpAddress));
+
+            // Input: Length of local IP address
+            parmlist[17] = new ProgramParameter(BinaryConverter.intToByteArray((isLocalIPNull) ? 0 : parmlist[16].getInputData().length));
+
+            // Input: Local port
+            parmlist[18] = new ProgramParameter(BinaryConverter.intToByteArray(remotePort));
+        }
 
         ProgramCall programCall = new ProgramCall(sys);
 
@@ -391,13 +476,29 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     }
 
     @Override
-    public byte[] refresh(int type, int timeoutInterval) throws RefreshFailedException {
-        byte[] token = ((ProfileTokenCredential)getCredential()).getToken();
+    public byte[] refresh(int type, int timeoutInterval) throws RefreshFailedException
+    {
+        ProfileTokenCredential pt = ((ProfileTokenCredential)getCredential());
+        
+        byte[] token = pt.getToken();
         // native method will overwrite bytes passed in; create a copy 
         // to manipulate.
         byte[] bytes = new byte[ProfileTokenCredential.TOKEN_LENGTH];
         System.arraycopy(token, 0, bytes, 0, bytes.length);
-        nativeRefreshToken(bytes, type, timeoutInterval);
+        
+        if (!ProfileTokenCredential.useEnhancedProfileTokens() || AS400.nativeVRM.getVersionReleaseModification() <= 0x00070500)
+            nativeRefreshToken(bytes, type, timeoutInterval);
+        else
+        {
+            // TODO AMRA - need to change native to throw proper exception
+            try {
+                EnhancedProfileTokenImplNative.nativeCreateTokenFromToken(bytes, pt.getVerificationID(), pt.getRemoteIPAddress(), type, timeoutInterval);
+            } catch (RetrieveFailedException e) {
+                Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+            }
+        }
+        
         return bytes;
     }
 

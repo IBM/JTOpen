@@ -235,13 +235,13 @@ public class ClassDecoupler
   static void connectDDMPhase2(OutputStream outStream, InputStream inStream, byte[] userIDbytes, 
                                byte[] ddmSubstitutePassword, byte[] iaspBytes, int authScheme, String ddmRDB, 
                                String systemName, int connectionID, 
-                               byte[] addAuthFactor) throws ServerStartupException, IOException, AS400SecurityException
+                               byte[] addAuthFactor, byte[] verificationID, byte[] clientIPAddr) throws ServerStartupException, IOException, AS400SecurityException
   {
       // If the ddmSubstitutePassword length is 8, then we are using DES encryption.
       // If its length is 20, then we are using SHA encryption.
       // Build the SECCHK request; we build the request here so that we are not
       // passing the password around anymore than we have to.
-      DDMSECCHKRequestDataStream SECCHKReq = new DDMSECCHKRequestDataStream(userIDbytes, ddmSubstitutePassword, iaspBytes, authScheme, addAuthFactor);
+      DDMSECCHKRequestDataStream SECCHKReq = new DDMSECCHKRequestDataStream(userIDbytes, ddmSubstitutePassword, iaspBytes, authScheme, addAuthFactor, verificationID, clientIPAddr);
       if (Trace.traceOn_) SECCHKReq.setConnectionID(connectionID);
 
       // Send the SECCHK request.

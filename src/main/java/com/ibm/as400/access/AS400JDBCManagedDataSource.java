@@ -283,9 +283,7 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     this();
 
     setSecure(true);
-
-      as400_ = new SecureAS400(as400_);
-
+    as400_ = AS400.newInstance(true, as400_);
 
     setServerName(serverName);
     setUser(user);
@@ -307,17 +305,9 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
     Properties properties = new Properties();
 
     // Set up the as400 object.
-    if (((String)reference.get(SECURE).getContent()).equalsIgnoreCase(TRUE_))
-    {
-      isSecure_ = true;
-      as400_ = new SecureAS400();
+    isSecure_ = ((String)reference.get(SECURE).getContent()).equalsIgnoreCase(TRUE_);
+    as400_ = AS400.newInstance(isSecure_);
 
-    }
-    else
-    {
-      isSecure_ = false;
-      as400_ = new AS400();
-    }
     // Note that we allow the SECURE property to also get added to JDProperties in the loop below.
 
     boolean isConnectionPoolDataSource = (this instanceof AS400JDBCManagedConnectionPoolDataSource);
@@ -455,12 +445,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
       // If the user asks for the object
       // to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object.
-      if (isSecure_ || isSecure()) {
-        as400Object = new SecureAS400(as400_);
-      }
-      else {
-        as400Object = new AS400(as400_);
-      }
+      as400Object = AS400.newInstance((isSecure_ || isSecure()), as400_);
+
       if (sockProps_.isAnyOptionSet()) {  // only need to set if not default
         as400Object.setSocketProperties(sockProps_);
       }
@@ -500,12 +486,8 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
 
       // If the user asks for the object
       // to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object.
-      if (isSecure_ || isSecure()) {
-        as400Object = new SecureAS400(as400_);
-      }
-      else {
-        as400Object = new AS400(as400_);
-      }
+      as400Object = AS400.newInstance((isSecure_ || isSecure()), as400_);
+
       try {
         as400Object.setUserId(user);
         as400Object.setPassword(password);
@@ -2023,10 +2005,8 @@ return connection;
     poolManagerInitialized_ = false;
     defaultConnectionPoolKey_ = null;
     connectionKeyNeedsUpdate_ = true;
-    if (isSecure_)
-      as400_ = new SecureAS400();
-    else
-      as400_ = new AS400();
+    
+    as400_ = AS400.newInstance(isSecure_);
 
     if (sockProps_.isAnyOptionSet()) {  // only need to set if not default
       as400_.setSocketProperties(sockProps_);

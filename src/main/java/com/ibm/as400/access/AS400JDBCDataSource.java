@@ -299,9 +299,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         this();
 
         as400_ = as400;
-        if( as400 instanceof SecureAS400 || as400.isSecure() )
+        if (as400.isSecure())
             setSecure(true);
-
     }
 
 
@@ -321,15 +320,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         // set up property change support
         changes_ = new PropertyChangeSupport(this);
 
-    // set up the as400 object
-    if (((String) reference.get(SECURE).getContent()).equalsIgnoreCase(TRUE_)) {
-      isSecure_ = true;
-      as400_ = new SecureAS400();
-
-    } else {
-      isSecure_ = false;
-      as400_ = new AS400();
-    }
+        // set up the as400 object
+        isSecure_ = ((String) reference.get(SECURE).getContent()).equalsIgnoreCase(TRUE_);
+        as400_ = AS400.newInstance(isSecure_);
 
         // must initialize the JDProperties so the property change checks dont get a NullPointerException
         properties_ = new JDProperties(null, null,null,null);
@@ -570,19 +563,10 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         //if the user asks for the object
         //to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object
     	char[] aaf = properties_.getAdditionalAuthenticationFactor(); 
-        if (isSecure_ || isSecure())  {       
-        	SecureAS400 newAs400 = new SecureAS400(as400_); 
-        	if (aaf != null) {
-        		newAs400.setAdditionalAuthenticationFactor(aaf);
-        	}
-            return getConnection(newAs400);   //@B4A
-        } else   {                            //@B4A
-        	AS400 newAs400 = new AS400(as400_);
-        	if (aaf != null) {
-        		newAs400.setAdditionalAuthenticationFactor(aaf);
-        	}
-            return getConnection(newAs400);
-        }
+    	AS400 newAs400 = AS400.newInstance((isSecure_ || isSecure()), as400_);
+    	newAs400.setAdditionalAuthenticationFactor(aaf);
+    	
+        return getConnection(newAs400);
     }
 
 
@@ -704,12 +688,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
         //if the user asks for the object
         //to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object
-		try {
-			if (isSecure_ || isSecure()) { // @C2A
-				as400Object = new SecureAS400(getServerName(), user, password, additionalAuthenticationFactor); // @C2A
-			} else { // @C2A //@C2A
-				as400Object = new AS400(getServerName(), user, password, additionalAuthenticationFactor); // @C2A
-			} // @C2A
+		try
+		{
+		    as400Object = AS400.newInstance((isSecure_ || isSecure()), getServerName(), user, password, additionalAuthenticationFactor);
 		} catch (AS400SecurityException e) {
 			JDError.throwSQLException(this, JDError.EXC_CONNECTION_REJECTED, e);
 			throw new SQLException("PREVENT COMPILER ERROR"); /* Dead code */
@@ -1617,10 +1598,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
         changes_ = new PropertyChangeSupport(this);
 
-        if (isSecure_)            //@B4A  
-            as400_ = new SecureAS400();         //@B4A
-        else                     //@B4A
-            as400_ = new AS400();
+        as400_ = AS400.newInstance(isSecure_);
 
         // Reinitialize the serverName, user, password, etc.
         if (serialServerName_ != null)
