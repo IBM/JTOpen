@@ -370,7 +370,6 @@ public class AS400ImplRemote implements AS400Impl
       }
 
       // Get a socket connection.
-      // TODO AMRA - need to first authenticate to hostcnn?
       boolean needToDisconnect = (signonServer_ == null);
       signonConnect();
 
@@ -880,6 +879,7 @@ public class AS400ImplRemote implements AS400Impl
   // between the public class and the implRemote class. The transmitted
   // authentication information can be encoded/decoded using the exchanged
   // seeds.
+  @Override
   public byte[] exchangeSeed(byte[] proxySeed)
   {
       // Hold the seed they send us.
@@ -1002,129 +1002,129 @@ public class AS400ImplRemote implements AS400Impl
 
           switch (authScheme) 
           {
-          case AS400.AUTHENTICATION_SCHEME_GSS_TOKEN:
-              try
-              {
-                  authenticationBytes = (gssCredential_ == null) 
-                          ? TokenManager.getGSSToken(systemName_, gssName) 
-                          : TokenManager2.getGSSToken(systemName_, gssCredential_);
-              }
-              catch (Exception e)
-              {
-                  Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
-                  throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
-              }
-              break;
-          case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
-          case AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN:
-              authenticationBytes = vault.decode(proxySeed_, remoteSeed_);
-              break;
-          default: // Password.
-              byte[] passwordByte = vault.decode(proxySeed_, remoteSeed_); 
-              char[] password = BinaryConverter.byteArrayToCharArray(passwordByte); 
-              CredentialVault.clearArray(passwordByte);  
-              proxySeed_ = null;
-              remoteSeed_ = null;
-
-              // Generate the correct password based on the password encryption level of the system.
-              if (passwordLevel_ < 2)
-              {
-                  // Prepend Q to numeric password. A "numeric password" is a password that starts with a numeric digit.
-                  if (password.length > 0 && Character.isDigit(password[0]))
+              case AS400.AUTHENTICATION_SCHEME_GSS_TOKEN:
+                  try
                   {
-                      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
-            
-                      char[] passwordWithQ = new char[password.length + 1];
-                      passwordWithQ[0] = 'Q';
-                      System.arraycopy(password, 0, passwordWithQ, 1, password.length);
+                      authenticationBytes = (gssCredential_ == null) 
+                              ? TokenManager.getGSSToken(systemName_, gssName) 
+                              : TokenManager2.getGSSToken(systemName_, gssCredential_);
+                  }
+                  catch (Exception e)
+                  {
+                      Trace.log(Trace.ERROR, "Error retrieving GSSToken:", e);
+                      throw new AS400SecurityException(AS400SecurityException.KERBEROS_TICKET_NOT_VALID_RETRIEVE, e);
+                  }
+                  break;
+              case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
+              case AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN:
+                  authenticationBytes = vault.decode(proxySeed_, remoteSeed_);
+                  break;
+              default: // Password.
+                  byte[] passwordByte = vault.decode(proxySeed_, remoteSeed_); 
+                  char[] password = BinaryConverter.byteArrayToCharArray(passwordByte); 
+                  CredentialVault.clearArray(passwordByte);  
+                  proxySeed_ = null;
+                  remoteSeed_ = null;
+    
+                  // Generate the correct password based on the password encryption level of the system.
+                  if (passwordLevel_ < 2)
+                  {
+                      // Prepend Q to numeric password. A "numeric password" is a password that starts with a numeric digit.
+                      if (password.length > 0 && Character.isDigit(password[0]))
+                      {
+                          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prepending Q to numeric password.");
+                
+                          char[] passwordWithQ = new char[password.length + 1];
+                          passwordWithQ[0] = 'Q';
+                          System.arraycopy(password, 0, passwordWithQ, 1, password.length);
+                          CredentialVault.clearArray(password);
+                          password = passwordWithQ;
+                      }
+    
+                      if (password.length > 10)
+                      {
+                          Trace.log(Trace.ERROR, "Length of parameter 'password' is not valid:", password.length);
+                          throw new AS400SecurityException(AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
+                      }
+                      authenticationBytes = encryptPassword(userIdEbcdic,
+                              SignonConverter.upperCharsToByteArray(password), clientSeed_, serverSeed_);
                       CredentialVault.clearArray(password);
-                      password = passwordWithQ;
                   }
-
-                  if (password.length > 10)
+                  else if (passwordLevel_ < 4)
                   {
-                      Trace.log(Trace.ERROR, "Length of parameter 'password' is not valid:", password.length);
-                      throw new AS400SecurityException(AS400SecurityException.PASSWORD_LENGTH_NOT_VALID);
+                      // Do SHA-1 encryption.
+                      byte[] userIdBytes = BinaryConverter.charArrayToByteArray(SignonConverter.byteArrayToCharArray(userIdEbcdic));
+    
+                      // Screen out passwords that start with a star.
+                      if (password.length == 0) {
+                          Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
+                          throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                      }
+                      
+                      if (password[0] == '*') {
+                          Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
+                          throw new AS400SecurityException( AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                      }
+    
+                      char[] trimmedPassword = trimUnicodeSpace(password);
+                      byte[] passwordBytes = BinaryConverter.charArrayToByteArray(trimmedPassword);
+                      CredentialVault.clearArray(trimmedPassword);
+                      CredentialVault.clearArray(password);
+                      byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+    
+                      if (PASSWORD_TRACE) {
+                          Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 userIdBytes:", userIdBytes);
+                          Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 passwordBytes:", passwordBytes);
+                          Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 sequence:", sequence);
+                      }
+    
+                      byte[] token = generateShaToken(userIdBytes, passwordBytes);
+                      CredentialVault.clearArray(passwordBytes);
+              
+                      authenticationBytes = generateShaSubstitute(token, serverSeed_, clientSeed_, userIdBytes, sequence);
                   }
-                  authenticationBytes = encryptPassword(userIdEbcdic,
-                          SignonConverter.upperCharsToByteArray(password), clientSeed_, serverSeed_);
-                  CredentialVault.clearArray(password);
-              }
-              else if (passwordLevel_ < 4)
-              {
-                  // Do SHA-1 encryption.
-                  byte[] userIdBytes = BinaryConverter.charArrayToByteArray(SignonConverter.byteArrayToCharArray(userIdEbcdic));
-
-                  // Screen out passwords that start with a star.
-                  if (password.length == 0) {
-                      Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
-                      throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                  else
+                  {
+                      if (password.length == 0) {
+                          Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
+                          throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                      }
+                
+                      // Screen out passwords that start with a star.
+                      if (password[0] == '*') {
+                          Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
+                          throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+                      }
+                      
+                      /*
+                       * If a sequence number is used, the client increments its password sequence "PWSEQs" by
+                       * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
+                       * uses a sequence number of 1.
+                       */
+                      byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
+                      //Generate salt for password level 4
+                      /*
+                       * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
+                       * 1. Convert the 10-character blank padded user ID to upper case.
+                       * 2. Convert the 10-character blank padded upper case user ID to Unicode (CCSID 13488).
+                       * 3. Convert the password value to Unicode (CCSID 13488).
+                       * 4. Generate the salt value:
+                       *    a. Fill a 28-byte variable with Unicode blanks (0x0020).
+                       *    b. Copy the Unicode user ID value into the first 20 bytes of the 28-byte blank filled variable.
+                       *    c. Copy the last 8 bytes (last 4 characters) of the Unicode password value into the last 8 bytes of the 28-byte variable. If the password is less than 4 characters, then copy the entire Unicode password value.
+                       *    d. Do a SHA-256 hash on the 28-byte variable to produce the 32-byte salt value.
+                       * 5. Generate the pwdlvl 4 version of the password using PBKDF2 with HMAC SHA-512 with the following values:
+                       *    Hash algorithm = HMAC SHA-512 (produces a 64-byte key)
+                       *    Data = Unicode password value
+                       *    Data Length = Length of Unicode password value
+                       *    Iterations = 10022
+                       *    Initialization vector length = 32
+                       *    Initialization vector (salt) = value generated in Step #4.
+                       */
+                      byte[] token = generatePwdTokenForPasswordLevel4(userId, password);
+                      CredentialVault.clearArray(password); 
+                      authenticationBytes = generateSha512Substitute(userId, token, serverSeed_, clientSeed_, sequence);
                   }
-                  
-                  if (password[0] == '*') {
-                      Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
-                      throw new AS400SecurityException( AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-                  }
-
-                  char[] trimmedPassword = trimUnicodeSpace(password);
-                  byte[] passwordBytes = BinaryConverter.charArrayToByteArray(trimmedPassword);
-                  CredentialVault.clearArray(trimmedPassword);
-                  CredentialVault.clearArray(password);
-                  byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
-
-                  if (PASSWORD_TRACE) {
-                      Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 userIdBytes:", userIdBytes);
-                      Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 passwordBytes:", passwordBytes);
-                      Trace.log(Trace.DIAGNOSTIC, "Pre SHA-1 sequence:", sequence);
-                  }
-
-                  byte[] token = generateShaToken(userIdBytes, passwordBytes);
-                  CredentialVault.clearArray(passwordBytes);
-          
-                  authenticationBytes = generateShaSubstitute(token, serverSeed_, clientSeed_, userIdBytes, sequence);
-              }
-              else
-              {
-                  if (password.length == 0) {
-                      Trace.log(Trace.ERROR, "Parameter 'password' is empty.");
-                      throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-                  }
-            
-                  // Screen out passwords that start with a star.
-                  if (password[0] == '*') {
-                      Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
-                      throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
-                  }
-                  
-                  /*
-                   * If a sequence number is used, the client increments its password sequence "PWSEQs" by
-                   * one and saves it. PWSEQs is an 8-byte value. The implementation in the host servers always
-                   * uses a sequence number of 1.
-                   */
-                  byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
-                  //Generate salt for password level 4
-                  /*
-                   * The following steps describe the algorithm used to generate the pwdlvl 4 version of the password:
-                   * 1. Convert the 10-character blank padded user ID to upper case.
-                   * 2. Convert the 10-character blank padded upper case user ID to Unicode (CCSID 13488).
-                   * 3. Convert the password value to Unicode (CCSID 13488).
-                   * 4. Generate the salt value:
-                   *    a. Fill a 28-byte variable with Unicode blanks (0x0020).
-                   *    b. Copy the Unicode user ID value into the first 20 bytes of the 28-byte blank filled variable.
-                   *    c. Copy the last 8 bytes (last 4 characters) of the Unicode password value into the last 8 bytes of the 28-byte variable. If the password is less than 4 characters, then copy the entire Unicode password value.
-                   *    d. Do a SHA-256 hash on the 28-byte variable to produce the 32-byte salt value.
-                   * 5. Generate the pwdlvl 4 version of the password using PBKDF2 with HMAC SHA-512 with the following values:
-                   *    Hash algorithm = HMAC SHA-512 (produces a 64-byte key)
-                   *    Data = Unicode password value
-                   *    Data Length = Length of Unicode password value
-                   *    Iterations = 10022
-                   *    Initialization vector length = 32
-                   *    Initialization vector (salt) = value generated in Step #4.
-                   */
-                  byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
-                  CredentialVault.clearArray(password); 
-                  authenticationBytes = generateSha512Substitute(userId_, token, serverSeed_, clientSeed_, sequence);
-              }
           }
           
           if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "AS400ImplRemote generating profile token for user: " + userId);
@@ -1549,13 +1549,12 @@ public class AS400ImplRemote implements AS400Impl
       String jobString = "";
       InputStream inStream = null;
       OutputStream outStream = null;
-      boolean usingAuthenticatedHostcnnConnection = false;
       boolean haveHostcnnConnection = (hostcnnServer_ != null);
 
-      try
+      // DDM (AS400.RECORDACCESS) does not fall under the HOSTCNN umbrella, it is a separate server. 
+      if (!haveHostcnnConnection || service == AS400.RECORDACCESS)
       {
-          // DDM (AS400.RECORDACCESS) does not fall under the HOSTCNN umbrella, it is a separate server. 
-          if (!haveHostcnnConnection || service == AS400.RECORDACCESS)
+          try
           {
               if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "The service as-hostcnn is not available to use or service is DDM");
 
@@ -1708,128 +1707,32 @@ public class AS400ImplRemote implements AS400Impl
                   jobString = obtainJobIdForConnection(reply.getJobNameBytes());
               }
           }
-          else 
-          {
-              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Attempting to create connection to " + AS400.getServerName(service) + " via as-hostcnn");
-
-              // -------
-              // Prepare new connection request with server type 
-              // -------
-
-              int requestedServerID = AS400Server.getServerId(service);
-
-              HCSPrepareNewConnDS HCSPrepDS = new HCSPrepareNewConnDS(requestedServerID);
-              if (Trace.traceOn_) HCSPrepDS.setConnectionID(hostcnnServer_.getConnectionID());
-              
-              usingAuthenticatedHostcnnConnection = true;         
-              HCSPrepareNewConnReplyDS HCSPrepReply = (HCSPrepareNewConnReplyDS) hostcnnServer_.sendAndReceive(HCSPrepDS);
-              usingAuthenticatedHostcnnConnection = false;         
-
-              if (HCSPrepReply.getRC() != 0)
+          catch (IOException | AS400SecurityException | RuntimeException e)
+          {                
+              try
               {
-                  byte[] rcBytes = new byte[4];
-                  BinaryConverter.intToByteArray(HCSPrepReply.getRC(), rcBytes, 0);
-                  Trace.log(Trace.ERROR, "Route prepare connection failed with return code:", rcBytes);
-                  throw AS400ImplRemote.returnSecurityException(HCSPrepReply.getRC(), null, userId_);
+                  // If we have host server connection, close it as well. 
+                  if (socketContainer != null)
+                      socketContainer.close();
+              } 
+              catch (Throwable ee) {
+                  Trace.log(Trace.ERROR, "Error closing socket:", ee);
               }
 
-              byte[] connectionReqID = HCSPrepReply.getConnReqID();
-            
-            // -------
-            // Connect to HCS using new socket
-            // -------
-            
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to as-hostcnn using new socket");
-                       
-            socketContainer = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_,  
-                    AS400.HOSTCNN, overridePort,  useSSLConnection_, socketProperties_,  mustUseNetSockets_);
-            
-            connectionID = socketContainer.hashCode();
-            inStream     = socketContainer.getInputStream();
-            outStream    = socketContainer.getOutputStream();
-            
-            // -------
-            // Give new connection request with new connection request ID
-            // -------
-            
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Give new connection request with new connection request ID");
-
-            HCSGetNewConnDS HCSGetDS = new HCSGetNewConnDS(connectionReqID);
-            if (Trace.traceOn_) HCSGetDS.setConnectionID(connectionID);
-            HCSGetDS.write(outStream); 
-            
-            HCSGetNewConnReplyDS HCSGetReply = new HCSGetNewConnReplyDS();
-            if (Trace.traceOn_) HCSGetReply.setConnectionID(connectionID);
-            HCSGetReply.read(inStream);
-            
-            if (HCSGetReply.getRC() != 0)
-            {
-                byte[] rcBytes = new byte[4];
-                BinaryConverter.intToByteArray(HCSGetReply.getRC(), rcBytes, 0);
-                Trace.log(Trace.ERROR, "Get new connection failed with return code:", rcBytes);
-                throw AS400ImplRemote.returnSecurityException(HCSGetReply.getRC(), null, userId_);
-            }
-          
-            // -------
-            // Route new connection request with connection request ID
-            // -------
-
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Route new connection request with connection request ID");
-            HCSRouteNewConnDS HCSRouteDS = new HCSRouteNewConnDS(connectionReqID);
-            if (Trace.traceOn_) HCSRouteDS.setConnectionID(connectionID);
-            
-            usingAuthenticatedHostcnnConnection = true;
-            HCSRouteNewConnReplyDS HCSRouteReply = (HCSRouteNewConnReplyDS) hostcnnServer_.sendAndReceive(HCSRouteDS);
-            usingAuthenticatedHostcnnConnection = false;
-
-            if (HCSRouteReply.getRC() != 0)
-            {
-                byte[] rcBytes = new byte[4];
-                BinaryConverter.intToByteArray(HCSRouteReply.getRC(), rcBytes, 0);
-                Trace.log(Trace.ERROR, "Route new connection failed with return code:", rcBytes);
-                throw AS400ImplRemote.returnSecurityException(HCSRouteReply.getRC(), null, userId_);
-            }
-                      
-            jobString = obtainJobIdForConnection(HCSRouteReply.getJobNameBytes());
+              throw e;
           }
-    }
-    catch (IOException | AS400SecurityException | RuntimeException e)
-    {                
-        try
-        {
-            // If error happened when communicating with hostcnn, close the socket.
-            if (usingAuthenticatedHostcnnConnection)
-            {
-                hostcnnServer_.forceDisconnect();
-                hostcnnServer_ = null;
-            }
-            
-            // If we have host server connection, close it as well. 
-            if (socketContainer != null)
-                socketContainer.close();
-        } 
-        catch (Throwable ee) {
-            Trace.log(Trace.ERROR, "Error closing socket:", ee);
-        }
-        
-        // If we used hostcnn server, then we cannot establish host server connection over an hostcnn connection. 
-        if (haveHostcnnConnection && !(e instanceof AS400SecurityException))
-        {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exception during communication with as-hostcnn server");
-            throw new ServerStartupException( ServerStartupException.CONNECTION_NOT_ESTABLISHED, e);
-        }
+          
+          // At this point the Socket connection is established. Now we need to set up
+          // the AS400Server object before passing it back to the caller.
 
-        throw e;
-    } 
-    
-    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server started successfully. Job: " + jobString);
+          // Construct a new server...
+          server = (threadUsed_) ? new AS400ThreadedServer(this, service, socketContainer, jobString)
+                                 : new AS400NoThreadServer(this, service, socketContainer, jobString);
+      }
+      else 
+          server = getConnectionViaHOSTCNN(service, overridePort, forceNewConnection, skipSignonServer);
 
-    // At this point the Socket connection is established. Now we need to set up
-    // the AS400Server object before passing it back to the caller.
-
-    // Construct a new server...
-    server = (threadUsed_) ? new AS400ThreadedServer(this, service, socketContainer, jobString)
-                           : new AS400NoThreadServer(this, service, socketContainer, jobString);
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server started successfully. Job: " + server.jobString_);
 
     // Add the system to our list so we can return it on a subsequent connect()...
     serverList.addElement(server);
@@ -1838,6 +1741,135 @@ public class AS400ImplRemote implements AS400Impl
 
     return server;
   }
+  
+  private  AS400Server getConnectionViaHOSTCNN(int service, int overridePort, boolean forceNewConnection, boolean skipSignonServer) throws AS400SecurityException, IOException
+  {
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Attempting to create connection to " + AS400.getServerName(service) + " via as-hostcnn");
+
+      SocketContainer socketContainer = null;
+      int connectionID;
+      String jobString = "";
+      InputStream inStream = null;
+      OutputStream outStream = null;
+      boolean usingAuthenticatedHostcnnConnection = false;
+
+      try
+      {
+          // -------
+          // Prepare new connection request with server type 
+          // -------
+    
+          int requestedServerID = AS400Server.getServerId(service);
+    
+          HCSPrepareNewConnDS HCSPrepDS = new HCSPrepareNewConnDS(requestedServerID);
+          if (Trace.traceOn_) HCSPrepDS.setConnectionID(hostcnnServer_.getConnectionID());
+          
+          usingAuthenticatedHostcnnConnection = true;         
+          HCSPrepareNewConnReplyDS HCSPrepReply = (HCSPrepareNewConnReplyDS) hostcnnServer_.sendAndReceive(HCSPrepDS);
+          usingAuthenticatedHostcnnConnection = false;         
+    
+          if (HCSPrepReply.getRC() != 0)
+          {
+              byte[] rcBytes = new byte[4];
+              BinaryConverter.intToByteArray(HCSPrepReply.getRC(), rcBytes, 0);
+              Trace.log(Trace.ERROR, "Route prepare connection failed with return code:", rcBytes);
+              throw AS400ImplRemote.returnSecurityException(HCSPrepReply.getRC(), null, userId_);
+          }
+    
+          byte[] connectionReqID = HCSPrepReply.getConnReqID();
+        
+          // -------
+          // Connect to HCS using new socket
+          // -------
+        
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connect to as-hostcnn using new socket");
+        
+          // Note that you cannot override hostcnn port since users cannot connect to it directly!
+          socketContainer = PortMapper.getServerSocket((systemNameLocal_) ? "localhost" : systemName_,  
+                AS400.HOSTCNN, -1,  useSSLConnection_, socketProperties_,  mustUseNetSockets_);
+        
+          connectionID = socketContainer.hashCode();
+          inStream     = socketContainer.getInputStream();
+          outStream    = socketContainer.getOutputStream();
+        
+          // -------
+          // Give new connection request with new connection request ID
+          // -------
+        
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Give new connection request with new connection request ID");
+    
+          HCSGetNewConnDS HCSGetDS = new HCSGetNewConnDS(connectionReqID);
+          if (Trace.traceOn_) HCSGetDS.setConnectionID(connectionID);
+          HCSGetDS.write(outStream); 
+        
+          HCSGetNewConnReplyDS HCSGetReply = new HCSGetNewConnReplyDS();
+          if (Trace.traceOn_) HCSGetReply.setConnectionID(connectionID);
+          HCSGetReply.read(inStream);
+        
+          if (HCSGetReply.getRC() != 0)
+          {
+              byte[] rcBytes = new byte[4];
+              BinaryConverter.intToByteArray(HCSGetReply.getRC(), rcBytes, 0);
+              Trace.log(Trace.ERROR, "Get new connection failed with return code:", rcBytes);
+              throw AS400ImplRemote.returnSecurityException(HCSGetReply.getRC(), null, userId_);
+          }
+      
+          // -------
+          // Route new connection request with connection request ID
+          // -------
+    
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Route new connection request with connection request ID");
+          HCSRouteNewConnDS HCSRouteDS = new HCSRouteNewConnDS(connectionReqID);
+          if (Trace.traceOn_) HCSRouteDS.setConnectionID(connectionID);
+        
+          usingAuthenticatedHostcnnConnection = true;
+          HCSRouteNewConnReplyDS HCSRouteReply = (HCSRouteNewConnReplyDS) hostcnnServer_.sendAndReceive(HCSRouteDS);
+          usingAuthenticatedHostcnnConnection = false;
+    
+          if (HCSRouteReply.getRC() != 0)
+          {
+              byte[] rcBytes = new byte[4];
+              BinaryConverter.intToByteArray(HCSRouteReply.getRC(), rcBytes, 0);
+              Trace.log(Trace.ERROR, "Route new connection failed with return code:", rcBytes);
+              throw AS400ImplRemote.returnSecurityException(HCSRouteReply.getRC(), null, userId_);
+          }
+                  
+          jobString = obtainJobIdForConnection(HCSRouteReply.getJobNameBytes());
+
+          // Construct a new server...
+          return (threadUsed_) ? new AS400ThreadedServer(this, service, socketContainer, jobString)
+                               : new AS400NoThreadServer(this, service, socketContainer, jobString);
+      }
+      catch (IOException | AS400SecurityException | RuntimeException e)
+      {                
+          try
+          {
+              // If error happened when communicating with hostcnn, close the socket.
+              if (usingAuthenticatedHostcnnConnection)
+              {
+                  hostcnnServer_.forceDisconnect();
+                  hostcnnServer_ = null;
+              }
+              
+              // If we have host server connection, close it as well. 
+              if (socketContainer != null)
+                  socketContainer.close();
+          } 
+          catch (Throwable ee) {
+              Trace.log(Trace.ERROR, "Error closing socket:", ee);
+          }
+          
+          // If we used hostcnn server, then we cannot establish host server connection over an hostcnn connection. 
+          if (!(e instanceof AS400SecurityException))
+          {
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Exception during communication with as-hostcnn server");
+              throw new ServerStartupException( ServerStartupException.CONNECTION_NOT_ESTABLISHED, e);
+          }
+
+          throw e;
+      }
+  }
+
 
   // The NLV to send to the system.
   String getNLV()
@@ -3351,7 +3383,7 @@ public class AS400ImplRemote implements AS400Impl
       
       // TODO AMRA - need to verify what can be copied. 
       
-      credVault_ =  credVault;
+      credVault_ =  credVault.clone();
       systemName_ = parentImpl.systemName_;
       userId_ = parentImpl.userId_;
       systemNameLocal_ = parentImpl.systemNameLocal_;
@@ -3407,18 +3439,18 @@ public class AS400ImplRemote implements AS400Impl
           byte[] newBytes = CredentialVault.decode(proxySeed_, remoteSeed_, bytes);
           switch (byteType)
           {
-          case AS400.AUTHENTICATION_SCHEME_PASSWORD:
-              tempVault = new PasswordVault(newBytes);
-              break;
-          case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
-              tempVault = new ProfileTokenVault(newBytes);
-              break;
-          case AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN:
-              tempVault = new IdentityTokenVault(newBytes);
-              break;
-          default:
-              Trace.log(Trace.ERROR, "Unsupported byte type: " + byteType);
-              throw new InternalErrorException(InternalErrorException.UNKNOWN, byteType);
+              case AS400.AUTHENTICATION_SCHEME_PASSWORD:
+                  tempVault = new PasswordVault(newBytes);
+                  break;
+              case AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN:
+                  tempVault = new ProfileTokenVault(newBytes);
+                  break;
+              case AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN:
+                  tempVault = new IdentityTokenVault(newBytes);
+                  break;
+              default:
+                  Trace.log(Trace.ERROR, "Unsupported byte type: " + byteType);
+                  throw new InternalErrorException(InternalErrorException.UNKNOWN, byteType);
           }
 
           CredentialVault.clearArray(newBytes);
@@ -3449,10 +3481,8 @@ public class AS400ImplRemote implements AS400Impl
 
   // Exchange sign-on flows with sign-on server.
   @Override
-  public SignonInfo signon(String systemName, boolean systemNameLocal,
-                           String userId, CredentialVault vault, String gssName,
-                           char[] additionalAuthFactor)
-      throws AS400SecurityException, IOException
+  public SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName,
+                           char[] additionalAuthFactor) throws AS400SecurityException, IOException
   {
       // If userid, or system has changed, we need to disconnect any connection to HOSTCNN and SIGNON.
       if (hostcnnServer_ != null && 
@@ -3570,7 +3600,6 @@ public class AS400ImplRemote implements AS400Impl
             
               if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Retrieve Signon Information Request successful.");
             
-              // TODO AMRA can/should we share signoninfo object?
               signonInfo_ = new SignonInfo();
               signonInfo_.currentSignonDate = signonRep.getCurrentSignonDate();
               signonInfo_.lastSignonDate = signonRep.getLastSignonDate();
@@ -3782,8 +3811,8 @@ public class AS400ImplRemote implements AS400Impl
     return signonInfo_;
   }
   
-  // The hostcnn connection takes over for signon server when it comes to authentication and 
-  // getting user attributes. Of course, it also controls the establishing of host server job
+  // The hostcnn connection takes over for signon server when it comes to authentication.
+  // Of course, it also controls the establishing of host server job
   // connections under the auspices of the initial use of the additional authentication factor. 
   // And it never goes away unless there is a request to disconnect or the connection has been severed.
   synchronized private void hostcnnConnect(boolean authenticate) throws AS400SecurityException, IOException
@@ -3823,9 +3852,8 @@ public class AS400ImplRemote implements AS400Impl
           if (!reconnecting || (reconnecting && !isConnectionAlive(AS400.HOSTCNN)))
           {
               // If going to releases that do not support MFA, portmapper will throw an exception, need to handle.
-              socketContainer =  PortMapper.getServerSocket( (systemNameLocal_) 
-                      ? "localhost" 
-                      : systemName_, AS400.HOSTCNN, -1, useSSLConnection_, socketProperties_, mustUseNetSockets_);
+              socketContainer =  PortMapper.getServerSocket( (systemNameLocal_)  ? "localhost"  : systemName_, 
+                      AS400.HOSTCNN, -1, useSSLConnection_, socketProperties_, mustUseNetSockets_);
               hostcnnServer.setSocket(socketContainer);
               connectionID = hostcnnServer.getConnectionID();
               
@@ -3858,7 +3886,11 @@ public class AS400ImplRemote implements AS400Impl
                   Trace.log(Trace.ERROR, "Server exchange client/server attributes failed, return code:", rcBytes);
                   throw AS400ImplRemote.returnSecurityException(attrRep.getRC(), null, userId_);
               }
-    
+              
+              // -------
+              // Bookkeeping...
+              // -------
+              
               version_ = new ServerVersion(attrRep.getServerVersion());
               serverLevel_ = attrRep.getServerLevel();
               passwordLevel_ = attrRep.getPasswordLevel();

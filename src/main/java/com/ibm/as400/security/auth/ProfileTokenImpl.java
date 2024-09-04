@@ -1,5 +1,7 @@
 package com.ibm.as400.security.auth;
 
+import java.beans.PropertyVetoException;
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
@@ -112,90 +114,18 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      *                                       </ul>
      *                                       <p>
      *                                       
-     * @param additionalAuthenticationFactor The additional authentication factor
-     *                                       for the user.  
-     *                                       Ignored for IBM i 7.5 and older releases.
+     * @param profileTokenCred               The profile token credential to be initialized
+     *                                       with the token bytes.
      * 
-     * @param authenticationIndicator        Indicates how the caller authenticated the user.
-     *                                       Ignored for IBM i 7.5 and older releases.
-     *                                       @see com.ibm.as400.access.AuthenticationIndicator
-     *                                       
      * 
-     * @param verificationId                 The verification ID is the label that
-     *                                       identifies the specific application,
-     *                                       service, or action associated with the
-     *                                       profile handle request. This value must
-     *                                       be 30-characters or less. This value
-     *                                       will be passed to the authentication
-     *                                       exit program registered under the
-     *                                       QIBM_QSY_AUTH exit point if the
-     *                                       specified user profile has *REGFAC as
-     *                                       an authentication method. The
-     *                                       authentication exit program may use the
-     *                                       verification ID as a means to restrict
-     *                                       the use of the user profile. If running
-     *                                       on an IBM i, the verification ID should
-     *                                       be the DCM application ID or a similar
-     *                                       value that identifies the application
-     *                                       or service.
-     *                                       Ignored for IBM i 7.5 and older releases.
-     *                                       
+     * @return The profile token credential that was passed in with the token bytes initialized.
      * 
-     * @param remoteIpAddress                If the API is used by a server to
-     *                                       provide access to a the system, the
-     *                                       remote IP address should be obtained
-     *                                       from the socket connection (i.e. using
-     *                                       Socket.getInetAddress). Otherwise, null
-     *                                       should be passed.
-     *                                       Ignored for IBM i 7.5 and older releases.
-     * 
-     * @param remotePort                     If the API is used by a server to
-     *                                       provide access to a the system, the
-     *                                       remote port should be obtained from the
-     *                                       socket connection (i.e. using
-     *                                       Socket.getPort ). Otherwise, use 0 if
-     *                                       there is not an associated connection.
-     *                                       Ignored for IBM i 7.5 and older releases.
-     * 
-     * @param localIpAddress                 If the API is used by a server to
-     *                                       provide access to a the system, the
-     *                                       local IP address should be obtained
-     *                                       from the socket connection (i.e. using
-     *                                       Socket.getLocalAddress). Otherwise,
-     *                                       null should be passed.
-     *                                       Ignored for IBM i 7.5 and older releases.
-     *                                       
-     * @param localPort                      If the API is used by a server to
-     *                                       provide access to a the system, the
-     *                                       local port should be obtained from the
-     *                                       socket connection
-     *                                       (Socket.getLocalPort). Otherwise, use 0
-     *                                       if there is not an associated
-     *                                       connection.
-     *                                       Ignored for IBM i 7.5 and older releases.
-     *
-     * 
-     * @param type                           The type of token. Possible types are
-     *                                       defined as fields on the
-     *                                       ProfileTokenCredential class:
-     *                                       <ul>
-     *                                       <li>TYPE_SINGLE_USE
-     *                                       <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-     *                                       <li>TYPE_MULTIPLE_USE_RENEWABLE
-     *                                       </ul>
-     *                                       <p>
-     *
-     * @param timeoutInterval                The number of seconds to expiration.
-     *
-     * @return The token bytes.
-     *
-     * @exception RetrieveFailedException If errors occur while generating the
-     *                                    token.
+     * @exception RetrieveFailedException   If errors occur while generating the token.
+     * @exception PropertyVetoException     If errors occur while setting the profile token credential.
      *
      */
-    byte[] generateToken(String uid, int pwdSpecialValue, char[] additionalAuthenticationFactor, int authenticationIndicator, String verificationId,
-            String remoteIpAddress, int remotePort, String localIpAddress, int localPort, int type, int timeoutInterval)
-            throws RetrieveFailedException;
+    ProfileTokenCredential generateToken(String uid, int pwdSpecialValue, ProfileTokenCredential profileTokenCred)
+            throws RetrieveFailedException, PropertyVetoException;
 
     /**
      * Generates and returns a new profile token based on the provided information
@@ -235,75 +165,18 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      * 
      * @param password                       The password for the user
      * 
-     * @param additionalAuthenticationFactor The additional authentication factor
-     *                                       for the user
-     * 
-     * @param verificationId                 The verification ID is the label that
-     *                                       identifies the specific application,
-     *                                       service, or action associated with the
-     *                                       profile handle request. This value must
-     *                                       be 30-characters or less. This value
-     *                                       will be passed to the authentication
-     *                                       exit program registered under the
-     *                                       QIBM_QSY_AUTH exit point if the
-     *                                       specified user profile has *REGFAC as
-     *                                       an authentication method. The
-     *                                       authentication exit program may use the
-     *                                       verification ID as a means to restrict
-     *                                       the use of the user profile. If running
-     *                                       on an IBM i, the verification ID should
-     *                                       be the DCM application ID or a similar
-     *                                       value that identifies the application
-     *                                       or service.
-     * 
-     * @param remoteIpAddress                If the API is used by a server to
-     *                                       provide access to a the system, the
-     *                                       remote IP address should be obtained
-     *                                       from the socket connection (i.e. using
-     *                                       Socket.getInetAddress). Otherwise, null
-     *                                       should be passed.
-     * 
-     * @param remotePort                     If the API is used by a server to
-     *                                       provide access to a the system, the
-     *                                       remote port should be obtained from the
-     *                                       socket connection (i.e. using
-     *                                       Socket.getPort ). Otherwise, use 0 if
-     *                                       there is not an associated connection.
-     * 
-     * @param localIpAddress                 If the API is used by a server to
-     *                                       provide access to a the system, the
-     *                                       local IP address should be obtained
-     *                                       from the socket connection (i.e. using
-     *                                       Socket.getLocalAddress). Otherwise,
-     *                                       null should be passed.
-     * @param localPort                      If the API is used by a server to
-     *                                       provide access to a the system, the
-     *                                       local port should be obtained from the
-     *                                       socket connection
-     *                                       (Socket.getLocalPort). Otherwise, use 0
-     *                                       if there is not an associated
-     *                                       connection.
+     * @param profileTokenCred               The profile token credential to be initialized
+     *                                       with the token bytes.
      * 
      * 
-     * @param type                           The type of token. Possible types are
-     *                                       defined as fields on the
-     *                                       ProfileTokenCredential class:
-     *                                       <ul>
-     *                                       <li>ProfileTokenCredential.TYPE_SINGLE_USE
-     *                                       <li>ProfileTokenCredential.TYPE_MULTIPLE_USE_NON_RENEWABLE
-     *                                       <li>ProfileTokenCredential.TYPE_MULTIPLE_USE_RENEWABLE
-     *                                       </ul>
+     * @return The profile token credential that was passed in with the token bytes initialized.
      * 
-     * @param timeoutInterval                The number of seconds to expiration.
-     * 
-     * @return The token bytes.
-     * @exception RetrieveFailedException If errors occur while generating the
-     *                                    token.
+     * @exception RetrieveFailedException   If errors occur while generating the token.
+     * @exception PropertyVetoException     If errors occur while setting the profile token credential.
      */
-    byte[] generateTokenExtended(String uid, char[] password, char[] additionalAuthenticationFactor, String verificationId,
-            String remoteIpAddress, int remotePort, String localIpAddress, int localPort, int type, int timeoutInterval)
-            throws RetrieveFailedException;
-
+    ProfileTokenCredential generateTokenExtended(String uid, char[] password, ProfileTokenCredential profileTokenCred)
+            throws RetrieveFailedException, PropertyVetoException;
+    
     /**
      * Updates or extends the validity period for the credential.
      *
