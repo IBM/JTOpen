@@ -14,6 +14,7 @@
 
 package com.ibm.as400.access;
 
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 
 import com.ibm.as400.security.auth.*;
@@ -122,10 +123,8 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     public byte[] generateToken(String uid, int pwdSpecialValue, int type, int timeoutInterval) throws RetrieveFailedException {
         return generateToken(uid, pwdSpecialValue, null, AuthenticationIndicator.APPLICATION_AUTHENTICATION, null, null, 0, null, 0, type, timeoutInterval);
     }
-    
 
-    @Override
-    public byte[] generateToken(String uid, int pwdSpecialValue, char[] additionalAuthenticationFactor, int authenticationIndicator, 
+    private byte[] generateToken(String uid, int pwdSpecialValue, char[] additionalAuthenticationFactor, int authenticationIndicator, 
             String verificationId, String remoteIpAddress, int remotePort, String localIpAddress, int localPort,
             int type, int timeoutInterval) throws RetrieveFailedException 
     {
@@ -156,6 +155,40 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
                 type, timeoutInterval);
     }
 
+    @Override
+    public ProfileTokenCredential generateToken(String uid, int pwdSpecialValue, ProfileTokenCredential profileTokenCred)
+            throws RetrieveFailedException, PropertyVetoException 
+    {
+        byte[] token = generateToken(uid, pwdSpecialValue, 
+                profileTokenCred.getAdditionalAuthenticationFactor(), 
+                profileTokenCred.getAuthenticationIndicator(),
+                profileTokenCred.getVerificationID(),              
+                profileTokenCred.getRemoteIPAddress(), 
+                profileTokenCred.getRemotePort(),
+                profileTokenCred.getLocalIPAddress(),  
+                profileTokenCred.getLocalPort(),         
+                profileTokenCred.getTokenType(), 
+                profileTokenCred.getTimeoutInterval());
+        
+        try {
+            profileTokenCred.setToken(token);
+            profileTokenCred.setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
+        } 
+        catch (PropertyVetoException e)
+        {
+            try {
+                nativeRemoveFromSystem(token);
+                credential_ = null;
+            } catch (DestroyFailedException e1) {
+                Trace.log(Trace.ERROR, "Unexpected Exception during profile token destroy: ", e);
+            }
+            
+            throw e;
+        }
+        
+        return profileTokenCred;
+    }
+    
     /**
     * Generates and returns a new profile token based on
     * the provided information using a password string.
@@ -208,8 +241,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         return  generateTokenExtended(uid, pwd, null, null, null, 0, null, 0, type, timeoutInterval);
     }
     
-    @Override
-    public byte[] generateTokenExtended(String uid, char[] pwd, char[] additionalAuthenticationFactor,
+    private byte[] generateTokenExtended(String uid, char[] pwd, char[] additionalAuthenticationFactor,
             String verificationId, String remoteIpAddress, int remotePort, String localIpAddress, int localPort,
             int type, int timeoutInterval) throws RetrieveFailedException
     {
@@ -332,6 +364,39 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         }
 
         return parmlist[0].getOutputData();
+    }
+    
+    @Override
+    public ProfileTokenCredential generateTokenExtended(String uid, char[] password,
+            ProfileTokenCredential profileTokenCred) throws RetrieveFailedException, PropertyVetoException
+    {
+        byte[] token = generateTokenExtended(uid, password, 
+                profileTokenCred.getAdditionalAuthenticationFactor(), 
+                profileTokenCred.getVerificationID(),              
+                profileTokenCred.getRemoteIPAddress(), 
+                profileTokenCred.getRemotePort(),
+                profileTokenCred.getLocalIPAddress(),  
+                profileTokenCred.getLocalPort(),         
+                profileTokenCred.getTokenType(), 
+                profileTokenCred.getTimeoutInterval());
+        
+        try {
+            profileTokenCred.setToken(token);
+            profileTokenCred.setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
+        } 
+        catch (PropertyVetoException e)
+        {
+            try {
+                nativeRemoveFromSystem(token);
+                credential_ = null;
+            } catch (DestroyFailedException e1) {
+                Trace.log(Trace.ERROR, "Unexpected Exception during profile token destroy: ", e);
+            }
+            
+            throw e;
+        }
+        
+        return profileTokenCred;
     }
 
     // Returns the credential delegating behavior to the implementation 

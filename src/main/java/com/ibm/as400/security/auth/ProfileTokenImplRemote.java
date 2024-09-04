@@ -13,6 +13,7 @@
 
 package com.ibm.as400.security.auth;
 
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 
 import com.ibm.as400.access.*;
@@ -77,8 +78,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
 
     }
     
-    @Override
-    public byte[] generateToken(String uid, int pwdSpecialValue, char[] additionalAuthenticationFactor,
+    private byte[] generateToken(String uid, int pwdSpecialValue, char[] additionalAuthenticationFactor,
             int authenticationIndicator, String verificationId, String remoteIpAddress, int remotePort,
             String localIpAddress, int localPort, int type, int timeoutInterval) throws RetrieveFailedException
     {
@@ -220,6 +220,39 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
 
         return parmlist[0].getOutputData();
     }
+    
+    @Override
+    public ProfileTokenCredential generateToken(String uid, int pwdSpecialValue, ProfileTokenCredential profileTokenCred)
+            throws RetrieveFailedException, PropertyVetoException 
+    {
+        byte[] token = generateToken(uid, pwdSpecialValue, 
+                profileTokenCred.getAdditionalAuthenticationFactor(), 
+                profileTokenCred.getAuthenticationIndicator(),
+                profileTokenCred.getVerificationID(),              
+                profileTokenCred.getRemoteIPAddress(), 
+                profileTokenCred.getRemotePort(),
+                profileTokenCred.getLocalIPAddress(),  
+                profileTokenCred.getLocalPort(),         
+                profileTokenCred.getTokenType(), 
+                profileTokenCred.getTimeoutInterval());
+        
+        try {
+            profileTokenCred.setToken(token);
+            profileTokenCred.setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
+        } 
+        catch (PropertyVetoException e)
+        {
+            try {
+                removeFromSystem(getCredential().getSystem(), token);
+            } catch (DestroyFailedException e1) {
+                Trace.log(Trace.ERROR, "Unexpected Exception during profile token destroy: ", e);
+            }
+            
+            throw e;
+        }
+        
+        return profileTokenCred;
+    }
 
     /**
     * Generates and returns a new profile token based on
@@ -281,105 +314,21 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     
     @Override
     public byte[] generateTokenExtended(String uid, char[] pwd, int type, int timeoutInterval) throws RetrieveFailedException {
-        return generateTokenExtended(uid, pwd, null, null, null, 0, null, 0, type, timeoutInterval);
+        return generateTokenExtended(uid, pwd, null, null, null, 0, null, 0, type, timeoutInterval).getToken();
     }
     
-    /**
-     * Generates and returns a new profile token based on a user profile, password,
-     * and additional authentication factor.
-     * 
-     * @param uid                            The name of the user profile for which
-     *                                       the token is to be generated.
-     * 
-     * @param password                       The password for the user
-     * 
-     * @param additionalAuthenticationFactor The additional authentication factor
-     *                                       for the user
-     * 
-     * @param verificationId                 The verification ID is the label that
-     *                                       identifies the specific application,
-     *                                       service, or action associated with the
-     *                                       profile handle request. This value must
-     *                                       be 30-characters or less. This value
-     *                                       will be passed to the authentication
-     *                                       exit program registered under the
-     *                                       QIBM_QSY_AUTH exit point if the
-     *                                       specified user profile has *REGFAC as
-     *                                       an authentication method. The
-     *                                       authentication exit program may use the
-     *                                       verification ID as a means to restrict
-     *                                       the use of the user profile. If running
-     *                                       on an IBM i, the verification ID should
-     *                                       be the DCM application ID or a similar
-     *                                       value that identifies the application
-     *                                       or service.
-     * 
-     * @param remoteIpAddress                If the API is used by a server to
-     *                                       provide access to a the system, the
-     *                                       remote IP address should be obtained
-     *                                       from the socket connection (i.e. using
-     *                                       Socket.getInetAddress). Otherwise, null
-     *                                       should be passed.
-     * 
-     * @param remotePort                     If the API is used by a server to
-     *                                       provide access to a the system, the
-     *                                       remote port should be obtained from the
-     *                                       socket connection (i.e. using
-     *                                       Socket.getPort ). Otherwise, use 0 if
-     *                                       there is not an associated connection.
-     *                                       This parameter is not used in a remote
-     *                                       environment.  The host server will 
-     *                                       retrieve the port from the network connection. 
-     * 
-     * @param localIpAddress                 If the API is used by a server to
-     *                                       provide access to a the system, the
-     *                                       local IP address should be obtained
-     *                                       from the socket connection (i.e. using
-     *                                       Socket.getLocalAddress). Otherwise,
-     *                                       null should be passed.
-     *                                       This parameter is not used in a remote
-     *                                       environment.  The host server will 
-     *                                       retrieve the information from the system. 
-     *                                                                              
-     * @param localPort                      If the API is used by a server to
-     *                                       provide access to a the system, the
-     *                                       local port should be obtained from the
-     *                                       socket connection
-     *                                       (Socket.getLocalPort). Otherwise, use 0
-     *                                       if there is not an associated
-     *                                       connection.
-     *                                       This parameter is not used in a remote
-     *                                       environment.  The host server will 
-     *                                       retrieve the port from the network connection. 
-     * 
-     * 
-     * @param type                           The type of token. Possible types are
-     *                                       defined as fields on the
-     *                                       ProfileTokenCredential class:
-     *                                       <ul>
-     *                                       <li>ProfileTokenCredential.TYPE_SINGLE_USE
-     *                                       <li>ProfileTokenCredential.TYPE_MULTIPLE_USE_NON_RENEWABLE
-     *                                       <li>ProfileTokenCredential.TYPE_MULTIPLE_USE_RENEWABLE
-     *                                       </ul>
-     * 
-     * @param timeoutInterval                The number of seconds to expiration.
-     * 
-     * @return The token bytes.
-     * @exception RetrieveFailedException If errors occur while generating the
-     *                                    token.
-     */
-    @Override
-    public byte[] generateTokenExtended(String uid, char[] password, char[] additionalAuthenticationFactor,
+    private ProfileTokenCredential generateTokenExtended(String uid, char[] password, char[] additionalAuthenticationFactor,
             String verificationId, String remoteIpAddress, int remotePort, String localIpAddress, int localPort,
             int type, int timeoutInterval) throws RetrieveFailedException
     {
         // Use the AS400 object to obtain the token.
         // This will obtain the token by interacting with the IBM i 
         // system signon server and avoid transmitting a cleartext password.
-        byte[] tkn = null;
+        ProfileTokenCredential ptTemp = null;
         try {
-            tkn = getCredential().getSystem().getProfileToken(uid, password, additionalAuthenticationFactor, type, timeoutInterval, 
-                                                              verificationId, remoteIpAddress).getToken();
+            ptTemp = getCredential().getSystem().getProfileToken(uid, password, additionalAuthenticationFactor,
+                                                                 type, timeoutInterval, 
+                                                                 verificationId, remoteIpAddress);
         }
         catch (AS400SecurityException se) {
             throw new RetrieveFailedException(se.getReturnCode());
@@ -388,7 +337,40 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
             AuthenticationSystem.handleUnexpectedException(e);
         }
         
-        return tkn;
+        return ptTemp;
+    }
+
+    @Override
+    public ProfileTokenCredential generateTokenExtended(String uid, char[] password,
+            ProfileTokenCredential profileTokenCred) throws RetrieveFailedException, PropertyVetoException
+    {
+        ProfileTokenCredential ptTemp = generateTokenExtended(uid, password, 
+                profileTokenCred.getAdditionalAuthenticationFactor(), 
+                profileTokenCred.getVerificationID(),              
+                profileTokenCred.getRemoteIPAddress(), 
+                profileTokenCred.getRemotePort(),
+                profileTokenCred.getLocalIPAddress(),  
+                profileTokenCred.getLocalPort(),         
+                profileTokenCred.getTokenType(), 
+                profileTokenCred.getTimeoutInterval());
+        
+        try {
+            profileTokenCred.setToken(ptTemp.getToken());
+            profileTokenCred.setTokenCreator(ptTemp.getTokenCreator());
+            profileTokenCred.setRemoteIPAddress(ptTemp.getRemoteIPAddress());
+        } 
+        catch (PropertyVetoException e)
+        {
+            try {
+                removeFromSystem(getCredential().getSystem(), ptTemp.getToken());
+            } catch (DestroyFailedException e1) {
+                Trace.log(Trace.ERROR, "Unexpected Exception during profile token destroy: ", e);
+            }
+            
+            throw e;
+        }
+        
+        return profileTokenCred;
     }
 
     @Override
@@ -493,31 +475,34 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     */
     void removeFromSystem() throws DestroyFailedException
     {
-	    ProfileTokenCredential tgt = (ProfileTokenCredential)getCredential();
-	    AS400 sys = tgt.getSystem();
-	    ProgramCall programCall = new ProgramCall(sys);
+        ProfileTokenCredential pt = (ProfileTokenCredential)getCredential();
+        removeFromSystem(pt.getSystem(), pt.getToken());
+    }
+    
+    private static void removeFromSystem(AS400 sys, byte[] token) throws DestroyFailedException
+    {
+        ProgramCall programCall = new ProgramCall(sys);
 
-	    ProgramParameter[] parmlist = new ProgramParameter[3];
-	    parmlist[0] = new ProgramParameter(
-	        new AS400Text(10, sys.getCcsid(), sys).toBytes("*PRFTKN"));
-	    parmlist[1] = new ProgramParameter(new AS400Bin4().toBytes(0));
-	    parmlist[2] = new ProgramParameter(new AS400ByteArray(ProfileTokenCredential.TOKEN_LENGTH).toBytes(tgt.getToken()));
+        ProgramParameter[] parmlist = new ProgramParameter[3];
+        parmlist[0] = new ProgramParameter(new AS400Text(10, sys.getCcsid(), sys).toBytes("*PRFTKN"));
+        parmlist[1] = new ProgramParameter(new AS400Bin4().toBytes(0));
+        parmlist[2] = new ProgramParameter(new AS400ByteArray(ProfileTokenCredential.TOKEN_LENGTH).toBytes(token));
 
-	    try
-	    {
-		    programCall.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYRMVPT", "PGM"), parmlist);
-		    programCall.suggestThreadsafe(); // Run on-thread if possible.
-		    if (!programCall.run()) {
-			    Trace.log(Trace.ERROR, "Call to QSYRMVPT failed.");
-			    throw new DestroyFailedException();
-		    }
-	    }
-	    catch (java.io.IOException|java.beans.PropertyVetoException|InterruptedException e) {
-		    AuthenticationSystem.handleUnexpectedException(e);
-		}
-	    catch (Exception e) {
-		    throw new DestroyFailedException(programCall.getMessageList());
-	    }
+        try
+        {
+            programCall.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYRMVPT", "PGM"), parmlist);
+            programCall.suggestThreadsafe(); // Run on-thread if possible.
+            if (!programCall.run()) {
+                Trace.log(Trace.ERROR, "Call to QSYRMVPT failed.");
+                throw new DestroyFailedException();
+            }
+        }
+        catch (java.io.IOException|java.beans.PropertyVetoException|InterruptedException e) {
+            AuthenticationSystem.handleUnexpectedException(e);
+        }
+        catch (Exception e) {
+            throw new DestroyFailedException(programCall.getMessageList());
+        }
     }
 
     /**

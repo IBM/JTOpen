@@ -18,7 +18,6 @@ import com.ibm.as400.access.AS400SecurityException;
 import com.ibm.as400.access.AuthenticationIndicator;
 import com.ibm.as400.access.ExtendedIllegalArgumentException;
 import com.ibm.as400.access.ExtendedIllegalStateException;
-import com.ibm.as400.access.ProfileTokenImplNative;
 import com.ibm.as400.access.Trace;
 import java.beans.PropertyVetoException;
 import java.util.Arrays;
@@ -1166,10 +1165,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         // Generate and set the token value
         if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenCredential generating profile token w/special value for user: " + name);
         
-        setToken(impl.generateToken(name, passwordSpecialValue, additionalAuthenticationFactor_, authenticationIndicator_, getVerificationID(),
-                                    getRemoteIPAddress(), getRemotePort(), getLocalIPAddress(), getLocalPort(),
-                                    getTokenType(), getTimeoutInterval()));
-        setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
+        impl.generateToken(name, passwordSpecialValue, this);
 
         // If successful, all defining attributes are now set. Set the impl for
         // subsequent references.
@@ -1359,13 +1355,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         ProfileTokenImpl impl = (ProfileTokenImpl)getImplPrimitive();
 
         // Generate and set the token value
-        setToken(impl.generateTokenExtended(name, password, getAdditionalAuthenticationFactor(), getVerificationID(),
-                                            getRemoteIPAddress(), getRemotePort(), getLocalIPAddress(),  getLocalPort(), 
-                                            getTokenType(), getTimeoutInterval()));
-        
-        // When remote, it will be already set to CREATOR_FILE_SERVER. 
-        if (impl instanceof ProfileTokenImplNative)
-            setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
+        impl.generateTokenExtended(name, password, this);
 
         // If successful, all defining attributes are now set.
         // Set the impl for subsequent references.
@@ -1703,8 +1693,8 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *         class:
      *         <ul>
      *         <li>CREATOR_UNKNOWN
-     *         <li>CREATOR_FILESERVER
-     *         <li>CREATOR_NATIVEAPI
+     *         <li>CREATOR_SIGNON_SERVER
+     *         <li>CREATOR_NATIVE_API
      *         </ul>
      * 
      */
@@ -1724,12 +1714,12 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * This property cannot be changed once a request initiates a connection for the
      * object to the IBM i system (for example, refresh).
      *
-     * @param type The creator of the token. Possible values are defined as fields on this
+     * @param tokenCreator The creator of the token. Possible values are defined as fields on this
      *             class:
      *         <ul>
      *         <li>CREATOR_UNKNOWN
-     *         <li>CREATOR_FILESERVER
-     *         <li>CREATOR_NATIVEAPI
+     *         <li>CREATOR_SIGNON_SERVER
+     *         <li>CREATOR_NATIVE_API
      *         </ul>
      *
      * @exception PropertyVetoException            If the change is vetoed.
@@ -1752,11 +1742,11 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
             throw new ExtendedIllegalArgumentException("type", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
 
-        Integer old = Integer.valueOf(tokenCreator);
-        Integer typ = Integer.valueOf(tokenCreator);
-        fireVetoableChange("tokenCreator", old, typ);
+        Integer old = Integer.valueOf(creator_);
+        Integer crt = Integer.valueOf(tokenCreator);
+        fireVetoableChange("tokenCreator", old, crt);
         creator_ = tokenCreator;
-        firePropertyChange("tokenCreator", old, typ);
+        firePropertyChange("tokenCreator", old, crt);
     }
     
     /**
