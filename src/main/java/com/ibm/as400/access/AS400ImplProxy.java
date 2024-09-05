@@ -102,36 +102,6 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
         }
     }
 
-    // Connect to port.
-    @Override
-    public Socket connectToPort(int port) throws AS400SecurityException, IOException
-    {
-        try
-        {
-            return (Socket)connection_.callMethod(pxId_, "connectToPort", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(port) }).getReturnValue();
-        }
-        catch (InvocationTargetException e)
-        {
-            throw ProxyClientConnection.rethrow2(e);
-        }
-    }
-    
-    @Override
-    public Socket connectToPort(int port,boolean forceNonLocalhost) throws AS400SecurityException, IOException
-    {
-        try
-        {
-            return (Socket)connection_.callMethod(pxId_, 
-                "connectToPort", 
-                new Class[] { Integer.TYPE, Boolean.TYPE }, 
-                new Object[] { Integer.valueOf(port), Boolean.valueOf(forceNonLocalhost) }).getReturnValue();
-        }
-        catch (InvocationTargetException e)
-        {
-            throw ProxyClientConnection.rethrow2(e);
-        }
-    }
-
     // Disconnect from service.
     @Override
     public void disconnect(int service)
