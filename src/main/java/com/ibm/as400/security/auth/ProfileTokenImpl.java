@@ -1,5 +1,7 @@
 package com.ibm.as400.security.auth;
 
+import java.beans.PropertyVetoException;
+
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                             
 // JTOpen (IBM Toolbox for Java - OSS version)                                 
@@ -98,6 +100,35 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
 
     /**
      * Generates and returns a new profile token based on the provided information
+     * using a password special value.
+     *
+     * @param uid                            The name of the user profile for which
+     *                                       the token is to be generated.
+     *
+     * @param pwdSpecialValue                A password special value. Possible
+     *                                       types are defined as fields on the
+     *                                       ProfileTokenCredential class:
+     *                                       <ul>
+     *                                       <li>PW_NOPWD
+     *                                       <li>PW_NOPWDCHK
+     *                                       </ul>
+     *                                       <p>
+     *                                       
+     * @param profileTokenCred               The profile token credential to be initialized
+     *                                       with the token bytes.
+     * 
+     * 
+     * @return The profile token credential that was passed in with the token bytes initialized.
+     * 
+     * @exception RetrieveFailedException   If errors occur while generating the token.
+     * @exception PropertyVetoException     If errors occur while setting the profile token credential.
+     *
+     */
+    ProfileTokenCredential generateToken(String uid, int pwdSpecialValue, ProfileTokenCredential profileTokenCred)
+            throws RetrieveFailedException, PropertyVetoException;
+
+    /**
+     * Generates and returns a new profile token based on the provided information
      * using a password string.
      *
      * @param uid             The name of the user profile for which the token is to
@@ -125,6 +156,27 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      */
     byte[] generateTokenExtended(String uid, char[] pwd, int type, int timeoutInterval) throws RetrieveFailedException;
 
+    /**
+     * Generates and returns a new profile token based on a user profile, password,
+     * and additional authentication factor.
+     * 
+     * @param uid                            The name of the user profile for which
+     *                                       the token is to be generated.
+     * 
+     * @param password                       The password for the user
+     * 
+     * @param profileTokenCred               The profile token credential to be initialized
+     *                                       with the token bytes.
+     * 
+     * 
+     * @return The profile token credential that was passed in with the token bytes initialized.
+     * 
+     * @exception RetrieveFailedException   If errors occur while generating the token.
+     * @exception PropertyVetoException     If errors occur while setting the profile token credential.
+     */
+    ProfileTokenCredential generateTokenExtended(String uid, char[] password, ProfileTokenCredential profileTokenCred)
+            throws RetrieveFailedException, PropertyVetoException;
+    
     /**
      * Updates or extends the validity period for the credential.
      *

@@ -513,7 +513,7 @@ public class UserList implements Serializable
         };
 
         // Call the program.
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLAUS.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGYOLAUS.PGM", parameters);
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());

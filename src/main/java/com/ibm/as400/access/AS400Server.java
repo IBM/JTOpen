@@ -51,6 +51,10 @@ public abstract class AS400Server
         return service_; 
     }
     
+    final String getLocalAddress() {
+        return socket_.getLocalAddress();
+    }
+    
     abstract boolean isConnected();
     public abstract DataStream getExchangeAttrReply();
     public abstract void setExchangeAttrReply(DataStream xChgAttrReply);

@@ -24,15 +24,11 @@ class CurrentUser
         try
         {
             if (vrm >= 0x00050400)
-            {
                 currentUser = NativeMethods.getUserId();
-            }
             else if (vrm >= 0x00050200)
             {
                 if (NativeMethods.loadSCK())
-                {
                     currentUser = getUserIdNative();
-                }
             }
             else
             {
@@ -40,29 +36,29 @@ class CurrentUser
                 currentUser = user.getUserId();
             }
         }
-        catch (NativeException e)
-        {
+        catch (NativeException e) {
             Trace.log(Trace.ERROR, "Error retrieving current userID:", e);
         }
-        catch (Throwable e)
-        {
+        catch (Throwable e) {
             Trace.log(Trace.ERROR, "Error retrieving current userID:", e);
         }
+        
         if (currentUser != null)
         {
-        	try { //@AC4A
+        	try
+        	{
         		if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Current userID in EBCDIC: ", currentUser);
                 String userID = SignonConverter.byteArrayToString(currentUser);
+                
                 if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Current userID: '" + userID + "'");
                 return userID;
-                //@AC4A Start
-        	} catch (AS400SecurityException e) {
+        	}
+        	catch (AS400SecurityException e) {
         		if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Current userID convert failed, user id characters are not valid");
         		return null;
-        	}
-        	//@AC4A End
-            
+        	}            
         }
+        
         return null;
     }
 
@@ -72,18 +68,14 @@ class CurrentUser
         try
         {
             if (vrm >= 0x00050400)
-            {
                 return NativeMethods.getUserInfo(clientSeed, serverSeed);
-            }
             else if (vrm >= 0x00050200)
-            {
                 return getUserInfoNative(clientSeed, serverSeed);
-            }
+
             UnixSocketUser user = new UnixSocketUser();
             return user.getSubstitutePassword(clientSeed, serverSeed);
         }
-        catch (NativeException e)
-        {
+        catch (NativeException e) {
             throw AS400ImplRemote.returnSecurityException(BinaryConverter.byteArrayToInt(e.data, 0),null,info);
         }
     }

@@ -20,12 +20,14 @@ import java.io.OutputStream;
 class AS400GenAuthTknDS extends ClientAccessDataStream
 {
     AS400GenAuthTknDS(byte[] userIDbytes, byte[] authenticationBytes, int authScheme, int profileTokenType, int profileTokenTimeout, int serverLevel,
-            byte[] addAuthFactor)
+            byte[] addAuthFactor, byte[] verificationID, byte[] clientIPAddr)
     {
     	super(new byte[45 + authenticationBytes.length 
     	               + ((userIDbytes == null || authScheme == 1|| authScheme ==2) ? 0:16)
     	               + (serverLevel < 5 ? 0 : 7)
                        + ((serverLevel >= 18 && null != addAuthFactor && 0 < addAuthFactor.length) ? addAuthFactor.length + 10: 0)
+                       + ((serverLevel >= 18 && null != verificationID) ? verificationID.length + 10: 0)
+                       + ((serverLevel >= 18 && null != clientIPAddr) ? clientIPAddr.length + 10: 0)
     	               ]);
 
         setLength(data_.length);
@@ -123,6 +125,34 @@ class AS400GenAuthTknDS extends ClientAccessDataStream
                 System.arraycopy(addAuthFactor, 0, data_, offset + 10, addAuthFactor.length);
                 
                 offset += 10 + addAuthFactor.length;
+            }
+            
+            if (null != verificationID && 0 < verificationID.length)
+            {
+                // LL
+                set32bit(verificationID.length + 4 + 2 + 4, offset);
+                // CP
+                set16bit(0x1130, offset + 4);
+                // CCSID
+                set32bit(1208, offset + 6);
+                // data
+                System.arraycopy(verificationID, 0, data_, offset + 10, verificationID.length);
+                
+                offset += 10 + verificationID.length;
+            }
+            
+            if (null != clientIPAddr && 0 < clientIPAddr.length)
+            {
+                // LL
+                set32bit(clientIPAddr.length + 4 + 2 + 4, offset);
+                // CP
+                set16bit(0x1131, offset + 4);
+                // CCSID
+                set32bit(1208, offset + 6);
+                // data
+                System.arraycopy(clientIPAddr, 0, data_, offset + 10, clientIPAddr.length);
+                
+                offset += 10 + clientIPAddr.length;
             }
         }
     }

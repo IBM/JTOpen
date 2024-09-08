@@ -265,8 +265,8 @@ final class ConnectionList
                 
                 // If in-use or not right type of AS400 object, skip it. 
                 if (item.isInUse()
-                        || (secure && !(item.getAS400Object() instanceof SecureAS400))
-                        || (!secure && (item.getAS400Object() instanceof SecureAS400))
+                        || (secure && !(item.getAS400Object().isSecure()))
+                        || (!secure && (item.getAS400Object().isSecure()))
                         || (service != null && !item.getAS400Object().isConnected(service)))
                     continue;
                 
@@ -293,8 +293,8 @@ final class ConnectionList
                     
                     // If in-use or not right type of AS400 object, skip it. 
                     if (item.isInUse()
-                            || (secure && !(item.getAS400Object() instanceof SecureAS400))
-                            || (!secure && (item.getAS400Object() instanceof SecureAS400)))
+                            || (secure && !(item.getAS400Object().isSecure()))
+                            || (!secure && (item.getAS400Object().isSecure())))
                         continue;
                     
                     //@B2A Add a check for locales.  If the user did not specify a locale at

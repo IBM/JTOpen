@@ -591,6 +591,15 @@ class PcmlDocument extends PcmlDocRoot
     }
 
     /**
+    Returns the option for how many messages will be retrieved for the specified program.
+    @return  A constant indicating how many messages will be retrieved.
+    **/
+    synchronized int getMessageOption(String name) throws PcmlException
+    {
+        return getProgramNode(name).getMessageOption();
+    }
+
+    /**
      Returns the ProgramCall object that was used in the most recent invocation of {@link #callProgram() callProgram()}.
      @return The ProgramCall object; null if callProgram has not been called.
      **/
@@ -691,6 +700,18 @@ class PcmlDocument extends PcmlDocRoot
     {                                                               // @C6A
         return getProgramNode(program).getThreadsafeOverride();     // @C6A
     }                                                               // @C6A
+
+    /**
+    Specifies the option for how many messages should be retrieved for the specified program.  By default, to preserve
+    compatability, only the messages sent to the program caller and only up to ten messages are retrieved.
+    This property will only take effect on systems that support the new option.
+    @param  messageOption  A constant indicating how many messages to retrieve.
+    **/
+    synchronized void setMessageOption(String program, int messageOption)
+        throws PcmlException
+    {
+        getProgramNode(program).setMessageOption(messageOption);
+    }
 
     // Add a subtree to the document's hashtable.
     // This is called to complete the document cloneing process.
