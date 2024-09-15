@@ -1562,7 +1562,7 @@ public class JobList implements Serializable
         };
 
         // Call the program.
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLJOB.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGYOLJOB.PGM", parameters);
 
         if (!pc.run())
         {

@@ -15,7 +15,7 @@
 
 
 
-<program name="qgyrprtl" path="/QSYS.LIB/QGY.LIB/QGYRPRTL.PGM" parseorder="listInformation receiverVariable">        
+<program name="qgyrprtl" path="/QSYS.LIB/QGYRPRTL.PGM" parseorder="listInformation receiverVariable">
         <data name="receiverVariable"                   usage="output"          type="struct" struct="prtl0200"
                                                                                 count="listInformation.recordsReturned"
                                                                                 outputsize="receiverVariableLength"/>
@@ -62,7 +62,7 @@
 
 
 
-<program name="qgygtle" path="/QSYS.LIB/QGY.LIB/QGYGTLE.PGM" parseorder="listInformation receiverVariable">        
+<program name="qgygtle" path="/QSYS.LIB/QGYGTLE.PGM" parseorder="listInformation receiverVariable">
         <data name="receiverVariable"                   usage="output"          type="struct" struct="prtl0200"
                                                                                 count="listInformation.recordsReturned"
                                                                                 outputsize="receiverVariableLength" />
@@ -76,7 +76,7 @@
 
 
 
-<program name="qgyclst" path="/QSYS.LIB/QGY.LIB/QGYCLST.PGM">
+<program name="qgyclst" path="/QSYS.LIB/QGYCLST.PGM">
         <data name="requestHandle"                      usage="input"           type="byte" length="4"/>
         <data name="errorCode"                          usage="input"           type="int" length="4" init="0"/>                    
 </program>

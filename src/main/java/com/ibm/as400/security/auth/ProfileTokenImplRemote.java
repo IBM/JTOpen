@@ -13,6 +13,9 @@
 
 package com.ibm.as400.security.auth;
 
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+
 import com.ibm.as400.access.*;
 
 /**
@@ -70,6 +73,15 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     @Override
     public byte[] generateToken(String uid, int pwdSpecialValue, int type, int timeoutInterval) throws RetrieveFailedException
     {
+        return generateToken(uid, pwdSpecialValue, null, AuthenticationIndicator.APPLICATION_AUTHENTICATION,
+                null, null, 0, null, 0, type, timeoutInterval);
+
+    }
+    
+    private byte[] generateToken(String uid, int pwdSpecialValue, char[] additionalAuthenticationFactor,
+            int authenticationIndicator, String verificationId, String remoteIpAddress, int remotePort,
+            String localIpAddress, int localPort, int type, int timeoutInterval) throws RetrieveFailedException
+    {
         // Convert password special value from enumerated int to String
         String pwd;
         switch(pwdSpecialValue) {
@@ -89,8 +101,31 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         // do not use with real passwords
 
         AS400 sys = getCredential().getSystem();
+        
+        // Determine if we are using enhanced profile tokens
+        boolean useEPT = false;
+        try {
+            useEPT = (ProfileTokenCredential.useEnhancedProfileTokens() && sys.getVRM() > 0x00070500);
+        }
+        catch (AS400SecurityException|IOException e) {
+            Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
+            throw new RetrieveFailedException();
+        }
+        
+        // The API QSYGENPT requires all parameters to be non-null. 
+        boolean isAAFNull = (additionalAuthenticationFactor == null || additionalAuthenticationFactor.length == 0);
+        if (isAAFNull) additionalAuthenticationFactor = new char[] { ' ' };
+        
+        boolean isVfyIDNull = (verificationId == null || verificationId.length() == 0);
+        if (isVfyIDNull) verificationId = " ";
 
-        ProgramParameter[] parmlist = new ProgramParameter[6];
+        boolean isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
+        if (isRemoteIPNull) remoteIpAddress = " ";
+
+        boolean isLocalIPNull =  (localIpAddress == null || localIpAddress.length() == 0);
+        if (isLocalIPNull) localIpAddress = " ";
+
+        ProgramParameter[] parmlist = new ProgramParameter[useEPT ? 19 : 6];
         
         // Output: Profile token   
         parmlist[0] = new ProgramParameter(ProfileTokenCredential.TOKEN_LENGTH);
@@ -115,6 +150,55 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
 
         // Input/output: Error code. NULL.
         parmlist[5] = new ProgramParameter(BinaryConverter.intToByteArray(0));
+        
+        // If enhanced profile tokens supported then set parameters
+        if (useEPT)
+        {
+            // -- Optional Parameter Group 1
+            
+            // Input: Length of user password. Int to byte[]. Special value is used, thus must be 10
+            parmlist[6] = new ProgramParameter(BinaryConverter.intToByteArray(10));
+
+            // Input: CCSID of user password. Int to byte[]. Special value is used, thus must be 37
+            parmlist[7] = new ProgramParameter(BinaryConverter.intToByteArray(37));
+            
+            // -- Optional Parameter Group 2
+            
+            // Input: Additional authentication factor (unicode)
+            parmlist[8] = new ProgramParameter(BinaryConverter.charArrayToByteArray(additionalAuthenticationFactor));
+
+            // Input: Length of additional authentication factor
+            parmlist[9] = new ProgramParameter(BinaryConverter.intToByteArray((isAAFNull) ? 0 : parmlist[8].getInputData().length));
+            
+            // Input: CCSID of additional authentication factor
+            parmlist[10] = new ProgramParameter(BinaryConverter.intToByteArray(13488));
+
+            // Input: Authentication indicator (for passwords, it is ignored)
+            parmlist[11] = new ProgramParameter(BinaryConverter.intToByteArray(authenticationIndicator));
+
+            // Input: Verification ID - must be 30 in length, blank padded
+            parmlist[12] = new ProgramParameter(CharConverter.stringToByteArray(sys, (verificationId + "                              ").substring(0, 30)));
+            
+            // Input: Remote IP address
+            parmlist[13] = new ProgramParameter(CharConverter.stringToByteArray(sys, remoteIpAddress));
+
+            // Input: Length of remote IP address
+            parmlist[14] = new ProgramParameter(BinaryConverter.intToByteArray((isRemoteIPNull) ? 0 : parmlist[13].getInputData().length));
+            
+            // Input: Remote port
+            parmlist[15] = new ProgramParameter(BinaryConverter.intToByteArray(remotePort));
+
+            // Input: Local IP address
+            parmlist[16] = new ProgramParameter(CharConverter.stringToByteArray(sys, localIpAddress));
+
+            // Input: Length of local IP address
+            parmlist[17] = new ProgramParameter(BinaryConverter.intToByteArray((isLocalIPNull) ? 0 : parmlist[16].getInputData().length));
+
+            // Input: Local port
+            parmlist[18] = new ProgramParameter(BinaryConverter.intToByteArray(remotePort));
+        }
+
+        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenImpleRemote generating profile token w/special value for user: " + uid);
 
         ProgramCall programCall = new ProgramCall(sys);
 
@@ -135,6 +219,39 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         }
 
         return parmlist[0].getOutputData();
+    }
+    
+    @Override
+    public ProfileTokenCredential generateToken(String uid, int pwdSpecialValue, ProfileTokenCredential profileTokenCred)
+            throws RetrieveFailedException, PropertyVetoException 
+    {
+        byte[] token = generateToken(uid, pwdSpecialValue, 
+                profileTokenCred.getAdditionalAuthenticationFactor(), 
+                profileTokenCred.getAuthenticationIndicator(),
+                profileTokenCred.getVerificationID(),              
+                profileTokenCred.getRemoteIPAddress(), 
+                profileTokenCred.getRemotePort(),
+                profileTokenCred.getLocalIPAddress(),  
+                profileTokenCred.getLocalPort(),         
+                profileTokenCred.getTokenType(), 
+                profileTokenCred.getTimeoutInterval());
+        
+        try {
+            profileTokenCred.setToken(token);
+            profileTokenCred.setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
+        } 
+        catch (PropertyVetoException e)
+        {
+            try {
+                removeFromSystem(getCredential().getSystem(), token);
+            } catch (DestroyFailedException e1) {
+                Trace.log(Trace.ERROR, "Unexpected Exception during profile token destroy: ", e);
+            }
+            
+            throw e;
+        }
+        
+        return profileTokenCred;
     }
 
     /**
@@ -196,14 +313,22 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     }
     
     @Override
-    public byte[] generateTokenExtended(String uid, char[] pwd, int type, int timeoutInterval) throws RetrieveFailedException
+    public byte[] generateTokenExtended(String uid, char[] pwd, int type, int timeoutInterval) throws RetrieveFailedException {
+        return generateTokenExtended(uid, pwd, null, null, null, 0, null, 0, type, timeoutInterval).getToken();
+    }
+    
+    private ProfileTokenCredential generateTokenExtended(String uid, char[] password, char[] additionalAuthenticationFactor,
+            String verificationId, String remoteIpAddress, int remotePort, String localIpAddress, int localPort,
+            int type, int timeoutInterval) throws RetrieveFailedException
     {
         // Use the AS400 object to obtain the token.
         // This will obtain the token by interacting with the IBM i 
         // system signon server and avoid transmitting a cleartext password.
-        byte[] tkn = null;
+        ProfileTokenCredential ptTemp = null;
         try {
-            tkn = getCredential().getSystem().getProfileToken(uid, pwd, type, timeoutInterval).getToken();
+            ptTemp = getCredential().getSystem().getProfileToken(uid, password, additionalAuthenticationFactor,
+                                                                 type, timeoutInterval, 
+                                                                 verificationId, remoteIpAddress);
         }
         catch (AS400SecurityException se) {
             throw new RetrieveFailedException(se.getReturnCode());
@@ -212,7 +337,40 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
             AuthenticationSystem.handleUnexpectedException(e);
         }
         
-        return tkn;
+        return ptTemp;
+    }
+
+    @Override
+    public ProfileTokenCredential generateTokenExtended(String uid, char[] password,
+            ProfileTokenCredential profileTokenCred) throws RetrieveFailedException, PropertyVetoException
+    {
+        ProfileTokenCredential ptTemp = generateTokenExtended(uid, password, 
+                profileTokenCred.getAdditionalAuthenticationFactor(), 
+                profileTokenCred.getVerificationID(),              
+                profileTokenCred.getRemoteIPAddress(), 
+                profileTokenCred.getRemotePort(),
+                profileTokenCred.getLocalIPAddress(),  
+                profileTokenCred.getLocalPort(),         
+                profileTokenCred.getTokenType(), 
+                profileTokenCred.getTimeoutInterval());
+        
+        try {
+            profileTokenCred.setToken(ptTemp.getToken());
+            profileTokenCred.setTokenCreator(ptTemp.getTokenCreator());
+            profileTokenCred.setRemoteIPAddress(ptTemp.getRemoteIPAddress());
+        } 
+        catch (PropertyVetoException e)
+        {
+            try {
+                removeFromSystem(getCredential().getSystem(), ptTemp.getToken());
+            } catch (DestroyFailedException e1) {
+                Trace.log(Trace.ERROR, "Unexpected Exception during profile token destroy: ", e);
+            }
+            
+            throw e;
+        }
+        
+        return profileTokenCred;
     }
 
     @Override
@@ -250,13 +408,45 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
 	    ProfileTokenCredential tgt = (ProfileTokenCredential)getCredential();
 	    AS400 sys = tgt.getSystem();
 	    ProgramCall programCall = new ProgramCall(tgt.getSystem());
+	    
+        // Determine if we are using enhanced profile tokens
+        boolean useEPT = false;
+        try {
+            useEPT = (ProfileTokenCredential.useEnhancedProfileTokens() && sys.getVRM() > 0x00070500);
+        }
+        catch (AS400SecurityException|IOException e) {
+            Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
+            throw new RefreshFailedException();
+        }
+        
+        // Parameters cannot be null!
+        String verificationId = tgt.getVerificationID();
+        boolean isVfyIDNull = (verificationId == null || verificationId.length() == 0);
+        if (isVfyIDNull) verificationId = " ";
 
-	    ProgramParameter[] parmlist = new ProgramParameter[5];
+        String remoteIpAddress = tgt.getRemoteIPAddress();
+        boolean isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
+        if (isRemoteIPNull) remoteIpAddress = " ";
+
+	    ProgramParameter[] parmlist = new ProgramParameter[useEPT ? 8 : 5];
+	    
 	    parmlist[0] = new ProgramParameter(ProfileTokenCredential.TOKEN_LENGTH);
 	    parmlist[1] = new ProgramParameter(new AS400ByteArray(ProfileTokenCredential.TOKEN_LENGTH).toBytes(tgt.getToken()));
 	    parmlist[2] = new ProgramParameter(new AS400Bin4().toBytes(timeoutInterval));
 	    parmlist[3] = new ProgramParameter(new AS400Text(1, sys.getCcsid(), sys).toBytes(Integer.toString(type)));
 	    parmlist[4] = new ProgramParameter(new AS400Bin4().toBytes(0));
+	    
+	    if (useEPT)
+	    {
+            // Input: Verification ID - must be 30 in length, blank padded
+            parmlist[5] = new ProgramParameter(CharConverter.stringToByteArray(sys, (verificationId + "                              ").substring(0, 30)));
+            
+            // Input: Remote IP address
+            parmlist[6] = new ProgramParameter(CharConverter.stringToByteArray(sys, remoteIpAddress));
+
+            // Input: Length of remote IP address
+            parmlist[7] = new ProgramParameter(BinaryConverter.intToByteArray((isRemoteIPNull) ? 0 : parmlist[13].getInputData().length));
+	    }
 
 	    try {
 		    programCall.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYGENFT", "PGM"), parmlist);
@@ -285,31 +475,34 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     */
     void removeFromSystem() throws DestroyFailedException
     {
-	    ProfileTokenCredential tgt = (ProfileTokenCredential)getCredential();
-	    AS400 sys = tgt.getSystem();
-	    ProgramCall programCall = new ProgramCall(sys);
+        ProfileTokenCredential pt = (ProfileTokenCredential)getCredential();
+        removeFromSystem(pt.getSystem(), pt.getToken());
+    }
+    
+    private static void removeFromSystem(AS400 sys, byte[] token) throws DestroyFailedException
+    {
+        ProgramCall programCall = new ProgramCall(sys);
 
-	    ProgramParameter[] parmlist = new ProgramParameter[3];
-	    parmlist[0] = new ProgramParameter(
-	        new AS400Text(10, sys.getCcsid(), sys).toBytes("*PRFTKN"));
-	    parmlist[1] = new ProgramParameter(new AS400Bin4().toBytes(0));
-	    parmlist[2] = new ProgramParameter(new AS400ByteArray(ProfileTokenCredential.TOKEN_LENGTH).toBytes(tgt.getToken()));
+        ProgramParameter[] parmlist = new ProgramParameter[3];
+        parmlist[0] = new ProgramParameter(new AS400Text(10, sys.getCcsid(), sys).toBytes("*PRFTKN"));
+        parmlist[1] = new ProgramParameter(new AS400Bin4().toBytes(0));
+        parmlist[2] = new ProgramParameter(new AS400ByteArray(ProfileTokenCredential.TOKEN_LENGTH).toBytes(token));
 
-	    try
-	    {
-		    programCall.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYRMVPT", "PGM"), parmlist);
-		    programCall.suggestThreadsafe(); // Run on-thread if possible.
-		    if (!programCall.run()) {
-			    Trace.log(Trace.ERROR, "Call to QSYRMVPT failed.");
-			    throw new DestroyFailedException();
-		    }
-	    }
-	    catch (java.io.IOException|java.beans.PropertyVetoException|InterruptedException e) {
-		    AuthenticationSystem.handleUnexpectedException(e);
-		}
-	    catch (Exception e) {
-		    throw new DestroyFailedException(programCall.getMessageList());
-	    }
+        try
+        {
+            programCall.setProgram(QSYSObjectPathName.toPath("QSYS", "QSYRMVPT", "PGM"), parmlist);
+            programCall.suggestThreadsafe(); // Run on-thread if possible.
+            if (!programCall.run()) {
+                Trace.log(Trace.ERROR, "Call to QSYRMVPT failed.");
+                throw new DestroyFailedException();
+            }
+        }
+        catch (java.io.IOException|java.beans.PropertyVetoException|InterruptedException e) {
+            AuthenticationSystem.handleUnexpectedException(e);
+        }
+        catch (Exception e) {
+            throw new DestroyFailedException(programCall.getMessageList());
+        }
     }
 
     /**

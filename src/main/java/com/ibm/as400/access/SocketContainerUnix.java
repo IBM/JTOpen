@@ -23,7 +23,7 @@ class SocketContainerUnix extends SocketContainer
 {
     private UnixSocket usocket_;
 
-
+    @Override
     void setProperties(Socket socket, String serviceName, String systemName, int port, SSLOptions options) throws IOException
     {
         int serverNumber = 0;
@@ -55,29 +55,35 @@ class SocketContainerUnix extends SocketContainer
         usocket_ = new UnixSocket(serverNumber);
     }
 
+    @Override
     void close() throws IOException
     {
         usocket_.close();
     }
 
+    @Override
     InputStream getInputStream() throws IOException
     {
         return usocket_.getInputStream();
     }
 
-    OutputStream getOutputStream() throws IOException
-    {
+    @Override
+    OutputStream getOutputStream() throws IOException {
         return usocket_.getOutputStream();
-    
     }
     
-    
+    @Override
     int getSoTimeout() throws SocketException {
       return usocket_.getSoTimeout(); 
     }
 
+    @Override
     void setSoTimeout(int timeout) throws SocketException {
       usocket_.setSoTimeout(timeout); 
     }
-
+    
+    @Override
+    String getLocalAddress() {
+        return "127.0.0.1";
+    }
 }

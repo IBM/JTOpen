@@ -14,6 +14,7 @@
 package com.ibm.as400.security.auth;
 
 import java.beans.PropertyVetoException;
+import java.util.Arrays;
 
 import com.ibm.as400.access.AS400;
 import com.ibm.as400.access.AS400SecurityException;
@@ -43,6 +44,15 @@ public class DefaultProfileTokenProvider implements ProfileTokenProvider
 
     /** Any extended information needed to create the profile token */
     private Object extendedInfo_;
+    
+    /** additional factor */
+    private char[] additionalFactor_;
+    
+    /** Verification ID */
+    private String verificationID_;
+    
+    /** remote IP address */
+    private String remoteIPAddress_;
 
     /**
      * Constructs a new DefaultProfileTokenProvider
@@ -232,6 +242,59 @@ public class DefaultProfileTokenProvider implements ProfileTokenProvider
         // Assume that the caller has verified that the value is non-null.
         extendedInfo_ = extendedInfo;
     }
+    
+
+    /**
+     * Set the additional authentication factor to be used when generating the profile token. 
+     * Note that a copy of the value will be made and stored in the object.
+     * 
+     * @param additionalAuthenticationFactor The additional authentication factor.
+     * @throws PropertyVetoException
+     */
+    public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor) throws PropertyVetoException
+    {
+        if (additionalAuthenticationFactor != null && additionalAuthenticationFactor.length > ProfileTokenCredential.MAX_ADDITIONALAUTHENTICATIONFACTOR_LENGTH)
+            throw new ExtendedIllegalArgumentException("additionalAuthenticationFactor", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+
+        additionalFactor_ = (additionalAuthenticationFactor != null) 
+                ? Arrays.copyOf(additionalAuthenticationFactor, additionalAuthenticationFactor.length) : null;
+    }
+
+    /**
+     * Returns a copy of the additional authentication factor.
+     *
+     * @return The additional authentication factor. The value can be null if it has not been set.
+     */
+    public char[] getAdditionalAuthenticationFactor() {
+        return (additionalFactor_ != null) 
+                ? Arrays.copyOf(additionalFactor_, additionalFactor_.length) : null;
+    }
+
+    /**
+     * Set the verification ID to be associated with the profile token. The
+     * verification ID is the label that identifies the specific application,
+     * service, or action associated with the profile token request.
+     * 
+     * @param verificationID The verification ID.
+     * @throws PropertyVetoException
+     */
+    public void setVerificationID(String verificationID) throws PropertyVetoException
+    {
+        if (verificationID != null && verificationID.length() > ProfileTokenCredential.MAX_VERIFICATIONID_LENGTH)
+            throw new ExtendedIllegalArgumentException("verificationID", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+
+        verificationID_ = verificationID;
+    }
+
+    /**
+     * Returns the verification ID associated with the profile token.
+     *
+     * @return The verification ID. The value can be null if it has not been set.
+     */
+    public String getVerificationID()
+    {
+        return (verificationID_ != null) ? verificationID_ : ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
+    }
 
     /**
      * Creates and returns a new profile token credential.
@@ -258,6 +321,10 @@ public class DefaultProfileTokenProvider implements ProfileTokenProvider
             newToken.setTimeoutInterval(getTimeoutInterval());
             newToken.setTokenType(getTokenType());
 
+            newToken.setAdditionalAuthenticationFactor(additionalFactor_);
+            newToken.setVerificationID(verificationID_);
+            newToken.setRemoteIPAddress(remoteIPAddress_);
+            
             Object extended = getExtendedInfo();
 
             if (extended instanceof Integer)
@@ -281,7 +348,7 @@ public class DefaultProfileTokenProvider implements ProfileTokenProvider
             throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
         }
     }
-
+    
     /**
      * Validate the specified field is set, that is, not null.
      *
