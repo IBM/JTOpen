@@ -46,11 +46,11 @@ import java.util.Map;
 import java.util.Hashtable;             //@G4A
 import java.util.Vector;
 /* endif */ 
-/* ifdef JDBC42
+/* ifdef JDBC42 */
 import java.sql.SQLType; 
 import java.sql.JDBCType; 
 import java.sql.SQLFeatureNotSupportedException;
-endif */
+/* endif */ 
 
 
 /**
@@ -4673,7 +4673,7 @@ implements CallableStatement
         return getSQLXML(parameterIndex);
 /* endif */ 
         
-/* ifdef JDBC42 
+/* ifdef JDBC42 */
       } else if (type == java.time.LocalTime.class){
         Time time = getTime(parameterIndex);
         if (time != null ) return time.toLocalTime();
@@ -4686,7 +4686,7 @@ implements CallableStatement
         Timestamp ts = getTimestamp(parameterIndex);
         if (ts != null) return ts.toLocalDateTime();
         return null; 
-endif */
+/* endif */ 
       } else if (type == Object.class){
         return getObject(parameterIndex);
       }
@@ -4739,24 +4739,24 @@ endif */
      */
     
     static int mapSQLTypeCS(
-        /* ifdef JDBC42        
+/* ifdef JDBC42 */
         SQLType  
-  endif*/ 
-  /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
   Object
-  /* endif */
+ endif */ 
         targetSqlType ) throws SQLException {
-       /* ifdef JDBC42 
+/* ifdef JDBC42 */
          
       if (targetSqlType instanceof JDBCType) {
         return targetSqlType.getVendorTypeNumber(); 
       }
         throw new SQLFeatureNotSupportedException("targetSqlType="+targetSqlType);    
    
-        endif */
-      /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
          return 0; 
-      /* endif */ 
+ endif */ 
     }
     
     
@@ -4792,12 +4792,12 @@ endif */
      */
     public void setObject(String parameterName,
                            Object x,
-                           /* ifdef JDBC42        
+/* ifdef JDBC42 */
                            SQLType  
-                     endif*/ 
-                     /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
                      Object
-                     /* endif */
+ endif */ 
                            targetSqlType,
                            int scaleOrLength)                    throws SQLException
            {
@@ -4820,12 +4820,12 @@ endif */
 
    public void setObject(String parameterName,
                            Object x,
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
                            SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
                      Object
-/* endif */
+ endif */ 
                            targetSqlType)
                     throws SQLException
                     {
@@ -4856,12 +4856,12 @@ endif*/
     * error occurs or this method is called on a closed CallableStatement
     */
     public void registerOutParameter(int parameterIndex,
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
         SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
         Object
-/* endif */
+ endif */ 
                                       sqlType)
                                throws SQLException{
       int intType = mapSQLTypeCS(sqlType);
@@ -4887,12 +4887,12 @@ endif*/
      */
     
     public void registerOutParameter(int parameterIndex,
-        /* ifdef JDBC42        
+/* ifdef JDBC42 */
         SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
         Object
-/* endif */
+ endif */ 
                                       sqlType,
                                       int scale)
                                throws SQLException {
@@ -4926,12 +4926,12 @@ endif*/
  * access error occurs or this method is called on a closed CallableStatement
  */
     public void registerOutParameter(int parameterIndex,
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
         SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
         Object
-/* endif */
+ endif */ 
                                       sqlType,
                                       String typeName)
                                throws SQLException {
@@ -4959,12 +4959,12 @@ endif*/
  * on a closed CallableStatement
  */
    public void registerOutParameter(String parameterName,
-       /* ifdef JDBC42        
+/* ifdef JDBC42 */
        SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
        Object
-/* endif */
+ endif */ 
                                       sqlType)
                                throws SQLException {
      int intType = mapSQLTypeCS(sqlType);
@@ -4990,12 +4990,12 @@ endif*/
     * on a closed CallableStatement
     */
   public void registerOutParameter(String parameterName,
-      /* ifdef JDBC42        
+/* ifdef JDBC42 */
       SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
       Object
-/* endif */
+ endif */ 
                                       sqlType,
                                       int scale)
                                throws SQLException {
@@ -5034,12 +5034,12 @@ endif*/
    * on a closed CallableStatement
    */
   public void registerOutParameter(String parameterName,
-      /* ifdef JDBC42        
+/* ifdef JDBC42 */
       SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
       Object
-/* endif */
+ endif */ 
                                       sqlType,
                                       String typeName)
                                throws SQLException

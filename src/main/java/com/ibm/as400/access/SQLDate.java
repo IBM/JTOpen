@@ -189,7 +189,7 @@ extends SQLDataBase
         }
     }
 
-    /* ifdef JDBC42
+/* ifdef JDBC42 */
     public static String localDateToString(java.time.LocalDate d,
                                        SQLConversionSettings dateFormat,
                                       Calendar calendar) {
@@ -198,7 +198,7 @@ extends SQLDataBase
       
       return dateToString(gcal.getTime(),dateFormat,calendar); 
     }
-    endif */ 
+/* endif */ 
     
     public static String dateToString(java.util.Date d,              // @F5C
                                       SQLConversionSettings dataFormat,
@@ -444,7 +444,7 @@ extends SQLDataBase
             month_  = calendar.get(Calendar.MONTH);
             day_    = calendar.get(Calendar.DAY_OF_MONTH);
         }
-/* ifdef JDBC42 
+/* ifdef JDBC42 */
         else if(object instanceof java.time.LocalDate)
         {     // @F5C
             java.time.LocalDate d = (java.time.LocalDate) object; 
@@ -460,7 +460,7 @@ extends SQLDataBase
             day_    = d.getDayOfMonth();
         }
 
-endif */
+/* endif */ 
         else {
           if (JDTrace.isTraceOn()) {
               if (object == null) { 
