@@ -38,11 +38,11 @@ implements WriterJobImpl
     {
         if (!fAttrIDsToRtvBuilt_)
         {
-            fAttrIDsToRtvBuilt_ = true;
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBNAME);       // writer job name
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBNUM);        // writer job number
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBSTS);        // writer job status
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBUSER);       // writer job user name
+            fAttrIDsToRtvBuilt_ = true;
         }
     }
 
