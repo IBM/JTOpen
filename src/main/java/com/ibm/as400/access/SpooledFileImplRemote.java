@@ -138,7 +138,6 @@ implements SpooledFileImpl
     {
         if (!fAttrIDsToRtvBuilt_)
         {
-            fAttrIDsToRtvBuilt_ = true;
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_3812SCS);       // 3812 SCS (fonts)
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_ACCOUNT_CODE);  // Accounting code
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_AFP);           // AFP resources used
@@ -326,6 +325,7 @@ implements SpooledFileImpl
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOBJLIB);  // *User defined object library
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOBJTYP);  // *User defined object type
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_USRDEFOPT);     // User defined options
+            fAttrIDsToRtvBuilt_ = true;
         }
     }
 
