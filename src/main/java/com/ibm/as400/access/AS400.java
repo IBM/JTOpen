@@ -24,7 +24,6 @@ import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.net.Socket;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
@@ -73,70 +72,39 @@ public class AS400 implements Serializable, AutoCloseable
     static final long serialVersionUID = 4L;
     private static final boolean PASSWORD_TRACE = false;
 
-    /**
-     Constant indicating the File service.
-     **/
+    /** Constant indicating the File service. **/
     public static final int FILE = 0;
-    /**
-     Constant indicating the Print service.
-     **/
+    /** Constant indicating the Print service.  **/
     public static final int PRINT = 1;
-    /**
-     Constant indicating the Command service.
-     **/
+    /** Constant indicating the Command service. **/
     public static final int COMMAND = 2;
-    /**
-     Constant indicating the Dataqueue service.
-     **/
+    /** Constant indicating the Dataqueue service. **/
     public static final int DATAQUEUE = 3;
-    /**
-     Constant indicating the Database service.
-     **/
+    /** Constant indicating the Database service. **/
     public static final int DATABASE = 4;
-    /**
-     Constant indicating the Record Access service.
-     **/
+    /** Constant indicating the Record Access service. **/
     public static final int RECORDACCESS = 5;
-    /**
-     Constant indicating the Central service.
-     **/
+    /** Constant indicating the Central service. **/
     public static final int CENTRAL = 6;
-    /**
-     Constant indicating the Sign-on service.
-     **/
+    /** Constant indicating the Sign-on service. **/
     public static final int SIGNON = 7;
-    /**
-     Constant indicating the Host connection service.
-     */
+    /** Constant indicating the Host connection service. */
     public static final int HOSTCNN = 8;
     
     // Constants 8-15 reserved for SSL versions of the above services.
 
-    /**
-     Special value indicating the service port should be retrieved from the port mapper server.
-     **/
+    /** Special value indicating the service port should be retrieved from the port mapper server. **/
     public static final int USE_PORT_MAPPER = -1;
 
-    /**
-     Constant indicating the authentication scheme is password.
-     **/
+    /** Constant indicating the authentication scheme is password. **/
     public static final int AUTHENTICATION_SCHEME_PASSWORD = 0;
-    /**
-     Constant indicating the authentication scheme is GSS token.
-     **/
+    /** Constant indicating the authentication scheme is GSS token. **/
     public static final int AUTHENTICATION_SCHEME_GSS_TOKEN = 1;
-    /**
-     Constant indicating the authentication scheme is profile token.
-     **/
+    /** Constant indicating the authentication scheme is profile token. **/
     public static final int AUTHENTICATION_SCHEME_PROFILE_TOKEN = 2;
-    /**
-     Constant indicating the authentication scheme is identity token.
-     **/
+    /** Constant indicating the authentication scheme is identity token. **/
     public static final int AUTHENTICATION_SCHEME_IDENTITY_TOKEN = 3;
-
-    /** 
-     * Constant representing the DDM_EUSERIDPWD scheme  @U4A
-     */
+    /** Constant representing the DDM_EUSERIDPWD scheme - only applicable to Record Access service. */
     public static final int AUTHENTICATION_SCHEME_DDM_EUSERIDPWD = 4;
     
     /**
@@ -158,32 +126,27 @@ public class AS400 implements Serializable, AutoCloseable
     public static final int GSS_OPTION_NONE = 2;
     
     /**
-    Constant indicating that encryption should only be done on the connection between the client and the proxy server.
+     Constant indicating that encryption should only be done on the connection between the client and the proxy server.
     **/
-   public static final int CLIENT_TO_PROXY_SERVER = 1;
+    public static final int CLIENT_TO_PROXY_SERVER = 1;
 
-   /**
-    Constant indicating that encryption should only be done on the connection between the proxy server and the system.
-    **/
-   public static final int PROXY_SERVER_TO_SERVER = 2;
+    /**
+     Constant indicating that encryption should only be done on the connection between the proxy server and the system.
+     **/
+    public static final int PROXY_SERVER_TO_SERVER = 2;
 
-   /**
-    @deprecated Use CLIENT_TO_SERVER instead.
-    **/
-   public static final int CLINT_TO_SERVER = 3;
+    /** @deprecated Use CLIENT_TO_SERVER instead. **/
+    public static final int CLINT_TO_SERVER = 3;
 
-   /**
-    Constant indicating that encryption should be done in both the connection between the client and the proxy server 
-    and the connection between the proxy server and the system.
-    **/
-   public static final int CLIENT_TO_SERVER = 3;
+    /**
+     Constant indicating that encryption should be done in both the connection between the client and the proxy server 
+     and the connection between the proxy server and the system.
+     **/
+    public static final int CLIENT_TO_SERVER = 3;
    
-   /**
-    * Indicate whether the cipher suites changed by the caller. We add this for iNav.
-    */
-    /* @P4A*/
-   public static boolean changeCipherSuites = false;
-   public static String[] newCipherSuites;
+    /** Indicate whether the cipher suites changed by the caller. We add this for iNav. */
+    public static boolean changeCipherSuites = false;
+    public static String[] newCipherSuites;
 
 
     // Determine if we are running on IBM i.
@@ -476,6 +439,7 @@ public class AS400 implements Serializable, AutoCloseable
      * @param systemName The name of the IBM i system. Use <code>localhost</code> to access data locally.
      * @param userId     The user profile name to use to authenticate to the system. If running on IBM i, *CURRENT may
      *                   be used to specify the current user ID.
+     * @exception ExtendedIllegalArgumentException If userId length is not valid.
      **/
     public AS400(String systemName, String userId)
     {
@@ -592,6 +556,7 @@ public class AS400 implements Serializable, AutoCloseable
      *                   be used to specify the current user ID.
      * @param password   The user profile password to use to authenticate to the system. If running on IBM i, CURRENT
      *                   may be used to specify the current user ID.
+     * @exception ExtendedIllegalArgumentException If userId length is not valid.
      * @deprecated Use AS400(String systemName, String userId, char[] password) instead
      **/
     @Deprecated
@@ -663,6 +628,7 @@ public class AS400 implements Serializable, AutoCloseable
      *                   be used to specify the current user ID.
      * @param password   The user profile password to use to authenticate to the system. The caller is responsible for
      *                   clearing the password array to keep the password from residing in memory.
+     * @exception ExtendedIllegalArgumentException If userId length is not valid.
      **/
     public AS400(String systemName, String userId, char[] password)
     {
@@ -744,6 +710,7 @@ public class AS400 implements Serializable, AutoCloseable
      *                   value *CURUSR is used.
      * @throws AS400SecurityException          If a security or authority error occurs.
      * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception ExtendedIllegalArgumentException If currentLib length is not valid.
      * @throws IOException                     If an error occurs while communicating with the system.
      * @throws InterruptedException            If this thread is interrupted.
      * @throws PropertyVetoException           If the recipient wishes the property change to be rolled back.
@@ -783,6 +750,7 @@ public class AS400 implements Serializable, AutoCloseable
      *                           *CURUSR is used.
      * @throws AS400SecurityException          If a security or authority error occurs.
      * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception ExtendedIllegalArgumentException If currentLib or librariesForThread lengths are not valid.
      * @throws IOException                     If an error occurs while communicating with the system.
      * @throws InterruptedException            If this thread is interrupted.
      * @throws PropertyVetoException           If the recipient wishes the property change to be rolled back.
@@ -902,6 +870,8 @@ public class AS400 implements Serializable, AutoCloseable
         if (userId.length() > 10)
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
+        setAdditionalAuthenticationFactor(additionalAuthFactor);
+
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
@@ -923,7 +893,6 @@ public class AS400 implements Serializable, AutoCloseable
         // that behavior, but we need to do so using two different credential vaults,
         // because each AS400 object must always have its very own credential vault.
         credVault_ = pwVault.clone();
-        setAdditionalAuthenticationFactor(additionalAuthFactor);
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
 
@@ -938,6 +907,7 @@ public class AS400 implements Serializable, AutoCloseable
      *                    may be used to specify the current user ID.
      * @param proxyServer The name and port of the proxy server in the format <code>serverName[:port]</code>. If no port
      *                    is specified, a default will be used.
+     * @exception ExtendedIllegalArgumentException If userId length is not valid.
      * @deprecated Use AS400((String systemName, String userId, char[] password, String proxyServer) instead.
      **/
     @Deprecated
@@ -994,6 +964,7 @@ public class AS400 implements Serializable, AutoCloseable
      *                    clearing sensitive data from password after the constructor runs.
      * @param proxyServer The name and port of the proxy server in the format <code>serverName[:port]</code>. If no port
      *                    is specified, a default will be used.
+     * @exception ExtendedIllegalArgumentException If userId length is not valid.
      **/
     public AS400(String systemName, String userId, char[] password, String proxyServer)
     {
@@ -1029,8 +1000,19 @@ public class AS400 implements Serializable, AutoCloseable
 
 
     /**
-     * Constructs an AS400 object. It uses the same system name and user ID. This does not create a clone. The new
-     * object has the same behavior, but results in a new set of socket connections.
+     * Constructs an AS400 object. This does not create a clone. The new AS400 object will 
+     * uses the same system name, user ID, and other properties of the passed-in AS400 object, 
+     * enabling the new object to generally behave in a similar manner as the passed-in AS400 object. 
+     * <P>
+     * <b>Notes:</b>
+     * <ul>
+     * <li>Host server connections are not shared between the passed-in AS400 object and the new AS400 object, except
+     *     for the HOSTCNN service connection, which is shared as long as the authentication credentials 
+     *     stay the same. 
+     * <li>Properties that are not propagated to the new AS400 object include event listeners (connection, property change, 
+     *     vetoable property change.). In addition, you will need to call the {@link #setStayAlive(long)} method on the new 
+     *     AS400 object if you want the feature enabled. 
+     * </ul>
      * 
      * @param system A previously instantiated AS400 object.
      **/
@@ -1103,7 +1085,6 @@ public class AS400 implements Serializable, AutoCloseable
             signonInfo_ = impl_.setState(system.impl_, credVault_);
             
             // Do not freeze properties as these need to be changed for new JDBC connections.
-            // propertiesFrozen_ = true;
         }
     }
 
@@ -1495,6 +1476,7 @@ public class AS400 implements Serializable, AutoCloseable
      * 
      * @return true if successful.
      * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ExtendedIllegalStateException  If system name or user ID not set.
      * @exception IOException            If an error occurs while communicating with the system.
      **/
     public boolean authenticate() throws AS400SecurityException, IOException
@@ -1713,6 +1695,7 @@ public class AS400 implements Serializable, AutoCloseable
      * @param newPassword          The new user profile password.
      * @param additionalAuthFactor Additional authentication factor (or null if not providing one).
      * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ExtendedIllegalStateException  If system name or user ID not set.
      * @exception IOException            If an error occurs while communicating with the system.
      **/
     public void changePassword(char[] oldPassword, char[] newPassword, char[] additionalAuthFactor) throws AS400SecurityException, IOException
@@ -1732,6 +1715,9 @@ public class AS400 implements Serializable, AutoCloseable
             throw new ExtendedIllegalStateException("systemName", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
         
+        if (additionalAuthFactor != null && additionalAuthFactor.length > ProfileTokenCredential.MAX_ADDITIONALAUTHENTICATIONFACTOR_LENGTH)
+            throw new ExtendedIllegalArgumentException("additionalAuthFactor", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+
         userId_ = resolveUserId(userId_);
         if (userId_.length() == 0)
         {
@@ -1916,6 +1902,7 @@ public class AS400 implements Serializable, AutoCloseable
     *                     </ul>
     * @param overridePort If non-negative, used to override the port to be used for the connection.
     * @exception AS400SecurityException If a security or authority error occurs.
+    * @exception ExtendedIllegalArgumentException If service is not valid.
     * @exception IOException            If an error occurs while communicating with the system.
     **/
     public void connectService(int service, int overridePort) throws AS400SecurityException, IOException
@@ -2016,6 +2003,7 @@ public class AS400 implements Serializable, AutoCloseable
      *                <li>{@link #SIGNON SIGNON} - sign-on classes.
      *                <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
      *                </ul>
+     * @exception ExtendedIllegalArgumentException If service is not valid.
      **/
     public void disconnectService(int service)
     {
@@ -2100,10 +2088,13 @@ public class AS400 implements Serializable, AutoCloseable
      * @param timeoutInterval The number of seconds to expiration when the token is created (1-3600).
      * @param verificationID       The verification ID that will be associated with profile token. The verification ID
      *                             is the label that identifies the specific application, service, or action associated
-     *                             with the profile token request. A null value will result in the host server using a
-     *                             default value.
+     *                             with the profile token request. A null value will result in the usage of the
+     *                             default value of QIBM_OS400_JT400.
      * @param remoteIPAddress      The remote IP address (the IP address of the requester) that will be associated with
-     *                             profile token. A null value will result in the host server using a default value.
+     *                             profile token. A null value will result in the usage of the local IP address returned
+     *                             on the connection to the host server, assuming that the profile token is being created
+     *                             by the host server.  If the profile token is being created by an ILE API, the remoteIPAddress
+     *                             will be null.
      * 
      * @return A ProfileTokenCredential representing the provided user identity.
      * @exception AS400SecurityException If a security or authority error occurs.
@@ -2147,6 +2138,7 @@ public class AS400 implements Serializable, AutoCloseable
      * @param release      The release.
      * @param modification The modification level.
      * @return The generated VRM.
+     * @exception ExtendedIllegalArgumentException If version, release, or modification is not valid. 
      **/
     public static int generateVRM(int version, int release, int modification)
     {
@@ -2372,6 +2364,7 @@ public class AS400 implements Serializable, AutoCloseable
      *                <li>{@link #HOSTCNN HOSTCNN} - host-connection classes.
      *                </ul>
      * @return The array of job objects.
+     * @exception ExtendedIllegalArgumentException If service is not valid.
      **/
     public Job[] getJobs(int service)
     {
@@ -2680,10 +2673,13 @@ public class AS400 implements Serializable, AutoCloseable
      * @param timeoutInterval The number of seconds to expiration when the token is created (1-3600).
      * @param verificationID       The verification ID that will be associated with profile token. The verification ID
      *                             is the label that identifies the specific application, service, or action associated
-     *                             with the profile token request. A null value will result in the host server using a
-     *                             default value.
+     *                             with the profile token request. A null value will result in the usage of the
+     *                             default value of QIBM_OS400_JT400.
      * @param remoteIPAddress      The remote IP address (the IP address of the requester) that will be associated with
-     *                             profile token. A null value will result in the host server using a default value.
+     *                             profile token. A null value will result in the usage of the local IP address returned
+     *                             on the connection to the host server, assuming that the profile token is being created
+     *                             by the host server.  If the profile token is being created by an ILE API, the remoteIPAddress
+     *                             will be null.
      * @return A ProfileTokenCredential representing the signed-on user.
      * @exception AS400SecurityException If a security or authority error occurs.
      * @exception IOException            If an error occurs while communicating with the system.
@@ -2903,12 +2899,16 @@ public class AS400 implements Serializable, AutoCloseable
      * @param timeoutInterval      The number of seconds to expiration when the token is created (1-3600).
      * @param verificationID       The verification ID that will be associated with profile token. The verification ID
      *                             is the label that identifies the specific application, service, or action associated
-     *                             with the profile token request. A null value will result in the host server using a
-     *                             default value.
+     *                             with the profile token request. A null value will result in the usage of the
+     *                             default value of QIBM_OS400_JT400.
      * @param remoteIPAddress      The remote IP address (the IP address of the requester) that will be associated with
-     *                             profile token. A null value will result in the host server using a default value.
+     *                             profile token. AA null value will result in the usage of the local IP address returned
+     *                             on the connection to the host server, assuming that the profile token is being created
+     *                             by the host server.  If the profile token is being created by an ILE API, the remoteIPAddress
+     *                             will be null.
      * @return A ProfileTokenCredential representing the authenticated profile and password.
      * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ExtendedIllegalArgumentException If userId length is not valid.
      * @exception IOException            If an error occurs while communicating with the system.
      * @exception InterruptedException   If this thread is interrupted.
      **/
@@ -3001,6 +3001,7 @@ public class AS400 implements Serializable, AutoCloseable
      * 
      * @param service The service represented by it's integer value.
      * @return The string representation of the service.
+     * @exception ExtendedIllegalArgumentException If service is not valid.
      */
     public static String getServerName(int service)
     {
@@ -3046,6 +3047,8 @@ public class AS400 implements Serializable, AutoCloseable
      *                </ul>
      * @return The port specified in the service port table. The value {@link #USE_PORT_MAPPER USE_PORT_MAPPER} will be
      *         returned if the service has not been set, and the service has not been connected.
+     * @exception ExtendedIllegalArgumentException If service is not valid.
+     * @exception ExtendedIllegalStateException  If system name not set.
      **/
     public int getServicePort(int service)
     {
@@ -3410,6 +3413,7 @@ public class AS400 implements Serializable, AutoCloseable
      *                <li>{@link #HOSTCNN HOSTCNN} - host connection classes.
      *                </ul>
      * @return true if service is connected; false otherwise.
+     * @exception ExtendedIllegalArgumentException If service is not valid.
      * @see #isConnectionAlive
      **/
     public boolean isConnected(int service)
@@ -3992,6 +3996,7 @@ public class AS400 implements Serializable, AutoCloseable
      * 
      * @param systemName The name of the IBM i system.
      * @param userId     The user profile name.
+     * @exception ExtendedIllegalArgumentException If userId length is not valid.
      **/
     public static void removePasswordCacheEntry(String systemName, String userId)
     {
@@ -4095,6 +4100,7 @@ public class AS400 implements Serializable, AutoCloseable
         signonInfo_ = null;
         propertiesFrozen_ = false;
         ccsid_ = 0;
+        stayAliveMilliSeconds_ = 0; // This will end the thread if there is one. 
     }
 
     // Resolves the proxy server name.  If it is not specified, then look it up in the system properties.  Returns empty string if not set.
@@ -4272,14 +4278,22 @@ public class AS400 implements Serializable, AutoCloseable
      * connections if the IBM i server supports multifactor authentication.
      * 
      * @param additionalAuthFactor The additional authentication factor.
+     * @exception ExtendedIllegalArgumentException If additionalAuthFactor length is not valid.
      */
     public void setAdditionalAuthenticationFactor(char[] additionalAuthFactor)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting additional authentication factor. Length: " 
                      + ((additionalAuthFactor == null) ? 0 : additionalAuthFactor.length));
 
-        additionalAuthenticationFactor_ = (null != additionalAuthFactor && 0 < additionalAuthFactor.length ) 
-                ?  Arrays.copyOf(additionalAuthFactor, additionalAuthFactor.length) : null;
+        if (additionalAuthFactor == null || additionalAuthFactor.length == 0)
+            additionalAuthenticationFactor_ = null;
+        else
+        {
+            if (additionalAuthFactor.length > ProfileTokenCredential.MAX_ADDITIONALAUTHENTICATIONFACTOR_LENGTH)
+                throw new ExtendedIllegalArgumentException("additionalAuthFactor", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+            
+            additionalAuthenticationFactor_ = Arrays.copyOf(additionalAuthFactor, additionalAuthFactor.length);
+        }
         
         if (impl_ != null)
             impl_.setAdditionalAuthenticationFactor(additionalAuthenticationFactor_);
@@ -4315,6 +4329,7 @@ public class AS400 implements Serializable, AutoCloseable
      * has been established.
      * 
      * @param ccsid The CCSID to use for this object.
+     * @exception ExtendedIllegalStateException  If a connection has already been made.
      * @exception PropertyVetoException If any of the registered listeners vetos the property change.
      **/
     public void setCcsid(int ccsid) throws PropertyVetoException
@@ -4352,6 +4367,8 @@ public class AS400 implements Serializable, AutoCloseable
      * @param ddmRDB The name of the IASP or RDB to use, or null to indicate the default system ASP should be used.
      * @see #isConnected(int)
      * @see #getDDMRDB
+     * @exception ExtendedIllegalArgumentException If ddmRDB length is not valid.
+     * @exception ExtendedIllegalStateException  If a connection has already been made.
      **/
     public void setDDMRDB(String ddmRDB)
     {
@@ -4407,6 +4424,7 @@ public class AS400 implements Serializable, AutoCloseable
      * @param systemName The name of the IBM i system.
      * @param userId     The user profile name.
      * @return true if default user has been set; false otherwise.
+     * @exception ExtendedIllegalArgumentException If userId length is not valid.
      **/
     public static boolean setDefaultUser(String systemName, String userId)
     {
@@ -4497,6 +4515,7 @@ public class AS400 implements Serializable, AutoCloseable
      *                  <li>{@link #GSS_OPTION_FALLBACK GSS_OPTION_FALLBACK}
      *                  <li>{@link #GSS_OPTION_NONE GSS_OPTION_NONE}
      *                  </ul>
+     * @exception ExtendedIllegalArgumentException If gssOption is not valid.
      **/
     public void setGSSOption(int gssOption)
     {
@@ -4572,6 +4591,7 @@ public class AS400 implements Serializable, AutoCloseable
      * NLV.
      * 
      * @param locale The Locale object.
+     * @exception ExtendedIllegalStateException  If a connection has already been made.
      **/
     public void setLocale(Locale locale)
     {
@@ -4608,6 +4628,7 @@ public class AS400 implements Serializable, AutoCloseable
      * 
      * @param locale The Locale object.
      * @param nlv    The NLV.
+     * @exception ExtendedIllegalStateException  If a connection has already been made.
      **/
     public void setLocale(Locale locale, String nlv)
     {
@@ -4640,6 +4661,7 @@ public class AS400 implements Serializable, AutoCloseable
      * <tt>com.ibm.as400.access.AS400.mustAddLanguageLibrary</tt>
      * 
      * @param mustAddLanguageLibrary true to add language library; false otherwise.
+     * @exception ExtendedIllegalStateException  If a connection has already been made.
      **/
     public void setMustAddLanguageLibrary(boolean mustAddLanguageLibrary)
     {
@@ -4677,6 +4699,7 @@ public class AS400 implements Serializable, AutoCloseable
      * <tt>com.ibm.as400.access.AS400.mustUseSockets</tt>
      * 
      * @param mustUseSockets true to use sockets; false otherwise.
+     * @exception ExtendedIllegalStateException  If a connection has already been made.
      **/
     public void setMustUseSockets(boolean mustUseSockets)
     {
@@ -4710,6 +4733,7 @@ public class AS400 implements Serializable, AutoCloseable
      * <tt>com.ibm.as400.access.AS400.mustUseNetSockets</tt>
      * 
      * @param mustUseNetSockets true to use Internet domain sockets only; false otherwise.
+     * @exception ExtendedIllegalStateException  If a connection has already been made.
      **/
     public void setMustUseNetSockets(boolean mustUseNetSockets)
     {
@@ -4743,6 +4767,7 @@ public class AS400 implements Serializable, AutoCloseable
      * <tt>com.ibm.as400.access.AS400.mustUseSuppliedProfile</tt>
      * 
      * @param mustUseSuppliedProfile true to use a supplied profile only; false otherwise.
+     * @exception ExtendedIllegalStateException  If a connection has already been made.
      **/
     public void setMustUseSuppliedProfile(boolean mustUseSuppliedProfile)
     {
@@ -4841,6 +4866,7 @@ public class AS400 implements Serializable, AutoCloseable
      * 
      * @param proxyServer The name and port of the proxy server in the format <code>serverName[:port]</code>. If no port
      *                    is specified, a default will be used.
+     * @exception ExtendedIllegalStateException  If a connection has already been made.
      * @exception PropertyVetoException If any of the registered listeners vetos the property change.
      **/
     public void setProxyServer(String proxyServer) throws PropertyVetoException
@@ -4887,6 +4913,8 @@ public class AS400 implements Serializable, AutoCloseable
      * @param port    The port to use for this service. The value {@link #USE_PORT_MAPPER USE_PORT_MAPPER} can be used
      *                to specify that the next connection to this service should ask the port mapper server for the port
      *                number.
+     * @exception ExtendedIllegalArgumentException If service or port is not valid.
+     * @exception ExtendedIllegalStateException  If system name has not been set.
      **/
     public void setServicePort(int service, int port)
     {
@@ -4915,6 +4943,8 @@ public class AS400 implements Serializable, AutoCloseable
      * causes the connections to this system name to use the default ports for those services rather than querying the
      * port number through a port mapper connection. The use of this method can reduce the number of connections made to
      * the system.
+     * 
+     * @exception ExtendedIllegalStateException  If system name has not been set.
      **/
     public void setServicePortsToDefault()
     {
@@ -4962,22 +4992,84 @@ public class AS400 implements Serializable, AutoCloseable
         signonHandler_ = handler;
     }
 
+    private volatile long stayAliveMilliSeconds_ = 0;
+    private class StayAliveThread extends Thread
+    {
+        @Override
+        public void run()
+        {
+            while (stayAliveMilliSeconds_ > 0)
+            {
+                try 
+                {
+                    sleep(stayAliveMilliSeconds_);
+                    
+                    boolean bDATABASE   = isConnectionAlive(AS400.DATABASE);
+                    boolean bCOMMAND    = isConnectionAlive(AS400.COMMAND);
+                    boolean bDATAQUEUE  = isConnectionAlive(AS400.DATAQUEUE);
+                    boolean bFILE       = isConnectionAlive(AS400.FILE);
+                    boolean bPRINT      = isConnectionAlive(AS400.PRINT);
+                    boolean bHOSTCNN    = isConnectionAlive(AS400.HOSTCNN);
+                    
+                    if (Trace.traceOn_) 
+                    {
+                        Trace.log(Trace.DIAGNOSTIC, "Stayalive status of services: " 
+                                + "DATABASE=" + bDATABASE + ", "
+                                + "COMMAND=" + bCOMMAND + ", "
+                                + "DATAQUEUE=" + bDATAQUEUE + ", "
+                                + "FILE=" + bFILE + ", "
+                                + "PRINT=" + bPRINT + ", "
+                                + "HOSTCNN=" + bHOSTCNN);
+                    }
+                }
+                catch (Exception e) {
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Stayalive thread exception ignored. ", e);
+                }
+            }
+        }
+    }
+    private StayAliveThread stayAliveThread_;
+    
     /**
      * Set the stay-alve interval. When enabled, a request is sent at the specified milliseconds interval to all
      * currently opened connections to help keep the connections alive. This is sometimes needed to prevent firewalls
-     * from dropping stale connections. The use of this method applies only to connections created after this method is
-     * called. This stay-alive functionality only applies to connections to the following host servers: {@link #COMMAND
-     * COMMAND}, {@link #DATABASE DATABASE}, {@link #DATAQUEUE DATAQUEUE}, {@link #FILE FILE}, and {@link #PRINT PRINT}.
+     * from dropping stale connections.  
      * <P>
-     * NOTE: NOT YET IMPLEMENTED. 
+     * This stay-alive functionality only applies to connections to the following host servers: {@link #COMMAND
+     * COMMAND}, {@link #DATABASE DATABASE}, {@link #DATAQUEUE DATAQUEUE}, {@link #FILE FILE}, {@link #PRINT PRINT}, and
+     * {@link #HOSTCNN HOSTCNN}.
+     * <p>
+     * <b>Notes:</b>
+     * <ul>
+     * <li>A background thread is used to ensure the connections stay alive. Any errors that occur while attempting
+     * to ensure connections are alive are ignored. 
+     * <li>If {@link #resetAllServices()} is called on the object, the number of milliseconds is set to zero.  You will 
+     *     need to invoke setStayAlive() method to re-enable the stay-alive functionality. 
+     * </ul>
      * 
      * @param milliseconds The number of milliseconds between requests to the server. If set to zero, then this
-     *                     stay-alive capability will not be used.
+     *                     stay-alive capability will not be used. 
+     *                     
+     * @exception ExtendedIllegalArgumentException  if the value of milliseconds is negative.
      **/
-    public void setStayAlive(long milliseconds)
+    synchronized public void setStayAlive(long milliseconds)
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting stay-alive: " + milliseconds);
-        //TODO: implement
+                
+        // Validate parameter. 
+        if (milliseconds < 0)
+            throw new ExtendedIllegalArgumentException("milliseconds (" + milliseconds + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+
+        stayAliveMilliSeconds_ = milliseconds;
+        
+        if (stayAliveMilliSeconds_ > 0 && (stayAliveThread_ == null || !stayAliveThread_.isAlive()))
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating stayalive thread.");
+
+            stayAliveThread_ = new StayAliveThread();
+            stayAliveThread_.setDaemon(true);
+            stayAliveThread_.start();
+        }
     }
 
     /**
@@ -4985,6 +5077,8 @@ public class AS400 implements Serializable, AutoCloseable
      * cannot be changed once a connection to the system has been established.
      * 
      * @param socketProperties The set of socket options to set. The options are copied from this object, not shared.
+     * 
+     * @exception ExtendedIllegalStateException  if a connection has already been made.
      **/
     public void setSocketProperties(SocketProperties socketProperties)
     {
@@ -5005,6 +5099,7 @@ public class AS400 implements Serializable, AutoCloseable
      * established.
      * 
      * @param systemName The name of the IBM i system. Use <code>localhost</code> to access data locally.
+     * @exception ExtendedIllegalStateException  if a connection has already been made.
      * @exception PropertyVetoException If any of the registered listeners vetos the property change.
      **/
     public void setSystemName(String systemName) throws PropertyVetoException
@@ -5051,6 +5146,7 @@ public class AS400 implements Serializable, AutoCloseable
      * <tt>com.ibm.as400.access.AS400.threadUsed</tt>
      * 
      * @param useThreads true to use threads; false otherwise.
+     * @exception ExtendedIllegalStateException  If a connection has already been made.
      * @exception PropertyVetoException If any of the registered listeners vetos the property change.
      **/
     public void setThreadUsed(boolean useThreads) throws PropertyVetoException
@@ -5144,6 +5240,8 @@ public class AS400 implements Serializable, AutoCloseable
      * user profile associated with the authentication token must match this user ID.
      * 
      * @param userId The user profile name.
+     * @exception ExtendedIllegalArgumentException If userId length is not valid.
+     * @exception ExtendedIllegalStateException  If a connection has already been made.
      * @exception PropertyVetoException If any of the registered listeners vetos the property change.
      **/
     public void setUserId(String userId) throws PropertyVetoException
@@ -5330,6 +5428,7 @@ public class AS400 implements Serializable, AutoCloseable
      * 
      * @return true if successful.
      * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ExtendedIllegalStateException  If system name or user ID is not set.
      * @exception IOException            If an error occurs while communicating with the system.
      **/
     public boolean validateSignon() throws AS400SecurityException, IOException
@@ -5393,6 +5492,7 @@ public class AS400 implements Serializable, AutoCloseable
      * @param password The user profile password to validate.
      * @return true if successful.
      * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ExtendedIllegalStateException  If system name or user ID is not set.
      * @exception IOException            If an error occurs while communicating with the system.
      **/
     public boolean validateSignon(char[] password) throws AS400SecurityException, IOException
@@ -5483,6 +5583,8 @@ public class AS400 implements Serializable, AutoCloseable
      * @param additionalAuthFactor Additional authentication factor (or null if not providing one).
      * @return true if successful.
      * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ExtendedIllegalArgumentException If userId or additionalAuthFactor length is not valid.
+     * @exception ExtendedIllegalStateException  If system name or is not set.
      * @exception IOException            If an error occurs while communicating with the system.
      **/
     public boolean validateSignon(String userId, char[] password, char[] additionalAuthFactor) throws AS400SecurityException, IOException
@@ -5494,6 +5596,9 @@ public class AS400 implements Serializable, AutoCloseable
 
         if (userId.length() > 10)
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
+        
+        if (additionalAuthFactor != null && additionalAuthFactor.length > ProfileTokenCredential.MAX_ADDITIONALAUTHENTICATIONFACTOR_LENGTH)
+            throw new ExtendedIllegalArgumentException("additionalAuthFactor", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
         checkPasswordNullAndLength(password, "password");
  
@@ -5704,6 +5809,16 @@ public class AS400 implements Serializable, AutoCloseable
         }
     }
     
+    
+    // Called during garbage collections - Cleans up all connections and daemon threads
+    @Override
+    protected void finalize() throws Throwable
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Finalize method for AS400 invoked.");
+
+        resetAllServices();
+    }
+    
     /**
      * Returns true if host server communications is performed over a secure channel.
      * <p>
@@ -5763,6 +5878,7 @@ public class AS400 implements Serializable, AutoCloseable
     * <b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
     * 
     * @param keyRingName The key ring class name.
+    * @exception ExtendedIllegalStateException  If object is not a secure instance. 
     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
     **/
    public void setKeyRingName(String keyRingName) throws PropertyVetoException
@@ -5781,6 +5897,7 @@ public class AS400 implements Serializable, AutoCloseable
     * 
     * @param keyRingName     The key ring class name.
     * @param keyRingPassword The password for the key ring class.
+    * @exception ExtendedIllegalStateException  If object is not a secure instance. 
     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
     **/
    public void setKeyRingName(String keyRingName, String keyRingPassword) throws PropertyVetoException
@@ -5797,6 +5914,7 @@ public class AS400 implements Serializable, AutoCloseable
     * <b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
     * 
     * @param keyRingPassword The password for the key ring class.
+    * @exception ExtendedIllegalStateException  If object is not a secure instance. 
     * @deprecated
     **/
    @Deprecated
@@ -5820,6 +5938,9 @@ public class AS400 implements Serializable, AutoCloseable
     * <b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
     * 
     * @param proxyEncryptionMode The proxy encryption mode.
+    * 
+    * @exception ExtendedIllegalArgumentException If proxyEncryptionMode value is not valid.
+    * @exception ExtendedIllegalStateException  If object is not a secure instance. 
     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
     **/
    public void setProxyEncryptionMode(int proxyEncryptionMode) throws PropertyVetoException
@@ -5858,6 +5979,8 @@ public class AS400 implements Serializable, AutoCloseable
     * <b>Note:</b>An exception will be thrown if the AS400 object is not an instance of SecureAS400.
     * 
     * @param suites Array of cipher suites.
+    * 
+    * @exception ExtendedIllegalStateException  If object is not a secure instance. 
     **/
     public void setEnabledCipherSuites(String[] suites)
     {

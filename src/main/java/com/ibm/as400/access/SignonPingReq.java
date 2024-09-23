@@ -38,7 +38,7 @@ class SignonPingReq extends ClientAccessDataStream
 
     void write(OutputStream out) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending signon server ping request...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending ping request...");
         super.write(out);
     }
 }

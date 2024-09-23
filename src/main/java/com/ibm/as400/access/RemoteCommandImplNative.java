@@ -23,80 +23,69 @@ import java.io.IOException;
 // The RemoteCommandImplNative class is the native implementation of CommandCall and ProgramCall.
 class RemoteCommandImplNative extends RemoteCommandImplRemote
 {
-  private static final String CLASSNAME = "com.ibm.as400.access.RemoteCommandImplNative";
-  static
-  {
-    if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
-  }
-
+    private static final String CLASSNAME = "com.ibm.as400.access.RemoteCommandImplNative";
     static
     {
- 	   NativeMethods.loadNativeLibraryQyjspart(); 
+        if (Trace.traceOn_)
+            Trace.logLoadPath(CLASSNAME);
+        
+        NativeMethods.loadNativeLibraryQyjspart();
     }
 
-    // Report whether the RemoteCommandImpl object is a native object.
-    public boolean isNative()
-    {
-      return true;
+    @Override
+    public boolean isNative() {
+        return true;
     }
 
-    // Connects to the server.
-    // @param threadSafety  The assumed thread safety of the command/program.
+    @Override
     protected void open(Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-      // Note:  LOOKUP_THREADSAFETY is null so == must be used
-      if ((LOOKUP_THREADSAFETY == threadSafety) || OFF_THREAD.equals(threadSafety)) {
-        openOffThread();
-      }
-      else {
-        openOnThread();
-      }
+        // Note: LOOKUP_THREADSAFETY is null so == must be used
+        if ((LOOKUP_THREADSAFETY == threadSafety) || OFF_THREAD.equals(threadSafety))
+            openOffThread();
+        else
+            openOnThread();
     }
 
+    @Override
     protected void openOnThread() throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native implementation object open.");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native implementation object open.");
 
-      // If converter was not set with a user override ccsid, set converter to job ccsid.
-      if (!ccsidIsUserOveride_ && (converter_ == null))
-      {
-        converter_ = ConverterImplRemote.getConverter(system_.getCcsid(), system_);
-      }
-      if (AS400.nativeVRM.getVersionReleaseModification()>= 0x00050300)
-      {
-        if (AS400.nativeVRM.getVersionReleaseModification()>= 0x00060100)
+        // If converter was not set with a user override ccsid, set converter to job ccsid.
+        if (!ccsidIsUserOveride_ && (converter_ == null))
+            converter_ = ConverterImplRemote.getConverter(system_.getCcsid(), system_);
+
+        if (AS400.nativeVRM.getVersionReleaseModification() >= 0x00050300) 
         {
-          serverDataStreamLevel_ = 10;
-          if (unicodeConverter_ == null) {
-            unicodeConverter_ = ConverterImplRemote.getConverter(1200, system_);
-          }
+            if (AS400.nativeVRM.getVersionReleaseModification() >= 0x00060100)
+            {
+                serverDataStreamLevel_ = 10;
+                if (unicodeConverter_ == null)
+                    unicodeConverter_ = ConverterImplRemote.getConverter(1200, system_);
+            }
+            else
+                serverDataStreamLevel_ = 7;
         }
-        else
+
+        // Set the secondary language library on the server.
+        if (system_.isMustAddLanguageLibrary() && !system_.isSkipFurtherSettingOfLanguageLibrary())
         {
-          serverDataStreamLevel_ = 7;
+            // Note: If we were going through the Remote Command Host Server, the host server would set the secondary
+            // language library for us.
+            // Since we're not using the host server, we need to handle this ourselves.
+            // We need to do this on every open, since several different threads may be using this RemoteCommandImpl
+            // object.
+
+            // Retrieve the name of the secondary language library (if any).
+            String secLibName = retrieveSecondaryLanguageLibName(); // never returns null
+            // Set the NLV on server to match the client's locale.
+            if (secLibName.length() != 0)
+                setNlvOnServer(secLibName);
+
+            // Retain result, to avoid repeated library lookups for same system object.
+            system_.setLanguageLibrary(secLibName);
         }
-      }
-
-      // Set the secondary language library on the server.
-      if (system_.isMustAddLanguageLibrary() &&
-          !system_.isSkipFurtherSettingOfLanguageLibrary()) // see if we should try
-      {
-        // Note: If we were going through the Remote Command Host Server, the host server would set the secondary language library for us.
-        // Since we're not using the host server, we need to handle this ourselves.
-        // We need to do this on every open, since several different threads may be using this RemoteCommandImpl object.
-
-        // Retrieve the name of the secondary language library (if any).
-        String secLibName = retrieveSecondaryLanguageLibName();  // never returns null
-        // Set the NLV on server to match the client's locale.
-        if (secLibName.length() != 0)
-        {
-          setNlvOnServer(secLibName);
-        }
-        // Retain result, to avoid repeated library lookups for same system object.
-        system_.setLanguageLibrary(secLibName);
-        // Set to non-null, to indicate we already looked-up the value.
-      }
-
     }
 
 
@@ -104,234 +93,245 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // If fail to retrieve library name, or name is blank, returns "".
     private String retrieveSecondaryLanguageLibName()
     {
-      String secLibName = system_.getLanguageLibrary();
-      if (secLibName == null)  // 'null' implies not already looked-up
-      {
-        String clientNLV = system_.getNLV(); // NLV of client (based on locale)
-        try
+        String secLibName = system_.getLanguageLibrary();
+        if (secLibName == null) // 'null' implies not already looked-up
         {
-          int ccsid = system_.getCcsid();
-          ConvTable conv = ConvTable.getTable(ccsid, null);
+            String clientNLV = system_.getNLV(); // NLV of client (based on locale)
+            try
+            {
+                int ccsid = system_.getCcsid();
+                ConvTable conv = ConvTable.getTable(ccsid, null);
 
-          ProgramParameter[] parameterList = new ProgramParameter[6];
-          int len = 108+10; // length of PRDR0100, plus first 10 bytes of PRDR0200
-          parameterList[0] = new ProgramParameter(len); // receiver variable - PRDR0100 plus first 10 bytes of PRDR0200
-          parameterList[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver variable
-          parameterList[2] = new ProgramParameter(conv.stringToByteArray("PRDR0200")); // format name
+                ProgramParameter[] parameterList = new ProgramParameter[6];
+                int len = 108 + 10; // length of PRDR0100, plus first 10 bytes of PRDR0200
+                parameterList[0] = new ProgramParameter(len); // receiver variable - PRDR0100 plus first 10 bytes of
+                                                              // PRDR0200
+                parameterList[1] = new ProgramParameter(BinaryConverter.intToByteArray(len)); // length of receiver
+                                                                                              // variable
+                parameterList[2] = new ProgramParameter(conv.stringToByteArray("PRDR0200")); // format name
 
-          byte[] productInfo = new byte[36];  // product information
-          AS400Text text4 = new AS400Text(4, ccsid, system_);
-          AS400Text text6 = new AS400Text(6, ccsid, system_);
-          AS400Text text7 = new AS400Text(7, ccsid, system_);
-          AS400Text text10 = new AS400Text(10, ccsid, system_);
-          text7.toBytes("*OPSYS", productInfo, 0);  // product ID
-          text6.toBytes("*CUR", productInfo, 7);  // release level
-          text4.toBytes("0000", productInfo, 13);  // product option
-          text10.toBytes(clientNLV, productInfo, 17); // load ID (specifies desired NLV)
-          BinaryConverter.intToByteArray(36, productInfo, 28);  // length of product information parm
-          BinaryConverter.intToByteArray(ccsid, productInfo, 32);  // ccsid for returned directory
-          parameterList[3] = new ProgramParameter(productInfo); // product information
-          parameterList[4] = new ProgramParameter(new byte[4]); // error code
-          parameterList[5] = new ProgramParameter(conv.stringToByteArray("PRDI0200")); // product information format name
+                byte[] productInfo = new byte[36]; // product information
+                AS400Text text4 = new AS400Text(4, ccsid, system_);
+                AS400Text text6 = new AS400Text(6, ccsid, system_);
+                AS400Text text7 = new AS400Text(7, ccsid, system_);
+                AS400Text text10 = new AS400Text(10, ccsid, system_);
+                text7.toBytes("*OPSYS", productInfo, 0); // product ID
+                text6.toBytes("*CUR", productInfo, 7); // release level
+                text4.toBytes("0000", productInfo, 13); // product option
+                text10.toBytes(clientNLV, productInfo, 17); // load ID (specifies desired NLV)
+                BinaryConverter.intToByteArray(36, productInfo, 28); // length of product information parm
+                BinaryConverter.intToByteArray(ccsid, productInfo, 32); // ccsid for returned directory
+                parameterList[3] = new ProgramParameter(productInfo); // product information
+                parameterList[4] = new ProgramParameter(new byte[4]); // error code
+                parameterList[5] = new ProgramParameter(conv.stringToByteArray("PRDI0200")); // product information
+                                                                                             // format name
 
-          // Call QSZRTVPR (Retrieve Product Information) to retrieve the library for the secondary language.
-          // Note: QSZRTVPR is documented as non-threadsafe. However, the API owner has indicated that this API will never alter the state of the system, and that it cannot damage the system; so it can safely be called on-thread.
-          boolean succeeded = runProgramOnThread("QSYS", "QSZRTVPR", parameterList, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
-          // Note: This method is only called from within open().
-          // The final parm indicates that the on-thread open() has already been done (on this thread).
+                // Call QSZRTVPR (Retrieve Product Information) to retrieve the library for the secondary language.
+                // Note: QSZRTVPR is documented as non-threadsafe. However, the API owner has indicated that this API
+                // will never alter the state of the system, and that it cannot damage the system; so it can safely be
+                // called on-thread.
+                boolean succeeded = runProgramOnThread("QSYS", "QSZRTVPR", parameterList, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
+                // Note: This method is only called from within open().
+                // The final parm indicates that the on-thread open() has already been done (on this thread).
 
-          if (!succeeded)
-          {
-            Trace.log(Trace.WARNING, "Unable to retrieve secondary language library name for NLV " + clientNLV, new AS400Exception(messageList_));
-          }
-          else
-          {
-            byte[] outputData = parameterList[0].getOutputData();
-            int offsetToAddlInfo = BinaryConverter.byteArrayToInt(outputData, 84);
-            secLibName = conv.byteArrayToString(outputData, offsetToAddlInfo, 10).trim();
-            if (secLibName.length() == 0) {
-              Trace.log(Trace.WARNING, "Unable to retrieve secondary language library name for NLV " + clientNLV + ": Blank library name returned.");
+                if (!succeeded) {
+                    Trace.log(Trace.WARNING, "Unable to retrieve secondary language library name for NLV " + clientNLV, new AS400Exception(messageList_));
+                }
+                else
+                {
+                    byte[] outputData = parameterList[0].getOutputData();
+                    int offsetToAddlInfo = BinaryConverter.byteArrayToInt(outputData, 84);
+                    secLibName = conv.byteArrayToString(outputData, offsetToAddlInfo, 10).trim();
+                    if (secLibName.length() == 0) {
+                        Trace.log(Trace.WARNING, "Unable to retrieve secondary language library name for NLV "
+                                + clientNLV + ": Blank library name returned.");
+                    }
+                }
             }
-          }
+            catch (Throwable t) {
+                Trace.log(Trace.WARNING, "Unable to retrieve secondary language library name for NLV " + clientNLV, t);
+            }
         }
-        catch (Throwable t) {
-          Trace.log(Trace.WARNING, "Unable to retrieve secondary language library name for NLV " + clientNLV, t);
-        }
-      }
 
-      return (secLibName == null ? "" : secLibName);
+        return (secLibName == null ? "" : secLibName);
     }
 
     // Sets the NLV (for the current thread) on the server, so that system msgs are returned in correct language.
     private void setNlvOnServer(String secondaryLibraryName)
     {
-      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native implementation object setting national language for messages.");
-      try
-      {
-        // Call CHGSYSLIBL (Change System Library List) to add the library for the secondary language.
-        // Note: According to the spec, CHGSYSLIBL "changes the system portion of the library list for the current thread".
-        // Prior to V6R1, CHGSYSLIBL is documented as non-threadsafe.  However, the CL owner has indicated that this CL has actually been threadsafe all along, and that it cannot damage the system; so it can safely be called on-thread.
-        // At worst, if system value QMLTTHDACN == 3, the system will simply refuse to execute the command.  In which case, the secondary language library won't get added.
-        String cmd = "QSYS/CHGSYSLIBL LIB("+secondaryLibraryName+") OPTION(*ADD)";
-        boolean succeeded = runCommandOnThread(cmd, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
-        // Note: This method is only called from within open().
-        // The final parm indicates that the on-thread open() has already been done (on this thread).
-
-        if (!succeeded)
+        if (Trace.traceOn_)
+            Trace.log(Trace.DIAGNOSTIC, "Native implementation object setting national language for messages.");
+        
+        try
         {
-          if (messageList_.length !=0)
-          {
-            if (messageList_[0].getID().equals("CPF2103")) // lib is already in list
+            // Call CHGSYSLIBL (Change System Library List) to add the library for the secondary language.
+            // Note: According to the spec, CHGSYSLIBL "changes the system portion of the library list for the current
+            // thread".
+            // Prior to V6R1, CHGSYSLIBL is documented as non-threadsafe. However, the CL owner has indicated that this
+            // CL has actually been threadsafe all along, and that it cannot damage the system; so it can safely be
+            // called on-thread.
+            // At worst, if system value QMLTTHDACN == 3, the system will simply refuse to execute the command. In which
+            // case, the secondary language library won't get added.
+            String cmd = "QSYS/CHGSYSLIBL LIB(" + secondaryLibraryName + ") OPTION(*ADD)";
+            boolean succeeded = runCommandOnThread(cmd, AS400Message.MESSAGE_OPTION_UP_TO_10, true);
+            // Note: This method is only called from within open().
+            // The final parm indicates that the on-thread open() has already been done (on this thread).
+
+            if (!succeeded)
             {
-              // Tolerate this error.  It means that we're good to go.
-              // If this is the very first native open() for this system_, set flag to indicate that the lib is already in list by default.  This will eliminate clutter in the job log, from subsequent attempts to set it.
-              if (system_.getLanguageLibrary() == null) { // null implies first native open
-                system_.setSkipFurtherSettingOfLanguageLibrary(); // don't keep trying on subsequent open's
-              }
+                if (messageList_.length != 0)
+                {
+                    if (messageList_[0].getID().equals("CPF2103")) // lib is already in list
+                    {
+                        // Tolerate this error. It means that we're good to go.
+                        // If this is the very first native open() for this system_, set flag to indicate that the lib
+                        // is already in list by default. This will eliminate clutter in the job log, from subsequent
+                        // attempts to set it.
+                        if (system_.getLanguageLibrary() == null) { // null implies first native open
+                            system_.setSkipFurtherSettingOfLanguageLibrary(); // don't keep trying on subsequent open's
+                        }
+                    }
+                    else if (messageList_[0].getID().equals("CPD0032")) // not auth'd to call CHGSYSLIBL
+                    {
+                        system_.setSkipFurtherSettingOfLanguageLibrary(); // don't keep trying on subsequent open's
+                        Trace.log(Trace.DIAGNOSTIC,
+                                "Profile " + system_.getUserId()
+                                        + " not authorized to use CHGSYSLIBL to add secondary language library "
+                                        + secondaryLibraryName + " to liblist.");
+                        // Note: The Remote Command Host Server runs this command under greater authority.
+                    }
+                    else if (messageList_[0].getID().equals("CPF2110")) // library not found
+                    {
+                        system_.setSkipFurtherSettingOfLanguageLibrary(); // don't keep trying on subsequent open's
+                        Trace.log(Trace.WARNING, "Secondary language library " + secondaryLibraryName + " was not found.");
+                    }
+                    else
+                    {
+                        Trace.log(Trace.ERROR, "Unable to add secondary language library " + secondaryLibraryName
+                                + " to library list.", new AS400Exception(messageList_));
+                    }
+                }
+                else // no system messages returned
+                    Trace.log(Trace.WARNING, "Unable to add secondary language library " + secondaryLibraryName + " to library list.");
             }
-            else if (messageList_[0].getID().equals("CPD0032")) // not auth'd to call CHGSYSLIBL
-            {
-              system_.setSkipFurtherSettingOfLanguageLibrary(); // don't keep trying on subsequent open's
-              Trace.log(Trace.DIAGNOSTIC, "Profile " + system_.getUserId() + " not authorized to use CHGSYSLIBL to add secondary language library " + secondaryLibraryName + " to liblist.");
-              // Note: The Remote Command Host Server runs this command under greater authority.
-            }
-            else if (messageList_[0].getID().equals("CPF2110")) // library not found
-            {
-              system_.setSkipFurtherSettingOfLanguageLibrary();  // don't keep trying on subsequent open's
-              Trace.log(Trace.WARNING, "Secondary language library " + secondaryLibraryName + " was not found.");
-            }
-            else
-            {
-              Trace.log(Trace.ERROR, "Unable to add secondary language library " + secondaryLibraryName + " to library list.", new AS400Exception(messageList_));
-            }
-          }
-          else  // no system messages returned
-          {
-            Trace.log(Trace.WARNING, "Unable to add secondary language library " + secondaryLibraryName + " to library list.");
-          }
         }
-      }
-      catch (Throwable t)
-      {
-        Trace.log(Trace.WARNING, "Failed to add secondary language library " + secondaryLibraryName + " to library list.", t);
-      }
+        catch (Throwable t) {
+            Trace.log(Trace.WARNING, "Failed to add secondary language library " + secondaryLibraryName + " to library list.", t);
+        }
     }
 
     //For native and thread safe, it gets the jvm job info. Otherwise, get the job info of host server.
-    public String getJobInfo(Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
+    @Override
+    public String getJobInfo(Boolean threadSafety)
+            throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
+        if (Trace.traceOn_)
+            Trace.log(Trace.DIAGNOSTIC, "Getting job information from implementation object.");
 
-      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Getting job information from implementation object.");
+        // Note: The runProgram() method that we call below, will call the appropriate open() method.
 
-      // Note: The runProgram() method that we call below, will call the appropriate open() method.
+        // Set up the parameter list for the program that we will use to get the job information (QWCRTVCA).
+        ProgramParameter[] parameterList = new ProgramParameter[6];
 
-      // Set up the parameter list for the program that we will use to get the job information (QWCRTVCA).
-      ProgramParameter[] parameterList = new ProgramParameter[6];
+        // First parameter: receiver variable - output - char(*).
+        // RTVC0100's 20-byte header, plus 26 bytes for "job name" field.
+        byte[] dataReceived = new byte[46];
+        parameterList[0] = new ProgramParameter(dataReceived.length);
 
-      // First parameter:  receiver variable - output - char(*).
-      // RTVC0100's 20-byte header, plus 26 bytes for "job name" field.
-      byte[] dataReceived = new byte[46];
-      parameterList[0] = new ProgramParameter(dataReceived.length);
+        // Second parameter: length of receiver variable - input - binary(4).
+        byte[] receiverLength = BinaryConverter.intToByteArray(dataReceived.length);
+        parameterList[1] = new ProgramParameter(receiverLength);
 
-      // Second parameter:  length of receiver variable - input - binary(4).
-      byte[] receiverLength = BinaryConverter.intToByteArray(dataReceived.length);
-      parameterList[1] = new ProgramParameter(receiverLength);
+        // Third parameter: format name - input - char(8).
+        // Set to EBCDIC "RTVC0100".
+        byte[] formatName = { (byte) 0xD9, (byte) 0xE3, (byte) 0xE5, (byte) 0xC3, (byte) 0xF0, (byte) 0xF1, (byte) 0xF0,
+                (byte) 0xF0 };
+        parameterList[2] = new ProgramParameter(formatName);
 
-      // Third parameter:  format name - input - char(8).
-      // Set to EBCDIC "RTVC0100".
-      byte[] formatName = {(byte)0xD9, (byte)0xE3, (byte)0xE5, (byte)0xC3, (byte)0xF0, (byte)0xF1, (byte)0xF0, (byte)0xF0};
-      parameterList[2] = new ProgramParameter(formatName);
+        // Fourth parameter: number of attributes to return - input - binary(4).
+        byte[] numAttributes = BinaryConverter.intToByteArray(1); // 1 attribute.
+        parameterList[3] = new ProgramParameter(numAttributes);
 
-      // Fourth parameter:  number of attributes to return - input - binary(4).
-      byte[] numAttributes = BinaryConverter.intToByteArray(1); // 1 attribute.
-      parameterList[3] = new ProgramParameter(numAttributes);
+        // Fifth parameter: key of attributes to be returned - input - array(*) of binary(4).
+        byte[] attributeKey = BinaryConverter.intToByteArray(1009); // "Job name."
+        parameterList[4] = new ProgramParameter(attributeKey);
 
-      // Fifth parameter:  key of attributes to be returned - input - array(*) of binary(4).
-      byte[] attributeKey = BinaryConverter.intToByteArray(1009); // "Job name."
-      parameterList[4] = new ProgramParameter(attributeKey);
+        // Sixth parameter: error code - input/output - char(*).
+        // Eight bytes of zero's indicates to throw exceptions.
+        // Send as input because we are not interested in the output.
+        parameterList[5] = new ProgramParameter(new byte[8]);
 
-      // Sixth parameter:  error code - input/output - char(*).
-      // Eight bytes of zero's indicates to throw exceptions.
-      // Send as input because we are not interested in the output.
-      parameterList[5] = new ProgramParameter(new byte[8]);
+        // Prepare to call the "Retrieve Current Attributes" API.
+        // Design note: QWCRTVCA is documented to be conditionally threadsafe.
 
-      // Prepare to call the "Retrieve Current Attributes" API.
-      // Design note: QWCRTVCA is documented to be conditionally threadsafe.
+        // Note: Depending upon whether the program represented by this ProgramCall object will be run on-thread or
+        // through the host servers (as indicated by the 'threadsafety' flag), we will issue the job info query
+        // accordingly, either on-thread or through the host servers, in order to get the appropriate Job.
 
-      // Note: Depending upon whether the program represented by this ProgramCall object will be run on-thread or through the host servers (as indicated by the 'threadsafety' flag), we will issue the job info query accordingly, either on-thread or through the host servers, in order to get the appropriate Job.
+        // Retrieve Current Attributes. Failure is returned as a message list.
+        try
+        {
+            boolean succeeded;
+            if (ON_THREAD.equals(threadSafety))
+                succeeded = runProgramOnThread("QSYS", "QWCRTVCA", parameterList, MESSAGE_OPTION_DEFAULT, false);
+            else
+                succeeded = runProgramOffThread("QSYS", "QWCRTVCA", parameterList, MESSAGE_OPTION_DEFAULT);
 
-      // Retrieve Current Attributes.  Failure is returned as a message list.
-      try
-      {
-          boolean succeeded;
-          if (ON_THREAD.equals(threadSafety)) {
-            succeeded = runProgramOnThread("QSYS", "QWCRTVCA", parameterList, MESSAGE_OPTION_DEFAULT, false);
-          }
-          else {
-            succeeded = runProgramOffThread("QSYS", "QWCRTVCA", parameterList, MESSAGE_OPTION_DEFAULT);
-          }
-          if (!succeeded)
-          {
-              Trace.log(Trace.ERROR, "Unable to retrieve job information.");
-              throw new AS400Exception(messageList_);
-          }
-      }
-      catch (ObjectDoesNotExistException e)
-      {
-          Trace.log(Trace.ERROR, "Unexpected ObjectDoesNotExistException:", e);
-          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
-      }
+            if (!succeeded) {
+                Trace.log(Trace.ERROR, "Unable to retrieve job information.");
+                throw new AS400Exception(messageList_);
+            }
+        }
+        catch (ObjectDoesNotExistException e) {
+            Trace.log(Trace.ERROR, "Unexpected ObjectDoesNotExistException:", e);
+            throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION);
+        }
 
-      // Get the data returned from the program.
-      dataReceived = parameterList[0].getOutputData();
-      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job information retrieved:", dataReceived);
+        // Get the data returned from the program.
+        dataReceived = parameterList[0].getOutputData();
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Job information retrieved:", dataReceived);
 
-      // Examine the "job name" field.  26 bytes starting at offset 20.  The format of the job name is a 10-character simple job name, a 10-character user name, and a 6-character job number.
-      return converter_.byteArrayToString(dataReceived, 20, 26);
+        // Examine the "job name" field. 26 bytes starting at offset 20. The format of the job name is a 10-character
+        // simple job name, a 10-character user name, and a 6-character job number.
+        return converter_.byteArrayToString(dataReceived, 20, 26);
     }
 
     // This method is reserved for use by other Impl classes in this package.
+    @Override
     public boolean runCommand(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-      // The caller didn't specify whether to call the command on- or off-thread.
-      // Base the decision on the setting the "threadSafe" system property.
-
-      if (shouldRunOnThread(command)) {
-        return runCommandOnThread(command, MESSAGE_OPTION_DEFAULT, false);
-      }
-      else {
-        return runCommandOffThread(command, MESSAGE_OPTION_DEFAULT);
-      }
+        // The caller didn't specify whether to call the command on- or off-thread.
+        // Base the decision on the setting the "threadSafe" system property.
+        return (shouldRunOnThread(command)) ?  runCommandOnThread(command, MESSAGE_OPTION_DEFAULT, false)
+                                            :  runCommandOffThread(command, MESSAGE_OPTION_DEFAULT);
     }
-
 
     // Runs the command.
     // @param threadSafety  The assumed thread safety of the command/program.
     // @return  true if command is successful; false otherwise.
+    @Override
     public boolean runCommand(String command, Boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-      boolean runOnThread;
+        boolean runOnThread;
 
-      if (ON_THREAD.equals(threadSafety)) {
-        runOnThread = true;
-      }
-      else if (OFF_THREAD.equals(threadSafety)) {
-        runOnThread = false;
-      }
-      else // threadSafety == LOOKUP_THREADSAFETY
-      {
-        // Look up the command's indicated threadsafety on the system.
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "LOOKING-UP thread safety of command: " + command);
-        runOnThread = (getThreadsafeIndicator(command) == THREADSAFE_INDICATED_YES);
-      }
+        if (ON_THREAD.equals(threadSafety))
+            runOnThread = true;
+        else if (OFF_THREAD.equals(threadSafety))
+            runOnThread = false;
+        else // threadSafety == LOOKUP_THREADSAFETY
+        {
+            // Look up the command's indicated threadsafety on the system.
+            if (Trace.traceOn_)
+                Trace.log(Trace.DIAGNOSTIC, "LOOKING-UP thread safety of command: " + command);
+            runOnThread = (getThreadsafeIndicator(command) == THREADSAFE_INDICATED_YES);
+        }
 
-      if (runOnThread) {
-        return runCommandOnThread(command, MESSAGE_OPTION_DEFAULT, false);
-      }
-      else {
+        if (runOnThread)
+            return runCommandOnThread(command, MESSAGE_OPTION_DEFAULT, false);
+
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Delegating runCommand() to super class.");
+        
         return runCommandOffThread(command, messageOption);
-      }
     }
 
     // Runs the command.
@@ -343,29 +343,34 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
           Trace.log(Trace.INFORMATION, "Native implementation running command: " + command);
           Trace.log(Trace.DIAGNOSTIC, "Running command ON-THREAD: " + command);
         }
-        if (!currentlyOpeningOnThisThread) openOnThread();
+        
+        if (!currentlyOpeningOnThisThread) 
+            openOnThread();
 
         if (AS400.nativeVRM.getVersionReleaseModification()>= 0x00060100)
-        {
             return runCommandOnThread(unicodeConverter_.stringToByteArray(command), messageOption, 1200);
-        }
+        
         return runCommandOnThread(converter_.stringToByteArray(command), messageOption, 0);
     }
 
+    @Override
     public boolean runCommand(byte[] commandAsBytes, String commandAsString) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-      // The caller didn't specify whether to call the command on- or off-thread.
-      // Base the decision on the setting the "threadSafe" system property.
+        // The caller didn't specify whether to call the command on- or off-thread.
+        // Base the decision on the setting the "threadSafe" system property.
 
-      if (shouldRunOnThread(commandAsString)) {
-        openOnThread();
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running command ON-THREAD: " + commandAsString);
-        return runCommandOnThread(commandAsBytes, MESSAGE_OPTION_DEFAULT, 0);
-      }
-      else {
+        if (shouldRunOnThread(commandAsString))
+        {
+            openOnThread();
+            
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running command ON-THREAD: " + commandAsString);
+            
+            return runCommandOnThread(commandAsBytes, MESSAGE_OPTION_DEFAULT, 0);
+        }
+        
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Running command OFF-THREAD: " + commandAsString);
+        
         return runCommandOffThread(commandAsBytes, MESSAGE_OPTION_DEFAULT, 0);
-      }
     }
 
     private boolean runCommandOnThread(byte[] commandBytes, int messageOption, int ccsid) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
@@ -374,14 +379,14 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         byte[] swapFromPH = new byte[12];
         boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
         if (OFF_THREAD.equals(priorCallWasOnThread_))
-        {
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prior call was off-thread, but this call is on-thread, so different job.");
-        }
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prior call was off-thread, but this call is on-thread, so different job.");
+
         priorCallWasOnThread_ = ON_THREAD;
 
         try
         {
             if (Trace.traceOn_) Trace.log(Trace.INFORMATION, "Invoking native method.");
+            
             if (AS400.nativeVRM.getVersionReleaseModification()< 0x00050300)
             {
                 try
@@ -421,59 +426,56 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) 
+                system_.swapBack(swapToPH, swapFromPH);
         }
     }
 
+    @Override
     public boolean runProgram(String library, String name, ProgramParameter[] parameterList) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-      // The caller didn't specify whether to call the command on- or off-thread.
-      // Base the decision on the setting the "threadSafe" system property.
+        // The caller didn't specify whether to call the command on- or off-thread.
+        // Base the decision on the setting the "threadSafe" system property.
 
-      String property = ProgramCall.getThreadSafetyProperty();
-      Boolean threadSafety;
-      if (property != null && property.equals("true")) {
-        threadSafety = ON_THREAD;
-      }
-      else threadSafety = OFF_THREAD;
+        String property = ProgramCall.getThreadSafetyProperty();
+        Boolean threadSafety = (property != null && property.equals("true")) ? ON_THREAD : OFF_THREAD;
 
-      return runProgram(library, name, parameterList, threadSafety);
+        return runProgram(library, name, parameterList, threadSafety);
     }
 
+    @Override
     public boolean runProgram(String library, String name, ProgramParameter[] parameterList, Boolean threadSafety) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-      // Note: We don't have a way to look up the thread safety of programs.
-      if (ON_THREAD.equals(threadSafety)) {
-        return runProgramOnThread(library, name, parameterList, MESSAGE_OPTION_DEFAULT, false);
-      }
-      else {
+        // Note: We don't have a way to look up the thread safety of programs.
+        if (ON_THREAD.equals(threadSafety))
+            return runProgramOnThread(library, name, parameterList, MESSAGE_OPTION_DEFAULT, false);
+            
         return runProgramOffThread(library, name, parameterList, MESSAGE_OPTION_DEFAULT);
-      }
     }
 
+    @Override
     public boolean runProgram(String library, String name, ProgramParameter[] parameterList, Boolean threadSafety, int messageOption) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
-      // Note: We don't have a way to look up the thread safety of programs.
-      if (ON_THREAD.equals(threadSafety)) {
-        return runProgramOnThread(library, name, parameterList, messageOption, false);
-      }
-      else {
+        // Note: We don't have a way to look up the thread safety of programs.
+        if (ON_THREAD.equals(threadSafety))
+            return runProgramOnThread(library, name, parameterList, messageOption, false);
+            
         return runProgramOffThread(library, name, parameterList, messageOption);
-      }
     }
 
     // Run the program.
+    @Override
     protected boolean runProgramOnThread(String library, String name, ProgramParameter[] parameterList, int messageOption, boolean currentlyOpeningOnThisThread) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_)
         {
-          Trace.log(Trace.INFORMATION, "Native implementation running program: " + library + "/" + name);
-          Trace.log(Trace.DIAGNOSTIC, "Running program ON-THREAD: " + library + "/" + name);
+            Trace.log(Trace.INFORMATION, "Native implementation running program: " + library + "/" + name);
+            Trace.log(Trace.DIAGNOSTIC, "Running program ON-THREAD: " + library + "/" + name);
+
+            if (OFF_THREAD.equals(priorCallWasOnThread_))
+                Trace.log(Trace.DIAGNOSTIC, "Prior call was off-thread, but this call is on-thread, so different job.");
         }
-        if (OFF_THREAD.equals(priorCallWasOnThread_))
-        {
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prior call was off-thread, but this call is on-thread, so different job.");
-        }
+        
         priorCallWasOnThread_ = ON_THREAD;
 
         // Run the program on-thread.
@@ -582,11 +584,13 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
                         throw new ObjectDoesNotExistException(QSYSObjectPathName.toPath(library, name, "PGM"), ObjectDoesNotExistException.LIBRARY_DOES_NOT_EXIST);
                     }
                 }
+                
                 return false;
             }
             finally
             {
-                if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+                if (didSwap)
+                    system_.swapBack(swapToPH, swapFromPH);
             }
         }
         else
@@ -603,13 +607,10 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             for (int i = 0; i < parameterList.length; ++i)
             {
                 if (parameterList[i].getUsage() == ProgramParameter.NULL)
-                {
                     BinaryConverter.intToByteArray(-1, offsetArray, i * 4);
-                }
                 else
-                {
                     BinaryConverter.intToByteArray(totalParameterLength, offsetArray, i * 4);
-                }
+
                 totalParameterLength += parameterList[i].getMaxLength();
             }
 
@@ -619,9 +620,8 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             {
                 byte[] inputData = parameterList[i].getInputData();
                 if (inputData != null)
-                {
                     System.arraycopy(inputData, 0, programParameters, offset, inputData.length);
-                }
+
                 offset += parameterList[i].getMaxLength();
             }
 
@@ -658,6 +658,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
                     }
                     index += parameterList[i].getMaxLength();
                 }
+                
                 return true;
             }
             catch (NativeException e)  // Exception found by C code.
@@ -680,11 +681,13 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
                         throw new ObjectDoesNotExistException(QSYSObjectPathName.toPath(library, name, "PGM"), ObjectDoesNotExistException.LIBRARY_DOES_NOT_EXIST);
                     }
                 }
+                
                 return false;
             }
             finally
             {
-                if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+                if (didSwap)
+                    system_.swapBack(swapToPH, swapFromPH);
             }
         }
     }
@@ -751,27 +754,26 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
     // Determines whether or not the command should be called on-thread.
     private final boolean shouldRunOnThread(String command) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-      boolean runOnThread;
+        boolean runOnThread;
 
-      // Check the threadSafe property, and apply it if set.
-      String property = CommandCall.getThreadSafetyProperty();
+        // Check the threadSafe property, and apply it if set.
+        String property = CommandCall.getThreadSafetyProperty();
 
-      if ((property == null) || (property.equals("false"))) {
-        runOnThread = false;
-      }
-      else if (property.equals("true")) {
-        runOnThread = true;
-      }
-      else if (property.equals("lookup")) {
-        // Look it up on the system.
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "LOOKING-UP thread safety of command: " + command);
-        runOnThread = (getThreadsafeIndicator(command) == THREADSAFE_INDICATED_YES);
-      }
-      else {
-        runOnThread = false;
-        // Assume the utility method has logged a warning about unrecognized property value.
-      }
-      return runOnThread;
+        if ((property == null) || (property.equals("false")))
+            runOnThread = false;
+        else if (property.equals("true"))
+            runOnThread = true;
+        else if (property.equals("lookup"))
+        {
+            // Look it up on the system.
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "LOOKING-UP thread safety of command: " + command);
+            
+            runOnThread = (getThreadsafeIndicator(command) == THREADSAFE_INDICATED_YES);
+        }
+        else
+            runOnThread = false;
+
+        return runOnThread;
     }
 
     private native byte[] runCommandNative(byte[] command) throws NativeException;
