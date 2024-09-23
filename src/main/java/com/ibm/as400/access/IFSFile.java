@@ -1724,7 +1724,9 @@ public class IFSFile implements Serializable, Comparable
    *         If unable to retrieve file system type, a zero-length string is returned.
    * @throws IOException            If an error occurs while communicating with the system.
    * @throws AS400SecurityException If a security or authority error occurs.
+   * @deprecated Use {@link #getFileSystemType()}
    **/
+  @Deprecated
   public String getFileSystemType(boolean retrieveAll) throws IOException, AS400SecurityException
   {
       if (cachedAttributes_ != null)
