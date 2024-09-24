@@ -4089,18 +4089,23 @@ public class AS400 implements Serializable, AutoCloseable
     /**
      * Disconnects all services, and clears the sign-on information. This intent of this method is to "wipe the slate
      * clean" for this AS400 object, enabling connection properties to be subsequently changed.
+     * <P>
+     * Note: A call to resetAllServices() results in the stay-alive seconds value to be reset to zero.  You will 
+     * need to invoke the setStayAlive() method to re-enable the stay-alive functionality. 
      * 
      * @see #disconnectAllServices
+     * @see #setStayAlive(long)
      **/
     public synchronized void resetAllServices()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resetting all services.");
+        setStayAlive(0);
+
         disconnectAllServices();
         disconnectService(AS400.HOSTCNN);
         signonInfo_ = null;
         propertiesFrozen_ = false;
         ccsid_ = 0;
-        stayAliveMilliSeconds_ = 0; // This will end the thread if there is one. 
     }
 
     // Resolves the proxy server name.  If it is not specified, then look it up in the system properties.  Returns empty string if not set.
@@ -4998,28 +5003,52 @@ public class AS400 implements Serializable, AutoCloseable
         @Override
         public void run()
         {
+            // Want to always wake up every 30 seconds if say-alive time greater than that. 
+            // This to ensure that we end thread if stay-alive time set to 0. 
+            // So when whenToPing is zero or less, we actually ping. Otherwise, we loop. 
+            long stayAliveMilliSeconds_original = stayAliveMilliSeconds_;
+            long whenToPing = stayAliveMilliSeconds_original;
+            long sleepTime = (stayAliveMilliSeconds_original > 30000) ? 30000 : stayAliveMilliSeconds_original;
+            
             while (stayAliveMilliSeconds_ > 0)
             {
                 try 
                 {
-                    sleep(stayAliveMilliSeconds_);
+                    sleep(sleepTime);
+                    whenToPing -= sleepTime;
+
+                    // If stay-alive time changed to zero, let thread end. 
+                    if (stayAliveMilliSeconds_ == 0)
+                        break;
                     
-                    boolean bDATABASE   = isConnectionAlive(AS400.DATABASE);
-                    boolean bCOMMAND    = isConnectionAlive(AS400.COMMAND);
-                    boolean bDATAQUEUE  = isConnectionAlive(AS400.DATAQUEUE);
-                    boolean bFILE       = isConnectionAlive(AS400.FILE);
-                    boolean bPRINT      = isConnectionAlive(AS400.PRINT);
-                    boolean bHOSTCNN    = isConnectionAlive(AS400.HOSTCNN);
-                    
-                    if (Trace.traceOn_) 
+                    if (whenToPing <= 0)
                     {
-                        Trace.log(Trace.DIAGNOSTIC, "Stayalive status of services: " 
-                                + "DATABASE=" + bDATABASE + ", "
-                                + "COMMAND=" + bCOMMAND + ", "
-                                + "DATAQUEUE=" + bDATAQUEUE + ", "
-                                + "FILE=" + bFILE + ", "
-                                + "PRINT=" + bPRINT + ", "
-                                + "HOSTCNN=" + bHOSTCNN);
+                        whenToPing = stayAliveMilliSeconds_original;
+                        
+                        boolean bDATABASE   = isConnectionAlive(AS400.DATABASE);
+                        boolean bCOMMAND    = isConnectionAlive(AS400.COMMAND);
+                        boolean bDATAQUEUE  = isConnectionAlive(AS400.DATAQUEUE);
+                        boolean bFILE       = isConnectionAlive(AS400.FILE);
+                        boolean bPRINT      = isConnectionAlive(AS400.PRINT);
+                        boolean bHOSTCNN    = isConnectionAlive(AS400.HOSTCNN);
+                        
+                        if (Trace.traceOn_) 
+                        {
+                            Trace.log(Trace.DIAGNOSTIC, "Stayalive status of services: " 
+                                    + "DATABASE=" + bDATABASE + ", "
+                                    + "COMMAND=" + bCOMMAND + ", "
+                                    + "DATAQUEUE=" + bDATAQUEUE + ", "
+                                    + "FILE=" + bFILE + ", "
+                                    + "PRINT=" + bPRINT + ", "
+                                    + "HOSTCNN=" + bHOSTCNN);
+                        }
+                    }
+                    
+                    if (stayAliveMilliSeconds_original != stayAliveMilliSeconds_)
+                    {
+                        stayAliveMilliSeconds_original = stayAliveMilliSeconds_;
+                        whenToPing = stayAliveMilliSeconds_original;
+                        sleepTime = (stayAliveMilliSeconds_original > 30000) ? 30000 : stayAliveMilliSeconds_original;
                     }
                 }
                 catch (Exception e) {
@@ -5031,7 +5060,7 @@ public class AS400 implements Serializable, AutoCloseable
     private StayAliveThread stayAliveThread_;
     
     /**
-     * Set the stay-alve interval. When enabled, a request is sent at the specified milliseconds interval to all
+     * Set the stay-alve interval. When enabled, a request is sent at the specified seconds interval to all
      * currently opened connections to help keep the connections alive. This is sometimes needed to prevent firewalls
      * from dropping stale connections.  
      * <P>
@@ -5043,28 +5072,30 @@ public class AS400 implements Serializable, AutoCloseable
      * <ul>
      * <li>A background thread is used to ensure the connections stay alive. Any errors that occur while attempting
      * to ensure connections are alive are ignored. 
-     * <li>If {@link #resetAllServices()} is called on the object, the number of milliseconds is set to zero.  You will 
+     * <li>If {@link #resetAllServices()} is called on the object, the number of seconds is set to zero.  You will 
      *     need to invoke setStayAlive() method to re-enable the stay-alive functionality. 
      * </ul>
      * 
-     * @param milliseconds The number of milliseconds between requests to the server. If set to zero, then this
+     * @param seconds The number of seconds between requests to the server. If set to zero, then this
      *                     stay-alive capability will not be used. 
      *                     
-     * @exception ExtendedIllegalArgumentException  if the value of milliseconds is negative.
+     * @exception ExtendedIllegalArgumentException  if the value of seconds is negative.
      **/
-    synchronized public void setStayAlive(long milliseconds)
+    synchronized public void setStayAlive(long seconds)
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting stay-alive: " + milliseconds);
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting stay-alive: " + seconds);
                 
         // Validate parameter. 
-        if (milliseconds < 0)
-            throw new ExtendedIllegalArgumentException("milliseconds (" + milliseconds + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        if (seconds < 0)
+            throw new ExtendedIllegalArgumentException("seconds (" + seconds + ")", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
-        stayAliveMilliSeconds_ = milliseconds;
+        stayAliveMilliSeconds_ = seconds*1000;
         
-        if (stayAliveMilliSeconds_ > 0 && (stayAliveThread_ == null || !stayAliveThread_.isAlive()))
+        if (stayAliveMilliSeconds_ == 0)
+            stayAliveThread_ = null;
+        else if (stayAliveThread_ == null || !stayAliveThread_.isAlive())
         {
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating stayalive thread.");
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating stay-alive thread.");
 
             stayAliveThread_ = new StayAliveThread();
             stayAliveThread_.setDaemon(true);

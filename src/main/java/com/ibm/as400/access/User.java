@@ -65,6 +65,7 @@ public class User implements Serializable
     /**
      * Constant value representing the String "*NONE".
      * 
+     * @see #getAuthenticationMethods()
      * @see #getGroupProfileName
      * @see #getAttentionKeyHandlingProgram
      * @see #getGroupAuthority
@@ -124,7 +125,7 @@ public class User implements Serializable
      * @see #getSpecialAuthority
      **/
     public static final String SPECIAL_AUTHORITY_SERVICE = SPECIAL_AUTHORITIES[5];
-
+    
     /**
      * Constant value representing a special authority of "*SPLCTL".
      * 
@@ -307,6 +308,27 @@ public class User implements Serializable
     private String[] DLOObjectTypesInSTRAUTCOL_;
     private String[] fileSystemObjectTypesInSTRAUTCOL_;
     private String[] omitLibNamesInSTRAUTCOL_;
+    
+    // MFA-related fields
+
+    /**
+     * Constant value representing an authentication method of "*TOTP".
+     * 
+     * @see #getAuthenticationMethods
+     **/
+    public static final String AUTHENTICATION_METHOD_TOTP   = "*TOTP";
+    /**
+     * Constant value representing an authentication method of "*REGFAC".
+     * 
+     * @see #getAuthenticationMethods
+     **/
+    public static final String AUTHENTICATION_METHOD_REGFAC = "*REGFAC";
+
+    private String[]  authenticationMethods_;
+    private int       totpOptionalInterval_;
+    private int       totpOptionalIntervalRemaining_;
+    private boolean   totpKeyExistsIndicator_;
+    private Date      totpKeyLastChangedDate_;
 
     /**
      * Constructs a User object.
@@ -520,6 +542,24 @@ public class User implements Serializable
         return attentionKeyHandlingProgram_;
     }
 
+    /**
+     * Retrieves the authentication methods for this user.
+     * 
+     * @return The authentication methods for this user. Possible values are:
+     *         <ul>
+     *         <li>{@link #NONE NONE} - No additional authentication methods are used.
+     *         <li>{@link #AUTHENTICATION_METHOD_TOTP TOTP} - The time-based one-time password (TOTP) authentication
+     *         method is used in addition to user ID and password.
+     *         <li>{@link #AUTHENTICATION_METHOD_REGFAC REGFAC} - The exit program registered under exit point
+     *         QIBM_QSY_AUTH will be called during user authentication.
+     *         </ul>
+     */
+    public String[] getAuthenticationMethods()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return authenticationMethods_;
+    }
+    
     /**
      * Retrieves the character code set ID to be used by the system for this user.
      * 
@@ -1509,6 +1549,56 @@ public class User implements Serializable
     }
 
     /**
+     * Returns the amount of time, in minutes, a time-based one-time password (TOTP) is optional on an authentication
+     * request for the user. This is the amount of time after a valid user ID and password authentication using a TOTP
+     * value is performed, that subsequent authentications will be allowed without having to specifying a new TOTP value.
+     * When this value is zero, a TOTP is required for every authentication for the user if the user has *TOTP as an
+     * authentication method.
+     * 
+     * @return the TOTP optional interval
+     */
+    public int getTOTPOptionalInterval()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return totpOptionalInterval_;
+    }
+
+    /**
+     * Returns the The number of minutes remaining in the TOTP optional interval in which an authentication without
+     * specifying a new TOTP value is valid. When this value is zero, subsequent authentications will require a valid TOTP
+     * value be specified.
+     * 
+     * @return the TOTP optional interval remaining
+     */
+    public int getTOTPOptionalIntervalRemaining()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return totpOptionalIntervalRemaining_;
+    }
+
+    /**
+     * Returns whether the user has a TOTP key specified. This key is only used when the additional authentication methods include *TOTP.
+     * 
+     * @return true if TOTP key exists; otherwise, false. 
+     */
+    public boolean getTOTPKeyExistsIndicator()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return totpKeyExistsIndicator_;
+    }
+
+    /**
+     * Returns the date and time the TOTP key was last changed using the Change TOTP Key (CHGTOTPKEY) command. 
+     * 
+     * @return the TOTP key last changed date, or null if unable to retrieve value. 
+     */
+    public Date getTOTPKeyLastChangedDate()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return totpKeyLastChangedDate_;
+    }
+
+    /**
      * Retrieves a list of action audit levels for the user.
      * 
      * @return A list of action audit levels for the user. Possible values for the elements of this array are:
@@ -2334,6 +2424,47 @@ public class User implements Serializable
                                         omitLibNamesInSTRAUTCOL_[i] = conv.byteArrayToString(data, omitLibNamesOffset + i * 20, 20).trim();
                                     }
                                 }
+                                
+                                if (vrm > 0x00070500)
+                                {
+                                    boolean totpB  = (data[812] == (byte)0xE8);
+                                    boolean regfac = (data[813] == (byte)0xE8);
+                                    String[] authMethods = new String[(totpB && regfac) ? 2 : 1];
+                                    
+                                    if (totpB || regfac)
+                                    {
+                                        int idx=0;
+                                        if (totpB) 
+                                            authMethods[idx++] = AUTHENTICATION_METHOD_TOTP;
+                                        if (regfac) 
+                                            authMethods[idx++] = AUTHENTICATION_METHOD_REGFAC;
+                                    }
+                                    else
+                                        authMethods[0] = NONE;
+                                    authenticationMethods_ = authMethods;
+
+                                    totpOptionalInterval_ = BinaryConverter.byteArrayToInt(data, 824);
+                                    totpOptionalIntervalRemaining_ = BinaryConverter.byteArrayToInt(data, 828);
+                                    totpKeyExistsIndicator_ = (data[832] == (byte)0xF1) ? true : false;
+                                    
+                                    String totpKeyLastChangedDate = conv.byteArrayToString(data, 833, 13); // Note: This time value is relative to the system's local time zone, not UTC.
+                                    if (totpKeyLastChangedDate.trim().length() > 0)
+                                    {
+                                        Calendar cal = AS400Calendar.getGregorianInstance();
+                                        cal.clear();
+                                        cal.set(Calendar.YEAR, 1900 + Integer.parseInt(totpKeyLastChangedDate.substring(0, 3)));
+                                        cal.set(Calendar.MONTH, Integer.parseInt(totpKeyLastChangedDate.substring(3, 5)) - 1);
+                                        cal.set(Calendar.DATE, Integer.parseInt(totpKeyLastChangedDate.substring(5, 7)));
+                                        cal.set(Calendar.HOUR, Integer.parseInt(totpKeyLastChangedDate.substring(7, 9)));
+                                        cal.set(Calendar.MINUTE, Integer.parseInt(totpKeyLastChangedDate.substring(9, 11)));
+                                        cal.set(Calendar.SECOND, Integer.parseInt(totpKeyLastChangedDate.substring(11, 13)));
+                                        // Set the correct time zone (in case client is in a different zone than server).
+                                        cal.setTimeZone(system_.getTimeZone());
+                                        totpKeyLastChangedDate_ = cal.getTime();
+                                    }
+                                    else
+                                        totpKeyLastChangedDate_ = null;
+                                } // vrm > 0x00070500
                             } // vrm >= 0x00070300
                         } // vrm >= 0x00070200
                     } // vrm >= 0x00070100
@@ -2603,6 +2734,62 @@ public class User implements Serializable
         }
     }
 
+    /**
+     * Set the additional authentication methods used when authenticating a user.
+     * <P>
+     * Note: This method should not be used when running to IBM i 7.5 or earlier releases.
+     * 
+     * @param authenticationMethods String array containing the authentication methods to set. Possible values:
+     *                              <ul>
+     *                              <li>{@link #NONE NONE} - No additional authentication methods are used.
+     *                              <li>{@link #AUTHENTICATION_METHOD_TOTP TOTP} - The time-based one-time password
+     *                              (TOTP) authentication method is used in addition to user ID and password
+     *                              authentication.
+     *                              <li>{@link #AUTHENTICATION_METHOD_REGFAC REGFAC} - The exit program registered under
+     *                              exit point QIBM_QSY_AUTH will be called during user ID and password authentication.
+     *                              </ul>
+     *                              <P>
+     *                              The authentication method {@link #NONE NONE}, if specified, must be the only value
+     *                              in the array. Passing a zero-length array is equivalent to passing an array with
+     *                              {@link #NONE NONE}.
+     * 
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @throws RequestNotSupportedException    If the request is not supported.
+     * @throws ObjectDoesNotExistException     If the object does not exist.
+     */
+    public void setAuthenticationMethods(String[] authenticationMethods)  
+            throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, RequestNotSupportedException
+    {
+        if (authenticationMethods == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'authenticationMethods' is null.");
+            throw new NullPointerException("authenticationMethods");
+        }
+        
+        if (system_.getVRM() <= 0x00070500)
+        {
+            String currentRelease = system_.getVersion() + "." + system_.getRelease();
+            throw new RequestNotSupportedException(currentRelease, RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
+        }
+        
+        String authMethods = NONE;
+        
+        if (authenticationMethods.length > 0)
+        {
+            authMethods = "";
+            for (int i=0; i<authenticationMethods.length; i++) {
+                authMethods += (authenticationMethods[i] + " ");
+            }
+        }
+
+        runCommand("AUTHMTH(" + authMethods + ")");
+        
+        authenticationMethods_ = authenticationMethods;
+    }
+    
     /**
      * Sets the character code set identifier (CCSID) to be used for this user.
      * <p>
@@ -4238,6 +4425,48 @@ public class User implements Serializable
         }
 
         runCommand("USREXPDATE(" + expDate + ")");
+    }
+    
+    /**
+     * Set the amount of time, in minutes, a time-base one-time password (TOTP) is optional on an authentication request
+     * for the user. This is the amount of time after a valid user ID and password authentication using a TOTP value is
+     * performed, that subsequent authentications will be allowed without having to specifying a TOTP value. This value
+     * is only valid when Authentication method includes *TOTP.
+     * <P>
+     * Note: This method should not be used when running to IBM i 7.5 or earlier releases.
+     * 
+     * @param totpOptionalInterval the TOTP optional interval to set. Valid values include 0-720. A value of zero
+     *                             indicates that there is no optional interval, the time-based one-time password must
+     *                             be entered for every authentication.
+     * 
+     * @throws AS400SecurityException           If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws ExtendedIllegalArgumentException If TOTP optional interval value is not valid.
+     * @throws InterruptedException             If this thread is interrupted.
+     * @throws IOException                      If an error occurs while communicating with the system.
+     * @throws RequestNotSupportedException     If the request is not supported.
+     * @throws ObjectDoesNotExistException      If the object does not exist.
+     */
+    public void setTOTPOptionalInterval(int totpOptionalInterval)
+            throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, RequestNotSupportedException, ObjectDoesNotExistException
+    {
+        if (system_.getVRM() <= 0x00070500)
+        {
+            String currentRelease = system_.getVersion() + "." + system_.getRelease();
+            throw new RequestNotSupportedException(currentRelease, RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
+        }
+        
+        if (totpOptionalInterval < 0 || totpOptionalInterval > 720)
+            throw new ExtendedIllegalArgumentException("totpOptionalInterval (" + totpOptionalInterval + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
+
+        
+        String totpOptionalIntervalString = null;
+        if (totpOptionalInterval == 0)
+            totpOptionalIntervalString = NONE;
+        
+        runCommand("TOTPOPTITV(" + ((totpOptionalIntervalString != null) ? totpOptionalIntervalString : totpOptionalInterval) + ")");
+        
+        totpOptionalInterval_ = totpOptionalInterval;
     }
 
     // Utility method.  Returns this object's internal DateTimeConverter object.
