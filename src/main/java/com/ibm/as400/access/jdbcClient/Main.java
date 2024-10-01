@@ -121,18 +121,18 @@ public class Main implements Runnable {
       "!SHOWMIXEDUX [true | false]     Set if mixed UX strings will be displayed",
       "!SET AUTOCOMMIT [true|false]    Sets the autocommit value",
       "!SET TRANSACTIONISOLATION [VALUE] Sets the autocommit value",
-      "                                 Supported values are ",
-      "                               TRANSACTION_READ_UNCOMMITTED",
-      "                               TRANSACTION_READ_COMMITTED",
-      "                               TRANSACTION_REPEATABLE_READ",
-      "                               TRANSACTION_SERIALIZABLE",
+      "                                    Supported values are ",
+      "                                      TRANSACTION_READ_UNCOMMITTED",
+      "                                      TRANSACTION_READ_COMMITTED",
+      "                                      TRANSACTION_REPEATABLE_READ",
+      "                                      TRANSACTION_SERIALIZABLE",
       "!GETSERVERJOBNAME               Returns connection.getServerJobName",
       "!CLOSESTATEMENTRS [on|off]      Close statement and result set after execution of query default off",
       "!MEASUREEXECUTE [on|off]        Measure time to do execute",
       "!CHARACTERDETAILS [on|off]      Turn on to see entire character details -- default of off",
       "!MANUALFETCH [on|off]           Set if manual fetch operations should be used",
       "!RS.NEXT,!RS.FIRST, !RS.LAST, !RS.PREVIOUS, !RS.ABSOLUTE pos, !RS.RELATIVE pos, !RS.BEFOREFIRST, !RS.AFTERLAST",
-      "                               Call rs.next,... for manually fetching",
+      "                                Call rs.next,... for manually fetching",
       "!DMD.GETCOLUMNS catalog, schemaPattern, tableNamePattern, columnNamePattern ",
       "!DMD.GETTABLES catalog, schemaPattern, tableNamePattern, type1 | type2",
       "!DMD.GETINDEXINFO catalog, schema, table, booleanUnique, booleanApproximate ",
@@ -167,21 +167,21 @@ public class Main implements Runnable {
 
       "",
       "The following 'reflection' based commands are available",
-      "!SETVAR [VARNAME] = [METHODCALL]  Sets a variable use a method.. i.e. ",
+      "!SETVAR [VARNAME] = [METHODCALL]  Sets a variable using a method.. i.e. ",
       "                                 SETVAR BLOB = RS.getBlob(1)",
       "!SETVAR [VARNAME] [PARAMETER SPECIFICATION] Sets a variable using a parameter specification",
       "!SETNEWVAR [VARNAME] = [CONSTRUCTORCALL]  Sets a variable by calling the contructor",
       "                                 SETNEWVAR DS = com.ibm.db2.jdbc.app.UDBDataSource()",
       "!SHOWVARMETHODS [VARNAME]         Shows the methods for a variable",
 
-      "!CALLMETHOD [METHODCALL]          Calls a method on a variable",
+      "!CALLMETHOD [METHODCALL]          Calls a method on a variable or a class",
       "  Hint:  To see a result set use !CALLMETHOD com.ibm.as400.access.jdbcClient.Main.dispResultSet(RS)",
       "  Hint:  To access an array use  !SETVAR LIST=java.util.Arrays.asList(ARRAYVARIABLE)",
       "",
       "!THREAD [COMMAND]                      Runs a command in its own thread.",
       "!THREADPERSIST [THREADNAME]            Create a thread that persist.",
       "!THREADEXEC [THREADNAME] [COMMAND]     Execute a command in a persistent thread.",  
-      "!REPEAT [NUMBER] [COMMAND]             Repeat a command a number of times.",
+      "!REPEAT [NUMBER] [COMMAND]             Repeat a command a number of times. An {I} in the command is replaced with the iteration number",
       "!EXIT_REPEAT_ON_EXCEPTION [false|true] Exit the repeat if an exception occurs. ",
       "" };
 
@@ -2544,18 +2544,19 @@ public class Main implements Runnable {
         if (spaceIndex > 0) {
           int repeatCount = Integer.parseInt(left.substring(0, spaceIndex));
           if (repeatCount > 0) {
-            String newCommand = left.substring(spaceIndex).trim();
+            String baseCommand = left.substring(spaceIndex).trim();
             int beginCount = repeatCount;
             int iteration = 1;
             while (repeatCount > 0) {
               printStreamForExecuteCommand.println("Iteration " + iteration + " of " + beginCount);
-              iteration++;
               exceptionOccurred_ = false; 
+              String newCommand = baseCommand.replaceAll("\\{I\\}", ""+iteration); 
               executeTopLevelCommand(newCommand, printStreamForExecuteCommand);
               repeatCount--;
               if (exitRepeatOnException_ && exceptionOccurred_) {
                 repeatCount = 0; 
               }
+              iteration++;
             }
           } else {
             printStreamForExecuteCommand.println("Error.. invalid repeat count "
