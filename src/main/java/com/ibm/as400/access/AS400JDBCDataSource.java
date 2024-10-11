@@ -457,6 +457,13 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
      
     /**
+     * returns the additional authentication factor.
+     * @return the additional authentication factor
+     */
+    public char[] getAdditionalAuthenticationFactor() { 
+      return properties_.getAdditionalAuthenticationFactor(); 
+    }
+    /**
     *  Returns what behaviors of the Toolbox JDBC driver have been overridden.
     *  Multiple behaviors can be overridden in combination by adding 
     *  the constants and passing that sum on the setBehaviorOverride() method.  
@@ -1555,8 +1562,14 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     {
       return properties_.getString(JDProperties.QUERY_REPLACE_TRUNCATED_PARAMETER);
     }
-
-    
+   /**
+    * Returns the stay alive setting.  If non-zero, then this
+    * is the number of seconds before a host server ping request is sent
+    * to keep the connection from being dropped because of inactivity. 
+    */
+    public int  getStayAlive() {
+      return properties_.getInt(JDProperties.STAY_ALIVE);
+    }
    /*@D4A*/
     /**                                                               
     *  Returns the mechanism used to implement query timeout. 
@@ -5156,6 +5169,28 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + goal);
     }
 
+    /**
+     * Sets the stay alive setting.  If non-zero, then this
+     * is the number of seconds before a host server ping request is sent
+     * to keep the connection from being dropped because of inactivity. 
+     */
+    public void setStayAlive(int seconds)
+    {
+        String property = "stayAlive";
+
+        Integer oldValue = Integer.valueOf(getQueryOptimizeGoal());
+        Integer newValue = Integer.valueOf(seconds);
+
+        properties_.setString(JDProperties.STAY_ALIVE, newValue.toString());
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + seconds);
+    }
+    
+    
+    
     //@550
     /**
     * Sets the storage limit in megabytes, that should be used for statements executing a query in a connection.
