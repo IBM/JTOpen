@@ -593,6 +593,14 @@ static final String copyright = "Copyright (C) 2005-2010 International Business 
   }
 
   /**
+   * returns the additional authentication factor.
+   * @return the additional authentication factor
+   */
+  public char[] getAdditionalAuthenticationFactor() { 
+    return properties_.getAdditionalAuthenticationFactor(); 
+  }
+
+  /**
    Returns what behaviors of the Toolbox JDBC driver have been overridden.
    Multiple behaviors can be overridden in combination by adding
    the constants and passing that sum on the setBehaviorOverride() method.
@@ -1371,6 +1379,14 @@ return connection;
   {
     return properties_.getInt(JDProperties.QUERY_OPTIMIZE_GOAL);
   }
+  /**
+   * Returns the stay alive setting.  If non-zero, then this
+   * is the number of seconds before a host server ping request is sent
+   * to keep the connection from being dropped because of inactivity. 
+   */
+   public int  getStayAlive() {
+     return properties_.getInt(JDProperties.STAY_ALIVE);
+   }
 
   /**                                                               
   *  Returns the string to be substituted for a truncated parameter 
@@ -2582,6 +2598,15 @@ return connection;
 
     properties_.setString(JDProperties.ACCESS, access);
     // Note: The JDProperties.setString() logs the property change.
+  }
+
+  /**
+   * Sets the additional authentication factor used to connect to the system. The {@link #getConnection()}
+   * method must be called as soon as possible, since the additional authentication factor may soon expire.
+   * @param additionalAuthenticationFactor the additional authentication factor, or null if not providing one
+   */
+  public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor) {
+   	properties_.setAdditionalAuthenticationFactor(additionalAuthenticationFactor);
   }
 
 
@@ -4302,6 +4327,24 @@ return connection;
     validateProperty(property, sortWeight, JDProperties.SORT_WEIGHT);
 
     properties_.setString(JDProperties.SORT_WEIGHT, sortWeight);
+  }
+
+  /**
+   * Sets the stay alive setting.  If non-zero, then this
+   * is the number of seconds before a host server ping request is sent
+   * to keep the connection from being dropped because of inactivity. 
+   */
+  public void setStayAlive(int seconds)
+  {
+      String property = "stayAlive";
+
+      Integer newValue = Integer.valueOf(seconds);
+
+      properties_.setString(JDProperties.STAY_ALIVE, newValue.toString());
+
+ 
+      if (JDTrace.isTraceOn()) 
+          JDTrace.logInformation (this, property + ": " + seconds);
   }
 
   /**

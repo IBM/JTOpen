@@ -261,7 +261,9 @@ public class JDMRI extends ListResourceBundle
       {"MAX_RETRIES_FOR_CLIENT_REROUTE_DESC", "The maximum number of connection retries for automatic client reroute."},
       {"RETRY_INTERVAL_FOR_CLIENT_REROUTE_DESC","The number of seconds between consecutive connection retries."},
       {"ENABLE_SEAMLESS_FAILOVER_DESC","Specifies whether the JTOpen JDBC driver uses seamless failover for client reroute."}, 
-      
+      {"ADDITIONAL_AUTHENTICATION_FACTOR_DESC", "Specifies the additional authentication factor to be used in conjunction with the password."},
+      {"STAY_ALIVE_DESC","Specifies the number of seconds between pings to the Host Server.  "
+      		+ "This is used to prevent a connection from being viewed as inactive.  A value of 0 means to not send pings to keep the connection alive."},
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },
       { "PROP_NAME_RS_CONCURRENCY", "concurrency" },
