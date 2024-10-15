@@ -445,7 +445,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
             parmlist[6] = new ProgramParameter(CharConverter.stringToByteArray(sys, remoteIpAddress));
 
             // Input: Length of remote IP address
-            parmlist[7] = new ProgramParameter(BinaryConverter.intToByteArray((isRemoteIPNull) ? 0 : parmlist[13].getInputData().length));
+            parmlist[7] = new ProgramParameter(BinaryConverter.intToByteArray((isRemoteIPNull) ? 0 : parmlist[6].getInputData().length));
 	    }
 
 	    try {
