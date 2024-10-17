@@ -3550,6 +3550,7 @@ throws SQLException
               as400.connectService (AS400.DATABASE);
             }
             systemName_ = as400.getSystemName();
+            as400PublicClassObj_ = as400;         /* Keep a reference so that the AS400 object is not garbage collected and finalized */ 
           }
           catch (AS400SecurityException e)
           {                            //@D5C
