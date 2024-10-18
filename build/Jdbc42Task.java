@@ -331,7 +331,7 @@ public class Jdbc42Task extends MatchingTask
 					}
     	    	 break;
     	  }
-    	  writer.println(line); 
+    	  writer.print(line+"\n"); 
     	  line = reader.readLine(); 
       }
       writer.close(); 

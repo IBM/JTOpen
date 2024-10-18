@@ -243,7 +243,7 @@ extends SQLDataBase
         return timestampToString(ts, calendar, -1, 26, settings);             // @F4C
     }
 
-   /* ifdef JDBC42
+/* ifdef JDBC42 */
   public static String localDateTimeToStringTrimTrailingZeros(
       java.time.LocalDateTime ldt, Calendar calendar0,
       SQLConversionSettings settings) {
@@ -262,7 +262,7 @@ extends SQLDataBase
 
     return tsString;
   }
- endif */ 
+/* endif */ 
     
     /**
      * Convert a timestamp to a string and get rid of trailing zeros. 
@@ -527,7 +527,7 @@ extends SQLDataBase
           picos_  = ts.getPicos();
           length_ = ts.getLength(); 
         }
-/* ifdef JDBC42
+/* ifdef JDBC42 */
         else if(object instanceof java.time.LocalDateTime)
         {
             java.time.LocalDateTime ts = ((java.time.LocalDateTime) object);
@@ -541,7 +541,7 @@ extends SQLDataBase
            
         }
 
- endif */ 
+/* endif */ 
         else {
           if (JDTrace.isTraceOn()) {
               if (object == null) { 
