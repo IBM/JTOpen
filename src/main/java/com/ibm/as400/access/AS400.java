@@ -1064,8 +1064,7 @@ public class AS400 implements Serializable, AutoCloseable
         threadUsed_ = system.threadUsed_;
         locale_ = system.locale_;
         nlv_ = system.nlv_;
-        socketProperties_ = system.socketProperties_;
-
+        socketProperties_.copyValues(system.socketProperties_);
         ccsid_ = system.ccsid_;
 
         // connectionListeners_ is not copied.
