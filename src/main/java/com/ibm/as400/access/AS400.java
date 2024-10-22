@@ -5673,7 +5673,7 @@ public class AS400 implements Serializable, AutoCloseable
                 // threadUsed_ is not needed.
                 // locale_ in not needed.
                 // nlv_ in not needed.
-                validationSystem.socketProperties_ = socketProperties_;
+                validationSystem.socketProperties_.copyValues(socketProperties_);
                 if (validateSignonTimeOut_ > 0)
                     validationSystem.socketProperties_.setSoTimeout(validateSignonTimeOut_);
                 // ccsid_ is not needed.
