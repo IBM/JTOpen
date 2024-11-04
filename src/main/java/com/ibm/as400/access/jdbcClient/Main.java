@@ -2762,6 +2762,7 @@ public class Main implements Runnable {
     try {
       boolean methodFound = false;
       StringBuffer possibleErrors = new StringBuffer(); 
+      int exceptionCount = 0; 
       
       Object variable = null;
       int paramIndex = left.indexOf("(");
@@ -3047,11 +3048,11 @@ public class Main implements Runnable {
                         try {
                           methods[m].setAccessible(true);
                           variable = methods[m].invoke(callObject, parameters);
-                        } catch (Exception e) {
+                        } catch (Throwable e) {
                           if (e instanceof java.lang.reflect.InvocationTargetException) {
                             Throwable nextException = e.getCause(); 
-                            if (nextException != null && (nextException instanceof Exception )) { 
-                              e =  (Exception ) nextException; 
+                            if (nextException != null ) { 
+                              e =  nextException; 
                             }
                           }
                           if (e instanceof XAException) {
@@ -3060,7 +3061,9 @@ public class Main implements Runnable {
                           possibleErrors.append("Exception "+e+"\n");
                           if (printStackTrace_) printStackTraceToStringBuffer(e, possibleErrors);
                           possibleErrors.append("Calling method " + methodName
-                              + " with " + methodParameters + " failed\n");
+                              + " with " + methodParameters + " failed exception in Exeception"+exceptionCount+"\n");
+                          addVariable("Exception"+exceptionCount, e);
+                          exceptionCount++; 
                           methodFound = false;
                         }
                       } else {

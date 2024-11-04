@@ -106,7 +106,7 @@ public class EnhancedProfileTokenImplNative
      * @exception RetrieveFailedException If errors occur while generating the
      *                                    token.
      */
-    public static native byte[] nativeCreateToken(
+     static native byte[] nativeCreateToken(
             String user, 
             char[] password, 
             char[] additionalAuthenticationFactor,
@@ -195,7 +195,7 @@ public class EnhancedProfileTokenImplNative
     * @exception RetrieveFailedException If errors occur while generating the
     *                                    token.
     */
-    public static native byte[] nativeCreateTokenSpecialPassword(
+    static native byte[] nativeCreateTokenSpecialPassword(
             String user, 
             char[] password, 
             char[] additionalAuthenticationFactor,
@@ -225,7 +225,7 @@ public class EnhancedProfileTokenImplNative
      * 
      * @throws SwapFailedException If errors occur while swapping thread identity.
      */
-    public static native void nativeSwap(
+    static native void nativeSwap(
             byte[] token,
             String verificationId,
             String remoteIpAddress) throws SwapFailedException;
@@ -262,7 +262,7 @@ public class EnhancedProfileTokenImplNative
      * @exception RetrieveFailedException If errors occur while generating the
      *                                    token.
      */
-    public static native byte[] nativeCreateTokenFromToken(
+     static native byte[] nativeCreateTokenFromToken(
             byte[] token, 
             String verificationId,
             String remoteIpAddress,

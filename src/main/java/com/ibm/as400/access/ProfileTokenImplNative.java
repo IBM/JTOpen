@@ -485,7 +485,6 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     // @exception  RetrieveFailedException  If errors occur while generating
     // the token.
     
-    // TODO:  Write native code in /osxpf/v7r5m0.xpf/cur/cmvc/base.pgm/yjsp.xpf
     native byte[] nativeCreateTokenChar(
             String user, 
             char[] password, 
