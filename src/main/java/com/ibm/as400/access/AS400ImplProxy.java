@@ -141,7 +141,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
              new boolean[] { true, false }, // indicate that 1st arg gets modified
              true);
           ProfileTokenCredential returnArg = (ProfileTokenCredential)rv.getArgument(0);
-          profileToken.setToken(returnArg.getToken());
+          profileToken.setToken(returnArg.getToken(),false);
           return;
         }
         catch (InvocationTargetException e)
@@ -165,7 +165,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
              new boolean[] { true, false, false, false }, // indicate that 1st arg gets modified
              true);
           ProfileTokenCredential returnArg = (ProfileTokenCredential)rv.getArgument(0);
-          profileToken.setToken(returnArg.getToken());
+          profileToken.setToken(returnArg.getToken(),false);
           return;
         }
         catch (InvocationTargetException e)

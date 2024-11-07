@@ -195,6 +195,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     // can tell the toolbox not to use enhanced profile tokens by setting
     // com.ibm.as400.access.AS400.useEnhancedProfileTokens property to false.
     private static boolean useEnhancedProfileTokens_ = true;
+
     static {
         String property = System.getProperty("com.ibm.as400.access.AS400.useEnhancedProfileTokens");
         if (property != null && property.toLowerCase().equals("false"))
@@ -207,6 +208,9 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     private int type_ = TYPE_SINGLE_USE;
     private int timeoutInterval_ = 3600;
 
+	private boolean enhancedProfileToken_ = false;  // We need to know if an enhanced profile
+	                                                // was created.  If so, a different native swap
+	                                                // method is used. 
     private String verificationID_ = DEFAULT_VERIFICATION_ID;
     private String localIPAddress_ = null;
     private String remoteIPAddress_ = null;
@@ -303,6 +307,41 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * (i.e. previously created using the QSYGENPT system API). It is the
      * responsibility of the application to ensure the token attributes, such as the
      * <i>tokenType</i> and <i>timeoutInterval</i>, are consistent with the
+     * specified token value. This deprecated method cannot be used with an 
+     * enhanced profile token. 
+     *
+     * @param system          The system associated with the credential.
+     *
+     * @param token           The actual bytes for the token as it exists on the IBM
+     *                        i system.
+     *
+     * @param tokenType       The type of token provided. Possible types are defined
+     *                        as fields on this class:
+     *                        <ul>
+     *                        <li>TYPE_SINGLE_USE
+     *                        <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                        <li>TYPE_MULTIPLE_USE_RENEWABLE
+     *                        </ul>
+     *
+     * @param timeoutInterval The number of seconds to expiration, used as the
+     *                        default value when the token is refreshed (1-3600).
+     *                        
+     * @deprecated Use the constructor with the enhancedProfileToken parameter
+     *                        
+     */
+    @Deprecated
+    public ProfileTokenCredential(AS400 system, byte[] token, int tokenType, int timeoutInterval) {
+        this(system, token, tokenType, timeoutInterval, null, null, null, 0, null, 0, false);
+    }
+
+    /**
+     * Constructs and initializes a ProfileTokenCredential object.
+     *
+     * <p>
+     * This method allows a credential to be constructed based on an existing token
+     * (i.e. previously created using the QSYGENPT system API). It is the
+     * responsibility of the application to ensure the token attributes, such as the
+     * <i>tokenType</i> and <i>timeoutInterval</i>, are consistent with the
      * specified token value.
      *
      * @param system          The system associated with the credential.
@@ -321,8 +360,8 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * @param timeoutInterval The number of seconds to expiration, used as the
      *                        default value when the token is refreshed (1-3600).
      */
-    public ProfileTokenCredential(AS400 system, byte[] token, int tokenType, int timeoutInterval) {
-        this(system, token, tokenType, timeoutInterval, null, null, null, 0, null, 0);
+    public ProfileTokenCredential(AS400 system, byte[] token, int tokenType, int timeoutInterval, boolean enhancedProfileToken) {
+        this(system, token, tokenType, timeoutInterval, null, null, null, 0, null, 0, enhancedProfileToken);
     }
 
     /**
@@ -400,15 +439,17 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *                                       (Socket.getLocalPort). Otherwise, use 0
      *                                       if there is not an associated
      *                                       connection.
+     * @param enhancedProfileToken           Indicates if the token is an enhanced profile token.                                      
      */
     public ProfileTokenCredential(AS400 system, byte[] token, int tokenType, int timeoutInterval, 
                                  char[] additionalAuthFactor, String verificationID, 
-                                 String remoteIPAddress, int remotePort, String localIPAddress, int localPort)
+                                 String remoteIPAddress, int remotePort, String localIPAddress, int localPort,
+                                 boolean enhancedProfileToken)
     {
         this();
         try {
             setSystem(system);
-            setToken(token);
+            setToken(token, enhancedProfileToken);
             setTokenType(tokenType);
             setTimeoutInterval(timeoutInterval);
             setAdditionalAuthenticationFactor(additionalAuthFactor);
@@ -495,16 +536,16 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         if (token_ == null)
             return null;
 
+        byte[] rawBytes = decode(addr_, mask_, token_);
         if (Trace.isTraceOn())
         {
             // Note: Calling this.hashCode causes recursion
-            Trace.log(Trace.INFORMATION, "ProfileTokenCredential@" + Integer.toHexString(this.superHashCode())
-                    + " getPrimitiveToken called");
+            Trace.log(Trace.INFORMATION, this,  " getPrimitiveToken returned", rawBytes);
         }
 
         // Return the raw bytes for the token represented by the credential, decoding
         // the value in memory.
-        return decode(addr_, mask_, token_);
+        return rawBytes;
     }
 
     /**
@@ -686,8 +727,10 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * value in memory.
      *
      * @param bytes The token bytes.
+     * @param enchancedProfileToken. set to true if enhancedProfile token
      */
-    private void primitiveSetToken(byte[] bytes) {
+    private void primitiveSetToken(byte[] bytes, boolean enhancedProfileToken) {
+    	enhancedProfileToken_ = enhancedProfileToken; 
         token_ = encode(addr_, mask_, bytes);
     }
 
@@ -735,14 +778,15 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      */
     public synchronized void refresh(int type, int timeoutInterval) throws AS400SecurityException
     {
+    	if (Trace.isTraceOn()) { 
+    		Trace.log(Trace.INFORMATION, this, "refresh("+type+","+timeoutInterval); 
+    	}
         // Start The current thread (Refresh Agent thread) is blocked when it receives
         // the message not refreshing.
         while (noRefresh_)
         {
             if (Trace.isTraceOn())
-                Trace.log(Trace.INFORMATION, "ProfileTokenCredential@" + Integer.toHexString(this.hashCode())
-                        + " refresh stuck because of noRefresh");
-
+                Trace.log(Trace.INFORMATION, this, " refresh stuck because of noRefresh");
             try {
                 wait();
             } catch (InterruptedException e) {
@@ -750,9 +794,6 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
             }
         }
 
-        if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION,
-                    "ProfileTokenCredential@" + Integer.toHexString(this.hashCode()) + " refresh called");
 
         // Check permissions
         checkAuthenticationPermission("refreshCredential");
@@ -775,18 +816,25 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         // Refresh the credential
         byte[] old = getToken();
         byte[] bytes = ((ProfileTokenImpl) getImpl()).refresh(type, timeoutInterval);
-
-        primitiveSetToken(bytes);
+        // The token type is the same as before.  The refresh doesn't need
+        // to know an enhanced profile token is being used. 
+        primitiveSetToken(bytes, enhancedProfileToken_);
         type_ = type;
         timeoutInterval_ = timeoutInterval;
 
         fireRefreshed();
         firePropertyChange("token", old, bytes);
-        if (Trace.isTraceOn())
+        if (Trace.isTraceOn()) {
+            if (Trace.isTraceOn()) {
+            	Trace.log(Trace.JDBC, this, "refresh() old  ",old);
+            	Trace.log(Trace.JDBC, this, "refresh() new  ",bytes);
+            }
+
             Trace.log(Trace.INFORMATION,
-                    new StringBuffer("ProfileTokenCredential@" + Integer.toHexString(this.hashCode())
+                    new StringBuffer("ProfileTokenCredential@" + System.identityHashCode(this)
                             + " Credential refreshed with type ").append(type).append(" and timeoutInterval = ")
                             .append(timeoutInterval).append(" >> ").append(toString()).toString());
+        }
     }
 
     /**
@@ -839,12 +887,15 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * responsibility of the application to ensure the token attributes, such as the
      * <i>tokenType</i> and <i>timeoutInterval</i>, are consistent with the
      * specified token value.
+     * This method should only be called if the token is not an enhanced profile token. 
      *
      * <p>
      * This property cannot be changed once a request initiates a connection for the
      * object to the IBM i system (for example, refresh).
      *
      * @param bytes The token bytes.
+     * 
+     * @param enhancedProfileToken -- indicates if the token is an enhancedProfileToken
      *
      * @exception PropertyVetoException            If the change is vetoed.
      *
@@ -855,7 +906,39 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *                                             due to the current state.
      *
      */
-    public synchronized void setToken(byte[] bytes) throws PropertyVetoException
+@Deprecated
+    public synchronized void setToken(byte[] bytes) throws PropertyVetoException {
+    	setToken(bytes, false); 
+    }
+
+    /**
+     * Sets the actual bytes for the token as it exists on the IBM i system.
+     *
+     * <p>
+     * This method allows a credential to be constructed based on an existing token
+     * (i.e. previously created using the QSYGENPT system API). It is the
+     * responsibility of the application to ensure the token attributes, such as the
+     * <i>tokenType</i> and <i>timeoutInterval</i>, are consistent with the
+     * specified token value.
+     *
+     * <p>
+     * This property cannot be changed once a request initiates a connection for the
+     * object to the IBM i system (for example, refresh).
+     *
+     * @param bytes The token bytes.
+     * 
+     * @param enhancedProfileToken -- indicates if the token is an enhancedProfileToken
+     *
+     * @exception PropertyVetoException            If the change is vetoed.
+     *
+     * @exception ExtendedIllegalArgumentException If the provided value is not the
+     *                                             correct length.
+     *
+     * @exception ExtendedIllegalStateException    If the property cannot be changed
+     *                                             due to the current state.
+     *
+     */
+    public synchronized void setToken(byte[] bytes, boolean enhancedProfileToken) throws PropertyVetoException
     {
         // Validate state
         validatePropertyChange("token");
@@ -873,7 +956,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
 
         byte[] old = getToken();
         fireVetoableChange("token", old, bytes);
-        primitiveSetToken(bytes);
+        primitiveSetToken(bytes, enhancedProfileToken);
         firePropertyChange("token", old, bytes);
     }
 
@@ -1008,7 +1091,13 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         ProfileTokenImpl impl = (ProfileTokenImpl) getImplPrimitive();
 
         // Generate and set the token value
-        setToken(impl.generateToken(name, password, getTokenType(), getTimeoutInterval()));
+        char[] passwordChars = password.toCharArray(); 
+        byte[] newToken; 
+        boolean[] extendedProfileToken = new boolean[1]; 
+        extendedProfileToken[0]=true; 
+        newToken = impl.generateTokenExtended(name, passwordChars, getTokenType(), getTimeoutInterval(), extendedProfileToken);
+        setToken(newToken,extendedProfileToken[0]);
+        Arrays.fill(passwordChars,'\0');
 
         // If successful, all defining attributes are now set.
         // Set the impl for subsequent references.
@@ -1332,6 +1421,18 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      */
     public void setTokenExtended(String name, char[] password) throws PropertyVetoException, AS400SecurityException
     {
+    	if (Trace.isTraceOn()) {
+    		String passwordInfo = ""; 
+    		if (password != null) {
+    			passwordInfo = "char["+password.length+"]"; 
+    		} else {
+    			passwordInfo = "null";
+    		}
+    		String nameInfo = ""; 
+    	    if (name != null) nameInfo=name;
+    	    else nameInfo = "null"; 
+    		Trace.log(Trace.INFORMATION, "setTokenExtended("+nameInfo+","+passwordInfo+")"); 
+    	}
         // Validate state
         validatePropertySet("system", getSystem());
 
@@ -1397,6 +1498,9 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     public void setTokenType(int type) throws PropertyVetoException
     {
         // Validate state
+    	if (Trace.isTraceOn()) {
+    		Trace.log(Trace.INFORMATION, this, "setTokenType("+type+")"); 
+    	}
         validatePropertyChange("tokenType");
 
         // Validate parms
@@ -1757,4 +1861,14 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     boolean isTokenSet() {
         return token_ != null;
     }
+    /**
+     * Return true if the profile token was created as an enhancedProfileToken
+     * This can only be set when the profile token is set. 
+     * @return
+     */
+    public boolean isEnhancedProfileToken() {
+		return enhancedProfileToken_;
+	}
+	
+
 }

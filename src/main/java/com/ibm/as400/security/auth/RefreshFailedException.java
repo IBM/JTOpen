@@ -43,7 +43,7 @@ RefreshFailedException() {
  *		with the exception.
  *
  */
-RefreshFailedException(AS400Message[] list) {
+public RefreshFailedException(AS400Message[] list) {
 	super(list);
 }
 /**

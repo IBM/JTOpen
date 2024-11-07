@@ -1109,8 +1109,13 @@ public class IFSFile implements Serializable, Comparable
           if (impl_ == null)
               chooseImpl();
 
-          if (!isFile())
-              return impl_.getCCSID();
+          if (!isFile()) {
+        	  if (exists()) {
+        		  return impl_.getCCSID();
+        	  } else {
+        		  return -1; 
+        	  }
+          }
 
           return impl_.getCCSID(true);
       }

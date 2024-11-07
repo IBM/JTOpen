@@ -82,9 +82,7 @@ class AS400FileImplNative extends AS400FileImplBase
     {
         super.close(); //@C0A
 
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        boolean didSwap = system_.swapTo();
         try
         {
             synchronized(synch_open_close_)
@@ -100,7 +98,7 @@ class AS400FileImplNative extends AS400FileImplBase
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
     }
 
@@ -129,9 +127,7 @@ class AS400FileImplNative extends AS400FileImplBase
     public void commit()
       throws AS400Exception, AS400SecurityException, InterruptedException,  IOException
     {
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        boolean didSwap = system_.swapTo();
         try
         {
             // Commit transactions under commitment control.
@@ -144,7 +140,7 @@ class AS400FileImplNative extends AS400FileImplBase
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
     }
 
@@ -268,7 +264,7 @@ class AS400FileImplNative extends AS400FileImplBase
         //@C2      if (converter_ == null) setConverter(); //@C2A
         //@C2      text80.setConverter(converter_); //@C2A
         srcRF.addFieldDescription(new CharacterFieldDescription(new AS400Text(80, system_.getCcsid()), "SRCDTA"));
-        Vector lines = new Vector();  // Contains DDS lines to write to source file
+        Vector<String> lines = new Vector<String>();  // Contains DDS lines to write to source file
         String line; // A single line of DDS source
         // Create line(s) for any file level keywords - file level keywords must precede
         // the line specifying the record format name.
@@ -465,9 +461,7 @@ class AS400FileImplNative extends AS400FileImplBase
       throws AS400Exception, AS400SecurityException, InterruptedException,  IOException
     {
         byte[] optl = {0x00, SHR_READ_NORM_RLS, DATA_DTA_DTARCD, 0x08};
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        boolean didSwap = system_.swapTo();
         try
         {
             // Delete the current record.
@@ -480,7 +474,7 @@ class AS400FileImplNative extends AS400FileImplBase
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
     }
 
@@ -512,9 +506,7 @@ class AS400FileImplNative extends AS400FileImplBase
         // Note the execution of the command is synchronized on the static
         // variable synch_execute_
         BytesWithOffset data = null;
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        boolean didSwap = system_.swapTo();
         try
         {
         synchronized(synch_execute_)
@@ -524,7 +516,7 @@ class AS400FileImplNative extends AS400FileImplBase
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
 
         // Parse the message feedback data.
@@ -671,9 +663,7 @@ class AS400FileImplNative extends AS400FileImplBase
         byte[] ufcb = createUFCB(openType, bf, access, true);
 
         BytesWithOffset data = null;
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        boolean didSwap = system_.swapTo();
         try
         {
             synchronized(synch_open_close_)
@@ -689,7 +679,7 @@ class AS400FileImplNative extends AS400FileImplBase
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
         // Parse the message feedback data.
         AS400Message[] msgs = parseMsgFeedback(data);
@@ -946,9 +936,9 @@ class AS400FileImplNative extends AS400FileImplBase
 
         // Use force end of data.
         byte[] optl = { TYPE_GET_LAST, SHR_READ_NORM_RLS, DATA_NODTA_DTARCD, OPER_GET };
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             forceEndOfData(handle_, optl);
@@ -960,7 +950,7 @@ class AS400FileImplNative extends AS400FileImplBase
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
     }
 
@@ -1002,9 +992,9 @@ class AS400FileImplNative extends AS400FileImplBase
         BinaryConverter.shortToByteArray((short) blockingFactor_, ctll, 3); //@C0C
         ctll[5] = (byte)0xFF;  // End of control list
         BytesWithOffset data = null;
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             data =
@@ -1019,7 +1009,7 @@ class AS400FileImplNative extends AS400FileImplBase
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
 
         // Parse the I/O feedback data.
@@ -1063,9 +1053,9 @@ class AS400FileImplNative extends AS400FileImplBase
 
         // Use Force end of data to set the cursor.
         byte[] optl = { TYPE_GET_FIRST, SHR_READ_NORM_RLS, DATA_NODTA_DTARCD, OPER_GET };
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             forceEndOfData(handle_, optl);
@@ -1077,7 +1067,7 @@ class AS400FileImplNative extends AS400FileImplBase
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
     }
    
@@ -1155,9 +1145,9 @@ class AS400FileImplNative extends AS400FileImplBase
         ctll[25] = (byte) 0xff;
 
         BytesWithOffset data = null;
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             // GETD.
@@ -1173,7 +1163,7 @@ class AS400FileImplNative extends AS400FileImplBase
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
 
         // Parse the I/O feedback data.
@@ -1370,9 +1360,9 @@ class AS400FileImplNative extends AS400FileImplBase
         ctll[28 + keyLength] = (byte) 0xff;
 
         BytesWithOffset data = null;
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             // GETK
@@ -1388,7 +1378,7 @@ class AS400FileImplNative extends AS400FileImplBase
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
 
         // Parse the I/O feedback data.
@@ -1450,7 +1440,6 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         byte[] optl = { (byte)searchType, share, DATA_DTA_DTARCD, OPER_GETK };
 
         // Determine the total length of all data in keyFields.
-        FieldDescription description;
         int keyLength = keys.length;
 
         // CTLL
@@ -1497,9 +1486,9 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         ctll[28 + keyLength] = (byte) 0xff;
 
         BytesWithOffset data = null;
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             // GETK
@@ -1515,7 +1504,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
 
         // Parse the I/O feedback data.
@@ -1619,9 +1608,9 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         ctll[25] = (byte) 0xff;
 
         BytesWithOffset data = null;
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             // GETD
@@ -1637,7 +1626,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
 
         // Parse the I/O feedback data.
@@ -1821,9 +1810,9 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         ctll[28 + keyLength] = (byte) 0xff;
 
         BytesWithOffset data = null;
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             // GETK.
@@ -1839,7 +1828,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
 
         // Parse the I/O feedback data.
@@ -1898,7 +1887,6 @@ return null;
         byte[] optl = { (byte)searchType, share, DATA_DTA_DTARCD, OPER_GETK };
 
         // Determine the total length of all data in keyFields.
-        FieldDescription description;
         int keyLength = key.length;
 
         // CTLL
@@ -1945,9 +1933,9 @@ return null;
         ctll[28 + keyLength] = (byte) 0xff;
 
         BytesWithOffset data = null;
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             // GETK.
@@ -1963,7 +1951,7 @@ return null;
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
 
         // Parse the I/O feedback data.
@@ -2096,9 +2084,9 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         ctll[5] = (byte)0xFF;  // End of control list
 
         BytesWithOffset data = null;
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             // GET
@@ -2114,7 +2102,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
 
         // Parse the I/O feedback data.
@@ -2161,9 +2149,9 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         int length = openFeedback_.getRecordIncrement() *
           blockingFactor_; //@C0C
         BytesWithOffset data = null;
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             data =
@@ -2176,7 +2164,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
 
         // Parse the I/O feedback data.
@@ -2212,9 +2200,9 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
     public void rollback()
       throws AS400Exception, AS400SecurityException, InterruptedException,   IOException
     {
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             // Rollback.
@@ -2227,7 +2215,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
     }
 
@@ -2306,9 +2294,9 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
             recordData[fieldOffset] = (record.isNullField(i))? (byte)0xF1 : (byte)0xF0;
         }
   
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+       
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             // UPDAT
@@ -2321,7 +2309,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
     }
 
@@ -2413,9 +2401,9 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
             {
                 byte[] dataToWrite = new byte[offset + recordIncrement];
                 System.arraycopy(recordData, 0, dataToWrite, 0, dataToWrite.length);
-                byte[] swapToPH = new byte[12];
-                byte[] swapFromPH = new byte[12];
-                boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+               
+                
+                boolean didSwap = system_.swapTo();
                 try
                 {
                     // PUT
@@ -2428,14 +2416,12 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
                 }
                 finally
                 {
-                    if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+                    if (didSwap) system_.swapBack();
                 }
             }
             else if (r == records.length || (r % blockingFactor_ == 0)) //@C0C
             {
-                byte[] swapToPH = new byte[12];
-                byte[] swapFromPH = new byte[12];
-                boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+                boolean didSwap = system_.swapTo();
                 try
                 {
                     // PUT
@@ -2448,7 +2434,7 @@ throws AS400Exception, AS400SecurityException, InterruptedException,   IOExcepti
                 }
                 finally
                 {
-                    if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+                    if (didSwap) system_.swapBack();
                 }
 
                 // Reset the offset.

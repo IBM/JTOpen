@@ -45,9 +45,9 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
     public void clear(byte[] key) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
         // Call native method.
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             if (key == null)
@@ -65,7 +65,7 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
     }
 
@@ -80,9 +80,9 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
         byte[] commandBytes = converter_.stringToByteArray(command);
 
         // Call native method.
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             createNative(commandBytes);
@@ -98,7 +98,7 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
     }
 
@@ -112,9 +112,9 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
         byte[] commandBytes = converter_.stringToByteArray(command);
 
         // Call native method.
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             deleteNative(commandBytes);
@@ -125,7 +125,7 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
     }
 
@@ -146,9 +146,9 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
             System.arraycopy(key, 0, newKey, 0, key.length);
         }
 
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             DQQueryRecord qr = retrieveAttributes(key != null);
@@ -171,7 +171,7 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
     }
 
@@ -182,9 +182,9 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
         byte[] attributes = new byte[61];
 
         // Call native method.
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             retrieveAttributesNative(libraryBytes_, queueNameBytes_, attributes);
@@ -195,7 +195,7 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
 
         // Verify data queue type and set attribute.
@@ -239,9 +239,9 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
     // Key is null for non-keyed queues.
     public void write(byte[] key, byte[] data) throws AS400SecurityException, ErrorCompletingRequestException, IOException, IllegalObjectTypeException, InterruptedException, ObjectDoesNotExistException
     {
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = system_.swapTo();
         try
         {
             // Call native method.
@@ -260,7 +260,7 @@ class BaseDataQueueImplNative extends BaseDataQueueImplRemote
         }
         finally
         {
-            if (didSwap) system_.swapBack(swapToPH, swapFromPH);
+            if (didSwap) system_.swapBack();
         }
     }
 
