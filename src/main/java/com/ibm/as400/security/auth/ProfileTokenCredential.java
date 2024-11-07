@@ -895,8 +895,6 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *
      * @param bytes The token bytes.
      * 
-     * @param enhancedProfileToken -- indicates if the token is an enhancedProfileToken
-     *
      * @exception PropertyVetoException            If the change is vetoed.
      *
      * @exception ExtendedIllegalArgumentException If the provided value is not the
@@ -927,7 +925,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *
      * @param bytes The token bytes.
      * 
-     * @param enhancedProfileToken -- indicates if the token is an enhancedProfileToken
+     * @param enhancedProfileToken Indicates if the token is an enhancedProfileToken
      *
      * @exception PropertyVetoException            If the change is vetoed.
      *

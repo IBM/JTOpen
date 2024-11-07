@@ -59,7 +59,7 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      *
      * @param timeoutInterval The number of seconds to expiration.
      * 
-     * @param enhancedProfileTokenImpl  Input / output.  On input, if true then an enhancedProfileToken will be generated if possible.
+     * @param enhancedProfileToken  Input / output.  On input, if true then an enhancedProfileToken will be generated if possible.
      *                                  On output, true if an enhancedProfileToken was generated. 
      *
      * @return The token bytes.
@@ -120,7 +120,7 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      *
      * @param timeoutInterval The number of seconds to expiration.
      * 
-     * @param enhancedProfileTokenImpl  Input / output.  On input, if true then an enhancedProfileToken will be generated if possible.
+     * @param enhancedProfileToken  Input / output.  On input, if true then an enhancedProfileToken will be generated if possible.
      *                                  On output, true if an enhancedProfileToken was generated. 
 
      *
