@@ -308,6 +308,10 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
 
             // Input: Local port
             parmlist[18] = new ProgramParameter(BinaryConverter.intToByteArray(remotePort));
+            
+            isEnhancedToken[0] = true; 
+        } else { 
+            isEnhancedToken[0] = false; 
         }
 
         ProgramCall programCall = new ProgramCall(sys);
