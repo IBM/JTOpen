@@ -46,6 +46,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
 
@@ -3464,7 +3465,7 @@ private String getXACodeInfo(XAException e) {
           methods = new Method[0]; 
         }
       }
-      Vector methodVector = new Vector(); 
+      HashSet<String> hashSet = new HashSet<String>(); 
       for (int m = 0; (m < methods.length); m++) {
         String methodInfo;
         String returnClause;
@@ -3484,8 +3485,9 @@ private String getXACodeInfo(XAException e) {
           methodInfo += parameterTypeName;
         }
         methodInfo += ")"+returnClause;
-        methodVector.addElement(methodInfo);
+        hashSet.add(methodInfo);
       }
+      Vector<String> methodVector = new Vector<String>(hashSet); 
       Collections.sort(methodVector); 
       Enumeration vectorEnum = methodVector.elements(); 
       while (vectorEnum.hasMoreElements()) {
