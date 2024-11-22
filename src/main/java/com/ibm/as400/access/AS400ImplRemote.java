@@ -175,6 +175,10 @@ public class AS400ImplRemote implements AS400Impl
   // Additional authentication factor. We have to hold on to it because it may be timed, and thus can be reused. 
   private byte[] additionalAuthFactor_;
   
+  // Profile handles used by swapTo / swapBack
+  private byte[] swapToPH_ = null;
+  private byte[] swapFromPH_ = null;
+  
   private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
 
   static {
@@ -938,7 +942,7 @@ public class AS400ImplRemote implements AS400Impl
               Trace.log(Trace.ERROR, "Start server failed with return code:", rcBytes);
               throw AS400ImplRemote.returnSecurityException(reply.getRC(), null, userId_);
           }
-
+          
           // [0]=factor, [1]=verification ID, [2]=remote ip address 
           Object[] additonalAuthInfo = getAdditionalAuthInfo(profileToken, null);
           
@@ -959,7 +963,13 @@ public class AS400ImplRemote implements AS400Impl
                       userId_);
           }
           try {
-              profileToken.setToken(rep.getProfileTokenBytes());
+        	  boolean enhancedProfileToken = false; 
+              int vrm = (version_ != null) ? version_.getVersionReleaseModification() : getVRM();
+              if (vrm > 0x00070500 ) {
+            	  enhancedProfileToken = true;   /* server always generates enhanced profile token */
+              }
+
+              profileToken.setToken(rep.getProfileTokenBytes(), enhancedProfileToken);
               profileToken.setTokenCreator(ProfileTokenCredential.CREATOR_SIGNON_SERVER);
           }
           catch (PropertyVetoException e) {
@@ -1141,7 +1151,13 @@ public class AS400ImplRemote implements AS400Impl
           }
       
           try {
-              profileToken.setToken(rep.getProfileTokenBytes());
+        	  boolean enhancedProfileToken = false; 
+              int vrm = (version_ != null) ? version_.getVersionReleaseModification() : getVRM();
+              if (vrm > 0x00070500 ) {
+            	  enhancedProfileToken = true;   /* server always generates enhanced profile token */
+              }
+
+              profileToken.setToken(rep.getProfileTokenBytes(), enhancedProfileToken);
               profileToken.setTokenCreator(ProfileTokenCredential.CREATOR_SIGNON_SERVER);
           } catch (PropertyVetoException e) {
               Trace.log(Trace.ERROR, e);
@@ -1503,7 +1519,15 @@ public class AS400ImplRemote implements AS400Impl
                       authScheme = AS400.AUTHENTICATION_SCHEME_DDM_EUSERIDPWD;
 
                       userIDbytes = getEncryptedUserid(sharedKeyBytes, serverSeed);
-                      ddmSubstitutePassword = getDdmEncryptedPassword(sharedKeyBytes, serverSeed);
+                      if (credVault_.isEmpty() &&
+                    		  !mustUseSuppliedProfile_
+                              && AS400.onAS400
+                              && AS400.currentUserAvailable()
+                              && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification()))) {
+                          ddmSubstitutePassword = getPassword(clientSeed, serverSeed);
+                      } else { 
+                          ddmSubstitutePassword = getDdmEncryptedPassword(sharedKeyBytes, serverSeed);
+                      }
                   }
                   else
                   {
@@ -1818,7 +1842,7 @@ public class AS400ImplRemote implements AS400Impl
                   && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
           {
               encryptedPassword = CurrentUser.getUserInfo(AS400.nativeVRM.getVersionReleaseModification(), clientSeed, serverSeed, userId_);
-              Trace.log(Trace.DIAGNOSTIC, "  encrypted password retrieved");
+              Trace.log(Trace.DIAGNOSTIC, "  encrypted password retrieved1");
           }
           else {
               Trace.log(Trace.ERROR, "Password is null.");
@@ -2039,20 +2063,14 @@ public class AS400ImplRemote implements AS400Impl
           && AS400.currentUserAvailable()
           && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
       {
-        // TODO:Think about what to do in this case
-        // encryptedPassword =
-        // CurrentUser.getUserInfo(AS400.nativeVRM.getVersionReleaseModification(),
-        // clientSeed, serverSeed, userId_);
-        Trace.log(Trace.DIAGNOSTIC, "  encrypted password retrieved");
-        // For now throw exception
-        throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
+       // Fall into code below 
       }
       else {
-        Trace.log(Trace.ERROR, "Password is null.");
+        Trace.log(Trace.ERROR, "Password is null and unable to determine password at later time");
         throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
       }
     }
-    else
+   
     {
       byte[] userIdEbcdic = SignonConverter.stringToByteArray(userId_);
       if (PASSWORD_TRACE) {
@@ -3424,8 +3442,6 @@ public class AS400ImplRemote implements AS400Impl
 
       if (canUseNativeOptimization_)
       {
-          byte[] swapToPH = new byte[12];
-          byte[] swapFromPH = new byte[12];
           // If -Xshareclasses is specified when using Java on an IBM i system
           // then classes cannot be loaded when the profile is swapped. Load the classes before doing the swap.
           Class x = BinaryConverter.class;
@@ -3433,7 +3449,7 @@ public class AS400ImplRemote implements AS400Impl
           x = SignonInfo.class;
           x = com.ibm.as400.access.NLSImplNative.class;
           x = com.ibm.as400.access.NLSImplRemote.class;
-          boolean didSwap = swapTo(swapToPH, swapFromPH);
+          boolean didSwap = swapTo();
           try
           {
             byte[] data = AS400ImplNative.signonNative(SignonConverter.stringToByteArray(userId));
@@ -3462,7 +3478,7 @@ public class AS400ImplRemote implements AS400Impl
           }
           finally {
             if (didSwap)
-              swapBack(swapToPH, swapFromPH);
+              swapBack();
           }
           
           return signonInfo_;
@@ -3649,7 +3665,7 @@ public class AS400ImplRemote implements AS400Impl
       x = SignonInfo.class;
       x = com.ibm.as400.access.NLSImplNative.class;
       x = com.ibm.as400.access.NLSImplRemote.class;
-      boolean didSwap = swapTo(swapToPH, swapFromPH);
+      boolean didSwap = swapTo();
       try {
         byte[] data = AS400ImplNative.signonNative(SignonConverter
             .stringToByteArray(userId));
@@ -3677,7 +3693,7 @@ public class AS400ImplRemote implements AS400Impl
         throw mapNativeSecurityException(e);
       } finally {
         if (didSwap)
-          swapBack(swapToPH, swapFromPH);
+          swapBack();
       }
     }
     else
@@ -4046,7 +4062,7 @@ public class AS400ImplRemote implements AS400Impl
       fireConnectEvent(false, AS400.SIGNON);
   }
 
-  boolean swapTo(byte[] swapToPH, byte[] swapFromPH) throws AS400SecurityException, IOException
+  boolean swapTo() throws AS400SecurityException, IOException
   {
     if (AS400.onAS400
         && AS400.currentUserAvailable()
@@ -4058,6 +4074,11 @@ public class AS400ImplRemote implements AS400Impl
       throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
     }
     
+    if (swapToPH_ != null || swapFromPH_ != null) { 
+        Trace.log(Trace.ERROR, "Nested swapTo / swapBack calls.");
+    	throw new AS400SecurityException(AS400SecurityException.UNKNOWN);
+    }
+    
     byte[] temp = credVault_.getClearCredential();
     try
     {
@@ -4067,7 +4088,12 @@ public class AS400ImplRemote implements AS400Impl
         throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
       }
       
-      AS400ImplNative.swapToNative(SignonConverter.stringToByteArray(userId_), temp, swapToPH, swapFromPH);
+      // Initialize the values before swapping.  
+      // TODO:  Need to change this code when we cache the swapToPH_  (and authenticate with the password once)
+      swapToPH_ = new byte[12];
+      swapFromPH_ = new byte[12];
+
+      AS400ImplNative.swapToNative(SignonConverter.stringToByteArray(userId_), temp, swapToPH_, swapFromPH_);
     }
     catch (NativeException e) {
       throw mapNativeSecurityException(e);
@@ -4078,12 +4104,15 @@ public class AS400ImplRemote implements AS400Impl
     return true;
   }
 
-  void swapBack(byte[] swapToPH, byte[] swapFromPH) throws AS400SecurityException, IOException
+  void swapBack() throws AS400SecurityException, IOException
   {
       try {
-          AS400ImplNative.swapBackNative(swapToPH, swapFromPH);
+          AS400ImplNative.swapBackNative(swapToPH_, swapFromPH_);
       } catch (NativeException e) {
           throw mapNativeSecurityException(e);
+      } finally {
+    	  swapToPH_ = null; 
+    	  swapFromPH_ = null; 
       }
   }
 

@@ -375,9 +375,9 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
 
     private boolean runCommandOnThread(byte[] commandBytes, int messageOption, int ccsid) throws AS400SecurityException, ErrorCompletingRequestException, IOException, InterruptedException
     {
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = system_.swapTo();
         if (OFF_THREAD.equals(priorCallWasOnThread_))
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Prior call was off-thread, but this call is on-thread, so different job.");
 
@@ -427,7 +427,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
         finally
         {
             if (didSwap) 
-                system_.swapBack(swapToPH, swapFromPH);
+                system_.swapBack();
         }
     }
 
@@ -536,9 +536,9 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
                 Trace.log(Trace.DIAGNOSTIC, "Program parameter bytes:", programParameterStructure);
                 Trace.log(Trace.DIAGNOSTIC, "Program parameters:", programParameters);
             }
-            byte[] swapToPH = new byte[12];
-            byte[] swapFromPH = new byte[12];
-            boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+            
+            
+            boolean didSwap = system_.swapTo();
             try
             {
                 // Call native method.
@@ -590,7 +590,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             finally
             {
                 if (didSwap)
-                    system_.swapBack(swapToPH, swapFromPH);
+                    system_.swapBack();
             }
         }
         else
@@ -633,9 +633,9 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
                 Trace.log(Trace.DIAGNOSTIC, "Offset array:", offsetArray);
                 Trace.log(Trace.DIAGNOSTIC, "Program parameters:", programParameters);
             }
-            byte[] swapToPH = new byte[12];
-            byte[] swapFromPH = new byte[12];
-            boolean didSwap = system_.swapTo(swapToPH, swapFromPH);
+            
+            
+            boolean didSwap = system_.swapTo();
             try
             {
                 // Call native method.
@@ -687,7 +687,7 @@ class RemoteCommandImplNative extends RemoteCommandImplRemote
             finally
             {
                 if (didSwap)
-                    system_.swapBack(swapToPH, swapFromPH);
+                    system_.swapBack();
             }
         }
     }

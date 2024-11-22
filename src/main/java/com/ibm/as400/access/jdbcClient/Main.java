@@ -46,8 +46,10 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Vector;
+
 import java.util.zip.CRC32;
 
 import javax.transaction.xa.XAException;
@@ -2792,11 +2794,11 @@ public class Main implements Runnable {
               // pre JDK 1.4
 
                 if (callObject != null) {
-                  methods = callObject.getClass().getMethods();
+                  methods = getAllMethods(callObject.getClass());
                 } else {
                   // Note:  callClass cannot be null because of callObject != null || callClass != null condition above
                     if (callClass != null) { 
-                      methods = callClass.getMethods();
+                      methods = getAllMethods(callClass);
                     } else {
                       methods = new Method[0]; 
                     }
@@ -2807,8 +2809,9 @@ public class Main implements Runnable {
                   && (variable == null); m++) {
                 int p = 0;
                 int methodParameterCount = 0;
-
+                
                 if (methods[m].getName().equals(methodName)) {
+                	methods[m].setAccessible(true); 
                   Class[] parameterTypes = methods[m].getParameterTypes();
                   String argsLeft = left;
                   Object[] parameters = new Object[parameterTypes.length];
@@ -3119,7 +3122,22 @@ public class Main implements Runnable {
     }
   }
 
-  private String getXACodeInfo(XAException e) {
+  /* Use both getMethods and getDeclared methods to return all methods for the object  */ 
+  private Method[] getAllMethods(Class class1) {
+    Method[] declaredMethods = class1.getDeclaredMethods();
+    Method[] allMethods = class1.getMethods(); 
+    	
+    Method[] returnMethods = new Method[declaredMethods.length+allMethods.length];
+    for (int i = 0; i < declaredMethods.length; i++) {
+    	returnMethods[i] = declaredMethods[i]; 
+    }
+    for (int i = 0; i < allMethods.length; i++) { 
+    	returnMethods[i+declaredMethods.length] = allMethods[i]; 
+    }
+	return returnMethods;
+}
+
+private String getXACodeInfo(XAException e) {
     int code = e.errorCode; 
     switch (code) {
     case XAException.XA_HEURCOM: return "XA_HEURCOM : The transaction branch has been heuristically committed."; 
@@ -3438,16 +3456,16 @@ public class Main implements Runnable {
     if (callObject != null || callClass != null) {
       Method[] methods;
       if (callObject != null) {
-        methods = callObject.getClass().getMethods();
+        methods = getAllMethods(callObject.getClass());
       } else {
         // callClass cannot be null because of callObject != null || callClass != null condition above
         if (callClass != null) { 
-          methods = callClass.getMethods();
+          methods = getAllMethods(callClass);
         } else {
           methods = new Method[0]; 
         }
       }
-      Vector methodVector = new Vector(); 
+      HashSet<String> hashSet = new HashSet<String>(); 
       for (int m = 0; (m < methods.length); m++) {
         String methodInfo;
         String returnClause;
@@ -3467,8 +3485,9 @@ public class Main implements Runnable {
           methodInfo += parameterTypeName;
         }
         methodInfo += ")"+returnClause;
-        methodVector.addElement(methodInfo);
+        hashSet.add(methodInfo);
       }
+      Vector<String> methodVector = new Vector<String>(hashSet); 
       Collections.sort(methodVector); 
       Enumeration vectorEnum = methodVector.elements(); 
       while (vectorEnum.hasMoreElements()) {

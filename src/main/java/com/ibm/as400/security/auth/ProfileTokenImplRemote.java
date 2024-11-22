@@ -33,7 +33,6 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
 
 
     @Deprecated
-    @Override
     public byte[] generateToken(String uid, String pwd, int type, int timeoutInterval) throws RetrieveFailedException
     {
         AS400 sys = getCredential().getSystem();
@@ -71,16 +70,16 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     }
 
     @Override
-    public byte[] generateToken(String uid, int pwdSpecialValue, int type, int timeoutInterval) throws RetrieveFailedException
+    public byte[] generateToken(String uid, int pwdSpecialValue, int type, int timeoutInterval, boolean[] enhancedProfileToken) throws RetrieveFailedException
     {
-        return generateToken(uid, pwdSpecialValue, null, AuthenticationIndicator.APPLICATION_AUTHENTICATION,
-                null, null, 0, null, 0, type, timeoutInterval);
+         return generateToken(uid, pwdSpecialValue, null, AuthenticationIndicator.APPLICATION_AUTHENTICATION,
+                null, null, 0, null, 0, type, timeoutInterval,enhancedProfileToken);
 
     }
     
     private byte[] generateToken(String uid, int pwdSpecialValue, char[] additionalAuthenticationFactor,
             int authenticationIndicator, String verificationId, String remoteIpAddress, int remotePort,
-            String localIpAddress, int localPort, int type, int timeoutInterval) throws RetrieveFailedException
+            String localIpAddress, int localPort, int type, int timeoutInterval, boolean[] enhancedProfileToken) throws RetrieveFailedException
     {
         // Convert password special value from enumerated int to String
         String pwd;
@@ -105,7 +104,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         // Determine if we are using enhanced profile tokens
         boolean useEPT = false;
         try {
-            useEPT = (ProfileTokenCredential.useEnhancedProfileTokens() && sys.getVRM() > 0x00070500);
+            useEPT = enhancedProfileToken[0] && (ProfileTokenCredential.useEnhancedProfileTokens() && sys.getVRM() > 0x00070500);
         }
         catch (AS400SecurityException|IOException e) {
             Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
@@ -217,7 +216,11 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         catch (Exception e) {
             throw new RetrieveFailedException();
         }
-
+        if (useEPT) {
+        	enhancedProfileToken[0] = true; 
+        } else { 
+        	enhancedProfileToken[0] = false; 
+        }
         return parmlist[0].getOutputData();
     }
     
@@ -225,6 +228,8 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     public ProfileTokenCredential generateToken(String uid, int pwdSpecialValue, ProfileTokenCredential profileTokenCred)
             throws RetrieveFailedException, PropertyVetoException 
     {
+    	boolean[] enhancedProfileToken = new boolean[1]; 
+    	enhancedProfileToken[0] = true; 
         byte[] token = generateToken(uid, pwdSpecialValue, 
                 profileTokenCred.getAdditionalAuthenticationFactor(), 
                 profileTokenCred.getAuthenticationIndicator(),
@@ -234,10 +239,11 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
                 profileTokenCred.getLocalIPAddress(),  
                 profileTokenCred.getLocalPort(),         
                 profileTokenCred.getTokenType(), 
-                profileTokenCred.getTimeoutInterval());
+                profileTokenCred.getTimeoutInterval(),
+                enhancedProfileToken);
         
         try {
-            profileTokenCred.setToken(token);
+            profileTokenCred.setToken(token, enhancedProfileToken[0]);
             profileTokenCred.setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
         } 
         catch (PropertyVetoException e)
@@ -254,67 +260,11 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         return profileTokenCred;
     }
 
-    /**
-    * Generates and returns a new profile token based on
-    * the provided information using a password string
-    * <p>
-    * This method is used for generating a token using
-    * a password string (vs a special value).
-    *
-    * @param uid
-    *		The name of the user profile for which the token
-    *		is to be generated.
-    *
-    * @param pwd
-    *		The user profile password. 
-    *       Special values are not supported by this method.
-    *
-    * @param type
-    *		The type of token.
-    *		Possible types are defined as fields on the 
-    *       ProfileTokenCredential class:
-    *		  <ul>
-    * 			<li>TYPE_SINGLE_USE
-    * 			<li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-    * 			<li>TYPE_MULTIPLE_USE_RENEWABLE
-    *		  </ul>
-    *		<p>
-    *
-    * @param timeoutInterval
-    *    The number of seconds to expiration.
-    *
-    * @return
-    *		The token bytes.
-    *
-    * @exception RetrieveFailedException
-    *		If errors occur while generating the token.
-    *
-    * @deprecated Use generateTokenExtended(String uid, char[] pwd, int type,
-    *        int timeoutInterval) instead.
-    */
-    @Deprecated
-    public byte[] generateTokenExtended(String uid, String pwd, int type, int timeoutInterval) throws RetrieveFailedException
-    {
-        // Use the AS400 object to obtain the token.
-        // This will obtain the token by interacting with the IBM i 
-        // system signon server and avoid transmitting a cleartext password.
-        byte[] tkn = null;
-        try {
-            tkn = getCredential().getSystem().getProfileToken(uid, pwd, type, timeoutInterval).getToken();
-        }
-        catch (AS400SecurityException se) {
-            throw new RetrieveFailedException(se.getReturnCode());
-        }
-        catch (Exception e) {
-            AuthenticationSystem.handleUnexpectedException(e);
-        }
-        
-        return tkn;
-    }
-    
-    @Override
-    public byte[] generateTokenExtended(String uid, char[] pwd, int type, int timeoutInterval) throws RetrieveFailedException {
-        return generateTokenExtended(uid, pwd, null, null, null, 0, null, 0, type, timeoutInterval).getToken();
+   
+    public byte[] generateTokenExtended(String uid, char[] pwd, int type, int timeoutInterval, boolean[] enhancedProfileToken ) throws RetrieveFailedException {
+    	ProfileTokenCredential pt = generateTokenExtended(uid, pwd, null, null, null, 0, null, 0, type, timeoutInterval); 
+    	enhancedProfileToken[0] = pt.isEnhancedProfileToken(); 
+        return pt.getToken();
     }
     
     private ProfileTokenCredential generateTokenExtended(String uid, char[] password, char[] additionalAuthenticationFactor,
@@ -344,7 +294,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     public ProfileTokenCredential generateTokenExtended(String uid, char[] password,
             ProfileTokenCredential profileTokenCred) throws RetrieveFailedException, PropertyVetoException
     {
-        ProfileTokenCredential ptTemp = generateTokenExtended(uid, password, 
+         ProfileTokenCredential ptTemp = generateTokenExtended(uid, password, 
                 profileTokenCred.getAdditionalAuthenticationFactor(), 
                 profileTokenCred.getVerificationID(),              
                 profileTokenCred.getRemoteIPAddress(), 
@@ -355,9 +305,9 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
                 profileTokenCred.getTimeoutInterval());
         
         try {
-            profileTokenCred.setToken(ptTemp.getToken());
             profileTokenCred.setTokenCreator(ptTemp.getTokenCreator());
             profileTokenCred.setRemoteIPAddress(ptTemp.getRemoteIPAddress());
+            profileTokenCred.setToken(ptTemp.getToken(),ptTemp.isEnhancedProfileToken());
         } 
         catch (PropertyVetoException e)
         {

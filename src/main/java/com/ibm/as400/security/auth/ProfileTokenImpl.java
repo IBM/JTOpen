@@ -32,38 +32,7 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      */
     public final static String PW_STR_NOPWDCHK = "*NOPWDCHK ";
 
-    /**
-     * Generates and returns a new profile token based on the provided information.
-     *
-     * @deprecated As of V5R3, replaced by
-     *             {@link #generateTokenExtended(String,char[],int,int)} for
-     *             password strings and {@link #generateToken(String,int,int,int)}
-     *             for password special values
-     *
-     * @param uid             The name of the user profile for which the token is to
-     *                        be generated.
-     *
-     * @param pwd             The user profile password (encoded).
-     *
-     * @param type            The type of token. Possible types are defined as
-     *                        fields on the ProfileTokenCredential class:
-     *                        <ul>
-     *                        <li>TYPE_SINGLE_USE
-     *                        <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-     *                        <li>TYPE_MULTIPLE_USE_RENEWABLE
-     *                        </ul>
-     *                        <p>
-     *
-     * @param timeoutInterval The number of seconds to expiration.
-     *
-     * @return The token bytes.
-     *
-     * @exception RetrieveFailedException If errors occur while generating the
-     *                                    token.
-     *
-     */
-    byte[] generateToken(String uid, String pwd, int type, int timeoutInterval) throws RetrieveFailedException;
-
+ 
     /**
      * Generates and returns a new profile token based on the provided information
      * using a password special value.
@@ -89,6 +58,9 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      *                        <p>
      *
      * @param timeoutInterval The number of seconds to expiration.
+     * 
+     * @param enhancedProfileToken  Input / output.  On input, if true then an enhancedProfileToken will be generated if possible.
+     *                                  On output, true if an enhancedProfileToken was generated. 
      *
      * @return The token bytes.
      *
@@ -96,7 +68,7 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      *                                    token.
      *
      */
-    byte[] generateToken(String uid, int pwdSpecialValue, int type, int timeoutInterval) throws RetrieveFailedException;
+    byte[] generateToken(String uid, int pwdSpecialValue, int type, int timeoutInterval, boolean[] enhancedProfileToken) throws RetrieveFailedException;
 
     /**
      * Generates and returns a new profile token based on the provided information
@@ -147,6 +119,10 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      *                        <p>
      *
      * @param timeoutInterval The number of seconds to expiration.
+     * 
+     * @param enhancedProfileToken  Input / output.  On input, if true then an enhancedProfileToken will be generated if possible.
+     *                                  On output, true if an enhancedProfileToken was generated. 
+
      *
      * @return The token bytes.
      *
@@ -154,7 +130,7 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      *                                    token.
      *
      */
-    byte[] generateTokenExtended(String uid, char[] pwd, int type, int timeoutInterval) throws RetrieveFailedException;
+    byte[] generateTokenExtended(String uid, char[] pwd, int type, int timeoutInterval, boolean[] enhancedProfileToken) throws RetrieveFailedException;
 
     /**
      * Generates and returns a new profile token based on a user profile, password,

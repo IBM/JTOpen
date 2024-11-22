@@ -97,7 +97,7 @@ public class Swapper
         if (system.canUseNativeOptimizations())
             Trace.log(Trace.WARNING, "When running natively, swaps should be performed via ProfileTokenCredential.swap() instead of Swapper.swap().");
 
-        swapToToken(system, newCredential.getToken());
+        swapToToken(system, newCredential.getToken(), newCredential.isEnhancedProfileToken(),newCredential.getVerificationID(),newCredential.getRemoteIPAddress());
         newCredential.fireSwapped();
     }
 
@@ -120,13 +120,13 @@ public class Swapper
         if (newCredential == null)
             throw new NullPointerException("newCredential");
 
-        swapToToken(connection, newCredential.getToken());
+        swapToToken(connection, newCredential.getToken(), newCredential.isEnhancedProfileToken(), newCredential.getVerificationID(), newCredential.getRemoteIPAddress());
         newCredential.fireSwapped();
     }
 
     /**
      * Swaps the profile, using the specified profile token. This method calls system API QSYSETP ("Set To Profile
-     * Token").
+     * Token").  This method cannot be used with an enhanced profile token. 
      * <p>
      * Note: This method is intended for use with remote connections only, and only swaps the profile used by
      * {@link com.ibm.as400.access.CommandCall CommandCall}, {@link com.ibm.as400.access.ProgramCall ProgramCall}, and
@@ -143,13 +143,50 @@ public class Swapper
      **/
     public static void swapToToken(AS400 system, byte[] token) throws AS400SecurityException, IOException
     {
+       swapToToken(system, token, false, null,null); 
+    }
+    /**
+     * Swaps the profile, using the specified profile token. This method calls system API QSYSETP ("Set To Profile
+     * Token").  If the profile token is enhanced, then the additional parameters are passed to QSYSETP.
+     * <p>
+     * Note: This method is intended for use with remote connections only, and only swaps the profile used by
+     * {@link com.ibm.as400.access.CommandCall CommandCall}, {@link com.ibm.as400.access.ProgramCall ProgramCall}, and
+     * {@link com.ibm.as400.access.ServiceProgramCall ServiceProgramCall}. If your Java application is running
+     * "natively", that is, on-thread on the IBM i JVM, and you wish to swap the current thread to a different profile,
+     * use one of the <code>swap()</code> methods of {@link ProfileTokenCredential ProfileTokenCredential} instead of
+     * this method.
+     * 
+     * @param system The IBM i system.
+     * @param token  The bytes from {@link ProfileTokenCredential#getToken()}
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @see #swap(AS400, ProfileTokenCredential)
+     **/
+    public static void swapToToken(AS400 system, byte[] token, boolean enhancedProfileToken, String verificationId, String remoteIpAddress) throws AS400SecurityException, IOException
+    {
         if (system == null)
             throw new NullPointerException("system");
         if (token == null)
             throw new NullPointerException("token");
 
         // API takes 2 parameters: A char(32) profile token and error code
-        ProgramParameter[] parmList = new ProgramParameter[2];
+        ProgramParameter[] parmList ; 
+        if (!enhancedProfileToken) { 
+        	parmList = new ProgramParameter[2];
+        } else {
+        	// API takes 3 additional parameters
+        	/*   Verification ID         char(30)     Input: verification ID     */
+        	/*   Remote IP address       char *       Input: remote IP addr      */
+        	/*   Remote IP address len   int  *       Input: remote IP addr len  */
+        	parmList = new ProgramParameter[5];
+        	if (verificationId == null) verificationId=""; 
+        	verificationId = verificationId+"                              ";
+        	verificationId = verificationId.substring(0,30); 
+        	parmList[2] = new ProgramParameter(CharConverter.stringToByteArray(37, system,verificationId));
+        	parmList[3] = new ProgramParameter(CharConverter.stringToByteArray(37, system,remoteIpAddress)); 
+        	parmList[4] = new ProgramParameter(BinaryConverter.intToByteArray(remoteIpAddress.length())); 
+        			
+        }
 
         // Input: Profile token (32A)
         parmList[0] = new ProgramParameter(token);
@@ -157,6 +194,7 @@ public class Swapper
         // Input/Output: Error code
         parmList[1] = new ErrorCodeParameter();
 
+        
         // Call the program
         ProgramCall pgm = new ProgramCall(system, "/QSYS.LIB/QSYSETPT.PGM", parmList);
         pgm.suggestThreadsafe(); // Run on-thread if possible; allows app to use disabled profile.
@@ -185,7 +223,7 @@ public class Swapper
 
     /**
      * Swaps the profile, using the specified profile token. This method uses SQL's <code>call</code> statement to pass
-     * the token to QSYSETPT.
+     * the token to QSYSETPT.  The profile token cannot be an enhanced profile token
      * 
      * @param connection A JDBC connection to the IBM i system.
      * @param token      The bytes from {@link ProfileTokenCredential#getToken()}
@@ -194,7 +232,23 @@ public class Swapper
      * @exception SQLException           If the connection is not open, or an error occurs.
      * @see #swap(Connection, ProfileTokenCredential)
      **/
-    public static void swapToToken(Connection connection, byte[] token) throws AS400SecurityException, IOException, SQLException
+    public static void swapToToken(Connection connection, byte[] token) throws AS400SecurityException, IOException, SQLException {
+    	swapToToken(connection, token, false, null,null); 
+    }
+
+    
+    /**
+     * Swaps the profile, using the specified profile token. This method uses SQL's <code>call</code> statement to pass
+     * the token to QSYSETPT.  Additional parameters are passed if this is an enhanced profile token. 
+     * 
+     * @param connection A JDBC connection to the IBM i system.
+     * @param token      The bytes from {@link ProfileTokenCredential#getToken()}
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @exception SQLException           If the connection is not open, or an error occurs.
+     * @see #swap(Connection, ProfileTokenCredential)
+     **/
+    public static void swapToToken(Connection connection, byte[] token, boolean enhancedProfileToken, String verificationId, String remoteIpAddress) throws AS400SecurityException, IOException, SQLException
     {
         if (connection == null)
             throw new NullPointerException("connection");
@@ -220,7 +274,11 @@ public class Swapper
             sql.append(Integer.toHexString(unsignedByte).toUpperCase());
         }
 
-        sql.append("', X'0000')");
+        sql.append("', X'0000'");
+        if (enhancedProfileToken) {
+        	sql.append(", CAST('"+enhancedProfileToken+"' AS CHAR(30)),'"+remoteIpAddress+"',"+remoteIpAddress.length());
+        }
+        sql.append(")");
 
         Statement stmt = null;
         try
