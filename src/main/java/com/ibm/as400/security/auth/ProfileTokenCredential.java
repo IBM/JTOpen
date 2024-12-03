@@ -1475,7 +1475,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *
      * @param password The user profile password.
      * 
-     * @param additionalAuthenticationFactore The additional authentication factor used to authenticate. 
+     * @param additionalAuthenticationFactor The additional authentication factor used to authenticate. 
      *
      * @exception AS400SecurityException           If an IBM i system security or
      *                                             authentication error occurs.

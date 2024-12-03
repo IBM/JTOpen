@@ -19,7 +19,42 @@ import java.io.Serializable;
  * The ProfileTokenEnhandeInfo class represents the additional information used
  * by an enhanced profile token. 
  *
- *  *
+ *        verificationID  The verification ID is the label that identifies the
+ *                        specific application, service, or action associated
+ *                        with the profile handle request. This value must be
+ *                        30-characters or less. This value will be passed to
+ *                        the authentication exit program registered under the
+ *                        QIBM_QSY_AUTH exit point if the specified user profile
+ *                        has *REGFAC as an authentication method. The
+ *                        authentication exit program may use the verification
+ *                        ID as a means to restrict the use of the user profile.
+ *                        If running on an IBM i, the verification ID should be
+ *                        the DCM application ID or a similar value that
+ *                        identifies the application or service. 
+ * 
+ *        remoteIPAddress If the API is used by a server to provide access to a
+ *                        the system, the remote IP address should be obtained
+ *                        from the socket connection (i.e. using
+ *                        Socket.getInetAddress). Otherwise, null should be
+ *                        passed. 
+ * 
+ *        remotePort      If the API is used by a server to provide access to a
+ *                        the system, the remote port should be obtained from
+ *                        the socket connection (i.e. using Socket.getPort ).
+ *                        Otherwise, use 0 if there is not an associated
+ *                        connection. 
+ * 
+ *        localIPAddress  If the API is used by a server to provide access to a
+ *                        the system, the local IP address should be obtained
+ *                        from the socket connection (i.e. using
+ *                        Socket.getLocalAddress). Otherwise, null should be
+ *                        passed. 
+ * 
+ *        localPort       If the API is used by a server to provide access to a
+ *                        the system, the local port should be obtained from the
+ *                        socket connection (Socket.getLocalPort). Otherwise,
+ *                        use 0 if there is not an associated connection.
+ *                        
  */
 public final class ProfileTokenEnhancedInfo implements Serializable
 {
