@@ -156,9 +156,8 @@ public interface AS400BasicAuthenticationCredential
      *
      */
     public void initialize(AS400BasicAuthenticationPrincipal principal, char[] password, char[] additionalAuthFactor,
-            int authenticationIndicator, String verificationID, String remoteIPAddress, int remotePort,
-            String localIPAddress, int localPort, boolean isPrivate, boolean isReusable, boolean isRenewable,
-            int timeoutInterval) throws Exception;
+            int authenticationIndicator, boolean isPrivate, boolean isReusable, boolean isRenewable,
+            int timeoutInterval, ProfileTokenEnhancedInfo enhancedInfo) throws Exception;
 
     /**
      * Indicates whether the credential is considered private.

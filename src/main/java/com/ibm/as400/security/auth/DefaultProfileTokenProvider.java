@@ -321,7 +321,6 @@ public class DefaultProfileTokenProvider implements ProfileTokenProvider
             newToken.setTimeoutInterval(getTimeoutInterval());
             newToken.setTokenType(getTokenType());
 
-            newToken.setAdditionalAuthenticationFactor(additionalFactor_);
             newToken.setVerificationID(verificationID_);
             newToken.setRemoteIPAddress(remoteIPAddress_);
             

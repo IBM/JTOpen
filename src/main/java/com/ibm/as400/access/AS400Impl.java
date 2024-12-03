@@ -46,7 +46,7 @@ interface AS400Impl
     // Sets the raw bytes for the provided profile token.
     void generateProfileToken(ProfileTokenCredential profileToken, String userIdentity) throws AS400SecurityException, IOException;
     // Sets the raw bytes for the provided profile token.
-    void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException, InterruptedException;
+    void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, char[] additionalAuthenticationFactor, String gssName) throws AS400SecurityException, IOException, InterruptedException;
     // Get the port for a service.
     int getServicePort(String systemName, int service);
     // Check service connection.

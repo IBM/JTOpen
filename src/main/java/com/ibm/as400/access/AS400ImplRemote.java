@@ -56,6 +56,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.ietf.jgss.GSSCredential;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
+import com.ibm.as400.security.auth.ProfileTokenEnhancedInfo;
 
 /**
  * This is the functional implementation of the AS400Impl interface. While
@@ -943,13 +944,13 @@ public class AS400ImplRemote implements AS400Impl
               throw AS400ImplRemote.returnSecurityException(reply.getRC(), null, userId_);
           }
           
-          // [0]=factor, [1]=verification ID, [2]=remote ip address 
-          Object[] additonalAuthInfo = getAdditionalAuthInfo(profileToken, null);
+          // [0]=notUsed, [1]=verification ID, [2]=remote ip address 
+          Object[] additionalAuthInfo = getAdditionalAuthInfo(profileToken, null);
           
           SignonGenAuthTokenRequestDS req2 = new SignonGenAuthTokenRequestDS(
                   BinaryConverter.charArrayToByteArray(userIdentity.toCharArray()), profileToken.getTokenType(),
                   profileToken.getTimeoutInterval(), serverLevel_, 
-                  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
+                  (byte[])additionalAuthInfo[1],  (byte[])additionalAuthInfo[2]);
           SignonGenAuthTokenReplyDS rep = (SignonGenAuthTokenReplyDS) signonServer_.sendAndReceive(req2);
 
           int rc = rep.getRC();
@@ -963,13 +964,22 @@ public class AS400ImplRemote implements AS400Impl
                       userId_);
           }
           try {
-        	  boolean enhancedProfileToken = false; 
               int vrm = (version_ != null) ? version_.getVersionReleaseModification() : getVRM();
               if (vrm > 0x00070500 ) {
-            	  enhancedProfileToken = true;   /* server always generates enhanced profile token */
+            	    /* server always generates enhanced profile token */
+            	  ProfileTokenEnhancedInfo enhancedInfo = new ProfileTokenEnhancedInfo((String) additionalAuthInfo[3],
+            			  (String) additionalAuthInfo[4],
+            			  profileToken.getRemotePort(),
+            			  profileToken.getLocalIPAddress(),
+            			  profileToken.getLocalPort());
+            	  enhancedInfo.setEnhancedTokenCreated(true); 
+            	  profileToken.setToken(rep.getProfileTokenBytes(),
+            			  enhancedInfo);
+              } else {
+            	  profileToken.setToken(rep.getProfileTokenBytes());
               }
 
-              profileToken.setToken(rep.getProfileTokenBytes(), enhancedProfileToken);
+              
               profileToken.setTokenCreator(ProfileTokenCredential.CREATOR_SIGNON_SERVER);
           }
           catch (PropertyVetoException e) {
@@ -987,7 +997,7 @@ public class AS400ImplRemote implements AS400Impl
   }
 
   @Override
-  public void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, String gssName)
+  public void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, char[] additionalAuthFactor, String gssName)
       throws AS400SecurityException, IOException, InterruptedException
   {
       signonConnect();
@@ -1128,13 +1138,13 @@ public class AS400ImplRemote implements AS400Impl
           if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "AS400ImplRemote generating profile token for user: " + userId);
 
           
-          // [0]=factor, [1]=verification ID, [2]=remote ip address 
-          Object[] additonalAuthInfo = getAdditionalAuthInfo(profileToken, null);
+          // [0]=unused, [1]=verification ID, [2]=remote ip address 
+          Object[] additionalAuthInfo = getAdditionalAuthInfo(profileToken, null);
 
           AS400GenAuthTknDS req = new AS400GenAuthTknDS(userIdEbcdic,
                   authenticationBytes, authScheme, profileToken.getTokenType(),
                   profileToken.getTimeoutInterval(), serverLevel_, 
-                  (byte[])additonalAuthInfo[0],  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
+                  additionalAuthFactor_,  (byte[])additionalAuthInfo[1],  (byte[])additionalAuthInfo[2]);
           
           CredentialVault.clearArray(authenticationBytes);
           AS400GenAuthTknReplyDS rep = (AS400GenAuthTknReplyDS) signonServer_.sendAndReceive(req);
@@ -1151,13 +1161,19 @@ public class AS400ImplRemote implements AS400Impl
           }
       
           try {
-        	  boolean enhancedProfileToken = false; 
               int vrm = (version_ != null) ? version_.getVersionReleaseModification() : getVRM();
               if (vrm > 0x00070500 ) {
-            	  enhancedProfileToken = true;   /* server always generates enhanced profile token */
+            	  ProfileTokenEnhancedInfo enhancedInfo = new ProfileTokenEnhancedInfo((String) additionalAuthInfo[3],
+            			  (String) additionalAuthInfo[4],
+            			  profileToken.getRemotePort(),
+            			  profileToken.getLocalIPAddress(),
+            			  profileToken.getLocalPort());
+            	  enhancedInfo.setEnhancedTokenCreated(true); 
+            	  profileToken.setToken(rep.getProfileTokenBytes(),
+            			  	enhancedInfo       			  ); 
+              } else { 
+            	  profileToken.setToken(rep.getProfileTokenBytes());
               }
-
-              profileToken.setToken(rep.getProfileTokenBytes(), enhancedProfileToken);
               profileToken.setTokenCreator(ProfileTokenCredential.CREATOR_SIGNON_SERVER);
           } catch (PropertyVetoException e) {
               Trace.log(Trace.ERROR, e);
@@ -5124,7 +5140,15 @@ public class AS400ImplRemote implements AS400Impl
       additionalAuthFactor_ = (null != additionalAuthFactor && 0 < additionalAuthFactor.length )
               ? (new String(additionalAuthFactor)).getBytes(StandardCharsets.UTF_8) : null;
   }
-  
+  /*
+   * Get the additional authentication info to be sent to the server as well as 
+   * the information that needs to be associated with an enhanced profile token. 
+   * The output is the following
+   *  object[1] = byte[] verification id in UTF-8
+   *  object[2] = byte[] remoteIPAddress in UTF-8
+   *  object[3] = String verificationId
+   *  object[4] = String remoteIpAddress 
+   */
   private Object[] getAdditionalAuthInfo(ProfileTokenCredential profileToken, Boolean aafIndicator)
   {
       Object[] authdata = new Object[] { null, null, null };
@@ -5139,16 +5163,27 @@ public class AS400ImplRemote implements AS400Impl
           if (profileToken == null && (credVault_ instanceof ProfileTokenVault))
               profileToken = ((ProfileTokenVault)credVault_).getProfileTokenCredential();
           
-          if (profileToken != null)
-          {
-              String verificationID_s  = profileToken.getVerificationID();
-              authdata[1] = (verificationID_s != null && !verificationID_s.isEmpty()) ? verificationID_s.getBytes(StandardCharsets.UTF_8) : null;
-              
-              String clientIPAddress_s = profileToken.getRemoteIPAddress();
-              authdata[2] = (clientIPAddress_s != null && !clientIPAddress_s.isEmpty()) ? clientIPAddress_s.getBytes(StandardCharsets.UTF_8) : null;
-              
-              // Verification ID will always be set to something.  However, depending on where token was created, the client IP address
-              // may or may not be set.  If creating the token and it is not set, use the IP address of the sign-on server. Thus, all tokens
+			if (profileToken != null) {
+				String verificationID_s = profileToken.getVerificationID();
+				if (verificationID_s == null || verificationID_s.isEmpty() ) {
+					/* Make sure a default value is set */ 
+					verificationID_s = ProfileTokenCredential.DEFAULT_VERIFICATION_ID; 
+				}
+				authdata[1] = verificationID_s.getBytes(StandardCharsets.UTF_8);
+				authdata[3] = verificationID_s;
+
+				String clientIPAddress_s = profileToken.getRemoteIPAddress();
+				if (clientIPAddress_s != null && !clientIPAddress_s.isEmpty()) {
+					authdata[2] = clientIPAddress_s.getBytes(StandardCharsets.UTF_8);
+					authdata[4] = clientIPAddress_s;
+				} else {
+					authdata[2] = null;
+					authdata[4] = null;
+				}
+
+				// Verification ID will always be set to something. However, depending on where
+				// token was created, the client IP address
+	              // may or may not be set.  If creating the token and it is not set, use the IP address of the sign-on server. Thus, all tokens
               // that signon server creates should have client IP address. 
               if (authdata[2] == null)
               {
@@ -5157,15 +5192,25 @@ public class AS400ImplRemote implements AS400Impl
                   {
                       // We are creating token, try to set client IP address using sign-on server.
                       clientIPAddress_s = signonServer_.getLocalAddress();
-                      authdata[2] = (clientIPAddress_s != null && !clientIPAddress_s.isEmpty()) ? clientIPAddress_s.getBytes(StandardCharsets.UTF_8) : null;
+      				if (clientIPAddress_s != null && !clientIPAddress_s.isEmpty()) {
+    					authdata[2] = clientIPAddress_s.getBytes(StandardCharsets.UTF_8);
+    					authdata[4] = clientIPAddress_s;
+    				} else {
+    					authdata[2] = null;
+    					authdata[4] = null;
+    				}
+                      
                       try {
                           profileToken.setRemoteIPAddress(clientIPAddress_s);
                       } catch (PropertyVetoException e) {
                         throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
                       }
                   }
-                  else if (profileToken.getTokenCreator() != ProfileTokenCredential.CREATOR_SIGNON_SERVER)
+                  else if (profileToken.getTokenCreator() != ProfileTokenCredential.CREATOR_SIGNON_SERVER) {
+                	  
                       authdata[2] = "*NOUSE".getBytes(StandardCharsets.UTF_8);
+                      authdata[4] = "*NOUSE";
+                  }	
               }
           }
       }
