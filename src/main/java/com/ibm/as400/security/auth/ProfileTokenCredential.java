@@ -639,29 +639,44 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
 
-        // Assign to the local host system
+        // Assign to the local host system if on the system. 
+        // Otherwise create a new AS400 object to handle the credential
         AS400 sys = AuthenticationSystem.localHost();
-        setSystem(sys);
+        if (!AuthenticationSystem.isLocal(sys)) {
+        	// If existing system name is set use that, otherwise
+        	// use the default one. 
+        	AS400 oldSys = getSystem();
+        	if (oldSys != null) {
+        		String systemName = oldSys.getSystemName(); 
+        		if (systemName != null && systemName.length() > 0) { 
+        			sys = new AS400(systemName, principal.getUserProfileName(), password, additionalAuthFactor);
+        			sys.setGuiAvailable(false);
+        		}
+        	}
+        }
+        system_ = sys;
+        
+        
         // Assign an appropriate principal
         AS400Principal pr = (AS400Principal.class.isAssignableFrom(principal.getClass())) ? (AS400Principal) principal
                 : new UserProfilePrincipal(sys, principal.getUserProfileName());
-        setPrincipal(pr);
+        principal_ =  pr ;
 
         // Assign profile token attributes
         private_ = isPrivate;
-        setTimeoutInterval(timeoutInterval);
+        timeoutInterval_ = timeoutInterval;
         if (isRenewable)
-            setTokenType(TYPE_MULTIPLE_USE_RENEWABLE);
+         type_ = TYPE_MULTIPLE_USE_RENEWABLE;
         else if (isReusable)
-            setTokenType(TYPE_MULTIPLE_USE_NON_RENEWABLE);
+            type_ = TYPE_MULTIPLE_USE_NON_RENEWABLE;
         else
-            setTokenType(TYPE_SINGLE_USE);
+            type_ = TYPE_SINGLE_USE;
 
-        setAuthenticationIndicator(authenticationIndicator);
+        authenticationIndicator_ = authenticationIndicator;
         setEnhancedInfo(enhancedInfo); 
         
         // Generate the token
-        setTokenExtended(pr, password);
+        setTokenExtended(pr, password, additionalAuthFactor);
     }
 
     public void setEnhancedInfo(ProfileTokenEnhancedInfo enhancedInfo) {
@@ -1329,6 +1344,45 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     }
 
     /**
+     * Sets the token bytes based on the provided principal, password, and additionalAuthenticationFactor
+     *
+     * <p>
+     * The <i>system</i> property must be set prior to invoking this method.
+     *
+     * <p>
+     * If successful, this method results in a new token being created on the IBM i
+     * system. The new token is generated using the previously established
+     * <i>tokenType</i> and <i>timeoutInterval</i> settings.
+     *
+     * <p>
+     * This property cannot be changed once a request initiates a connection for the
+     * object to the IBM i system (for example, refresh).
+     *
+     * @param principal The principal identifying the user profile for which the
+     *                  token is to be generated.
+     *
+     * @param password  The user profile password.
+     * 
+     * @param additionalAuthenticationFactor The additional authentication factor
+     *
+     * @exception AS400SecurityException           If an IBM i system security or
+     *                                             authentication error occurs.
+     *
+     * @exception PropertyVetoException            If the change is vetoed.
+     *
+     * @exception ExtendedIllegalArgumentException If errors occur during parameter
+     *                                             validation.
+     *
+     * @exception ExtendedIllegalStateException    If the token cannot be
+     *                                             initialized due to the current
+     *                                             state.
+     *
+     */
+    public void setTokenExtended(AS400Principal principal, char[] password, char[] additionalAuthenticationFactor) throws PropertyVetoException, AS400SecurityException {
+        setTokenExtended(principal.getUserProfileName(), password, additionalAuthenticationFactor);
+    }
+
+    /**
      * Sets the token bytes based on the provided user profile and password.
      *
      * <p>
@@ -1683,7 +1737,8 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         if (!useEnhancedProfileTokens_) 
             return "*NOUSE";
         String verificationID = enhancedInfo_.getVerificationID();
-        return (verificationID != null) ? verificationID : DEFAULT_VERIFICATION_ID;
+        return (verificationID != null || !isEnhancedProfileToken()) ? verificationID : DEFAULT_VERIFICATION_ID;
+        
     }
 
     /**

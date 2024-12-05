@@ -231,7 +231,9 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         // system signon server and avoid transmitting a cleartext password.
         ProfileTokenCredential ptTemp = null;
         try {
-            ptTemp = getCredential().getSystem().getProfileToken(uid, password, additionalAuthenticationFactor,
+        	AS400 system = getCredential().getSystem();
+        	
+            ptTemp = system.getProfileToken(uid, password, additionalAuthenticationFactor,
                                                                  type, timeoutInterval, 
                                                                  enhancedInfo);
         }
@@ -261,6 +263,9 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
                 profileTokenCred.getEnhancedInfo());
         
         try {
+        	// Save the impl so that we can change the credential 
+        	AS400CredentialImpl impl = profileTokenCred.impl_;
+        	profileTokenCred.impl_ = null; 
             profileTokenCred.setTokenCreator(ptTemp.getTokenCreator());
             profileTokenCred.setRemoteIPAddress(ptTemp.getRemoteIPAddress());
             if (ptTemp.isEnhancedProfileToken()) {
@@ -268,6 +273,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
             } else { 
             profileTokenCred.setToken(ptTemp.getToken());
             }
+            profileTokenCred.impl_ = impl; 
         } 
         catch (PropertyVetoException e)
         {

@@ -1137,14 +1137,17 @@ public class AS400ImplRemote implements AS400Impl
           
           if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "AS400ImplRemote generating profile token for user: " + userId);
 
-          
+          byte[] additionalAuthFactorUtf8 = null; 
+          if (additionalAuthFactor != null) { 
+        	 additionalAuthFactorUtf8 =   (new String(additionalAuthFactor)).getBytes(StandardCharsets.UTF_8);
+          }
           // [0]=unused, [1]=verification ID, [2]=remote ip address 
           Object[] additionalAuthInfo = getAdditionalAuthInfo(profileToken, null);
 
           AS400GenAuthTknDS req = new AS400GenAuthTknDS(userIdEbcdic,
                   authenticationBytes, authScheme, profileToken.getTokenType(),
                   profileToken.getTimeoutInterval(), serverLevel_, 
-                  additionalAuthFactor_,  (byte[])additionalAuthInfo[1],  (byte[])additionalAuthInfo[2]);
+                  additionalAuthFactorUtf8,  (byte[])additionalAuthInfo[1],  (byte[])additionalAuthInfo[2]);
           
           CredentialVault.clearArray(authenticationBytes);
           AS400GenAuthTknReplyDS rep = (AS400GenAuthTknReplyDS) signonServer_.sendAndReceive(req);
@@ -1509,7 +1512,8 @@ public class AS400ImplRemote implements AS400Impl
                   byte[] clientSeed = (byte[]) returnVals[0];
                   byte[] serverSeed = (byte[]) returnVals[1];
                   byte[] jobBytes   = (byte[]) returnVals[2];
-
+                  jobString = obtainJobIdForConnection(jobBytes); 
+                  
                   byte[] sharedKeyBytes = null;
                   boolean encryptUserId = (returnVals[3] != null);
                   KeyPair keyPair = (KeyPair) returnVals[4];
@@ -1571,10 +1575,14 @@ public class AS400ImplRemote implements AS400Impl
                   
                   // [0]=factor, [1]=verification ID, [2]=remote ip address 
                   Object[] additonalAuthInfo = getAdditionalAuthInfo(null, aafIndicator_);
-                  
+                  byte[] additionalAuthFactorUtf8 = null;
+                  if (additionalAuthFactor_ != null) { 
+                    additionalAuthFactorUtf8 = (new String(additionalAuthFactor_)).getBytes(StandardCharsets.UTF_8);
+                  }
                   ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes, ddmSubstitutePassword, iaspBytes,
                                                   authScheme, ddmRDB_, systemName_, connectionID, 
-                                                  (byte[])additonalAuthInfo[0],  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
+                                                  additionalAuthFactorUtf8,  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
+                  
               }
               else
               {
@@ -1627,11 +1635,15 @@ public class AS400ImplRemote implements AS400Impl
                       Trace.log(Trace.DIAGNOSTIC, "  Password level: ", passwordLevel_);
                   }
 
-                  // [0]=factor, [1]=verification ID, [2]=remote ip address 
+                  // [0]= unused [1]=verification ID, [2]=remote ip address 
                   Object[] additonalAuthInfo = getAdditionalAuthInfo(null, xChgReply.getAAFIndicator());
-                  
+                  byte[] additionalAuthFactorUtf8 = null  ;
+                  if (additionalAuthFactor_ != null) { 
+                	  additionalAuthFactorUtf8 = (new String(additionalAuthFactor_)).getBytes(StandardCharsets.UTF_8);
+                  }
+
                   AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType(),
-                          (byte[])additonalAuthInfo[0],  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
+                          additionalAuthFactorUtf8,  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
                   
                   if (Trace.traceOn_) req.setConnectionID(connectionID);
                   req.write(outStream);
@@ -3878,9 +3890,13 @@ public class AS400ImplRemote implements AS400Impl
     
               // [0]=factor, [1]=verification ID, [2]=remote ip address 
               Object[] additonalAuthInfo = getAdditionalAuthInfo(null, aafIndicator_);
-              
+              byte[] additionalAuthFactorUtf8 = null;
+              if (additionalAuthFactor_ != null) {
+            	 additionalAuthFactorUtf8 =  (new String(additionalAuthFactor_)).getBytes(StandardCharsets.UTF_8);
+              }
+
               AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType(), 
-                      (byte[])additonalAuthInfo[0],  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
+                      additionalAuthFactorUtf8,  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
               
               if (Trace.traceOn_) req.setConnectionID(connectionID);
               req.write(outStream);
@@ -5151,12 +5167,12 @@ public class AS400ImplRemote implements AS400Impl
    */
   private Object[] getAdditionalAuthInfo(ProfileTokenCredential profileToken, Boolean aafIndicator)
   {
-      Object[] authdata = new Object[] { null, null, null };
+      Object[] authdata = new Object[] { null, null, null, null, null };
       
       int vrm = (version_ != null) ? version_.getVersionReleaseModification() : getVRM();
       if (vrm > 0x00070500 || (aafIndicator != null && aafIndicator))
       {
-          authdata[0] = additionalAuthFactor_;
+         
           
           // If profile token is null,  means we are not generating a profile token, so profile token should be in credential.
           boolean creatingToken = (profileToken != null);

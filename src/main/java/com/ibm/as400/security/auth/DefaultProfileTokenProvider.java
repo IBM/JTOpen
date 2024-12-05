@@ -328,12 +328,15 @@ public class DefaultProfileTokenProvider implements ProfileTokenProvider
 
             if (extended instanceof Integer)
                 newToken.setToken(getUserId(), ((Integer)extended).intValue());
-            else if (extended instanceof String)
-                newToken.setTokenExtended(getUserId(), (String)extended);
-            else if (extended instanceof char[])
-                newToken.setTokenExtended(getUserId(), (char[]) extended);
+            else if (extended instanceof String) {
+            	char[] password = ((String)extended).toCharArray(); 
+                newToken.setTokenExtended(getUserId(), password, additionalFactor_);
+                Arrays.fill(password, ' '); 
+            } else if (extended instanceof char[])
+                newToken.setTokenExtended(getUserId(), (char[]) extended, additionalFactor_);
             else
                 throw new ExtendedIllegalStateException("extendedInfo", ExtendedIllegalStateException.UNKNOWN);
+            
             
             return newToken;
         }
