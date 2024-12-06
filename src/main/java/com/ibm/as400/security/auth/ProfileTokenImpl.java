@@ -32,44 +32,6 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      */
     public final static String PW_STR_NOPWDCHK = "*NOPWDCHK ";
 
- 
-    /**
-     * Generates and returns a new profile token based on the provided information
-     * using a password special value.
-     *
-     * @param uid             The name of the user profile for which the token is to
-     *                        be generated.
-     *
-     * @param pwdSpecialValue A password special value. Possible types are defined
-     *                        as fields on the ProfileTokenCredential class:
-     *                        <ul>
-     *                        <li>PW_NOPWD
-     *                        <li>PW_NOPWDCHK
-     *                        </ul>
-     *                        <p>
-     *
-     * @param type            The type of token. Possible types are defined as
-     *                        fields on the ProfileTokenCredential class:
-     *                        <ul>
-     *                        <li>TYPE_SINGLE_USE
-     *                        <li>TYPE_MULTIPLE_USE_NON_RENEWABLE
-     *                        <li>TYPE_MULTIPLE_USE_RENEWABLE
-     *                        </ul>
-     *                        <p>
-     *
-     * @param timeoutInterval The number of seconds to expiration.
-     * 
-     * @param enhancedProfileToken  Input / output.  On input, if true then an enhancedProfileToken will be generated if possible.
-     *                                  On output, true if an enhancedProfileToken was generated. 
-     *
-     * @return The token bytes.
-     *
-     * @exception RetrieveFailedException If errors occur while generating the
-     *                                    token.
-     *
-     */
-    byte[] generateToken(String uid, int pwdSpecialValue, int type, int timeoutInterval, boolean[] enhancedProfileToken) throws RetrieveFailedException;
-
     /**
      * Generates and returns a new profile token based on the provided information
      * using a password special value.
@@ -96,12 +58,13 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      * @exception PropertyVetoException     If errors occur while setting the profile token credential.
      *
      */
-    ProfileTokenCredential generateToken(String uid, int pwdSpecialValue, ProfileTokenCredential profileTokenCred)
+    ProfileTokenCredential generateProfileToken(String uid, int pwdSpecialValue, ProfileTokenCredential profileTokenCred)
             throws RetrieveFailedException, PropertyVetoException;
 
+    
     /**
      * Generates and returns a new profile token based on the provided information
-     * using a password string.
+     * using a password string and an additional authentication fatore
      *
      * @param uid             The name of the user profile for which the token is to
      *                        be generated.
@@ -109,6 +72,8 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      * @param pwd             The user profile password (encoded). Special values
      *                        are not supported by this method.
      *
+     * @param additionalAuthenticationFactor The additional authentication factor
+     * 
      * @param type            The type of token. Possible types are defined as
      *                        fields on the ProfileTokenCredential class:
      *                        <ul>
@@ -120,8 +85,9 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      *
      * @param timeoutInterval The number of seconds to expiration.
      * 
-     * @param enhancedProfileToken  Input / output.  On input, if true then an enhancedProfileToken will be generated if possible.
-     *                                  On output, true if an enhancedProfileToken was generated. 
+     * @param enhancedInfo   Input / output.  Indicate the settings used to create an enhanced profile token.
+     *                                        On output, the enhancedInfo can be examined to determine if an enhanced
+     *                                        token was created. 
 
      *
      * @return The token bytes.
@@ -130,11 +96,10 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      *                                    token.
      *
      */
-    byte[] generateTokenExtended(String uid, char[] pwd, int type, int timeoutInterval, boolean[] enhancedProfileToken) throws RetrieveFailedException;
-
+    byte[] generateRawTokenExtended(String uid, char[] pwd, char[] additionalAuthenticationFactor, int type, int timeoutInterval, ProfileTokenEnhancedInfo enhancedInfo) throws RetrieveFailedException;
+    
     /**
-     * Generates and returns a new profile token based on a user profile, password,
-     * and additional authentication factor.
+     * Generates and returns a new profile token based on a user profile and password.
      * 
      * @param uid                            The name of the user profile for which
      *                                       the token is to be generated.
@@ -150,14 +115,14 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      * @exception RetrieveFailedException   If errors occur while generating the token.
      * @exception PropertyVetoException     If errors occur while setting the profile token credential.
      */
-    ProfileTokenCredential generateTokenExtended(String uid, char[] password, ProfileTokenCredential profileTokenCred)
+    ProfileTokenCredential generateProfileTokenExtended(String uid, char[] password, char[] additionalAuthenticationFactor, ProfileTokenCredential profileTokenCred)
             throws RetrieveFailedException, PropertyVetoException;
     
     /**
      * Updates or extends the validity period for the credential.
      *
      * <p>
-     * Generates a new profile token based on the previously established
+     * Generates a new profile token based on the currently established
      * <i>token</i> with the given <i>type</i> and <i>timeoutInterval</i>.
      *
      * <p>
@@ -182,4 +147,5 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      *
      */
     byte[] refresh(int type, int timeoutInterval) throws RefreshFailedException;
+
 }

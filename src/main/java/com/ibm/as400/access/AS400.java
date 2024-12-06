@@ -37,6 +37,7 @@ import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSManager;
 
 import com.ibm.as400.security.auth.ProfileTokenCredential;
+import com.ibm.as400.security.auth.ProfileTokenEnhancedInfo;
 import com.ibm.as400.security.auth.ProfileTokenProvider;
 
 /**
@@ -2706,7 +2707,6 @@ public class AS400 implements Serializable, AutoCloseable
             profileToken.setTimeoutInterval(timeoutInterval);
             profileToken.setVerificationID(verificationID);
             profileToken.setRemoteIPAddress(remoteIPAddress);
-            profileToken.setAdditionalAuthenticationFactor(additionalAuthenticationFactor_);
         }
         catch (PropertyVetoException e)
         {
@@ -2726,7 +2726,7 @@ public class AS400 implements Serializable, AutoCloseable
 
             CredentialVault tempVault = (CredentialVault)credVault_.clone();
             tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));
-            impl_.generateProfileToken(profileToken, userId_, tempVault, gssName_);
+            impl_.generateProfileToken(profileToken, userId_, tempVault, additionalAuthenticationFactor_, gssName_);
         }
         
         return profileToken;
@@ -2866,7 +2866,7 @@ public class AS400 implements Serializable, AutoCloseable
      **/
     public ProfileTokenCredential getProfileToken(String userId, char[] password, int tokenType, int timeoutInterval) throws AS400SecurityException, IOException, InterruptedException
     {
-        return getProfileToken(userId, password, null, tokenType, timeoutInterval, null, null);
+        return getProfileToken(userId, password, null, tokenType, timeoutInterval, null);
     }
     
     /**
@@ -2914,6 +2914,49 @@ public class AS400 implements Serializable, AutoCloseable
     public ProfileTokenCredential getProfileToken(String userId, char[] password, char[] additionalAuthFactor, int tokenType, int timeoutInterval, 
                                                   String verificationID, String remoteIPAddress) throws AS400SecurityException, IOException, InterruptedException
     {
+    	ProfileTokenEnhancedInfo enhancedInfo = new ProfileTokenEnhancedInfo(); 
+        enhancedInfo.setVerificationID(verificationID);
+        enhancedInfo.setRemoteIPAddress(remoteIPAddress);
+        return getProfileToken(userId,password,additionalAuthFactor,tokenType, timeoutInterval, enhancedInfo);
+    }
+
+    /**
+     * Authenticates the given user profile and password and returns a corresponding ProfileTokenCredential if
+     * successful.
+     * <p>
+     * Invoking this method does not change the user ID and password assigned to the system or otherwise modify the user
+     * or authorities under which the application is running.
+     * <p>
+     * This function is only supported if the system is at i5/OS V4R5M0 or greater.
+     * <p>
+     * <b>Note:</b> Providing an incorrect password increments the number of failed sign-on attempts for the user
+     * profile, and can result in the profile being disabled. Refer to documentation on the
+     * <i>ProfileTokenCredential</i> class for additional restrictions.
+     * 
+     * @param userId               The user profile name.
+     * @param password             The user profile password.
+     * @param additionalAuthFactor The additional authentication factor or null if not specifying one.
+     * @param tokenType            The type of profile token to create. Possible types are defined as fields on the
+     *                             ProfileTokenCredential class:
+     *                             <ul>
+     *                             <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_SINGLE_USE
+     *                             TYPE_SINGLE_USE}
+     *                             <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_NON_RENEWABLE
+     *                             TYPE_MULTIPLE_USE_NON_RENEWABLE}
+     *                             <li>{@link com.ibm.as400.security.auth.ProfileTokenCredential#TYPE_MULTIPLE_USE_RENEWABLE
+     *                             TYPE_MULTIPLE_USE_RENEWABLE}
+     *                             </ul>
+     * @param timeoutInterval      The number of seconds to expiration when the token is created (1-3600).
+     * @param enhancedInfo         Information used for creating an enhanced profile token.
+     * @return A ProfileTokenCredential representing the authenticated profile and password.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ExtendedIllegalArgumentException If userId length is not valid.
+     * @exception IOException            If an error occurs while communicating with the system.
+     * @exception InterruptedException   If this thread is interrupted.
+     **/
+    public ProfileTokenCredential getProfileToken(String userId, char[] password, char[] additionalAuthFactor, int tokenType, int timeoutInterval, 
+                                                  ProfileTokenEnhancedInfo enhancedInfo ) throws AS400SecurityException, IOException, InterruptedException
+    {
         connectService(AS400.SIGNON);
 
         if (userId == null)
@@ -2922,13 +2965,16 @@ public class AS400 implements Serializable, AutoCloseable
         if (userId.length() > 10)
             throw new ExtendedIllegalArgumentException("userId", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
  
+        if (enhancedInfo == null) { 
+        	enhancedInfo = new ProfileTokenEnhancedInfo(); 
+        }
         checkPasswordNullAndLength(password, "password");
       
         if (isTurkish()) {
           userId = userId.toUpperCase(Locale.ENGLISH);
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "This system locale is Turkish, userId.toUpperCase(Locale.ENGLISH)");
         }
-
+        
         userId = resolveUserId(userId.toUpperCase());
 
         ProfileTokenCredential profileToken = new ProfileTokenCredential();
@@ -2937,9 +2983,8 @@ public class AS400 implements Serializable, AutoCloseable
             profileToken.setSystem(this);
             profileToken.setTokenType(tokenType);
             profileToken.setTimeoutInterval(timeoutInterval);
-            profileToken.setVerificationID(verificationID);
-            profileToken.setRemoteIPAddress(remoteIPAddress);
-            profileToken.setAdditionalAuthenticationFactor(additionalAuthFactor);
+            profileToken.setEnhancedInfo(enhancedInfo); 
+            
         }
         catch (PropertyVetoException e)
         {
@@ -2953,7 +2998,7 @@ public class AS400 implements Serializable, AutoCloseable
         {
             PasswordVault tempVault = new PasswordVault(password);
             tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));
-            impl_.generateProfileToken(profileToken, userId, tempVault, gssName_);
+            impl_.generateProfileToken(profileToken, userId, tempVault, additionalAuthFactor, gssName_);
         }
         
         return profileToken;

@@ -141,7 +141,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
              new boolean[] { true, false }, // indicate that 1st arg gets modified
              true);
           ProfileTokenCredential returnArg = (ProfileTokenCredential)rv.getArgument(0);
-          profileToken.setToken(returnArg.getToken(),false);
+          profileToken.setToken(returnArg.getToken());
           return;
         }
         catch (InvocationTargetException e)
@@ -156,16 +156,16 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
 
     // Sets the raw bytes for the provided profile token.
     @Override
-    public void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException, InterruptedException
+    public void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, char[] additionalAuthFactor, String gssName) throws AS400SecurityException, IOException, InterruptedException
     {
         try {
           ProxyReturnValue rv = connection_.callMethod (pxId_, "generateProfileToken",
-             new Class[] { ProfileTokenCredential.class, String.class, CredentialVault.class, String.class },
-             new Object[] { profileToken, userId, vault, gssName },
-             new boolean[] { true, false, false, false }, // indicate that 1st arg gets modified
+             new Class[] { ProfileTokenCredential.class, String.class, CredentialVault.class,char[].class ,String.class },
+             new Object[] { profileToken, userId, vault, additionalAuthFactor, gssName },
+             new boolean[] { true, false, false, false, false }, // indicate that 1st arg gets modified
              true);
           ProfileTokenCredential returnArg = (ProfileTokenCredential)rv.getArgument(0);
-          profileToken.setToken(returnArg.getToken(),false);
+          profileToken.setToken(returnArg.getToken());
           return;
         }
         catch (InvocationTargetException e)

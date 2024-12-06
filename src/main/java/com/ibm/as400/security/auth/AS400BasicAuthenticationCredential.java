@@ -100,44 +100,6 @@ public interface AS400BasicAuthenticationCredential
      * @param authenticationIndicator Indicates how the caller authenticated the
      *                                user. Ignored for IBM i 7.5 and older
      *                                releases.  @see com.ibm.as400.access.AuthenticationIndicator
-     * 
-     * @param verificationID  The verification ID is the label that identifies the
-     *                        specific application, service, or action associated
-     *                        with the profile handle request. This value must be
-     *                        30-characters or less. This value will be passed to
-     *                        the authentication exit program registered under the
-     *                        QIBM_QSY_AUTH exit point if the specified user profile
-     *                        has *REGFAC as an authentication method. The
-     *                        authentication exit program may use the verification
-     *                        ID as a means to restrict the use of the user profile.
-     *                        If running on an IBM i, the verification ID should be
-     *                        the DCM application ID or a similar value that
-     *                        identifies the application or service. Ignored for IBM
-     *                        i 7.5 and older releases.
-     * 
-     * @param remoteIPAddress If the API is used by a server to provide access to a
-     *                        the system, the remote IP address should be obtained
-     *                        from the socket connection (i.e. using
-     *                        Socket.getInetAddress). Otherwise, null should be
-     *                        passed. Ignored for IBM i 7.5 and older releases.
-     * 
-     * @param remotePort      If the API is used by a server to provide access to a
-     *                        the system, the remote port should be obtained from
-     *                        the socket connection (i.e. using Socket.getPort ).
-     *                        Otherwise, use 0 if there is not an associated
-     *                        connection. Ignored for IBM i 7.5 and older releases.
-     * 
-     * @param localIPAddress  If the API is used by a server to provide access to a
-     *                        the system, the local IP address should be obtained
-     *                        from the socket connection (i.e. using
-     *                        Socket.getLocalAddress). Otherwise, null should be
-     *                        passed. Ignored for IBM i 7.5 and older releases.
-     * 
-     * @param localPort       If the API is used by a server to provide access to a
-     *                        the system, the local port should be obtained from the
-     *                        socket connection (Socket.getLocalPort). Otherwise,
-     *                        use 0 if there is not an associated connection.
-     *                        Ignored for IBM i 7.5 and older releases.
      *
      * @param isPrivate       Indicates whether the credential is considered
      *                        private.
@@ -151,14 +113,53 @@ public interface AS400BasicAuthenticationCredential
      * @param timeoutInterval The number of seconds to expiration when the
      *                        credential is initially created; ignored if the
      *                        credential does not expire based on time.
+     *                        
+     * @param enhancedInfo    Contains the information needed to create an enhanced profile token. 
+     *                        This parameter is ignored for 7.5 and older releases. 
+     *                        It includes the following information. 
+     *        verificationID  The verification ID is the label that identifies the
+     *                        specific application, service, or action associated
+     *                        with the profile handle request. This value must be
+     *                        30-characters or less. This value will be passed to
+     *                        the authentication exit program registered under the
+     *                        QIBM_QSY_AUTH exit point if the specified user profile
+     *                        has *REGFAC as an authentication method. The
+     *                        authentication exit program may use the verification
+     *                        ID as a means to restrict the use of the user profile.
+     *                        If running on an IBM i, the verification ID should be
+     *                        the DCM application ID or a similar value that
+     *                        identifies the application or service. 
+     * 
+     *        remoteIPAddress If the API is used by a server to provide access to a
+     *                        the system, the remote IP address should be obtained
+     *                        from the socket connection (i.e. using
+     *                        Socket.getInetAddress). Otherwise, null should be
+     *                        passed. 
+     * 
+     *        remotePort      If the API is used by a server to provide access to a
+     *                        the system, the remote port should be obtained from
+     *                        the socket connection (i.e. using Socket.getPort ).
+     *                        Otherwise, use 0 if there is not an associated
+     *                        connection. 
+     * 
+     *        localIPAddress  If the API is used by a server to provide access to a
+     *                        the system, the local IP address should be obtained
+     *                        from the socket connection (i.e. using
+     *                        Socket.getLocalAddress). Otherwise, null should be
+     *                        passed. 
+     * 
+     *        localPort       If the API is used by a server to provide access to a
+     *                        the system, the local port should be obtained from the
+     *                        socket connection (Socket.getLocalPort). Otherwise,
+     *                        use 0 if there is not an associated connection.
+     *                        
      * 
      * @exception Exception If an exception occurs.
      *
      */
     public void initialize(AS400BasicAuthenticationPrincipal principal, char[] password, char[] additionalAuthFactor,
-            int authenticationIndicator, String verificationID, String remoteIPAddress, int remotePort,
-            String localIPAddress, int localPort, boolean isPrivate, boolean isReusable, boolean isRenewable,
-            int timeoutInterval) throws Exception;
+            int authenticationIndicator, boolean isPrivate, boolean isReusable, boolean isRenewable,
+            int timeoutInterval, ProfileTokenEnhancedInfo enhancedInfo) throws Exception;
 
     /**
      * Indicates whether the credential is considered private.

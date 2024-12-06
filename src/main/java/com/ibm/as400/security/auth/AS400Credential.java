@@ -68,11 +68,11 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
    private transient PropertyChangeSupport changes_ ;
    private transient VetoableChangeSupport vetos_;
    private transient Vector listeners_;
-   private transient AS400CredentialImpl impl_;
+   transient AS400CredentialImpl impl_;
    private transient RefreshAgent rAgent_;
 
-   private AS400 system_ = null;
-   private AS400Principal principal_ = null;
+   protected AS400 system_ = null;
+   protected AS400Principal principal_ = null;
    private Boolean renewable_ = null;
    private Boolean standalone_ = null;
    private Boolean timed_ = null;
