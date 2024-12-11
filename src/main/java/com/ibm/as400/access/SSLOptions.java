@@ -15,6 +15,8 @@ package com.ibm.as400.access;
 
 import java.io.Serializable;
 
+import javax.net.ssl.SSLSocketFactory;
+
 // Class to move SSL configuration options from proxy client to proxy server.
 class SSLOptions implements Serializable
 {
@@ -47,4 +49,5 @@ class SSLOptions implements Serializable
     int proxyEncryptionMode_ = SecureAS400.CLIENT_TO_SERVER;
     // Sslight removed 
     boolean useSslight_ = false;
+    SSLSocketFactory sslSocketFactory_ = null;
 }
