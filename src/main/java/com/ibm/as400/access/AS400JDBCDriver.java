@@ -1191,9 +1191,9 @@ endif */
                 as400 = AS400.newInstance(secure, serverName, userName);
             else
                 as400 = AS400.newInstance(secure, serverName, userName, clearPassword, additionalAuthenticationFactor);
-			Object sslSocketFactoryObject = jdProperties.getOriginalInfo().get(PROPERTY_SSL_SOCKET_FACTORY);
-		    if ((sslSocketFactoryObject != null) && (sslSocketFactoryObject instanceof SSLSocketFactory)) {
-		        as400.setSSLSocketFactory((SSLSocketFactory) sslSocketFactoryObject);
+			SSLSocketFactory sslSocketFactoryObject = jdProperties.getCustomSSLSocketFactory();
+		    if (null != sslSocketFactoryObject) {
+		        as400.setSSLSocketFactory(sslSocketFactoryObject);
 		    }
 		}
 		catch (AS400SecurityException e)
