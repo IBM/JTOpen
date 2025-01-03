@@ -13,16 +13,17 @@
 
 package com.ibm.as400.access;
 
-import java.beans.PropertyVetoException;	// @B9A
 import java.io.IOException;
-import java.net.InetAddress;				// @C2A
+import java.net.InetAddress;				
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.DriverPropertyInfo;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 /* ifdef JDBC40 */
 import java.sql.SQLFeatureNotSupportedException;
+import java.sql.Statement;
 import java.util.logging.Logger;
 /* endif */ 
 import java.util.Properties;
@@ -540,10 +541,7 @@ endif */
 		if (system == null)
 			throw new NullPointerException("system");
 
-		if (system instanceof SecureAS400)
-			return initializeConnection(new SecureAS400(system));
-		else
-			return initializeConnection(new AS400(system));
+		return initializeConnection(AS400.newInstance(system.isSecure(), system));
 
 		// Initialize the connection.
 		//@B7D Connection connection = null;                                        
@@ -750,12 +748,7 @@ endif */
                 if(!clone)  //Do not clone the AS400 object, use the one passed in
                     return initializeConnection(schema, info, system);
                 else        //clone the AS400 object
-                {
-                    if(system instanceof SecureAS400)
-                        return initializeConnection(schema, info, new SecureAS400(system));
-                    else
-                        return initializeConnection(schema, info, new AS400(system));
-                }
+                    return initializeConnection(schema, info, AS400.newInstance(system.isSecure(), system));
 	}
 
 	//@B5A
@@ -940,10 +933,8 @@ endif */
 
 		//@PDD not used JDProperties jdProperties = new JDProperties (null, info);
 
-		if (system instanceof SecureAS400)
-			return initializeConnection(schema, info, new SecureAS400(system));
-		else
-			return initializeConnection(schema, info, new AS400(system));
+        return initializeConnection(schema, info, AS400.newInstance(system.isSecure(), system));
+
 		// Initialize the connection if the URL is valid.
 		//@B7D Connection connection = null;                                        
 		//@B7D connection = initializeConnection (schema, info, o);  
@@ -1185,33 +1176,18 @@ endif */
         
 		// Create the AS400 object, so we can create a Connection via loadImpl2.
 		AS400 as400 = null;
-		try { 
-		if (secure)
+		try 
 		{
-			if (serverName.length() == 0)
-				as400 = new SecureAS400 ();
-			else if (userName == null )
-				as400 = new SecureAS400 (serverName);
-			else if (clearPassword == null )
-				as400 = new SecureAS400 (serverName, userName);
-			else
-				as400 = new SecureAS400 (serverName, userName, clearPassword, additionalAuthenticationFactor);
-			
+            if (serverName.length() == 0)
+                as400 = AS400.newInstance(secure);
+            else if ((userName == null) || (userName.length() == 0))
+                as400 = AS400.newInstance(secure, serverName);
+            else if (clearPassword == null)
+                as400 = AS400.newInstance(secure, serverName, userName);
+            else
+                as400 = AS400.newInstance(secure, serverName, userName, clearPassword, additionalAuthenticationFactor);
 		}
-		else
-		{
-			if (serverName.length() == 0)
-				as400 = new AS400 ();
-			else if ((userName == null) || (userName.length() == 0))
-				as400 = new AS400 (serverName);
-			else if (clearPassword == null )
-				as400 = new AS400 (serverName, userName);
-			else
-				// Note:  If additionalAuthenticationFactor is specified then a connection to the
-				// signon server will immediately be established. 
-				as400 = new AS400 (serverName, userName, clearPassword, additionalAuthenticationFactor);
-		}
-		} catch (AS400SecurityException e)
+		catch (AS400SecurityException e)
         {                           
           JDError.throwSQLException (as400, JDError.EXC_CONNECTION_REJECTED, e);
         }
@@ -1447,7 +1423,14 @@ endif */
 
 	//@B6A -- This logic was formerly in the initializeConnection() method.
 	private Connection prepareConnection(AS400 as400, JDDataSourceURL dataSourceUrl, 
-										  JDProperties jdProperties)
+			  JDProperties jdProperties) throws SQLException  {
+		return prepareConnection(as400,dataSourceUrl, jdProperties, false); 
+	}
+
+
+	private Connection prepareConnection(AS400 as400, JDDataSourceURL dataSourceUrl, 
+										  JDProperties jdProperties,
+										  boolean vrmSet)
 	throws SQLException
 	{
 
@@ -1547,6 +1530,31 @@ endif */
 		      }
 		      throw sqlex; 
 		    }
+		}
+		//
+		// If the signon server was skipped, we need to manually determine the release
+		// This is important for boolean support
+		// 
+		if (as400.skipSignonServer_ && ! vrmSet) {
+			try { 
+			  Statement s = connection.createStatement(); 
+			  ResultSet rs = s.executeQuery("SELECT OS_VERSION,OS_RELEASE FROM SYSIBMADM.ENVSYSINFO"); 
+			  if (rs.next()) {
+				  int version = rs.getInt(1); 
+				  int release = rs.getInt(2); 
+				  as400.setVRM(version,release,0); 
+			  }
+			  rs.close(); 
+			  s.close(); 
+			} catch (SQLException sqlex) {
+				// Log and ignore 
+			}
+			//
+			// Connect again to get the correct settings
+			// This didn't work!!!! TODO; 
+			//
+			connection.close(); 
+			return prepareConnection(as400,dataSourceUrl, jdProperties, true); 
 		}
 		return connection;
 	}

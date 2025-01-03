@@ -255,6 +255,28 @@ Logs an information trace message.
     }
   }
 
+  static void logInformation(Object object, String information, Object object1)
+  {
+    if (isTraceOn())
+    {
+      StringBuffer buffer = new StringBuffer();
+      buffer.append("as400: ");
+      buffer.append(objectToString(object));
+      buffer.append(": ");
+      buffer.append(information);
+      if (object1 != null) { 
+      if (object1 instanceof String) {
+    	  buffer.append((String)object1); 
+      } else {
+    	  buffer.append(object1.getClass().getName()); 
+      }
+      }
+      buffer.append(".");
+
+      log(buffer.toString());
+    }
+  }
+
 
 
 /**

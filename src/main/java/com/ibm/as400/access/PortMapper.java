@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1998-2006 International Business Machines Corporation and
+// Copyright (C) 1998-2024 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -32,7 +32,7 @@ class PortMapper
     {
     }
 
-    private static Hashtable systemList = new Hashtable();
+    private static Hashtable<String, int[]> systemList = new Hashtable<>();
 
     static void setServicePortsToDefault(String systemName)
     {
@@ -54,7 +54,7 @@ class PortMapper
             448,  // 13 Secure Record Level Access.
             9470, // 14 Secure Central.
             9476, // 15 Secure Sign-on.
-            9480  // 16 Secure HCS.
+            9480  // 16 Secure Host Connection Server.
         };
         systemList.put(systemName, newPortList);
     }
@@ -62,7 +62,7 @@ class PortMapper
     static void setServicePort(String systemName, int service, int port, SSLOptions useSSL)
     {
         if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER) service += 8;
-        int[] portList = (int[])systemList.get(systemName);
+        int[] portList = systemList.get(systemName);
         if (portList == null)
         {
             int[] newPortList =
@@ -83,7 +83,7 @@ class PortMapper
                 448,                   // 13 Secure Record Level Access.
                 AS400.USE_PORT_MAPPER, // 14 Secure Central.
                 AS400.USE_PORT_MAPPER, // 15 Secure Sign-on.
-                9480                   //    Secure HCS.
+                AS400.USE_PORT_MAPPER  // 16 Secure Host Connection Server.
             };
             newPortList[service] = port;
             systemList.put(systemName, newPortList);
@@ -97,17 +97,15 @@ class PortMapper
     static int getServicePort(String systemName, int service, SSLOptions useSSL)
     {
         if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER) service += 8;
-        int[] portList = (int[])systemList.get(systemName);
+        int[] portList = systemList.get(systemName);
         if (portList == null)
         {
             if (service == AS400.RECORDACCESS)
-            {
                 return 446;
-            }
+            
             if (service == AS400.RECORDACCESS + 8)
-            {
                 return 448;
-            }
+            
             return AS400.USE_PORT_MAPPER;
         }
         return portList[service];
@@ -117,9 +115,11 @@ class PortMapper
 
     private static boolean canUseUnixSocket(String systemName, int service, boolean mustUseNetSockets)
     {
-        if (AS400.onAS400 && unixSocketAvailable && !mustUseNetSockets && service != AS400.FILE && (systemName.equalsIgnoreCase("localhost") || systemName.equalsIgnoreCase("ipv6-localhost")))
+        if (AS400.onAS400 && unixSocketAvailable && !mustUseNetSockets 
+                && service != AS400.FILE && service != AS400.HOSTCNN
+                && (systemName.equalsIgnoreCase("localhost") || systemName.equalsIgnoreCase("ipv6-localhost")))
         {
-            if (service == AS400.DATABASE && AS400.nativeVRM.vrm_ < 0x00060100) return false;
+            if (service == AS400.DATABASE && AS400.nativeVRM.getVersionReleaseModification() < 0x00060100) return false;
             return true;
         }
         return false;
@@ -142,7 +142,7 @@ class PortMapper
             try
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a local socket to " + serviceName);
-                sc = AS400.nativeVRM.vrm_ < 0x00050400 ? (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix") : (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix2");
+                sc = AS400.nativeVRM.getVersionReleaseModification()< 0x00050400 ? (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix") : (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix2");
                 if (sc != null)
                 {
                     sc.setProperties(null, serviceName, null, 0, null);
@@ -178,6 +178,12 @@ class PortMapper
 
             // Now we construct and send a "port map" request to get the port number for the requested service...
             String fullServiceName = (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER) ? serviceName + "-s" : serviceName;
+            
+            // since no non-TLS as-hostcnn server, ensure that it is always as-hostcnn-s.
+            // This is purely a precautionary step.
+            if (fullServiceName.equals("as-hostcnn")) 
+                fullServiceName += "-s";
+            
             AS400PortMapDS pmreq = new AS400PortMapDS(fullServiceName);
             if (Trace.traceOn_) pmreq.setConnectionID(pmSocket.hashCode());
             pmreq.write(pmOutstream);
@@ -211,9 +217,9 @@ class PortMapper
         if (useSSL != null && useSSL.proxyEncryptionMode_ != SecureAS400.CLIENT_TO_PROXY_SERVER)
         {
          // Refactor code but keep the same logic, try JSSE first, fall back to SSL Light again.
-        	if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a secure socket to " + serviceName);
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a secure socket to " + serviceName);
             { // JSSE is supported since v5r4.
-            	sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerJSSE");
+                sc = (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerJSSE");
                 sc.setProperties(socket, null, systemName, srvPort, null);
             }
         }
@@ -306,12 +312,7 @@ class PortMapper
               throw new ClassNotFoundException();
             }
           }
-          catch (IllegalAccessException e) {
-            //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch it below.
-            Trace.log(Trace.ERROR, e);
-            throw new ClassNotFoundException();
-          }
-          catch (NoSuchMethodException e) {
+          catch (IllegalAccessException | NoSuchMethodException e) {
             //Else this is some sort of issue related to reflection not being supported.  Just throw ClassNotFoundException and catch it below.
             Trace.log(Trace.ERROR, e);
             throw new ClassNotFoundException();

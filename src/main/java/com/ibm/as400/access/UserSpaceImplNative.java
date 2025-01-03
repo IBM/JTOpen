@@ -286,9 +286,9 @@ class UserSpaceImplNative extends UserSpaceImplRemote
 
 
         // call the native method to carry out the request.
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = ((AS400ImplRemote)system_).swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = ((AS400ImplRemote)system_).swapTo();
         try
         {
             Trace.log(Trace.INFORMATION, "calling native method (create) ");
@@ -309,7 +309,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
         }
         finally
         {
-            if (didSwap) ((AS400ImplRemote)system_).swapBack(swapToPH, swapFromPH);
+            if (didSwap) ((AS400ImplRemote)system_).swapBack();
         }
     }
 
@@ -431,9 +431,9 @@ class UserSpaceImplNative extends UserSpaceImplRemote
 
 
         // call the native method to carry out the request.
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = ((AS400ImplRemote)system_).swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = ((AS400ImplRemote)system_).swapTo();
         try
         {
             Trace.log(Trace.INFORMATION, "calling native method (delete) ");
@@ -454,7 +454,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
         }
         finally
         {
-            if (didSwap) ((AS400ImplRemote)system_).swapBack(swapToPH, swapFromPH);
+            if (didSwap) ((AS400ImplRemote)system_).swapBack();
         }
     }
 
@@ -551,9 +551,9 @@ class UserSpaceImplNative extends UserSpaceImplRemote
 
 
         // call the native method to carry out the request.
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = ((AS400ImplRemote)system_).swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = ((AS400ImplRemote)system_).swapTo();
         try
         {
             Trace.log(Trace.INFORMATION, "calling native method (get attrs) ");
@@ -575,7 +575,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
         }
         finally
         {
-            if (didSwap) ((AS400ImplRemote)system_).swapBack(swapToPH, swapFromPH);
+            if (didSwap) ((AS400ImplRemote)system_).swapBack();
         }
         return(returnValue);
     }
@@ -770,9 +770,9 @@ class UserSpaceImplNative extends UserSpaceImplRemote
         BinaryConverter.intToByteArray(0, programParameters, length + 28);
 
         // call the native method to carry out the request.
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = ((AS400ImplRemote)system_).swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = ((AS400ImplRemote)system_).swapTo();
         try
         {
             Trace.log(Trace.INFORMATION, "calling native method (read) ");
@@ -800,7 +800,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
         }
         finally
         {
-            if (didSwap) ((AS400ImplRemote)system_).swapBack(swapToPH, swapFromPH);
+            if (didSwap) ((AS400ImplRemote)system_).swapBack();
         }
 
         return actualLength;
@@ -932,9 +932,9 @@ class UserSpaceImplNative extends UserSpaceImplRemote
 
 
         // call the native method to carry out the request.
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = ((AS400ImplRemote)system_).swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = ((AS400ImplRemote)system_).swapTo();
         try
         {
             Trace.log(Trace.INFORMATION, "calling native method (set attrs) ");
@@ -956,7 +956,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
         }
         finally
         {
-            if (didSwap) ((AS400ImplRemote)system_).swapBack(swapToPH, swapFromPH);
+            if (didSwap) ((AS400ImplRemote)system_).swapBack();
         }
     }
 
@@ -1142,9 +1142,9 @@ class UserSpaceImplNative extends UserSpaceImplRemote
         BinaryConverter.intToByteArray(0, programParameters, length + 29);
 
         // call the native method to carry out the request.
-        byte[] swapToPH = new byte[12];
-        byte[] swapFromPH = new byte[12];
-        boolean didSwap = ((AS400ImplRemote)system_).swapTo(swapToPH, swapFromPH);
+        
+        
+        boolean didSwap = ((AS400ImplRemote)system_).swapTo();
         try
         {
             Trace.log(Trace.INFORMATION, "calling native method (write) ");
@@ -1167,7 +1167,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
         }
         finally
         {
-            if (didSwap) ((AS400ImplRemote)system_).swapBack(swapToPH, swapFromPH);
+            if (didSwap) ((AS400ImplRemote)system_).swapBack();
         }
     }
 

@@ -27,4 +27,5 @@ abstract class SocketContainer
     abstract OutputStream getOutputStream() throws IOException;
     abstract void setSoTimeout(int timeout) throws SocketException; 
     abstract int  getSoTimeout() throws SocketException; 
+    abstract String getLocalAddress();
 }

@@ -791,6 +791,25 @@ public class ProgramCallDocument implements Serializable, Cloneable
     }
 
     /**
+    Returns the option for how many messages will be retrieved for the specified program.
+
+    @param name The name of the &lt;program&gt; element in the PCML document.
+    @return  A constant indicating how many messages will be retrieved.  Valid values are:
+    <ul>
+    <li>{@link AS400Message#MESSAGE_OPTION_UP_TO_10 MESSAGE_OPTION_UP_TO_10}
+    <li>{@link AS400Message#MESSAGE_OPTION_NONE MESSAGE_OPTION_NONE}
+    <li>{@link AS400Message#MESSAGE_OPTION_ALL MESSAGE_OPTION_ALL}
+    </ul>
+    @exception PcmlException
+               If an error occurs.
+    **/
+    public int getMessageOption(String name)
+        throws PcmlException
+    {
+        return m_pcmlDoc.getMessageOption(name);
+    }
+
+    /**
     Returns the number of bytes reserved for output for the named element.
 
     @return The number of bytes reserved for output for the named element.
@@ -1349,6 +1368,27 @@ public class ProgramCallDocument implements Serializable, Cloneable
         throws PcmlException
     {
         return m_pcmlDoc.getThreadsafeOverride(program);           // @C6A
+    }
+
+    /**
+    Specifies the option for how many messages should be retrieved for the specified program.  By default, to preserve
+    compatability, only the messages sent to the program caller and only up to ten messages are retrieved.
+    This property will only take effect on systems that support the new option.
+
+    @param  program  The name of the &lt;program&gt; element in the PCML document.
+    @param  messageOption  A constant indicating how many messages to retrieve.  Valid values are:
+    <ul>
+    <li>AS400Message.MESSAGE_OPTION_UP_TO_10
+    <li>AS400Message.MESSAGE_OPTION_NONE
+    <li>AS400Message.MESSAGE_OPTION_ALL
+    </ul>
+    @exception PcmlException
+               If an error occurs.
+    **/
+    public void setMessageOption(String program, int messageOption)
+        throws PcmlException
+    {
+        m_pcmlDoc.setMessageOption(program, messageOption);
     }
 
 
@@ -2013,5 +2053,4 @@ public class ProgramCallDocument implements Serializable, Cloneable
         return m_timeOut;
     }
     //@Y6A End
-
 }

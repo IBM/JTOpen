@@ -73,6 +73,9 @@ public class SecurityMRI extends ListResourceBundle
           // #TRANNOTE #####################################################
           { "PROP_NAME_CR_PW_PASSWORD", "password" },
           { "PROP_DESC_CR_PW_PASSWORD", "The password value." },
+          
+          { "PROP_NAME_CR_PW_ADDITIONALAUTHENTICATIONFACTOR", "additionalAuthenticationFactor" },
+          { "PROP_DESC_CR_PW_ADDITIONALAUTHENTICATIONFACTOR", "The additional authentication factor." },
 
           // #TRANNOTE #####################################################
           // #TRANNOTE Profile Handle credential properties.

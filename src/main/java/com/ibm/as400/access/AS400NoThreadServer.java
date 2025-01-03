@@ -14,9 +14,6 @@
 package com.ibm.as400.access;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.SocketException;
 import java.util.Hashtable;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,12 +25,6 @@ class AS400NoThreadServer extends AS400Server
     static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
 
     private AS400ImplRemote system_;
-    private int service_;
-    private String jobString_;
-
-    private SocketContainer socket_;
-    private InputStream inStream_;
-    private OutputStream outStream_;
 
     private Hashtable replyStreams_;
     private Hashtable instanceReplyStreams_ = new Hashtable();
@@ -43,7 +34,7 @@ class AS400NoThreadServer extends AS400Server
     private Vector discardList_ = new Vector();
     private AtomicInteger lastCorrelationId_ = new AtomicInteger();
 
-    private final Lock thisLock = new ReentrantLock();
+    private final Lock lock_ = new ReentrantLock();
 
     private boolean closed_ = false;
 
@@ -60,64 +51,86 @@ class AS400NoThreadServer extends AS400Server
 
         replyStreams_ = AS400Server.replyStreamsHashTables[service];
     }
-
-    @Override
-    int getService()
+    
+    AS400NoThreadServer(AS400ImplRemote system, int service) throws IOException
     {
-        return service_;
+        system_ = system;
+        service_ = service;
+
+        replyStreams_ = AS400Server.replyStreamsHashTables[service];
+    }
+    
+    void setSocket(SocketContainer socket) throws IOException
+    {
+        try 
+        {
+            lock_.lock();
+            
+            if (socket_ != null)
+            {
+                try {
+                    socket_.close();
+                }
+                catch (IOException e) {
+                    Trace.log(Trace.ERROR, "Socket close of previous socket failed.", e);
+                }
+            }
+            
+            socket_ = socket;
+            connectionID_ = socket_.hashCode();
+            inStream_ = socket.getInputStream();
+            outStream_ = socket.getOutputStream();
+            
+            closed_ = false;
+        }
+        finally {
+            lock_.unlock();
+        }
     }
 
     @Override
-    String getJobString()
-    {
-        return jobString_;
-    }
-
-    void setJobString(String jobString)
-    {
-        jobString_ = jobString;
-    }
-
-    @Override
-    boolean isConnected()
-    {
+    boolean isConnected() {
         return closed_ == false;
     }
 
     @Override
-    public DataStream getExchangeAttrReply()
-    {
+    public DataStream getExchangeAttrReply() {
         return exchangeAttrReply_;
     }
 
     @Override
-    public synchronized DataStream sendExchangeAttrRequest(DataStream req) throws IOException
+    public DataStream sendExchangeAttrRequest(DataStream req) throws IOException
     {
         if (exchangeAttrReply_ == null)
-        {
             exchangeAttrReply_ = sendAndReceive(req);
-        }
+
         return exchangeAttrReply_;
     }
 
     @Override
-    void addInstanceReplyStream(DataStream replyStream)
-    {
+    void addInstanceReplyStream(DataStream replyStream) {
         instanceReplyStreams_.put(replyStream, replyStream);
     }
 
     @Override
-    void clearInstanceReplyStreams()
-    {
+    void clearInstanceReplyStreams() {
         instanceReplyStreams_.clear();
     }
 
     @Override
     public DataStream sendAndReceive(DataStream requestStream) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and receive(): ..."); //@pdc 
-        int correlationID = send(requestStream);
-        return receive(correlationID);
+        try 
+        {
+            lock_.lock();
+
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and receive(): ...");
+            int correlationID = send(requestStream);
+            return receive(correlationID);
+        }
+        finally {
+            lock_.unlock();
+        }
     }
 
     @Override
@@ -139,40 +152,58 @@ class AS400NoThreadServer extends AS400Server
     @Override
     int send(DataStream requestStream) throws IOException
     {
-      if (Trace.traceOn_) {
-        Trace.log(Trace.DIAGNOSTIC, "send(): send request..."); //@pdc
-        requestStream.setConnectionID(connectionID_);
-      }
-        int correlationID = newCorrelationId();
-        requestStream.setCorrelation(correlationID);
-        requestStream.write(outStream_);
-        return correlationID;
+        try 
+        {
+            lock_.lock();
+
+            if (Trace.traceOn_) {
+                Trace.log(Trace.DIAGNOSTIC, "send(): send request to job " + getJobString());
+                requestStream.setConnectionID(connectionID_);
+            }
+            
+            int correlationID = newCorrelationId();
+            requestStream.setCorrelation(correlationID);
+            requestStream.write(outStream_);
+            return correlationID;
+        }
+        finally {
+            lock_.unlock();
+        }
     }
 
     @Override
-    int newCorrelationId()
-    {
+    int newCorrelationId() {
         return lastCorrelationId_.incrementAndGet();
     }
 
     @Override
     void send(DataStream requestStream, int correlationId) throws IOException
     {
-      if (Trace.traceOn_) {
-        Trace.log(Trace.DIAGNOSTIC, "send(): send request..."); //@pdc
-        requestStream.setConnectionID(connectionID_);
-      }
-        requestStream.setCorrelation(correlationId);
-        requestStream.write(outStream_);
+        try 
+        {
+            lock_.lock();
+
+            if (Trace.traceOn_) {
+                Trace.log(Trace.DIAGNOSTIC, "send(): send request to job " + getJobString());
+                requestStream.setConnectionID(connectionID_);
+            }
+
+            requestStream.setCorrelation(correlationId);
+            requestStream.write(outStream_);
+        } 
+        finally {
+            lock_.unlock();
+        }
     }
 
     @Override
     DataStream receive(int correlationId) throws IOException
     {
-        try {
-            thisLock.lock();
+        try 
+        {
+            lock_.lock();
 
-            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "AS400Server receive"); //@pdc
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "AS400Server receive from job " + getJobString());
             DataStream reply = null;
             do
             {
@@ -190,99 +221,108 @@ class AS400NoThreadServer extends AS400Server
                     }
                 }
 
-            if (reply == null)
-            {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "run(): wait for reply..."); //@pdc
-
-                DataStream ds = null;
-                if (service_ != AS400.RECORDACCESS)
+                if (reply == null)
                 {
-                    ds = ClientAccessDataStream.construct(inStream_, instanceReplyStreams_, replyStreams_, system_, connectionID_);
-                }
-                else
-                {
-                    ds = DDMDataStream.construct(inStream_, replyStreams_, system_, connectionID_);
-                }
-
-                if (Trace.isTraceOn()) {
-                  Trace.log(Trace.DIAGNOSTIC, "run(): reply received..." + ds.toString());
-                }
-
-                boolean keepDataStream = true;
-                int correlation = ds.getCorrelation();
-                for (int i = 0; i < discardList_.size(); i++)
-                {
-                    if (((Integer)discardList_.elementAt(i)).intValue() == correlation)
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "run(): wait for reply..."); //@pdc
+    
+                    DataStream ds = null;
+                    if (service_ != AS400.RECORDACCESS)
+                        ds = ClientAccessDataStream.construct(inStream_, instanceReplyStreams_, replyStreams_, system_, connectionID_);
+                    else
+                        ds = DDMDataStream.construct(inStream_, replyStreams_, system_, connectionID_);
+    
+                    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "run(): reply received..." + ds.toString());
+    
+                    boolean keepDataStream = true;
+                    int correlation = ds.getCorrelation();
+                    for (int i = 0; i < discardList_.size(); i++)
                     {
-                        discardList_.removeElementAt(i);
-                        keepDataStream = false;
-                        break;
+                        if (((Integer)discardList_.elementAt(i)).intValue() == correlation)
+                        {
+                            discardList_.removeElementAt(i);
+                            keepDataStream = false;
+                            break;
+                        }
+                    }
+    
+                    if (keepDataStream)
+                    {
+                        if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "adding reply...", correlation);
+                        replyList_.addElement(ds); // Save off the reply.
                     }
                 }
-
-                if (keepDataStream)
-                {
-                    if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "adding reply...", correlation);
-                    replyList_.addElement(ds); // Save off the reply.
-                }
-            }
-            else
-            {
-                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "received(): valid reply received...", correlationId); //@pdc
-            	}
+                else if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "received(): valid reply received...", correlationId);
             }
             while (reply == null);
+            
             return reply;
-        } finally {
-            thisLock.unlock();
+        }
+        finally {
+            lock_.unlock();
         }
     }
 
     @Override
     void forceDisconnect()
-    {
-        closed_ = true;
-        if (service_ == AS400.DATABASE || service_ == AS400.COMMAND || service_ == AS400.CENTRAL)
+    {        
+        // Currently, referencing counting is only applicable to hostcnn server, since those can be shared across AS400 objects. 
+        int count = removeReference();
+        if (service_ == AS400.HOSTCNN && count > 0)
         {
-            AS400EndJobDS endjob = new AS400EndJobDS(AS400Server.getServerId(service_));
-            try
-            {
-                endjob.write(outStream_);
-            }
-            catch(IOException e)
-            {
-                Trace.log(Trace.ERROR, "Send end job data stream failed.", e);
-            }
+            Trace.log(Trace.DIAGNOSTIC, "Force disconnect for hostcnn service ignored, reference count: " + count);
+            return;
         }
-
+        
         try
         {
-            socket_.close();
-        }
-        catch (IOException e)
-        {
-            Trace.log(Trace.ERROR, "Socket close failed.", e);
-        }
-    }
+            lock_.lock();
 
-    @Override
-    int getSoTimeout() throws SocketException {
-      return socket_.getSoTimeout(); 
-    }
-
-    @Override
-    void setSoTimeout(int timeout) throws SocketException {
-      socket_.setSoTimeout(timeout); 
-      
+            if (closed_)
+                return;
+            
+            closed_ = true;
+            
+            if (socket_ == null)
+                return;
+            
+            if (service_ == AS400.DATABASE || service_ == AS400.COMMAND 
+                    || service_ == AS400.CENTRAL || service_ == AS400.SIGNON || service_ == AS400.HOSTCNN)
+            {
+                AS400EndJobDS endjob = new AS400EndJobDS(AS400Server.getServerId(service_));
+                try {
+                    endjob.write(outStream_);
+                }
+                catch(Exception e) {
+                    Trace.log(Trace.ERROR, "Send end job data stream failed.", e);
+                }
+            }
+    
+            try {
+                socket_.close();
+            }
+            catch (IOException e) {
+                Trace.log(Trace.ERROR, "Socket close failed.", e);
+            }
+        }
+        finally {
+            lock_.unlock();
+        }
     }
 
     @Override
     public void setExchangeAttrReply(DataStream xChgAttrReply) {
-      exchangeAttrReply_ = xChgAttrReply;
+        exchangeAttrReply_ = xChgAttrReply;
+    }
+    
+    void lock() {
+        lock_.lock();
+    }
+    
+    void unlock() {
+        lock_.unlock();
     }
 
-    @Override
-    public SocketContainer getSocket() {
-      return socket_;
+    void markClosed() {
+        closed_ = true;
     }
 }

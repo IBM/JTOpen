@@ -55,6 +55,7 @@ public class CoreMRI extends ListResourceBundle
       { "DLG_PASSWORD_LABEL", "Password:" },
       { "DLG_SYSTEM_LABEL", "System:" },
       { "DLG_USER_ID_LABEL", "User ID:" },
+      { "DLG_ADDITIONAL_FACTOR_LABEL", "Additional factor:" },
       { "DLG_CANCEL_BUTTON", "Cancel" },
       { "DLG_OK_BUTTON", "OK" },
       { "DLG_CACHE_PASSWORD_CHECK_BOX", "Save password" },

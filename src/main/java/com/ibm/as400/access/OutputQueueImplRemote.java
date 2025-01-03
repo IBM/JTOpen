@@ -35,7 +35,6 @@ implements OutputQueueImpl
     {
 	    if (!fAttrIDsToRtvBuilt_)
 	    {
-	        fAttrIDsToRtvBuilt_ = true;
 	        // 27 of these
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_AUTHCHCK);      // Authority to check
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATAQUELIB);    // Data queue library name
@@ -65,6 +64,7 @@ implements OutputQueueImpl
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBNUM);     // Writer job number
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBSTS);     // Writer job status
 	        attrsToRetrieve_.addAttrID(PrintObject.ATTR_WTRJOBUSER);    // Writer job user name
+	        fAttrIDsToRtvBuilt_ = true;
 	    }
     }
 

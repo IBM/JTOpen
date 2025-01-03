@@ -15,7 +15,7 @@
 
 
 
-<program name="qgyrprta_rpta0100" path="/QSYS.LIB/QGY.LIB/QGYRPRTA.PGM">
+<program name="qgyrprta_rpta0100" path="/QSYS.LIB/QGYRPRTA.PGM">
         <data name="receiverVariable"                   usage="output"          type="struct" struct="rpta0100"
                                                                                 outputsize="receiverVariableLength"/>
         <data name="receiverVariableLength"             usage="input"           type="int" length="4" init="370"/>

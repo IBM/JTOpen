@@ -1393,7 +1393,7 @@ public class ObjectList implements Serializable
     }
 
     // Call the program
-    ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLOBJ.PGM", parms);
+    ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGYOLOBJ.PGM", parms);
     if (!pc.run())
     {
       throw new AS400Exception(pc.getMessageList());

@@ -36,11 +36,6 @@ interface AS400Impl
     void connect(int service, int overridePort, boolean skipSignonServer) throws AS400SecurityException, IOException;  /*@V1C*/
     // Connect to service.
     void connect(int service) throws AS400SecurityException, IOException;  
-    // Establish a DHCP connection to the specified port.
-    Socket connectToPort(int port) throws AS400SecurityException, IOException;
-    //@N5A Establish a DHCP connection to the specified port. Add this interface for L1C for DHCP already listens on 942 of localhost for STRTCPSVR
-    Socket connectToPort(int port,boolean forceNonLocalhost) throws AS400SecurityException, IOException;
-    //int createUserHandle() throws AS400SecurityException, IOException;//@SAA @V4D
     // Disconnect from service.
     void disconnect(int service);
     // Exchange seeds with remote implementation.
@@ -51,7 +46,7 @@ interface AS400Impl
     // Sets the raw bytes for the provided profile token.
     void generateProfileToken(ProfileTokenCredential profileToken, String userIdentity) throws AS400SecurityException, IOException;
     // Sets the raw bytes for the provided profile token.
-    void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException, InterruptedException;
+    void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, char[] additionalAuthenticationFactor, String gssName) throws AS400SecurityException, IOException, InterruptedException;
     // Get the port for a service.
     int getServicePort(String systemName, int service);
     // Check service connection.
@@ -72,11 +67,11 @@ interface AS400Impl
     void setServicePortsToDefault(String systemName);
     // Set significant instance variables into implementation object.
     void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB, boolean mustUseNetSockets, boolean mustUseSuppliedProfile, boolean mustAddLanguageLibrary);
+    SignonInfo setState(AS400Impl impl, CredentialVault credVault);
     // Sign-on to system.
     SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException;
     SignonInfo signon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName, char[] additionalAuthenticationFactor) throws AS400SecurityException, IOException;
     
-    //@Bidi-HCG3 start        
     /**
      * Sets bidi string type of the connection. 
      * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
@@ -84,19 +79,19 @@ interface AS400Impl
      */
     public void setBidiStringType(int bidiStringType);
     
+    void setAdditionalAuthenticationFactor(char[] additionalAuthFactor);
+    
     /**
      * Returns bidi string type of the connection. 
      * See <a href="BidiStringType.html">BidiStringType</a> for more information and valid values.
      * @return bidi string type
      */
     public int getBidiStringType();        
-    //@Bidi-HCG3 end
     
     /* connect to the system, but skip using the signon server */ 
-    /*@V1A*/
-    SignonInfo skipSignon(String systemName, boolean systemNameLocal,
-        String userId_, CredentialVault tempVault, String gssName) throws AS400SecurityException, IOException;
+    SignonInfo skipSignon(String systemName, boolean systemNameLocal, String userId_, CredentialVault tempVault, String gssName) throws AS400SecurityException, IOException;
     
-    String getSystemName(); 
-    
+    String getSystemName();
+    /* Set the VRM for the object.  Only set for the remote Impl */ 
+    void setVRM(int v, int r, int m); 
 }

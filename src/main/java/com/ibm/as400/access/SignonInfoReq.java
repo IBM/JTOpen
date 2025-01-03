@@ -13,16 +13,17 @@
 
 package com.ibm.as400.access;
 
-import java.io.CharConversionException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 class SignonInfoReq extends ClientAccessDataStream
 {
-    SignonInfoReq(byte[] userIDbytes, byte[] authenticationBytes, int byteType,  int serverLevel, char[] additionalAuthenticationFactor)
+    SignonInfoReq(byte[] userIDbytes, byte[] authenticationBytes, int authScheme,  int serverLevel, byte[] addAuthFactor)
     {
-        super(new byte[37 + authenticationBytes.length + (userIDbytes == null ? 0 : 16) + (serverLevel < 5 ? 0 : 7) + (serverLevel >= 18 && null != additionalAuthenticationFactor && 0 < additionalAuthenticationFactor.length ? 10 + additionalAuthenticationFactor.length :0)]);
+        super(new byte[37 + authenticationBytes.length + 
+                       (userIDbytes == null ? 0 : 16) + (serverLevel < 5 ? 0 : 7) + (serverLevel >= 18 && null != addAuthFactor && 0 < addAuthFactor.length ? 10 + addAuthFactor.length :0)]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);
@@ -34,22 +35,22 @@ class SignonInfoReq extends ClientAccessDataStream
 
         // Password's always encrypted.
         //@AF2A Start 
-        if (byteType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) 
+        if (authScheme == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) 
         	data_[20] = (byte)0x06;
         else 
         	data_[20] = (byte)0x02;
         
-        if (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+        if (authScheme == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
         	data_[20] = (byte)0x05;
         
-        if (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) {
-        	if (authenticationBytes.length == 8) {
+        if (authScheme == AS400.AUTHENTICATION_SCHEME_PASSWORD)
+        {
+        	if (authenticationBytes.length == 8)
         		data_[20] = (byte)0x01;
-        	} else if (authenticationBytes.length == 20) {
+        	else if (authenticationBytes.length == 20)
         		data_[20] = (byte)0x03;
-        	} else {
+        	else
         		data_[20] = (byte)0x07;
-        	}
         }
         //data_[20] = (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD) ? (authenticationBytes.length == 8) ? (byte)0x01 : (byte)0x03 : (byteType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) ? (byte)0x05 : (byteType == AS400.AUTHENTICATION_SCHEME_IDENTITY_TOKEN) ? (byte)0x06 : (byte)0x02;
         //@AF2A End
@@ -66,14 +67,11 @@ class SignonInfoReq extends ClientAccessDataStream
         //   LL
         set32bit(6 + authenticationBytes.length, 31);
         //   CP
-        if (byteType == AS400.AUTHENTICATION_SCHEME_PASSWORD)
-        {
+        if (authScheme == AS400.AUTHENTICATION_SCHEME_PASSWORD)
             set16bit(0x1105, 35);
-        }
         else
-        {
             set16bit(0x1115, 35);
-        }
+
         //   Data.
         System.arraycopy(authenticationBytes, 0, data_, 37, authenticationBytes.length);
 
@@ -102,32 +100,23 @@ class SignonInfoReq extends ClientAccessDataStream
             data_[offset] = 0x01;
             offset += 1;
                     
-            if (serverLevel >= 18 && null != additionalAuthenticationFactor
-                    && 0 < additionalAuthenticationFactor.length) {
-                try {
-                    int ccsid = 37;
-                    CharConverter c = new CharConverter(ccsid);
-                    byte[] aafBytes = c.stringToByteArray(new String(additionalAuthenticationFactor));
-
-                    //LL
-                    set32bit(aafBytes.length + 4 + 2 + 4, offset);
-                    offset += 4;
-                    // CP
-                    set16bit(0x112F, offset);
-                    offset += 2;
-                    // CCSID
-                    set32bit(ccsid, offset);
-                    offset += 4;
-                    // data 
-                    System.arraycopy(aafBytes, 0, data_, offset, aafBytes.length);
-                } catch (UnsupportedEncodingException e) {
-                    if (Trace.traceOn_)
-                        Trace.log(Trace.DIAGNOSTIC, e);
-                }
+            if (serverLevel >= 18 && null != addAuthFactor && 0 < addAuthFactor.length)
+            {
+                //LL
+                set32bit(addAuthFactor.length + 4 + 2 + 4, offset);
+                // CP
+                set16bit(0x112F, offset + 4);
+                // CCSID
+                set32bit(1208, offset + 6);
+                // data 
+                System.arraycopy(addAuthFactor, 0, data_, offset + 10, addAuthFactor.length);
+                
+                offset += 10 + addAuthFactor.length;
             }
         }
     }
 
+    @Override
     void write(OutputStream out) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending retrieve signon information request...");

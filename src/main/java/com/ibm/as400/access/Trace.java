@@ -691,7 +691,7 @@ public class Trace implements Runnable
       }
       buffer.append(simpleName);
       buffer.append('@');
-      buffer.append(source.hashCode());
+      buffer.append(System.identityHashCode(source));
       buffer.append("] ");
   }
   
@@ -705,7 +705,7 @@ public class Trace implements Runnable
       }
       writer.print(simpleName);
       writer.print('@');
-      writer.print(source.hashCode());
+      writer.print(System.identityHashCode(source));
       writer.print("] ");
   }
 

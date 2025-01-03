@@ -270,7 +270,7 @@ public class AspOpenList extends OpenList {
      //parameters[8] = new ProgramParameter(sortInformation)
      
      // Call the program.
-     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QYASPOL.PGM", parameters);
+     ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QYASPOL.PGM", parameters);
      if (!pc.run())
      {
          throw new AS400Exception(pc.getMessageList());

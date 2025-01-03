@@ -32,7 +32,6 @@ class AFPResourceImplRemote extends PrintObjectImplRemote
     {
         if (!fAttrIDsToRtvBuilt_)
         {
-            fAttrIDsToRtvBuilt_ = true;
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DATE);       // date
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_DESCRIPTION);// text description
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_OBJEXTATTR); // object extended attribute
@@ -41,6 +40,7 @@ class AFPResourceImplRemote extends PrintObjectImplRemote
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_RSCTYPE);    // resource object type
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_TIME);       // time
             attrsToRetrieve_.addAttrID(PrintObject.ATTR_NUMBYTES);   // number of bytes to read/write
+            fAttrIDsToRtvBuilt_ = true;
         }
     }
 

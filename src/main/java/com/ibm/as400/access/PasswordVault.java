@@ -13,7 +13,6 @@
 
 package com.ibm.as400.access;
 
-import com.ibm.as400.access.AS400;
 import java.io.Serializable;
 
 /**

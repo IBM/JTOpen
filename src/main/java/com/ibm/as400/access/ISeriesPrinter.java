@@ -1563,7 +1563,7 @@ public class ISeriesPrinter implements Serializable
         };
 
         // Note this is not an open list API, even though it starts with QGY.
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYRPRTA.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGYRPRTA.PGM", parameters);
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());

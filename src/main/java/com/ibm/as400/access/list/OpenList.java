@@ -163,7 +163,7 @@ public abstract class OpenList implements Serializable
                 new ProgramParameter(handle_),
                 EMPTY_ERROR_CODE_PARM
             };
-            ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYCLST.PGM", parameters);
+            ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGYCLST.PGM", parameters);
             if (!pc.run())
             {
                 throw new AS400Exception(pc.getMessageList());
@@ -373,7 +373,7 @@ public abstract class OpenList implements Serializable
             EMPTY_ERROR_CODE_PARM
         };
 
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYGTLE.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGYGTLE.PGM", parameters);
 
         byte[] listInformation = null;
         int recordsReturned = 0;

@@ -6,7 +6,7 @@
 //
 // The source code contained herein is licensed under the IBM Public License
 // Version 1.0, which has been approved by the Open Source Initiative.
-// Copyright (C) 1997-2006 International Business Machines Corporation and
+// Copyright (C) 1997-2024 International Business Machines Corporation and
 // others.  All rights reserved.
 //
 ///////////////////////////////////////////////////////////////////////////////
@@ -102,36 +102,6 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
         }
     }
 
-    // Connect to port.
-    @Override
-    public Socket connectToPort(int port) throws AS400SecurityException, IOException
-    {
-        try
-        {
-            return (Socket)connection_.callMethod(pxId_, "connectToPort", new Class[] { Integer.TYPE }, new Object[] { Integer.valueOf(port) }).getReturnValue();
-        }
-        catch (InvocationTargetException e)
-        {
-            throw ProxyClientConnection.rethrow2(e);
-        }
-    }
-    
-    @Override
-    public Socket connectToPort(int port,boolean forceNonLocalhost) throws AS400SecurityException, IOException
-    {
-        try
-        {
-            return (Socket)connection_.callMethod(pxId_, 
-                "connectToPort", 
-                new Class[] { Integer.TYPE, Boolean.TYPE }, 
-                new Object[] { Integer.valueOf(port), Boolean.valueOf(forceNonLocalhost) }).getReturnValue();
-        }
-        catch (InvocationTargetException e)
-        {
-            throw ProxyClientConnection.rethrow2(e);
-        }
-    }
-
     // Disconnect from service.
     @Override
     public void disconnect(int service)
@@ -186,13 +156,13 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
 
     // Sets the raw bytes for the provided profile token.
     @Override
-    public void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, String gssName) throws AS400SecurityException, IOException, InterruptedException
+    public void generateProfileToken(ProfileTokenCredential profileToken, String userId, CredentialVault vault, char[] additionalAuthFactor, String gssName) throws AS400SecurityException, IOException, InterruptedException
     {
         try {
           ProxyReturnValue rv = connection_.callMethod (pxId_, "generateProfileToken",
-             new Class[] { ProfileTokenCredential.class, String.class, CredentialVault.class, String.class },
-             new Object[] { profileToken, userId, vault, gssName },
-             new boolean[] { true, false, false, false }, // indicate that 1st arg gets modified
+             new Class[] { ProfileTokenCredential.class, String.class, CredentialVault.class,char[].class ,String.class },
+             new Object[] { profileToken, userId, vault, additionalAuthFactor, gssName },
+             new boolean[] { true, false, false, false, false }, // indicate that 1st arg gets modified
              true);
           ProfileTokenCredential returnArg = (ProfileTokenCredential)rv.getArgument(0);
           profileToken.setToken(returnArg.getToken());
@@ -357,6 +327,12 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
             throw ProxyClientConnection.rethrow(e);
         }
     }
+    
+    @Override
+    public SignonInfo setState(AS400Impl impl, CredentialVault credVault) 
+    {
+        return null;
+    }
 
     // Sign-on.
     @Override
@@ -417,5 +393,15 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     @Override
     public String getSystemName() {
       return connection_.getSystemName(); 
+    }
+
+	@Override
+	public void setVRM(int v, int r, int m) {
+		// Does nothing for the proxy class
+	}
+	
+    @Override
+    public void setAdditionalAuthenticationFactor(char[] additionalAuthFactor) {
+		// Does nothing for the proxy class
     }
 }
