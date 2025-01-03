@@ -229,8 +229,8 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 		// If the command is not a proxy command, retrieve information for the specified command. 		//@A1A
 
 		int numParms;
-		if ((AS400.nativeVRM.vrm_ >= 0x00060100) ||
-		   (AS400.nativeVRM.vrm_ >= 0x00050400 && !system_.isMissingPTF())) {
+		if ((AS400.nativeVRM.getVersionReleaseModification()>= 0x00060100) ||
+		   (AS400.nativeVRM.getVersionReleaseModification()>= 0x00050400 && !system_.isMissingPTF())) {
 		   numParms = 6;	// @A1C - added support for proxy commands
 		}
 		else numParms = 5;
@@ -252,7 +252,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
           {
             // If the exception is "MCH0802: Total parameters passed does not match number required" and we're running to V5R4, that means that the user hasn't applied PTF SI29629.  In that case, we will re-issue the program call, minus the new "follow proxy chain" parameter.
             if (numParms > 5 &&
-                AS400.nativeVRM.vrm_ < 0x00060100 && AS400.nativeVRM.vrm_ >= 0x00050400 &&
+                AS400.nativeVRM.getVersionReleaseModification()< 0x00060100 && AS400.nativeVRM.getVersionReleaseModification()>= 0x00050400 &&
                 messageList_[messageList_.length - 1].getID().equals("MCH0802"))
             {
               if (Trace.traceOn_) Trace.log(Trace.WARNING, "PTF SI29629 is not installed: (MCH0802) " + messageList_[messageList_.length - 1].getText());

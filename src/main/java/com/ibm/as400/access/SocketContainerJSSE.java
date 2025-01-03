@@ -27,9 +27,11 @@ class SocketContainerJSSE extends SocketContainer
 {
     private SSLSocket sslSocket_;
 
+    @Override
     void setProperties(Socket socket, String serviceName, String systemName, int port, SSLOptions options) throws IOException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerJSSE: create SSLSocket");
+        
         SSLSocketFactory sslFactory = (SSLSocketFactory)SSLSocketFactory.getDefault();
         sslSocket_ = (SSLSocket)sslFactory.createSocket(socket, systemName, port, true);
         //@P4A START
@@ -66,31 +68,39 @@ class SocketContainerJSSE extends SocketContainer
         //@P4A END
     }
 
+    @Override
     void close() throws IOException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerJSSE: close");
         sslSocket_.close();
     }
 
+    @Override
     InputStream getInputStream() throws IOException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerJSSE: getInputStream");
         return sslSocket_.getInputStream();
     }
 
+    @Override
     OutputStream getOutputStream() throws IOException
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerJSSE: getOutputStream");
         return sslSocket_.getOutputStream();
     }
 
-    
+    @Override    
     int getSoTimeout() throws SocketException {
       return sslSocket_.getSoTimeout(); 
     }
 
+    @Override
     void setSoTimeout(int timeout) throws SocketException {
       sslSocket_.setSoTimeout(timeout); 
     }
-
+    
+    @Override
+    String getLocalAddress() {
+        return sslSocket_.getLocalAddress().getHostAddress();
+    }
 }

@@ -120,310 +120,321 @@ import java.io.Serializable;
  */
 class ManagedProfileTokenVault extends ProfileTokenVault implements Cloneable, Serializable
 {
-  /**
-   * Constant that indicates the profile token credential managed by the vault
-   * should be refreshed every time its raw bytes (i.e. the underlying
-   * credential) is requested.
-   */
-  private static final int REFRESH_TOKEN_EVERY_TIME = -1;
+    /**
+     * Constant that indicates the profile token credential managed by the vault should be refreshed every time its raw
+     * bytes (i.e. the underlying credential) is requested.
+     */
+    private static final int REFRESH_TOKEN_EVERY_TIME = -1;
 
-  /**
-   * Constant representing the minimum amount of time, in seconds, allowed
-   * between a refresh of the profile token credential managed by the vault.
-   */
-  private static final int MIN_TOKEN_REFRESH_TIME_INTERVAL = 30;
+    /**
+     * Constant representing the minimum amount of time, in seconds, allowed between a refresh of the profile token
+     * credential managed by the vault.
+     */
+    private static final int MIN_TOKEN_REFRESH_TIME_INTERVAL = 30;
 
-  /**
-   * Constant representing the maximum amount of time, in seconds, allowed
-   * between a refresh of the profile token credential managed by the vault.
-   */
-  private static final int MAX_TOKEN_REFRESH_TIME_INTERVAL = (60 * 59); // 59 minutes
+    /**
+     * Constant representing the maximum amount of time, in seconds, allowed between a refresh of the profile token
+     * credential managed by the vault.
+     */
+    private static final int MAX_TOKEN_REFRESH_TIME_INTERVAL = (60 * 59); // 59 minutes
 
-  /** The object that provides a new profile token credential for the vault. */
-  private ProfileTokenProvider tokenProvider_;
+    /** The object that provides a new profile token credential for the vault. */
+    private ProfileTokenProvider tokenProvider_;
 
-  /** The profile token credential. */
-  private ProfileTokenCredential profileToken_;
+    /** The profile token credential. */
+    private ProfileTokenCredential profileToken_;
 
-  /**
-   * The amount of time, in seconds, to wait before refreshing the
-   * existing profile token credential.  The maximum value for this
-   * field is {@link #MAX_TOKEN_REFRESH_TIME_INTERVAL}
-   */
-  private int refreshThreshold_;
+    /**
+     * The amount of time, in seconds, to wait before refreshing the existing profile token credential. The maximum
+     * value for this field is {@link #MAX_TOKEN_REFRESH_TIME_INTERVAL}
+     */
+    private int refreshThreshold_;
 
-  /**
-   * Constructs a ManagedProfileTokenVault object.  A new profile token
-   * is generated during the construction of the vault using the specified
-   * token provider.  If a new profile token is needed in the future, the
-   * same token provider will be used.  The refresh threshold is set to
-   * a default value of half the profile token's timeout interval.
-   *
-   * @param tokenProvider The provider to use when a new profile token needs to be generated
-   */
-  protected ManagedProfileTokenVault(ProfileTokenProvider tokenProvider) {
-    this(tokenProvider, REFRESH_TOKEN_EVERY_TIME);
-  }
-
-  /**
-   * Constructs a ManagedProfileTokenVault object.  A new profile token
-   * is generated during the construction of the vault using the specified
-   * token provider.  If a new profile token is needed in the future, the
-   * same token provider will be used.  The refresh threshold is set to
-   * the value specified by the refreshThreshold parameter.
-   *
-   * @param tokenProvider The provider to use when a new profile token needs to be generated
-   * @param refreshThreshold The refresh threshold, in seconds, for the profile token.  Used
-   *                         by the vault to manage the currency of the profile token to
-   *                         help ensure it remains current for an indefinite period of time.
-   */
-  protected ManagedProfileTokenVault(ProfileTokenProvider tokenProvider, int refreshThreshold) {
-    super();
-    try {
-      profileToken_ = tokenProvider.create();
-      encodedCredential_ = store(profileToken_.getToken());
-      initRefreshThreshold(refreshThreshold == REFRESH_TOKEN_EVERY_TIME ? profileToken_.getTimeoutInterval() / 2 : refreshThreshold);
+    /**
+     * Constructs a ManagedProfileTokenVault object. A new profile token is generated during the construction of the
+     * vault using the specified token provider. If a new profile token is needed in the future, the same token provider
+     * will be used. The refresh threshold is set to a default value of half the profile token's timeout interval.
+     *
+     * @param tokenProvider The provider to use when a new profile token needs to be generated
+     */
+    protected ManagedProfileTokenVault(ProfileTokenProvider tokenProvider) {
+        this(tokenProvider, REFRESH_TOKEN_EVERY_TIME);
     }
-    catch (AS400SecurityException e) {
-      Trace.log(Trace.ERROR, "Error while created ManagedProfileTokenVault.", e);
-    }
-    tokenProvider_ = tokenProvider;
-  }
 
-  /**
-   * Internal use only.  Used to construct an empty vault when we are
-   * creating a copy of an existing vault.
-   */
-  private ManagedProfileTokenVault() {
-    super();
-  }
-
-  /**
-   * Returns a copy of this ManagedProfileTokenVault.  The new copy will NOT
-   * be an exact copy of this vault.  The characteristics (i.e. refresh
-   * threshold and token provider) will be exactly the same, but the profile
-   * token itself is not duplicated.  Instead, the new vault copy generates
-   * its own profile token using the token provider.  This non-copy of the
-   * profile token is required, because the vault must always maintain a 1-to-1
-   * mapping between the vault and the profile token it is managing.
-   *
-   * @return A newly created ManagedProfileTokenVault with the same
-   *         characteristics as this one, but with its own uniquely
-   *         generated profile token.
-   */
-  public ManagedProfileTokenVault clone()
-  {
-    ManagedProfileTokenVault vaultClone = (ManagedProfileTokenVault)super.clone();
-
-    synchronized(this)
+    /**
+     * Constructs a ManagedProfileTokenVault object. A new profile token is generated during the construction of the
+     * vault using the specified token provider. If a new profile token is needed in the future, the same token provider
+     * will be used. The refresh threshold is set to the value specified by the refreshThreshold parameter.
+     *
+     * @param tokenProvider    The provider to use when a new profile token needs to be generated
+     * @param refreshThreshold The refresh threshold, in seconds, for the profile token. Used by the vault to manage the
+     *                         currency of the profile token to help ensure it remains current for an indefinite period
+     *                         of time.
+     */
+    protected ManagedProfileTokenVault(ProfileTokenProvider tokenProvider, int refreshThreshold)
     {
-      //
-      // When we duplicate the fields from an existing managed profile token vault,
-      // we do NOT duplicate the profile token itself.
-      // By design, each managed profile token vault contains its very own
-      // profile token.  In order to maintain this 1-to-1 correlation between
-      // vault and token, we must create a brand new profile token for
-      // the newly created vault.  However, we do copy the refresh threshold
-      // and token provider from the existing vault, so both the new vault
-      // and the profile token in it will have the same characteristics
-      // as the vault we are making a copy of.
-      //
-
-      vaultClone.refreshThreshold_ = refreshThreshold_;
-      vaultClone.tokenProvider_ = tokenProvider_;
-
-      try {
-        ProfileTokenCredential newToken = tokenProvider_.create();
-        vaultClone.profileToken_ = newToken;
-        vaultClone.encodedCredential_ = store(newToken.getToken());
-      }
-      catch (AS400SecurityException e) {
-        Trace.log(Trace.ERROR, "Error while cloning ManagedProfileTokenVault.", e);
-      }
-      return vaultClone;
-    }
-  }
-
-  /**
-   * Purges the contents of the vault.  All resources consumed by the
-   * credential vault are freed, which means the profile token stored in
-   * the vault will be destroyed.  If this method is invoked and the vault
-   * is already empty, the method simply returns and no exception is thrown.
-   */
-  protected synchronized void empty() {
-    // Let the super class do any cleanup it needs to
-    super.empty();
-    disposeOfToken();
-  }
-
-  /**
-   * Retrieves the raw profile token credential bytes stored in the vault.
-   * If the profile token time to expiration is less than the refresh threshold,
-   * the profile token will be refreshed before returning its bytes.  If the
-   * profile token has expired, a new profile token will be generated using the
-   * token provider, and the bytes of the newly generated profile token will
-   * be returned.
-   *
-   * @return The credential bytes for the profile token stored in the vault
-   */
-  protected synchronized byte[] getClearCredential() {
-    // If the vault is empty, build ourselves a new token
-    if (isEmpty()) {
-      buildToken();
-      return resolve(encodedCredential_);
+        super();
+        try
+        {
+            profileToken_ = tokenProvider.create();
+            encodedCredential_ = store(profileToken_.getToken());
+            initRefreshThreshold(refreshThreshold == REFRESH_TOKEN_EVERY_TIME ? profileToken_.getTimeoutInterval() / 2 : refreshThreshold);
+        } 
+        catch (AS400SecurityException e) {
+            Trace.log(Trace.ERROR, "Error while created ManagedProfileTokenVault.", e);
+        }
+        
+        tokenProvider_ = tokenProvider;
     }
 
-    // We have a profile token in the vault, so check if it is current.
-    // If it is not, then we have missed our opportunity to renew it
-    // and we will need to start over by creating a brand new token.
-    if (!profileToken_.isCurrent()) {
-      // The profile token has already expired.  This means we need
-      // to start all over by creating a new one.
-      buildToken();
-      return resolve(encodedCredential_);
+    /**
+     * Internal use only. Used to construct an empty vault when we are creating a copy of an existing vault.
+     */
+    private ManagedProfileTokenVault() {
+        super();
     }
 
-    // Check to see how much time is left before the token expires.
-    // If there is less than 'refreshThreshold' time left, then
-    // renew the token before returning it.
-    try {
-      if ( (isTimeForRefresh()) && (profileToken_.isRenewable()) ) {
-        profileToken_.refresh();
-        encodedCredential_ = store(profileToken_.getToken());
-      }
+    /**
+     * Retrieve ProfileTokenCredential object in vault if one exists.
+     * 
+     * @return The ProfileTokenCredential object or null.
+     */
+    @Override
+    public ProfileTokenCredential getProfileTokenCredential() {
+        return profileToken_;
     }
-    catch (Exception e) {
-      // In case of exception, just try to build a brand new token.
-      if (Trace.traceOn_) {
-        Trace.log(Trace.DIAGNOSTIC, "Error while refreshing profile token.", e);
-      }
-      buildToken();
-    }
-    return resolve(encodedCredential_);
-  }
+    
+    /**
+     * Returns a copy of this ManagedProfileTokenVault. The new copy will NOT be an exact copy of this vault. The
+     * characteristics (i.e. refresh threshold and token provider) will be exactly the same, but the profile token
+     * itself is not duplicated. Instead, the new vault copy generates its own profile token using the token provider.
+     * This non-copy of the profile token is required, because the vault must always maintain a 1-to-1 mapping between
+     * the vault and the profile token it is managing.
+     *
+     * @return A newly created ManagedProfileTokenVault with the same characteristics as this one, but with its own
+     *         uniquely generated profile token.
+     */
+    @Override
+    public ManagedProfileTokenVault clone()
+    {
+        ManagedProfileTokenVault vaultClone = (ManagedProfileTokenVault) super.clone();
 
-  /**
-   * Forces the profile token to be refreshed, regardless of how
-   * much time is left before it expires.
-   */
-  protected synchronized void forceRefresh() {
-    // See if we have a profile token to refresh.
-    if ( (isEmpty()) || (!profileToken_.isRenewable()) ) {
-      // No, so just build a new one
-      buildToken();
-      return;
+        synchronized (this)
+        {
+            //
+            // When we duplicate the fields from an existing managed profile token vault,
+            // we do NOT duplicate the profile token itself.
+            // By design, each managed profile token vault contains its very own
+            // profile token. In order to maintain this 1-to-1 correlation between
+            // vault and token, we must create a brand new profile token for
+            // the newly created vault. However, we do copy the refresh threshold
+            // and token provider from the existing vault, so both the new vault
+            // and the profile token in it will have the same characteristics
+            // as the vault we are making a copy of.
+            //
+
+            vaultClone.refreshThreshold_ = refreshThreshold_;
+            vaultClone.tokenProvider_ = tokenProvider_;
+
+            try
+            {
+                ProfileTokenCredential newToken = tokenProvider_.create();
+                vaultClone.profileToken_ = newToken;
+                vaultClone.encodedCredential_ = store(newToken.getToken());
+            }
+            catch (AS400SecurityException e) {
+                Trace.log(Trace.ERROR, "Error while cloning ManagedProfileTokenVault.", e);
+            }
+            
+            return vaultClone;
+        }
     }
 
-    try {
-      profileToken_.refresh();
-      encodedCredential_ = store(profileToken_.getToken());
+    /**
+     * Purges the contents of the vault. All resources consumed by the credential vault are freed, which means the
+     * profile token stored in the vault will be destroyed. If this method is invoked and the vault is already empty,
+     * the method simply returns and no exception is thrown.
+     */
+    @Override
+    protected synchronized void empty()
+    {
+        super.empty();
+        disposeOfToken();
     }
-    catch (Exception e) {
-      // In case of exception, just try to build a brand new token.
-      if (Trace.traceOn_) {
-        Trace.log(Trace.DIAGNOSTIC, "Error while forcefully refreshing profile token.", e);
-      }
-      buildToken();
-    }
-  }
 
-  /**
-   * {@inheritDoc}
-   */
-  protected synchronized boolean isEmpty() {
-    boolean empty = super.isEmpty();
+    /**
+     * Retrieves the raw profile token credential bytes stored in the vault. If the profile token time to expiration is
+     * less than the refresh threshold, the profile token will be refreshed before returning its bytes. If the profile
+     * token has expired, a new profile token will be generated using the token provider, and the bytes of the newly
+     * generated profile token will be returned.
+     *
+     * @return The credential bytes for the profile token stored in the vault
+     */
+    @Override
+    protected synchronized byte[] getClearCredential()
+    {
+        // If the vault is empty, build ourselves a new token
+        if (isEmpty())
+        {
+            buildToken();
+            return resolve(encodedCredential_);
+        }
 
-    if (empty) {
-      if (profileToken_ != null) {
-        throw new IllegalStateException("Credential vault is empty, but profile token is not null");
-      }
-    }
-    return empty;
-  }
+        // We have a profile token in the vault, so check if it is current.
+        // If it is not, then we have missed our opportunity to renew it
+        // and we will need to start over by creating a brand new token.
+        if (!profileToken_.isCurrent())
+        {
+            // The profile token has already expired. This means we need
+            // to start all over by creating a new one.
+            buildToken();
+            return resolve(encodedCredential_);
+        }
 
-  /**
-   * Initializes the refresh threshold.
-   *
-   * @param threshold The refresh threshold, in seconds
-   */
-  private void initRefreshThreshold(int threshold) {
-    // The minimum allowed refresh threshold is 30 seconds.
-    // The maximum allowed is 59 minutes.
-    if ( (threshold < MIN_TOKEN_REFRESH_TIME_INTERVAL) || (threshold > MAX_TOKEN_REFRESH_TIME_INTERVAL) ) {
-      throw new IllegalArgumentException("Refresh threshold must between " +
-                                         MIN_TOKEN_REFRESH_TIME_INTERVAL + " and " +
-                                         MAX_TOKEN_REFRESH_TIME_INTERVAL + " seconds");
-    }
-    refreshThreshold_ = threshold;
-  }
+        // Check to see how much time is left before the token expires.
+        // If there is less than 'refreshThreshold' time left, then
+        // renew the token before returning it.
+        try
+        {
+            if ((isTimeForRefresh()) && (profileToken_.isRenewable()))
+            {
+                profileToken_.refresh();
+                encodedCredential_ = store(profileToken_.getToken());
+            }
+        } 
+        catch (Exception e)
+        {
+            // In case of exception, just try to build a brand new token.
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Error while refreshing profile token.", e);
 
-  /**
-   * Unconditionally disposes of the existing profile token,
-   * and generates a new profile token using the token provider.
-   */
-  private void buildToken() {
-    try {
-      // First dispose of the existing token, if it exists
-      disposeOfToken();
+            buildToken();
+        }
+        return resolve(encodedCredential_);
+    }
 
-      // Next create a new one
-      profileToken_ = tokenProvider_.create();
+    /**
+     * Forces the profile token to be refreshed, regardless of how much time is left before it expires.
+     */
+    protected synchronized void forceRefresh()
+    {
+        // See if we have a profile token to refresh.
+        if ((isEmpty()) || (!profileToken_.isRenewable()))
+        {
+            // No, so just build a new one
+            buildToken();
+            return;
+        }
 
-      // Finally, store the bytes of the new token in an encoded form
-      encodedCredential_ = store(profileToken_.getToken());
-    }
-    catch (Exception e) {
-      if (Trace.traceOn_) {
-        Trace.log(Trace.DIAGNOSTIC, "Error while building profile token.", e);
-      }
+        try
+        {
+            profileToken_.refresh();
+            encodedCredential_ = store(profileToken_.getToken());
+        }
+        catch (Exception e)
+        {
+            // In case of exception, just try to build a brand new token.
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Error while forcefully refreshing profile token.", e);
 
-      // If the build and store of the profile token did not both
-      // succeed, then get rid of everything.  This prevents us from
-      // getting into a half baked state where the profile token is
-      // present but the encoded credential is null (not sure how that
-      // scenario would ever happen anyway, but this protects us from
-      // it nontheless).
-      disposeOfToken();
+            buildToken();
+        }
     }
-  }
 
-  /**
-   * Unconditionally disposes of the existing profile token.
-   */
-  private void disposeOfToken() {
-    try {
-      // Destroy our profile token
-      if (profileToken_ != null) {
-        profileToken_.destroy();
-      }
-    }
-    catch (Exception e) {
-      Trace.log(Trace.ERROR, "Error while disposing of profile token.", e);
-    }
-    finally {
-      profileToken_ = null;
-      encodedCredential_ = null;
-    }
-  }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected synchronized boolean isEmpty()
+    {
+        boolean empty = super.isEmpty();
 
-  /**
-   * Determines if it is time to refresh the profile token.  This is decided
-   * by comparing the time left until the profile token expires, and the
-   * refresh threshold.
-   *
-   * @return true if the profile token needs to be refreshed, false if it does not.
-   *
-   * @throws AS400SecurityException If an IBM i system security or authentication error occurs
-   */
-  private boolean isTimeForRefresh() throws AS400SecurityException {
-    if (refreshThreshold_ == REFRESH_TOKEN_EVERY_TIME) {
-      return true;
+        if (empty && profileToken_ != null) 
+            throw new IllegalStateException("Credential vault is empty, but profile token is not null");
+
+        return empty;
     }
-    else if (profileToken_ == null) {
-      return true;
+
+    /**
+     * Initializes the refresh threshold.
+     *
+     * @param threshold The refresh threshold, in seconds
+     */
+    private void initRefreshThreshold(int threshold)
+    {
+        // The minimum allowed refresh threshold is 30 seconds.
+        // The maximum allowed is 59 minutes.
+        if ( (threshold < MIN_TOKEN_REFRESH_TIME_INTERVAL) || (threshold > MAX_TOKEN_REFRESH_TIME_INTERVAL) )
+        {
+            throw new IllegalArgumentException("Refresh threshold must between " +
+                                             MIN_TOKEN_REFRESH_TIME_INTERVAL + " and " +
+                                             MAX_TOKEN_REFRESH_TIME_INTERVAL + " seconds");
+        }
+        
+        refreshThreshold_ = threshold;
     }
-    else {
-      return (profileToken_.getTimeToExpiration() < refreshThreshold_);
+
+    /**
+     * Unconditionally disposes of the existing profile token, and generates a new profile token using the token
+     * provider.
+     */
+    private void buildToken()
+    {
+        try
+        {
+            // First dispose of the existing token, if it exists
+            disposeOfToken();
+
+            // Next create a new one
+            profileToken_ = tokenProvider_.create();
+
+            // Finally, store the bytes of the new token in an encoded form
+            encodedCredential_ = store(profileToken_.getToken());
+        }
+        catch (Exception e)
+        {
+            if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Error while building profile token.", e);
+
+            // If the build and store of the profile token did not both
+            // succeed, then get rid of everything. This prevents us from
+            // getting into a half baked state where the profile token is
+            // present but the encoded credential is null (not sure how that
+            // scenario would ever happen anyway, but this protects us from
+            // it nontheless).
+            disposeOfToken();
+        }
     }
-  }
+
+    /**
+     * Unconditionally disposes of the existing profile token.
+     */
+    private void disposeOfToken()
+    {
+        try {
+            // Destroy our profile token
+            if (profileToken_ != null)
+                profileToken_.destroy();
+        }
+        catch (Exception e) {
+            Trace.log(Trace.ERROR, "Error while disposing of profile token.", e);
+        }
+        finally
+        {
+            profileToken_ = null;
+            encodedCredential_ = null;
+        }
+    }
+
+    /**
+     * Determines if it is time to refresh the profile token. This is decided by comparing the time left until the
+     * profile token expires, and the refresh threshold.
+     *
+     * @return true if the profile token needs to be refreshed, false if it does not.
+     *
+     * @throws AS400SecurityException If an IBM i system security or authentication error occurs
+     */
+    private boolean isTimeForRefresh() throws AS400SecurityException
+    {
+        return ((refreshThreshold_ == REFRESH_TOKEN_EVERY_TIME) 
+                || (profileToken_ == null) 
+                ||  (profileToken_.getTimeToExpiration() < refreshThreshold_));
+    }
 }

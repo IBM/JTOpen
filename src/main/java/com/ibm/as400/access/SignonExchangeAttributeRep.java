@@ -27,11 +27,10 @@ class SignonExchangeAttributeRep extends ClientAccessDataStream
         return new SignonExchangeAttributeRep();
     }
 
-    byte getAdditionalAuthenticationIndicator()
+    boolean getAAFIndicator()
     {
         int offset = findCP(0x112E);
-        if (offset == -1) return 0;
-        return data_[offset + 6] ;
+        return (offset == -1) ? false : (data_[offset + 6] == 0x01);
     }
 
     int getRC()
@@ -93,7 +92,7 @@ class SignonExchangeAttributeRep extends ClientAccessDataStream
 
     void read(InputStream in) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving signon server exchange client/server attributes reply...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving exchange client/server attributes reply...");
 
         // Receive the header.
         byte[] header = new byte[20];

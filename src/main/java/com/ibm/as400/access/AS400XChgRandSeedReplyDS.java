@@ -45,7 +45,7 @@ class AS400XChgRandSeedReplyDS extends ClientAccessDataStream
     
     int findCP(int cp)
     {
-      int offset = 24;
+      int offset = 32;
       while (offset < data_.length - 1)
       {
         int LLCP = get16bit(offset + 4);
@@ -53,16 +53,6 @@ class AS400XChgRandSeedReplyDS extends ClientAccessDataStream
         offset += get32bit(offset);
       }
       return -1;
-    }
-    
-    byte[] getHCSServerSeed()
-    {
-      int offset = findCP(0x1103);
-      if (offset == -1) return new byte[0];
-
-      byte[] seed = new byte[8];
-      System.arraycopy(data_, offset + 6, seed, 0, 8);
-      return seed;
     }
 
     void read(InputStream in) throws IOException
@@ -108,5 +98,13 @@ class AS400XChgRandSeedReplyDS extends ClientAccessDataStream
       return get8bit(5); 
     }
 
+    /**
+     * Returns whether the server accepts an additional authentication factor.
+     */
+    boolean getAAFIndicator()
+    {
+        int offset = findCP(0x112E);
+        return (offset == -1) ? false : (data_[offset + 6] == 0x01);
+    }
     
 }

@@ -14,8 +14,6 @@
 package com.ibm.as400.access;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.SocketException;
 import java.util.Hashtable;
 
@@ -24,13 +22,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     private static int threadCount_ = 0;
 
     private AS400ImplRemote system_;
-    private int service_;
-    private String jobString_;
     private boolean disconnecting_ = false;
-
-    private SocketContainer socket_;
-    private InputStream inStream_;
-    private OutputStream outStream_;
 
     private Hashtable replyStreams_;
     private Hashtable instanceReplyStreams_ = new Hashtable();
@@ -186,8 +178,8 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     }
 
     private int lastCorrelationId_ = 0;
-    private class CorrelationIdLock extends Object {}          //@C7A
-    private class ReceiveLock extends Object {}          //@C7A
+    private class CorrelationIdLock extends Object {}
+    private class ReceiveLock extends Object {}
 
     private final CorrelationIdLock correlationIdLock_ = new CorrelationIdLock();
     private final ReceiveLock receiveLock_ = new ReceiveLock();
@@ -218,81 +210,72 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     }
 
     // Print is the only service that uses this method.
+    @Override
     final void addInstanceReplyStream(DataStream replyStream)
     {
         instanceReplyStreams_.put(replyStream, replyStream);
     }
 
     // Print is the only service that uses this method.
+    @Override
     final void clearInstanceReplyStreams()
     {
         instanceReplyStreams_.clear();
     }
 
+    @Override
     final void forceDisconnect()
     {
         disconnecting_ = true;
+        
         if (readDaemonException_ == null)
-        {
             readDaemonException_ = new ConnectionDroppedException(ConnectionDroppedException.DISCONNECT_RECEIVED);
-        }
 
-        if (service_ == AS400.DATABASE || service_ == AS400.COMMAND || service_ == AS400.CENTRAL)
+        if (service_ == AS400.DATABASE || service_ == AS400.COMMAND 
+                || service_ == AS400.CENTRAL|| service_ == AS400.SIGNON || service_ == AS400.HOSTCNN)
         {
             AS400EndJobDS endjob = new AS400EndJobDS(AS400Server.getServerId(service_));
             if (Trace.traceOn_) endjob.setConnectionID(connectionID_);
-            try
-            {
+            try {
                 endjob.write(outStream_);
-            }
-            catch (IOException e)
-            {
+            } 
+            catch (IOException e) {
                 Trace.log(Trace.ERROR, "Send end job data stream failed:", e);
             }
         }
+        
         Trace.log(Trace.INFORMATION , "forceDisconnect calling readDaemon_.interrupt"); 
         readDaemon_.interrupt();
 
-        try
-        {
+        try {
             socket_.close();
         }
-        catch (IOException e)
-        {
+        catch (IOException e) {
             Trace.log(Trace.ERROR, "Socket close failed:", e);
         }
 
         // Wait for thread to end.  This is necessary to help socket descriptor from being reused.
-        try
-        {
+        try {
             readDaemon_.join();
         }
-        catch (InterruptedException e)
-        {
+        catch (InterruptedException e) {
             Trace.log(Trace.ERROR, "Thread join failed:", e);
         }
     }
 
+    @Override
     public final DataStream getExchangeAttrReply()
     {
         return exchangeAttrReply_;
     }
 
-    final String getJobString()
-    {
-        return jobString_;
-    }
-
-    final int getService()
-    {
-        return service_;
-    }
-
+    @Override
     final boolean isConnected()
     {
         return readDaemonException_ == null && unlikelyException_ == null;
     }
 
+    @Override
     final int newCorrelationId()
     {
         synchronized (correlationIdLock_)
@@ -303,46 +286,47 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         }
     }
 
+    @Override
     final DataStream receive(int correlationId) throws IOException, InterruptedException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "AS400Server.receive");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "AS400Server.receive from job " + getJobString());
+        
         synchronized (receiveLock_)
         {
-      while (true) {
-        // Changed March 2018 to give priority to exceptions.. 
-        // Otherwise exceptions are being lost. 
-        if (readDaemonException_ != null) {
-          Trace.log(Trace.ERROR, "receive(): Read daemon exception:",
-              readDaemonException_);
-          throw readDaemonException_;
-        } else if (unlikelyException_ != null) {
-          Trace.log(Trace.ERROR, "receive(): Read daemon exception:",
-              unlikelyException_);
-          throw unlikelyException_;
-        } else {
-          DataStream ds = replyList_.remove(correlationId);
-          if (ds != null) {
-            if (Trace.traceOn_) {
-              Trace.log(Trace.DIAGNOSTIC, "receive(): Valid reply found:",
-                  correlationId);
-            }
+            while (true)
+            {
+                // Changed March 2018 to give priority to exceptions.. 
+                // Otherwise exceptions are being lost. 
+                if (readDaemonException_ != null) {
+                    Trace.log(Trace.ERROR, "receive(): Read daemon exception:", readDaemonException_);
+                    throw readDaemonException_;
+                }
+                
+                if (unlikelyException_ != null) {
+                    Trace.log(Trace.ERROR, "receive(): Read daemon exception:", unlikelyException_);
+                    throw unlikelyException_;
+                } 
+  
+                DataStream ds = replyList_.remove(correlationId);
+                if (ds != null)
+                {
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "receive(): Valid reply found:", correlationId);
 
-            if (DBDSPool.monitor) {
-              if (ds instanceof DBReplyRequestedDS) {
-                ((DBReplyRequestedDS) ds).setAllocatedLocation();
-              }
-            } /* @B5A */
+                    if (DBDSPool.monitor) {
+                        if (ds instanceof DBReplyRequestedDS)
+                            ((DBReplyRequestedDS) ds).setAllocatedLocation();
+                    }
 
-            return ds;
-          }
-        }
-        if (Trace.traceOn_)
-          Trace.log(Trace.DIAGNOSTIC, "receive(): Reply not found. Waiting...");
-        receiveLock_.wait();
+                    return ds;
+                }
+
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "receive(): Reply not found. Waiting...");
+                receiveLock_.wait();
             }
         }
     }
 
+    @Override
     public void run()
     {
         while (readDaemonException_ == null && unlikelyException_ == null)
@@ -355,13 +339,10 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
 
                 // If client access server, construct ClientAccessDataStream.
                 if (service_ != AS400.RECORDACCESS)
-                {
                     reply = ClientAccessDataStream.construct(inStream_, instanceReplyStreams_, replyStreams_, system_, connectionID_);
-                }
                 else  // Construct a DDMDataStream.
-                {
-                  reply = ClassDecoupler.constructDDMDataStream(inStream_, replyStreams_, system_, connectionID_);
-                }
+                    reply = ClassDecoupler.constructDDMDataStream(inStream_, replyStreams_, system_, connectionID_);
+
                 // Note: the thread is blocked on the above call if the inputStream has nothing to receive.
 
                 int correlation = reply.getCorrelation();
@@ -379,20 +360,17 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
             {
                 if (Trace.traceOn_)
                 {
-                  if (disconnecting_ &&
-                      e instanceof SocketException )
-                  {
-                    // It's an expected consequence of a client-initiated disconnect.
-                    Trace.log(Trace.DIAGNOSTIC, "run(): Caught SocketException during disconnect:", e);
-                  }
-                  else Trace.log(Trace.ERROR, "run(): Caught IOException:", e);
+                    if (disconnecting_ && e instanceof SocketException) {
+                        // It's an expected consequence of a client-initiated disconnect.
+                        Trace.log(Trace.DIAGNOSTIC, "run(): Caught SocketException during disconnect:", e);
+                    } else
+                        Trace.log(Trace.ERROR, "run(): Caught IOException:", e);
                 }
 
                 // At this point, all waiting threads must be notified that the connection has ended...
                 if (readDaemonException_ == null)
-                {
                     readDaemonException_ = e;
-                }
+
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "run(): Notifying threads after IOException.");
                 synchronized (receiveLock_)
                 {
@@ -403,10 +381,10 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
             catch (RuntimeException e)
             {
                 if (Trace.traceOn_) Trace.log(Trace.ERROR, "run(): Caught RuntimeException:", e);
+                
                 if (unlikelyException_ == null)
-                {
                     unlikelyException_ = e;
-                }
+
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "run(): Notifying threads after RuntimeException.");
                 synchronized (receiveLock_)
                 {
@@ -430,19 +408,18 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         }
     }
 
+    @Override
     final int send(DataStream requestStream) throws IOException
     {
-      if (Trace.traceOn_) {
-        Trace.log(Trace.DIAGNOSTIC, "send(): send request...");
-        requestStream.setConnectionID(connectionID_);
-      }
-        if (readDaemonException_ != null)
-        {
+        if (Trace.traceOn_) {
+            Trace.log(Trace.DIAGNOSTIC, "send(): send request to job " + getJobString());
+            requestStream.setConnectionID(connectionID_);
+        }
+        if (readDaemonException_ != null) {
             Trace.log(Trace.ERROR, "Read daemon generated exception:", readDaemonException_);
             throw readDaemonException_;
         }
-        if (unlikelyException_ != null)
-        {
+        if (unlikelyException_ != null) {
             Trace.log(Trace.ERROR, "Read daemon generated exception:", unlikelyException_);
             throw unlikelyException_;
         }
@@ -452,19 +429,18 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         return correlationID;
     }
 
+    @Override
     final void send(DataStream requestStream, int correlationId) throws IOException
     {
-      if (Trace.traceOn_) {
-        Trace.log(Trace.DIAGNOSTIC, "send(): send request...");
-        requestStream.setConnectionID(connectionID_);
-      }
-        if (readDaemonException_ != null)
-        {
+        if (Trace.traceOn_) {
+            Trace.log(Trace.DIAGNOSTIC, "send(): send request to job " + getJobString());
+            requestStream.setConnectionID(connectionID_);
+        }
+        if (readDaemonException_ != null) {
             Trace.log(Trace.ERROR, "Read daemon generated exception:", readDaemonException_);
             throw readDaemonException_;
         }
-        if (unlikelyException_ != null)
-        {
+        if (unlikelyException_ != null) {
             Trace.log(Trace.ERROR, "Read daemon generated exception:", unlikelyException_);
             throw unlikelyException_;
         }
@@ -472,6 +448,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         requestStream.write(outStream_);
     }
 
+    @Override
     final void sendAndDiscardReply(DataStream requestStream) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and discard(): ...");
@@ -479,7 +456,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         discardList_.add(correlationID);
     }
     
-    //@M8a
+    @Override
     final void sendAndDiscardReply(DataStream requestStream,int correlationID) throws IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and discard(): ...");
@@ -487,6 +464,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         discardList_.add(correlationID);
     }
 
+    @Override
     public final DataStream sendAndReceive(DataStream requestStream) throws IOException, InterruptedException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "send and receive(): ...");
@@ -494,30 +472,17 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         return receive(correlationID);
     }
 
+    @Override
     public final synchronized DataStream sendExchangeAttrRequest(DataStream req) throws IOException, InterruptedException
     {
         if (exchangeAttrReply_ == null)
-        {
             exchangeAttrReply_ = sendAndReceive(req);
-        }
+
         return exchangeAttrReply_;
-    }
-
-    int getSoTimeout() throws SocketException {
-      return socket_.getSoTimeout(); 
-    }
-
-    void setSoTimeout(int timeout) throws SocketException {
-      socket_.setSoTimeout(timeout);
     }
     
     @Override
     public void setExchangeAttrReply(DataStream xChgAttrReply) {
       exchangeAttrReply_ = xChgAttrReply;
-    }
-
-    @Override
-    public SocketContainer getSocket() {
-      return socket_;
     }
 }

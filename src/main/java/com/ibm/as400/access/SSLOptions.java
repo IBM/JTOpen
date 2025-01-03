@@ -20,6 +20,22 @@ class SSLOptions implements Serializable
 {
     private static final String copyright = "Copyright (C) 1997-2003 International Business Machines Corporation and others.";
     static final long serialVersionUID = 4L;
+    
+    SSLOptions() {
+        super();
+    }
+    
+    SSLOptions(SSLOptions sslOptions) {
+        super();
+        
+        keyRingName_ = sslOptions.keyRingName_;
+        keyRingPassword_ = sslOptions.keyRingPassword_;
+        keyRingData_ = sslOptions.keyRingData_;
+        proxyEncryptionMode_ = sslOptions.proxyEncryptionMode_;
+        useSslight_ = sslOptions.useSslight_;
+    }
+    
+
     // Package and class name of key ring object, initialized to default.
     // Kept to prevent serializable errors (but not usable) 
     String keyRingName_ = null;

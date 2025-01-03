@@ -4113,7 +4113,7 @@ implements CallableStatement
     {
         if(JDTrace.isTraceOn())
         {  
-            JDTrace.logInformation(this, "setClob()"); 
+            JDTrace.logInformation(this, "setClob(String,Clob)"); 
             if(x == null) 
                 JDTrace.logInformation(this, "parameter index: " + findParameterIndex(parameterName) + " value: NULL");
             else JDTrace.logInformation(this, "parameter index: " + findParameterIndex(parameterName) + " length: " + x.length());
@@ -4146,7 +4146,7 @@ implements CallableStatement
     {
         if(JDTrace.isTraceOn())
         {  
-            JDTrace.logInformation(this, "setClob()"); 
+            JDTrace.logInformation(this, "setClob(String,Reader,long)"); 
             if(reader == null) 
                 JDTrace.logInformation(this, "parameter index: " + findParameterIndex(parameterName) + " value: NULL");
             else JDTrace.logInformation(this, "parameter index: " + findParameterIndex(parameterName) + " length: " + length);
@@ -4319,7 +4319,7 @@ implements CallableStatement
     {
         if(JDTrace.isTraceOn())
         {  
-            JDTrace.logInformation(this, "setClob()"); 
+            JDTrace.logInformation(this, "setSQLXML()"); 
             if(xmlObject == null) 
                 JDTrace.logInformation(this, "parameter index: " + findParameterIndex(parameterName) + " value: NULL");
             else JDTrace.logInformation(this, "parameter index: " + findParameterIndex(parameterName) + " length: " + xmlObject.toString().length());

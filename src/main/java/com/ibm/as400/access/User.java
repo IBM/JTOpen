@@ -25,27 +25,25 @@ import java.util.Calendar;
 import java.util.TimeZone;
 
 /**
- Represents a user profile object on the system.
- <p>Note: User attribute information is cached internally in the User object, after 
- the first retrieval.  To force an update of the cached information, 
- call {@link #refresh refresh()}.
- <p>Note: Calling any of the attribute getters for the first time (for a given User 
- instance) will result in an implicit call to {@link #refresh refresh()}. 
-  If any exceptions are thrown by the implicit refresh(), they are logged under 
-  trace category {@link Trace#ERROR Trace.ERROR} and ignored.  However, if an 
-  exception occurs during an <i>explicit</i> call to refresh(), it will be thrown 
-  to the caller.
- <p>Implementation note:  This class internally calls the Retrieve User Information
-  (QSYRUSRI) API for the methods that retrieve user profile information.  In order 
-  to use those methods, the caller must have *READ authority to the user profile 
-  object.  This class internally calls the Change User Profile (CHGUSRPRF) 
-  command for the methods that change user profile information.  In order to use 
-  those methods, the caller must have security administrator (*SECADM) special 
-  authority, and object management (*OBJMGT) and use (*USE) authorities to the 
-  user profile being changed.
- @see  DirectoryEntry
- @see  UserList
- @see  UserGroup
+ * Represents a user profile object on the system.
+ * <p>
+ * Note: User attribute information is cached internally in the User object, after the first retrieval. To force an
+ * update of the cached information, call {@link #refresh refresh()}.
+ * <p>
+ * Note: Calling any of the attribute getters for the first time (for a given User instance) will result in an implicit
+ * call to {@link #refresh refresh()}. If any exceptions are thrown by the implicit refresh(), they are logged under
+ * trace category {@link Trace#ERROR Trace.ERROR} and ignored. However, if an exception occurs during an <i>explicit</i>
+ * call to refresh(), it will be thrown to the caller.
+ * <p>
+ * Implementation note: This class internally calls the Retrieve User Information (QSYRUSRI) API for the methods that
+ * retrieve user profile information. In order to use those methods, the caller must have *READ authority to the user
+ * profile object. This class internally calls the Change User Profile (CHGUSRPRF) command for the methods that change
+ * user profile information. In order to use those methods, the caller must have security administrator (*SECADM)
+ * special authority, and object management (*OBJMGT) and use (*USE) authorities to the user profile being changed.
+ * 
+ * @see DirectoryEntry
+ * @see UserList
+ * @see UserGroup
  **/
 public class User implements Serializable
 {
@@ -65,63 +63,73 @@ public class User implements Serializable
     };
 
     /**
-     Constant value representing the String "*NONE".
-     @see  #getGroupProfileName
-     @see  #getAttentionKeyHandlingProgram
-     @see  #getGroupAuthority
-     @see  #getInitialProgram
-     @see  #getLocaleJobAttributes
-     @see  #getLocalePathName
-     @see  #getObjectAuditingValue
-     @see  #getSpecialEnvironment
+     * Constant value representing the String "*NONE".
+     * 
+     * @see #getAuthenticationMethods()
+     * @see #getGroupProfileName
+     * @see #getAttentionKeyHandlingProgram
+     * @see #getGroupAuthority
+     * @see #getInitialProgram
+     * @see #getLocaleJobAttributes
+     * @see #getLocalePathName
+     * @see #getObjectAuditingValue
+     * @see #getSpecialEnvironment
      **/
     public static final String NONE = "*NONE";
 
     /**
-     Constant value representing a special authority of "*ALLOBJ".
-     @see  #getSpecialAuthority
+     * Constant value representing a special authority of "*ALLOBJ".
+     * 
+     * @see #getSpecialAuthority
      **/
     public static final String SPECIAL_AUTHORITY_ALL_OBJECT = SPECIAL_AUTHORITIES[0];
 
     /**
-     Constant value representing a special authority of "*AUDIT".
-     @see  #getSpecialAuthority
+     * Constant value representing a special authority of "*AUDIT".
+     * 
+     * @see #getSpecialAuthority
      **/
     public static final String SPECIAL_AUTHORITY_AUDIT = SPECIAL_AUTHORITIES[6];
 
     /**
-     Constant value representing a special authority of "*IOSYSCFG".
-     @see  #getSpecialAuthority
+     * Constant value representing a special authority of "*IOSYSCFG".
+     * 
+     * @see #getSpecialAuthority
      **/
     public static final String SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION = SPECIAL_AUTHORITIES[7];
 
     /**
-     Constant value representing a special authority of "*JOBCTL".
-     @see  #getSpecialAuthority
+     * Constant value representing a special authority of "*JOBCTL".
+     * 
+     * @see #getSpecialAuthority
      **/
     public static final String SPECIAL_AUTHORITY_JOB_CONTROL = SPECIAL_AUTHORITIES[2];
 
     /**
-     Constant value representing a special authority of "*SAVSYS".
-     @see  #getSpecialAuthority
+     * Constant value representing a special authority of "*SAVSYS".
+     * 
+     * @see #getSpecialAuthority
      **/
     public static final String SPECIAL_AUTHORITY_SAVE_SYSTEM = SPECIAL_AUTHORITIES[4];
 
     /**
-     Constant value representing a special authority of "*SECADM".
-     @see  #getSpecialAuthority
+     * Constant value representing a special authority of "*SECADM".
+     * 
+     * @see #getSpecialAuthority
      **/
     public static final String SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR = SPECIAL_AUTHORITIES[1];
 
     /**
-     Constant value representing a special authority of "*SERVICE".
-     @see  #getSpecialAuthority
+     * Constant value representing a special authority of "*SERVICE".
+     * 
+     * @see #getSpecialAuthority
      **/
     public static final String SPECIAL_AUTHORITY_SERVICE = SPECIAL_AUTHORITIES[5];
-
+    
     /**
-     Constant value representing a special authority of "*SPLCTL".
-     @see  #getSpecialAuthority
+     * Constant value representing a special authority of "*SPLCTL".
+     * 
+     * @see #getSpecialAuthority
      **/
     public static final String SPECIAL_AUTHORITY_SPOOL_CONTROL = SPECIAL_AUTHORITIES[3];
 
@@ -273,25 +281,23 @@ public class User implements Serializable
     // Local password management.
     private boolean localPasswordManagement_;
     // Password change block
-    private String pwdChangeBlock_;		// @610
-    // User entitlement required.
-    // (Note: No setter for this attribute)
-    private boolean userEntitlementRequired_;		// @610
+    private String pwdChangeBlock_;
+    // User entitlement required. (Note: No setter for this attribute)
+    private boolean userEntitlementRequired_;
     // User expiration interval.
-    private int userExpirationInterval_;           // @710
+    private int userExpirationInterval_;
     // User expiration date (raw from API).
-    private byte[] userExpirationDateBytes_;       // @710
+    private byte[] userExpirationDateBytes_;
     // User expiration date.
-    private Date userExpirationDate_;              // @710
-    // User expiration action.
-    // (Note: No setter for this attribute)
-    private String userExpirationAction_;          // @710
+    private Date userExpirationDate_;
+    // User expiration action. (Note: No setter for this attribute)
+    private String userExpirationAction_;
 
     private transient DateTimeConverter dateConverter_;
     private String jobDateFormat_;
 
     private transient AS400Timestamp timestampConverter_;
-    //@P1A START
+
     private boolean authCollectionActive_;
     private boolean authCollectionRepositoryExist_;
     private boolean authCollectionDeleted_;
@@ -302,9 +308,30 @@ public class User implements Serializable
     private String[] DLOObjectTypesInSTRAUTCOL_;
     private String[] fileSystemObjectTypesInSTRAUTCOL_;
     private String[] omitLibNamesInSTRAUTCOL_;
-    //@P1A END
+    
+    // MFA-related fields
+
     /**
-     Constructs a User object.
+     * Constant value representing an authentication method of "*TOTP".
+     * 
+     * @see #getAuthenticationMethods
+     **/
+    public static final String AUTHENTICATION_METHOD_TOTP   = "*TOTP";
+    /**
+     * Constant value representing an authentication method of "*REGFAC".
+     * 
+     * @see #getAuthenticationMethods
+     **/
+    public static final String AUTHENTICATION_METHOD_REGFAC = "*REGFAC";
+
+    private String[]  authenticationMethods_;
+    private int       totpOptionalInterval_;
+    private int       totpOptionalIntervalRemaining_;
+    private boolean   totpKeyExistsIndicator_;
+    private Date      totpKeyLastChangedDate_;
+
+    /**
+     * Constructs a User object.
      **/
     public User()
     {
@@ -313,14 +340,16 @@ public class User implements Serializable
     }
 
     /**
-     Constructs a User object.  Note that this constructor no longer throws any of the declared exceptions, but they remain for compatibility.
-     @param  system  The system object representing the system on which the user profile exists.
-     @param  name  The user profile name.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     * Constructs a User object. Note that this constructor no longer throws any of the declared exceptions, but they
+     * remain for compatibility.
+     * 
+     * @param system The system object representing the system on which the user profile exists.
+     * @param name   The user profile name.
+     * @exception AS400SecurityException          If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException            If this thread is interrupted.
+     * @exception IOException                     If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException     If the object does not exist on the system.
      **/
     public User(AS400 system, String name) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -366,9 +395,12 @@ public class User implements Serializable
     }
 
     /**
-     Adds a PropertyChangeListener.  The specified PropertyChangeListener's {@link java.beans.PropertyChangeListener#propertyChange propertyChange()} method will be called each time the value of any bound property is changed.
-     @param  listener  The listener.
-     @see  #removePropertyChangeListener
+     * Adds a PropertyChangeListener. The specified PropertyChangeListener's
+     * {@link java.beans.PropertyChangeListener#propertyChange propertyChange()} method will be called each time the
+     * value of any bound property is changed.
+     * 
+     * @param listener The listener.
+     * @see #removePropertyChangeListener
      **/
     public void addPropertyChangeListener(PropertyChangeListener listener)
     {
@@ -378,21 +410,24 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
+        
         synchronized (this)
         {
             // If first add.
             if (propertyChangeListeners_ == null)
-            {
                 propertyChangeListeners_ = new PropertyChangeSupport(this);
-            }
+
             propertyChangeListeners_.addPropertyChangeListener(listener);
         }
     }
 
     /**
-     Adds a VetoableChangeListener.  The specified VetoableChangeListener's {@link java.beans.VetoableChangeListener#vetoableChange vetoableChange()} method will be called each time the value of any constrained property is changed.
-     @param  listener  The listener.
-     @see  #removeVetoableChangeListener
+     * Adds a VetoableChangeListener. The specified VetoableChangeListener's
+     * {@link java.beans.VetoableChangeListener#vetoableChange vetoableChange()} method will be called each time the
+     * value of any constrained property is changed.
+     * 
+     * @param listener The listener.
+     * @see #removeVetoableChangeListener
      **/
     public void addVetoableChangeListener(VetoableChangeListener listener)
     {
@@ -402,27 +437,32 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
+        
         synchronized (this)
         {
             // If first add.
             if (vetoableChangeListeners_ == null)
-            {
                 vetoableChangeListeners_ = new VetoableChangeSupport(this);
-            }
+
             vetoableChangeListeners_.addVetoableChangeListener(listener);
         }
     }
 
     /**
-     Determines if this user profile exists on the system.  This method simply calls the CHKOBJ API and if no exception is thrown, the user profile exists; if a CPF9801 occurs then the user profile does not exist.  Any other exceptions are still thrown.
-     <p>The value returned by this method is not cached.  That is, every time exists() is called, a call to the system is made to determine if the user profile still exists.
-     @return  true if the profile exists, false if it does not.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
-    **/
+     * Determines if this user profile exists on the system. This method simply calls the CHKOBJ API and if no exception
+     * is thrown, the user profile exists; if a CPF9801 occurs then the user profile does not exist. Any other
+     * exceptions are still thrown.
+     * <p>
+     * The value returned by this method is not cached. That is, every time exists() is called, a call to the system is
+     * made to determine if the user profile still exists.
+     * 
+     * @return true if the profile exists, false if it does not.
+     * @exception AS400SecurityException          If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException            If this thread is interrupted.
+     * @exception IOException                     If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException     If the object does not exist on the system.
+     **/
     public boolean exists() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Determining user existence.");
@@ -442,26 +482,25 @@ public class User implements Serializable
             String cmdString = "QSYS/CHKOBJ OBJ(QSYS/"+name_+") OBJTYPE(*USRPRF) AUT(*NONE)"; // not a threadsafe API prior to V5R3
             CommandCall cmd = new CommandCall(system_, cmdString);
             if (!cmd.run())
-            {
-              throw new AS400Exception(cmd.getMessageList());
-            }
+                throw new AS400Exception(cmd.getMessageList());
         }
         catch (AS400Exception e)
         {
             AS400Message[] messages = e.getAS400MessageList();
             if (messages.length == 1 && messages[0].getID().equalsIgnoreCase("CPF9801"))
-            {
                 return false;
-            }
+
             throw e;
         }
         return true;
     }
 
     /**
-     Retrieves the accounting code that is associated with this user.
-     @return  The accounting code that is associated with this user.  If the user does not have an accounting code, an empty string ("") is returned.
-     @see #setAccountingCode
+     * Retrieves the accounting code that is associated with this user.
+     * 
+     * @return The accounting code that is associated with this user. If the user does not have an accounting code, an
+     *         empty string ("") is returned.
+     * @see #setAccountingCode
      **/
     public String getAccountingCode()
     {
@@ -470,14 +509,15 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the user interface that the user will use.
-     @return  The user interface that the user will use.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QASTLVL determines which user interface the user is using.
-     <li>"*BASIC" - The Operational Assistant user interface.
-     <li>"*INTERMED" - The system user interface.
-     <li>"*ADVANCED" - The expert system user interface.
-     </ul>
+     * Retrieves the user interface that the user will use.
+     * 
+     * @return The user interface that the user will use. Possible values are:
+     *         <ul>
+     *         <li>"*SYSVAL" - The system value QASTLVL determines which user interface the user is using.
+     *         <li>"*BASIC" - The Operational Assistant user interface.
+     *         <li>"*INTERMED" - The system user interface.
+     *         <li>"*ADVANCED" - The expert system user interface.
+     *         </ul>
      **/
     public String getAssistanceLevel()
     {
@@ -486,14 +526,15 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the attention key handling program for this user.
-     @return  The attention key handling program for this user.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QATNPGM determines the user's attention key handling program.
-     <li>{@link #NONE NONE} - No attention key handling program is used.
-     <li>The fully qualified integrated file system path name of the attention key handling program.
-     </ul>
-     @see  QSYSObjectPathName
+     * Retrieves the attention key handling program for this user.
+     * 
+     * @return The attention key handling program for this user. Possible values are:
+     *         <ul>
+     *         <li>"*SYSVAL" - The system value QATNPGM determines the user's attention key handling program.
+     *         <li>{@link #NONE NONE} - No attention key handling program is used.
+     *         <li>The fully qualified integrated file system path name of the attention key handling program.
+     *         </ul>
+     * @see QSYSObjectPathName
      **/
     public String getAttentionKeyHandlingProgram()
     {
@@ -502,12 +543,31 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the character code set ID to be used by the system for this user.
-     @return The character code set ID to be used by the system for this user.  Possible values are:
-     <ul>
-     <li>-2 - The system value QCCSID is used to determine the user's character code set ID.
-     <li>A character code set ID.
-     </ul>
+     * Retrieves the authentication methods for this user.
+     * 
+     * @return The authentication methods for this user. Possible values are:
+     *         <ul>
+     *         <li>{@link #NONE NONE} - No additional authentication methods are used.
+     *         <li>{@link #AUTHENTICATION_METHOD_TOTP TOTP} - The time-based one-time password (TOTP) authentication
+     *         method is used in addition to user ID and password.
+     *         <li>{@link #AUTHENTICATION_METHOD_REGFAC REGFAC} - The exit program registered under exit point
+     *         QIBM_QSY_AUTH will be called during user authentication.
+     *         </ul>
+     */
+    public String[] getAuthenticationMethods()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return authenticationMethods_;
+    }
+    
+    /**
+     * Retrieves the character code set ID to be used by the system for this user.
+     * 
+     * @return The character code set ID to be used by the system for this user. Possible values are:
+     *         <ul>
+     *         <li>-2 - The system value QCCSID is used to determine the user's character code set ID.
+     *         <li>A character code set ID.
+     *         </ul>
      **/
     public int getCCSID()
     {
@@ -516,14 +576,17 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the character identifier control for the user.
-     @return  The character identifier control for this user.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QCHRIDCTL will be used to determine the CHRID control for this user.
-     <li>"*DEVD" - The *DEVD special value performs the same function as on the CHRID command parameter for display files, printer files, and panel groups.
-     <li>"*JOBCCSID" - The *JOBCCSID special value performs the same function as on the CHRID command parameter for display files, printer files, and panel groups.
-     </ul>
-     @see #setCHRIDControl
+     * Retrieves the character identifier control for the user.
+     * 
+     * @return The character identifier control for this user. Possible values are:
+     *         <ul>
+     *         <li>"*SYSVAL" - The system value QCHRIDCTL will be used to determine the CHRID control for this user.
+     *         <li>"*DEVD" - The *DEVD special value performs the same function as on the CHRID command parameter for
+     *         display files, printer files, and panel groups.
+     *         <li>"*JOBCCSID" - The *JOBCCSID special value performs the same function as on the CHRID command
+     *         parameter for display files, printer files, and panel groups.
+     *         </ul>
+     * @see #setCHRIDControl
      **/
     public String getCHRIDControl()
     {
@@ -532,13 +595,14 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the country or region ID used by the system for this user.
-     @return  The country or region ID used by the system for this user.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QCNTRYID is used to determine the user's country or region ID.
-     <li>A country or region ID.
-     </ul>
-     @see #setCountryID
+     * Retrieves the country or region ID used by the system for this user.
+     * 
+     * @return The country or region ID used by the system for this user. Possible values are:
+     *         <ul>
+     *         <li>"*SYSVAL" - The system value QCNTRYID is used to determine the user's country or region ID.
+     *         <li>A country or region ID.
+     *         </ul>
+     * @see #setCountryID
      **/
     public String getCountryID()
     {
@@ -547,13 +611,14 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the name of the user's current library.
-     @return  The name of the user's current library.  Possible values are:
-     <ul>
-     <li>"*CRTDFT" - The user does not have a current library.
-     <li>A library name.
-     </ul>
-     @see #setCurrentLibraryName
+     * Retrieves the name of the user's current library.
+     * 
+     * @return The name of the user's current library. Possible values are:
+     *         <ul>
+     *         <li>"*CRTDFT" - The user does not have a current library.
+     *         <li>A library name.
+     *         </ul>
+     * @see #setCurrentLibraryName
      **/
     public String getCurrentLibraryName()
     {
@@ -562,13 +627,14 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the number of days until the password will expire.
-     @return  The number of days until the password will expire.  Possible values are:
-     <ul>
-     <li>0 - The password is expired.
-     <li>1-7 - The number of days until the password expires.
-     <li>-1 - The password will not expire in the next 7 days.
-     </ul>
+     * Retrieves the number of days until the password will expire.
+     * 
+     * @return The number of days until the password will expire. Possible values are:
+     *         <ul>
+     *         <li>0 - The password is expired.
+     *         <li>1-7 - The number of days until the password expires.
+     *         <li>-1 - The password will not expire in the next 7 days.
+     *         </ul>
      **/
     public int getDaysUntilPasswordExpire()
     {
@@ -577,9 +643,13 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the descriptive text for the user profile.  This value is pre-loaded into any User objects generated from a UserList object so that a call to the system is not required to retrieve this value.  In the event that this User object was not constructed by a UserList, the description will need to be retrieved from the system via an implicit call to refresh().
-     @return  The descriptive text for the user profile.
-     @see #setDescription
+     * Retrieves the descriptive text for the user profile. This value is pre-loaded into any User objects generated
+     * from a UserList object so that a call to the system is not required to retrieve this value. In the event that
+     * this User object was not constructed by a UserList, the description will need to be retrieved from the system via
+     * an implicit call to refresh().
+     * 
+     * @return The descriptive text for the user profile.
+     * @see #setDescription
      **/
     public String getDescription()
     {
@@ -588,32 +658,37 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the system distribution directory entry for the user profile, if one exists.  The directory entry is retrieved from the system every time this method is called, so its value is unaffected by any call to refresh().
-     @return  The directory entry, or null if none exists.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     * Retrieves the system distribution directory entry for the user profile, if one exists. The directory entry is
+     * retrieved from the system every time this method is called, so its value is unaffected by any call to refresh().
+     * 
+     * @return The directory entry, or null if none exists.
+     * @exception AS400SecurityException          If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException            If this thread is interrupted.
+     * @exception IOException                     If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException     If the object does not exist on the system.
      **/
     public DirectoryEntry getDirectoryEntry() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         DirectoryEntryList list = new DirectoryEntryList(system_);
         list.addSelection(DirectoryEntryList.USER_PROFILE, name_.toUpperCase());
         DirectoryEntry[] entries = list.getEntries();
-        if (entries.length == 0) return null;
+        if (entries.length == 0)
+            return null;
         return entries[0];
     }
 
     /**
-     Retrieves whether the sign-on information display is shown when the user signs on.
-     @return  Whether the sign-on information display is shown when the user signs on.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QDSPSGNINF determines if the sign-on information display is shown when the user signs on.
-     <li>"*YES" - The sign-on information display is shown when the user signs on.
-     <li>"*NO" - The sign-on information display is not shown when the user signs on.
-     </ul>
-     @see #setDisplaySignOnInformation
+     * Retrieves whether the sign-on information display is shown when the user signs on.
+     * 
+     * @return Whether the sign-on information display is shown when the user signs on. Possible values are:
+     *         <ul>
+     *         <li>"*SYSVAL" - The system value QDSPSGNINF determines if the sign-on information display is shown when
+     *         the user signs on.
+     *         <li>"*YES" - The sign-on information display is shown when the user signs on.
+     *         <li>"*NO" - The sign-on information display is not shown when the user signs on.
+     *         </ul>
+     * @see #setDisplaySignOnInformation
      **/
     public String getDisplaySignOnInformation()
     {
@@ -622,16 +697,18 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the authority the user's group profile has to objects the user creates.
-     @return  The authority the user's group profile has to objects the user creates.  Possible values are:
-     <ul>
-     <li>{@link #NONE NONE} - The group profile has no authority to the objects the user creates, or the user does not have a group profile.
-     <li>"*ALL" - The group profile has all authority to the objects the user creates.
-     <li>"*CHANGE" - The group profile has change authority to the objects the user creates.
-     <li>"*USE" - The group profile has use authority to the objects the user creates.
-     <li>"*EXCLUDE" - The group profile has exclude authority to the objects the user creates.
-     </ul>
-     @see #setGroupAuthority
+     * Retrieves the authority the user's group profile has to objects the user creates.
+     * 
+     * @return The authority the user's group profile has to objects the user creates. Possible values are:
+     *         <ul>
+     *         <li>{@link #NONE NONE} - The group profile has no authority to the objects the user creates, or the user
+     *         does not have a group profile.
+     *         <li>"*ALL" - The group profile has all authority to the objects the user creates.
+     *         <li>"*CHANGE" - The group profile has change authority to the objects the user creates.
+     *         <li>"*USE" - The group profile has use authority to the objects the user creates.
+     *         <li>"*EXCLUDE" - The group profile has exclude authority to the objects the user creates.
+     *         </ul>
+     * @see #setGroupAuthority
      **/
     public String getGroupAuthority()
     {
@@ -640,13 +717,15 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the type of authority the user's group has to objects the user creates.
-     @return  The type of authority the user's group has to objects the user creates.  Possible values are:
-     <ul>
-     <li>"*PRIVATE" - The group profile has a private authority to the objects the user creates, or the user does not have a group profile.
-     <li>"*PGP" - The group profile will be the primary group for objects the user creates.
-     </ul>
-     @see #setGroupAuthorityType
+     * Retrieves the type of authority the user's group has to objects the user creates.
+     * 
+     * @return The type of authority the user's group has to objects the user creates. Possible values are:
+     *         <ul>
+     *         <li>"*PRIVATE" - The group profile has a private authority to the objects the user creates, or the user
+     *         does not have a group profile.
+     *         <li>"*PGP" - The group profile will be the primary group for objects the user creates.
+     *         </ul>
+     * @see #setGroupAuthorityType
      **/
     public String getGroupAuthorityType()
     {
@@ -655,14 +734,16 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the group ID number for the user profile.  The group ID number is used to identify the user when it is a group and a member of the group is using the integrated file system.
-     @return  The group ID number for the user profile.  Possible values are:
-     <ul>
-     <li>0 - user does not have a group ID (*NONE).
-     <li>A GID.
-     </ul>
-     @see #setGroupID(long)
-     @see #setGroupID(String)
+     * Retrieves the group ID number for the user profile. The group ID number is used to identify the user when it is a
+     * group and a member of the group is using the integrated file system.
+     * 
+     * @return The group ID number for the user profile. Possible values are:
+     *         <ul>
+     *         <li>0 - user does not have a group ID (*NONE).
+     *         <li>A GID.
+     *         </ul>
+     * @see #setGroupID(long)
+     * @see #setGroupID(String)
      **/
     public long getGroupID()
     {
@@ -671,14 +752,17 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the group ID number for the user profile.  The group ID number is used to identify the user when it is a group and a member of the group is using the integrated file system.
-     @return  The group ID number for the user profile.  Possible values are:
-     <ul>
-     <li>0 - user does not have a group ID (*NONE).
-     <li>A GID.
-     </ul>
-     @deprecated  This method has been replaced by {@link #getGroupID getGroupID()} which returns a long.
+     * Retrieves the group ID number for the user profile. The group ID number is used to identify the user when it is a
+     * group and a member of the group is using the integrated file system.
+     * 
+     * @return The group ID number for the user profile. Possible values are:
+     *         <ul>
+     *         <li>0 - user does not have a group ID (*NONE).
+     *         <li>A GID.
+     *         </ul>
+     * @deprecated This method has been replaced by {@link #getGroupID getGroupID()} which returns a long.
      **/
+    @Deprecated
     public int getGroupIDNumber()
     {
         // The original code did not account for a group ID number being an unsigned 4 byte binary bigger than Integer.MAX_VALUE.
@@ -686,13 +770,14 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the name of the group profile.
-     @return  The name of the group profile.  Possible values are:
-     <ul>
-     <li>{@link #NONE NONE} - The user does not have a group profile.
-     <li>The group profile name.
-     </ul>
-     @see #setGroupProfileName
+     * Retrieves the name of the group profile.
+     * 
+     * @return The name of the group profile. Possible values are:
+     *         <ul>
+     *         <li>{@link #NONE NONE} - The user does not have a group profile.
+     *         <li>The group profile name.
+     *         </ul>
+     * @see #setGroupProfileName
      **/
     public String getGroupProfileName()
     {
@@ -701,9 +786,11 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the highest scheduling priority the user is allowed to have for each job submitted to the system.
-     @return  The highest scheduling priority the user is allowed to have for each job submitted to the system.  The priority is a value from 0 to 9, with 0 being the highest priority.
-     @see #setHighestSchedulingPriority
+     * Retrieves the highest scheduling priority the user is allowed to have for each job submitted to the system.
+     * 
+     * @return The highest scheduling priority the user is allowed to have for each job submitted to the system. The
+     *         priority is a value from 0 to 9, with 0 being the highest priority.
+     * @see #setHighestSchedulingPriority
      **/
     public int getHighestSchedulingPriority()
     {
@@ -712,9 +799,12 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the home directory for this user profile.  The home directory is the user's initial working directory.  The working directory, associated with a process, is used in path name resolution in the directory file system for path names that do not begin with a slash (/).
-     @return  The home directory for this user profile.
-     @see #setHomeDirectory
+     * Retrieves the home directory for this user profile. The home directory is the user's initial working directory.
+     * The working directory, associated with a process, is used in path name resolution in the directory file system
+     * for path names that do not begin with a slash (/).
+     * 
+     * @return The home directory for this user profile.
+     * @see #setHomeDirectory
      **/
     public String getHomeDirectory()
     {
@@ -723,12 +813,15 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the list of independent auxiliary storage pool (IASP) names in use by this user.
-     @return  The list of independent auxiliary storage pool (IASP) names in use by this user.  If no IASP name are in use by this user, a zero length array is returned.  If the system operating system is not release V5R1M0 or higher, null is returned.
-     @see  #getIASPStorageAllowed
-     @see  #getIASPStorageUsed
-     @see  AS400#getVRM
-     @see  AS400#generateVRM
+     * Retrieves the list of independent auxiliary storage pool (IASP) names in use by this user.
+     * 
+     * @return The list of independent auxiliary storage pool (IASP) names in use by this user. If no IASP name are in
+     *         use by this user, a zero length array is returned. If the system operating system is not release V5R1M0
+     *         or higher, null is returned.
+     * @see #getIASPStorageAllowed
+     * @see #getIASPStorageUsed
+     * @see AS400#getVRM
+     * @see AS400#generateVRM
      **/
     public String[] getIASPNames()
     {
@@ -737,11 +830,16 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the maximum amount of auxiliary storage in kilobytes that can be assigned to store permanent object owned by this user on the given independant ASP.
-     * @param iaspName 
-     @return  The maximum amount of auxiliary storage in kilobytes that can be assigned to store permanent object owned by this user on the given independant ASP.  If the user does not have a maximum amount of allowed storage on the given independent ASP, -1 for *NOMAX is returned.  If the system operating system is not release V5R1M0 or higher, or if the given IASP name is not listed for this user, -2 is returned.
-     @see  #getIASPNames
-     @see  #getIASPStorageUsed
+     * Retrieves the maximum amount of auxiliary storage in kilobytes that can be assigned to store permanent object
+     * owned by this user on the given independant ASP.
+     * 
+     * @param iaspName
+     * @return The maximum amount of auxiliary storage in kilobytes that can be assigned to store permanent object owned
+     *         by this user on the given independant ASP. If the user does not have a maximum amount of allowed storage
+     *         on the given independent ASP, -1 for *NOMAX is returned. If the system operating system is not release
+     *         V5R1M0 or higher, or if the given IASP name is not listed for this user, -2 is returned.
+     * @see #getIASPNames
+     * @see #getIASPStorageUsed
      **/
     public int getIASPStorageAllowed(String iaspName)
     {
@@ -750,24 +848,30 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'iaspName' is null.");
             throw new NullPointerException("iaspName");
         }
+        
         if (!loaded_) loadUserInformation_SwallowExceptions();
-        if (iaspStorageAllowed_ == null) return -2;
-        for (int i = 0; i < iaspNames_.length; ++i)
+        if (iaspStorageAllowed_ != null)
         {
-            if (iaspNames_[i].equals(iaspName))
+            for (int i = 0; i < iaspNames_.length; ++i)
             {
-                return iaspStorageAllowed_[i];
+                if (iaspNames_[i].equals(iaspName))
+                    return iaspStorageAllowed_[i];
             }
         }
+        
         return -2;
     }
 
     /**
-     Retrieves the amount of auxiliary storage in kilobytes occupied by this user's owned objects on the given independent ASP.
-     * @param iaspName 
-     @return  The amount of auxiliary storage in kilobytes occupied by this user's owned objects on the given independent ASP.  If the system operating system is not release V5R1M0 or higher, or if the given IASP name is not listed for this user, -2 is returned.
-     @see  #getIASPNames
-     @see  #getIASPStorageAllowed
+     * Retrieves the amount of auxiliary storage in kilobytes occupied by this user's owned objects on the given
+     * independent ASP.
+     * 
+     * @param iaspName
+     * @return The amount of auxiliary storage in kilobytes occupied by this user's owned objects on the given
+     *         independent ASP. If the system operating system is not release V5R1M0 or higher, or if the given IASP
+     *         name is not listed for this user, -2 is returned.
+     * @see #getIASPNames
+     * @see #getIASPStorageAllowed
      **/
     public int getIASPStorageUsed(String iaspName)
     {
@@ -776,27 +880,30 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'iaspName' is null.");
             throw new NullPointerException("iaspName");
         }
+        
         if (!loaded_) loadUserInformation_SwallowExceptions();
-        if (iaspStorageUsed_ == null) return -2;
-        for (int i = 0; i < iaspNames_.length; ++i)
+        if (iaspStorageUsed_ != null)
         {
-            if (iaspNames_[i].equals(iaspName))
+            for (int i = 0; i < iaspNames_.length; ++i)
             {
-                return iaspStorageUsed_[i];
+                if (iaspNames_[i].equals(iaspName))
+                    return iaspStorageUsed_[i];
             }
         }
+        
         return -2;
     }
 
     /**
-     Retrieves the initial menu for the user.
-     @return  The initial menu for the user.  Possible values are:
-     <ul>
-     <li>"*SIGNOFF" - The user is limited to running the initial program specified in this profile.
-     <li>The fully qualified integrated file system path name of the initial menu name.
-     </ul>
-     @see  QSYSObjectPathName
-     @see #setInitialMenu
+     * Retrieves the initial menu for the user.
+     * 
+     * @return The initial menu for the user. Possible values are:
+     *         <ul>
+     *         <li>"*SIGNOFF" - The user is limited to running the initial program specified in this profile.
+     *         <li>The fully qualified integrated file system path name of the initial menu name.
+     *         </ul>
+     * @see QSYSObjectPathName
+     * @see #setInitialMenu
      **/
     public String getInitialMenu()
     {
@@ -805,14 +912,15 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the initial program for the user.
-     @return  The initial program for the user.  Possible values are:
-     <ul>
-     <li>{@link #NONE NONE} - The user does not have an initial program.
-     <li>The fully qualified integrated file system path name of the initial program name.
-     </ul>
-     @see  QSYSObjectPathName
-     @see #setInitialProgram
+     * Retrieves the initial program for the user.
+     * 
+     * @return The initial program for the user. Possible values are:
+     *         <ul>
+     *         <li>{@link #NONE NONE} - The user does not have an initial program.
+     *         <li>The fully qualified integrated file system path name of the initial program name.
+     *         </ul>
+     * @see QSYSObjectPathName
+     * @see #setInitialProgram
      **/
     public String getInitialProgram()
     {
@@ -821,10 +929,13 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the fully qualified integrated file system path name of the job description used for jobs that start through subsystem work station entries.
-     @return  The fully qualified integrated file system path name of the job description used for jobs that start through subsystem work station entries.
-     @see  QSYSObjectPathName
-     @see #setJobDescription
+     * Retrieves the fully qualified integrated file system path name of the job description used for jobs that start
+     * through subsystem work station entries.
+     * 
+     * @return The fully qualified integrated file system path name of the job description used for jobs that start
+     *         through subsystem work station entries.
+     * @see QSYSObjectPathName
+     * @see #setJobDescription
      **/
     public String getJobDescription()
     {
@@ -833,16 +944,17 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the keyboard buffering value that is used when a job is initialized for this user.
-     @return  The keyboard buffering value that is used when a job is initialized for this user.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QKBDBUF determines the keyboard buffering value for this user.
-     <li>"*YES" - The type-ahead and attention-key buffering options are both on.
-     <li>"*NO" - The type-ahead and attention-key buffering options are not on.
-     <li>"*TYPEAHEAD" - The type-ahead option is on, but the attention-key buffering option is not.
-     </ul>
-     @see #setKeyboardBuffering
-    **/
+     * Retrieves the keyboard buffering value that is used when a job is initialized for this user.
+     * 
+     * @return The keyboard buffering value that is used when a job is initialized for this user. Possible values are:
+     *         <ul>
+     *         <li>"*SYSVAL" - The system value QKBDBUF determines the keyboard buffering value for this user.
+     *         <li>"*YES" - The type-ahead and attention-key buffering options are both on.
+     *         <li>"*NO" - The type-ahead and attention-key buffering options are not on.
+     *         <li>"*TYPEAHEAD" - The type-ahead option is on, but the attention-key buffering option is not.
+     *         </ul>
+     * @see #setKeyboardBuffering
+     **/
     public String getKeyboardBuffering()
     {
         if (!loaded_) loadUserInformation_SwallowExceptions();
@@ -850,13 +962,14 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the language ID used by the system for this user.
-     @return  The language ID used by the system for this user.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QLANGID will be used to determine the language ID.
-     <li>The language ID.
-     </ul>
-     @see #setLanguageID
+     * Retrieves the language ID used by the system for this user.
+     * 
+     * @return The language ID used by the system for this user. Possible values are:
+     *         <ul>
+     *         <li>"*SYSVAL" - The system value QLANGID will be used to determine the language ID.
+     *         <li>The language ID.
+     *         </ul>
+     * @see #setLanguageID
      **/
     public String getLanguageID()
     {
@@ -865,14 +978,16 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves whether the user has limited capabilites.
-     @return  Whether the user has limited capabilites.  Possible values are:
-     <ul>
-     <li>"*PARTIAL" - The user cannot change the initial program or current library.
-     <li>"*YES" - The user cannot change the initial menu, initial program, or current library.  The user cannot run commands from the command line.
-     <li>"*NO" - The user is not limited.
-     </ul>
-     @see #setLimitCapabilities
+     * Retrieves whether the user has limited capabilites.
+     * 
+     * @return Whether the user has limited capabilites. Possible values are:
+     *         <ul>
+     *         <li>"*PARTIAL" - The user cannot change the initial program or current library.
+     *         <li>"*YES" - The user cannot change the initial menu, initial program, or current library. The user
+     *         cannot run commands from the command line.
+     *         <li>"*NO" - The user is not limited.
+     *         </ul>
+     * @see #setLimitCapabilities
      **/
     public String getLimitCapabilities()
     {
@@ -881,18 +996,20 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves whether the user is limited to one device session.
-     Note:  Values "0-9" are only valid when running to IBM i 6.1 or higher.
-     @return  Whether the user is limited to one device session.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QLMTDEVSSN determines if the user is limited to one device session.
-     <li>"*YES" - The user is limited to one session.
-     <li>"*NO" - The user is not limited to one device session.
-     <li>"0" - The user is not limited to a specific number of device session.  The value has the same meaning as *NO.
-     <li>"1" - The user is limited to a single device session.  The value has the same meaning as *YES.
-     <li>"2-9" - The user is limited to the specified number of device sessions.
-     </ul>
-     @see #setLimitDeviceSessions
+     * Retrieves whether the user is limited to one device session. Note: Values "0-9" are only valid when running to
+     * IBM i 6.1 or higher.
+     * 
+     * @return Whether the user is limited to one device session. Possible values are:
+     *         <ul>
+     *         <li>"*SYSVAL" - The system value QLMTDEVSSN determines if the user is limited to one device session.
+     *         <li>"*YES" - The user is limited to one session.
+     *         <li>"*NO" - The user is not limited to one device session.
+     *         <li>"0" - The user is not limited to a specific number of device session. The value has the same meaning
+     *         as *NO.
+     *         <li>"1" - The user is limited to a single device session. The value has the same meaning as *YES.
+     *         <li>"2-9" - The user is limited to the specified number of device sessions.
+     *         </ul>
+     * @see #setLimitDeviceSessions
      **/
     public String getLimitDeviceSessions()
     {
@@ -901,19 +1018,29 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves a list of the job attributes which are set from the user's locale path name.
-     @return  A list of the job attributes which are set from the user's locale path name.  Possible values for the elements of this array are:
-     <ul>
-     <li>{@link #NONE NONE} - No job attributes are used from the locale path name at the time a job is started for this user profile.
-     <li>"*SYSVAL" - The job attributes assigned from the locale path name are determined by the system value QSETJOBATR at the time a job is started for this user profile.
-     <li>"*CCSID" - The coded character set identifier is set from the locale path name at the time a job is started for this user profile.
-     <li>"*DATFMT" - The date format is set from the locale path name at the time a job is started for this user profile.
-     <li>"*DATSEP" - The date separator is set from the locale path name at the time a job is started for this user profile.
-     <li>"*SRTSEQ" - The sort sequence is set from the locale path name at the time a job is started for this user profile.
-     <li>"*TIMSEP" - The time separator is set from the locale path name at the time a job is started for this user profile.
-     <li>"*DECFMT" - The decimal format is set from the locale path name at the time a job is started for this user profile.
-     </ul>
-     @see #setLocaleJobAttributes
+     * Retrieves a list of the job attributes which are set from the user's locale path name.
+     * 
+     * @return A list of the job attributes which are set from the user's locale path name. Possible values for the
+     *         elements of this array are:
+     *         <ul>
+     *         <li>{@link #NONE NONE} - No job attributes are used from the locale path name at the time a job is
+     *         started for this user profile.
+     *         <li>"*SYSVAL" - The job attributes assigned from the locale path name are determined by the system value
+     *         QSETJOBATR at the time a job is started for this user profile.
+     *         <li>"*CCSID" - The coded character set identifier is set from the locale path name at the time a job is
+     *         started for this user profile.
+     *         <li>"*DATFMT" - The date format is set from the locale path name at the time a job is started for this
+     *         user profile.
+     *         <li>"*DATSEP" - The date separator is set from the locale path name at the time a job is started for this
+     *         user profile.
+     *         <li>"*SRTSEQ" - The sort sequence is set from the locale path name at the time a job is started for this
+     *         user profile.
+     *         <li>"*TIMSEP" - The time separator is set from the locale path name at the time a job is started for this
+     *         user profile.
+     *         <li>"*DECFMT" - The decimal format is set from the locale path name at the time a job is started for this
+     *         user profile.
+     *         </ul>
+     * @see #setLocaleJobAttributes
      **/
     public String[] getLocaleJobAttributes()
     {
@@ -934,16 +1061,17 @@ public class User implements Serializable
     };
 
     /**
-     Retrieves the locale path name that is assigned to the user profile when a job is started.
-     @return  The locale path name that is assigned to the user profile when a job is started.  Possible values are:
-     <ul>
-     <li>"*C" - The C locale path name is assigned.
-     <li>{@link #NONE NONE} - No locale path name is assigned.
-     <li>"*POSIX" - The POSIX locale path name is assigned.
-     <li>"*SYSVAL" - The QLOCALE system value is used to determine the locale path name.
-     <li>A locale path name.
-     </ul>
-     @see #setLocalePathName
+     * Retrieves the locale path name that is assigned to the user profile when a job is started.
+     * 
+     * @return The locale path name that is assigned to the user profile when a job is started. Possible values are:
+     *         <ul>
+     *         <li>"*C" - The C locale path name is assigned.
+     *         <li>{@link #NONE NONE} - No locale path name is assigned.
+     *         <li>"*POSIX" - The POSIX locale path name is assigned.
+     *         <li>"*SYSVAL" - The QLOCALE system value is used to determine the locale path name.
+     *         <li>A locale path name.
+     *         </ul>
+     * @see #setLocalePathName
      **/
     public String getLocalePathName()
     {
@@ -952,15 +1080,18 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the maximum amount of auxiliary storage (in kilobytes) that can be assigned to store permanant objects owned by the user.
-     @return  The maximum amount of auxiliary storage (in kilobytes) that can be assigned to store permanant objects owned by the user.  Possible values are:
-     <ul>
-     <li>-1 - The user does not have a maximum amount of allowed storage (*NOMAX).
-     <li>-2 - The maximum amount cannot be represent in an int value. 
-     <li>The maximum amount of auxiliary storage (in kilobytes).
-     </ul>
-     @see #setMaximumStorageAllowed(int)
-     @see #setMaximumStorageAllowed(String)
+     * Retrieves the maximum amount of auxiliary storage (in kilobytes) that can be assigned to store permanant objects
+     * owned by the user.
+     * 
+     * @return The maximum amount of auxiliary storage (in kilobytes) that can be assigned to store permanant objects
+     *         owned by the user. Possible values are:
+     *         <ul>
+     *         <li>-1 - The user does not have a maximum amount of allowed storage (*NOMAX).
+     *         <li>-2 - The maximum amount cannot be represent in an int value.
+     *         <li>The maximum amount of auxiliary storage (in kilobytes).
+     *         </ul>
+     * @see #setMaximumStorageAllowed(int)
+     * @see #setMaximumStorageAllowed(String)
      **/
     public int getMaximumStorageAllowed()
     {
@@ -975,10 +1106,11 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the fully qualified integrated file system path name of the message queue that is used by this user.
-     @return  The fully qualified integrated file system path name of the message queue that is used by this user.
-     @see  QSYSObjectPathName
-     @see #setMessageQueue
+     * Retrieves the fully qualified integrated file system path name of the message queue that is used by this user.
+     * 
+     * @return The fully qualified integrated file system path name of the message queue that is used by this user.
+     * @see QSYSObjectPathName
+     * @see #setMessageQueue
      **/
     public String getMessageQueue()
     {
@@ -987,15 +1119,18 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves how the messages are delivered to the message queue used by the user.
-     @return  How the messages are delivered to the message queue used by the user.  Possible values are:
-     <ul>
-     <li>"*BREAK" - The job to which the message queue is assigned is interrupted when a message arrives on the message queue.
-     <li>"*DFT" - Messages requiring replies are answered with their default reply.
-     <li>"*HOLD" - The messages are held in the message queue until they are requested by the user or program.
-     <li>"*NOTIFY" - The job to which the message queue is assigned is notified when a message arrives on the message queue.
-     </ul>
-     @see #setMessageQueueDeliveryMethod
+     * Retrieves how the messages are delivered to the message queue used by the user.
+     * 
+     * @return How the messages are delivered to the message queue used by the user. Possible values are:
+     *         <ul>
+     *         <li>"*BREAK" - The job to which the message queue is assigned is interrupted when a message arrives on
+     *         the message queue.
+     *         <li>"*DFT" - Messages requiring replies are answered with their default reply.
+     *         <li>"*HOLD" - The messages are held in the message queue until they are requested by the user or program.
+     *         <li>"*NOTIFY" - The job to which the message queue is assigned is notified when a message arrives on the
+     *         message queue.
+     *         </ul>
+     * @see #setMessageQueueDeliveryMethod
      **/
     public String getMessageQueueDeliveryMethod()
     {
@@ -1004,9 +1139,11 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the lowest severity that a message can have and still be delivered to a user in break or notify mode.
-     @return  The lowest severity that a message can have and still be delivered to a user in break or notify mode.  The severity is a value in the range 0 through 99.
-     @see #setMessageQueueSeverity
+     * Retrieves the lowest severity that a message can have and still be delivered to a user in break or notify mode.
+     * 
+     * @return The lowest severity that a message can have and still be delivered to a user in break or notify mode. The
+     *         severity is a value in the range 0 through 99.
+     * @see #setMessageQueueSeverity
      **/
     public int getMessageQueueSeverity()
     {
@@ -1015,9 +1152,10 @@ public class User implements Serializable
     }
 
     /**
-     Returns the user profile name.
-     @return  The user profile name.
-     @see  #setName
+     * Returns the user profile name.
+     * 
+     * @return The user profile name.
+     * @see #setName
      **/
     public String getName()
     {
@@ -1026,14 +1164,16 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the user's object auditing value.
-     @return  The user's object auditing value.  Possible values are:
-     <ul>
-     <li>{@link #NONE NONE} - No additional object auditing is done for the user.
-     <li>"*CHANGE" - Object changes are audited for the user if the object's auditing value is *USRPRF.
-     <li>"*ALL" - Object read and change operations are audited for the user if the object's auditing value is *USRPRF.
-     </ul>
-     @see #setObjectAuditingValue
+     * Retrieves the user's object auditing value.
+     * 
+     * @return The user's object auditing value. Possible values are:
+     *         <ul>
+     *         <li>{@link #NONE NONE} - No additional object auditing is done for the user.
+     *         <li>"*CHANGE" - Object changes are audited for the user if the object's auditing value is *USRPRF.
+     *         <li>"*ALL" - Object read and change operations are audited for the user if the object's auditing value is
+     *         *USRPRF.
+     *         </ul>
+     * @see #setObjectAuditingValue
      **/
     public String getObjectAuditingValue()
     {
@@ -1042,37 +1182,39 @@ public class User implements Serializable
     }
 
     /**
-    Return an object representing the objects that this user owns.
-    @return  UserObjectsOwnedList object constructed with default selection criteria.
-    **/
-   public UserObjectsOwnedList getObjectsOwned()
-   {
-     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading user information.");
-     if (system_ == null)
-     {
-         Trace.log(Trace.ERROR, "Cannot connect to server before setting system.");
-         throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-     }
-     if (name_ == null)
-     {
-         Trace.log(Trace.ERROR, "Cannot connect to server before setting name.");
-         throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_SET);
-     }
+     * Return an object representing the objects that this user owns.
+     * 
+     * @return UserObjectsOwnedList object constructed with default selection criteria.
+     **/
+    public UserObjectsOwnedList getObjectsOwned()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading user information.");
+        if (system_ == null)
+        {
+            Trace.log(Trace.ERROR, "Cannot connect to server before setting system.");
+            throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
+        if (name_ == null)
+        {
+            Trace.log(Trace.ERROR, "Cannot connect to server before setting name.");
+            throw new ExtendedIllegalStateException("name", ExtendedIllegalStateException.PROPERTY_NOT_SET);
+        }
      
-     return (new UserObjectsOwnedList(system_, name_));
-   }
-
+        return (new UserObjectsOwnedList(system_, name_));
+    }
 
     /**
-     Retrieves the output queue used by this user.
-     @return  The output queue used by this user.  Possible values are:
-     <ul>
-     <li>"*WRKSTN" - The output queue assigned to the user's work station is used.
-     <li>"*DEV" - An output queue with the same name as the device specified in the printer device parameter is used.
-     <li>The fully qualified integrated file system path name of the output queue.
-     </ul>
-     @see  QSYSObjectPathName
-     @see #setOutputQueue
+     * Retrieves the output queue used by this user.
+     * 
+     * @return The output queue used by this user. Possible values are:
+     *         <ul>
+     *         <li>"*WRKSTN" - The output queue assigned to the user's work station is used.
+     *         <li>"*DEV" - An output queue with the same name as the device specified in the printer device parameter
+     *         is used.
+     *         <li>The fully qualified integrated file system path name of the output queue.
+     *         </ul>
+     * @see QSYSObjectPathName
+     * @see #setOutputQueue
      **/
     public String getOutputQueue()
     {
@@ -1081,13 +1223,15 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves who is to own objects created by this user.
-     @return  Who is to own objects created by this user.  Possible values are:
-     <ul>
-     <li>"*USRPRF" - The user owns any objects the user creates.  If the user does not have a group profile, the field contains this value.
-     <li>"*GRPPRF" - The user's group profile owns any objects the user creates.
-     </ul>
-     @see #setOwner
+     * Retrieves who is to own objects created by this user.
+     * 
+     * @return Who is to own objects created by this user. Possible values are:
+     *         <ul>
+     *         <li>"*USRPRF" - The user owns any objects the user creates. If the user does not have a group profile,
+     *         the field contains this value.
+     *         <li>"*GRPPRF" - The user's group profile owns any objects the user creates.
+     *         </ul>
+     * @see #setOwner
      **/
     public String getOwner()
     {
@@ -1096,12 +1240,14 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the date the user's password expires.
-     @return  The date the user's password expires.  Possible values are:
-     <ul>
-     <li>A date object containing the date the user's password expires.
-     <li>null - The user's password will not expire (password expiration interval of *NOMAX) or the user's password is set to expired.
-     </ul>
+     * Retrieves the date the user's password expires.
+     * 
+     * @return The date the user's password expires. Possible values are:
+     *         <ul>
+     *         <li>A date object containing the date the user's password expires.
+     *         <li>null - The user's password will not expire (password expiration interval of *NOMAX) or the user's
+     *         password is set to expired.
+     *         </ul>
      **/
     public Date getPasswordExpireDate()
     {
@@ -1111,7 +1257,8 @@ public class User implements Serializable
             try
             {
                 // First see if a blank value was returned.
-                if (isNullOrBlanks(passwordExpireDateBytes_)) return null;
+                if (isNullOrBlanks(passwordExpireDateBytes_)) 
+                    return null;
 
                 AS400Timestamp conv = getTimestampConverter(FORMAT_DTS); // field is in *DTS format
 
@@ -1128,54 +1275,57 @@ public class User implements Serializable
                 throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
             }
         }
+        
         return passwordExpireDate_;
     }
 
-
     private static final int FORMAT_DTS = AS400Timestamp.FORMAT_DTS; // *DTS format
+
     private synchronized AS400Timestamp getTimestampConverter(int format)
     {
-      if (timestampConverter_ == null) {
-        timestampConverter_ = new AS400Timestamp(AS400.getDefaultTimeZone(system_));
-        timestampConverter_.setFormat(format);
-      }
-      else if (format != timestampConverter_.getFormat()) {
-        timestampConverter_.setFormat(format);
-      }
-      return timestampConverter_;
+        if (timestampConverter_ == null)
+        {
+            timestampConverter_ = new AS400Timestamp(AS400.getDefaultTimeZone(system_));
+            timestampConverter_.setFormat(format);
+        }
+        else if (format != timestampConverter_.getFormat())
+            timestampConverter_.setFormat(format);
+
+        return timestampConverter_;
     }
 
-
-    // @610
     /**
-     * Retrieves the time period during which a password is blocked from being changed
-     * following the prior successful password change operation.
-     * <p>Note: This method should not be used when running to IBM i 5.4 or earlier releases.
-     * @return The time period during which a password is blocked from being changed.  Possible values are:
-     * <ul>
-     * <li>"*SYSVAL" - The system value QPWDCHGBLK is used to determine the block password change value.</li>
-     * <li>{@link #NONE NONE} - The password can be changed at any time.</li>
-     * <li>1-99 - Indicates the number of hours a user must wait after the prior successful password change operation
-     * before they are able to change the password again.</li>
-     * </ul>
+     * Retrieves the time period during which a password is blocked from being changed following the prior successful
+     * password change operation.
+     * <p>
+     * Note: This method should not be used when running to IBM i 5.4 or earlier releases.
+     * 
+     * @return The time period during which a password is blocked from being changed. Possible values are:
+     *         <ul>
+     *         <li>"*SYSVAL" - The system value QPWDCHGBLK is used to determine the block password change value.</li>
+     *         <li>{@link #NONE NONE} - The password can be changed at any time.</li>
+     *         <li>1-99 - Indicates the number of hours a user must wait after the prior successful password change
+     *         operation before they are able to change the password again.</li>
+     *         </ul>
      * @see #setPasswordChangeBlock
      */
     public String getPasswordChangeBlock()
     {
-    	if (!loaded_) loadUserInformation_SwallowExceptions();
-    	return pwdChangeBlock_;
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return pwdChangeBlock_;
     }
     
     /**
-     Retrieves the number of days the user's password can remain active before it must be changed.
-     @return  The number of days the user's password can remain active before it must be changed.  Possible values are:
-     <ul>
-     <li>0 - The system value QPWDEXPITV is used to determine the user's password expiration interval.
-     <li>-1 - The user's password does not expire (*NOMAX).
-     <li>1-366 - The number of days the user's password can remain active before it must be changed.
-     </ul>
-     @see #setPasswordExpirationInterval(int)
-     @see #setPasswordExpirationInterval(String)
+     * Retrieves the number of days the user's password can remain active before it must be changed.
+     * 
+     * @return The number of days the user's password can remain active before it must be changed. Possible values are:
+     *         <ul>
+     *         <li>0 - The system value QPWDEXPITV is used to determine the user's password expiration interval.
+     *         <li>-1 - The user's password does not expire (*NOMAX).
+     *         <li>1-366 - The number of days the user's password can remain active before it must be changed.
+     *         </ul>
+     * @see #setPasswordExpirationInterval(int)
+     * @see #setPasswordExpirationInterval(String)
      **/
     public int getPasswordExpirationInterval()
     {
@@ -1184,8 +1334,9 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the date the user's password was last changed.
-     @return  The date the user's password was last changed.
+     * Retrieves the date the user's password was last changed.
+     * 
+     * @return The date the user's password was last changed.
      **/
     public Date getPasswordLastChangedDate()
     {
@@ -1201,10 +1352,8 @@ public class User implements Serializable
                 
                 // In this case, the conv.toTimestamp method assumes that the timezone is in GMT.  This is then
                 // adjusted by the conv.toDate() method to get to the right timestamp in the current default  
-                // 
                 
-                passwordLastChangedDate_ = conv.toDate(conv.toTimestamp(passwordLastChangedDateBytes_), 
-                      TimeZone.getDefault()); 
+                passwordLastChangedDate_ = conv.toDate(conv.toTimestamp(passwordLastChangedDateBytes_), TimeZone.getDefault()); 
             }
             catch (Exception e)
             {
@@ -1216,12 +1365,13 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the date and time the user last signed on.
-     @return  The date and time the user last signed on.  Possible values are:
-     <ul>
-     <li>A date object containing the date and time the user last signed on.
-     <li>null - The user has never signed on the system.
-     </ul>
+     * Retrieves the date and time the user last signed on.
+     * 
+     * @return The date and time the user last signed on. Possible values are:
+     *         <ul>
+     *         <li>A date object containing the date and time the user last signed on.
+     *         <li>null - The user has never signed on the system.
+     *         </ul>
      **/
     public Date getPreviousSignedOnDate()
     {
@@ -1230,14 +1380,15 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the printer used to print for this user.
-     @return  The printer used to print for this user.  Possible values are:
-     <ul>
-     <li>"*WRKSTN" - The printer assigned to the user's work station is used.
-     <li>"*SYSVAL" - The default system printer specified in the system value QPRTDEV is used.
-     <li>The print device.
-     </ul>
-     @see #setPrintDevice
+     * Retrieves the printer used to print for this user.
+     * 
+     * @return The printer used to print for this user. Possible values are:
+     *         <ul>
+     *         <li>"*WRKSTN" - The printer assigned to the user's work station is used.
+     *         <li>"*SYSVAL" - The default system printer specified in the system value QPRTDEV is used.
+     *         <li>The print device.
+     *         </ul>
+     * @see #setPrintDevice
      **/
     public String getPrintDevice()
     {
@@ -1246,8 +1397,9 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the number of sign-on attempts that were not valid since the last successful sign-on.
-     @return  The number of sign-on attempts that were not valid since the last successful sign-on.
+     * Retrieves the number of sign-on attempts that were not valid since the last successful sign-on.
+     * 
+     * @return The number of sign-on attempts that were not valid since the last successful sign-on.
      **/
     public int getSignedOnAttemptsNotValid()
     {
@@ -1256,17 +1408,18 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the name of the sort sequence table used for string comparisons.
-     @return  The name of the sort sequence table used for string comparisons.  Possible values are:
-     <ul>
-     <li>"*HEX" - The hexadecimal values of the characters are used to determine the sort sequence.
-     <li>"*LANGIDUNQ" - A unique-weight sort table associated with the language specified.
-     <li>"*LANGIDSHR" - A shared-weight sort table associated with the language specified.
-     <li>"*SYSVAL" - The system value QSRTSEQ.
-     <li>The fully qualified integrated file system path name of the sort sequence table name.
-     </ul>
-     @see  QSYSObjectPathName
-     @see #setSortSequenceTable
+     * Retrieves the name of the sort sequence table used for string comparisons.
+     * 
+     * @return The name of the sort sequence table used for string comparisons. Possible values are:
+     *         <ul>
+     *         <li>"*HEX" - The hexadecimal values of the characters are used to determine the sort sequence.
+     *         <li>"*LANGIDUNQ" - A unique-weight sort table associated with the language specified.
+     *         <li>"*LANGIDSHR" - A shared-weight sort table associated with the language specified.
+     *         <li>"*SYSVAL" - The system value QSRTSEQ.
+     *         <li>The fully qualified integrated file system path name of the sort sequence table name.
+     *         </ul>
+     * @see QSYSObjectPathName
+     * @see #setSortSequenceTable
      **/
     public String getSortSequenceTable()
     {
@@ -1275,20 +1428,24 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves a list of the special authorities the user has.
-     @return  A list of the special authorities the user has.  If the user has no special authorities, an empty array is returned.  Possible values for the elements of this array are:
-     <ul>
-     <li>{@link #SPECIAL_AUTHORITY_ALL_OBJECT SPECIAL_AUTHORITY_ALL_OBJECT} - All object.
-     <li>{@link #SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR} - Security administrator.
-     <li>{@link #SPECIAL_AUTHORITY_JOB_CONTROL SPECIAL_AUTHORITY_JOB_CONTROL} - Job control.
-     <li>{@link #SPECIAL_AUTHORITY_SPOOL_CONTROL SPECIAL_AUTHORITY_SPOOL_CONTROL} - Spool control.
-     <li>{@link #SPECIAL_AUTHORITY_SAVE_SYSTEM SPECIAL_AUTHORITY_SAVE_SYSTEM} - Save system.
-     <li>{@link #SPECIAL_AUTHORITY_SERVICE SPECIAL_AUTHORITY_SERVICE} - Service.
-     <li>{@link #SPECIAL_AUTHORITY_AUDIT SPECIAL_AUTHORITY_AUDIT} - Audit.
-     <li>{@link #SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION} - Input/output system configuration.
-     </ul>
-     @see #hasSpecialAuthority
-     @see #setSpecialAuthority
+     * Retrieves a list of the special authorities the user has.
+     * 
+     * @return A list of the special authorities the user has. If the user has no special authorities, an empty array is
+     *         returned. Possible values for the elements of this array are:
+     *         <ul>
+     *         <li>{@link #SPECIAL_AUTHORITY_ALL_OBJECT SPECIAL_AUTHORITY_ALL_OBJECT} - All object.
+     *         <li>{@link #SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR} - Security
+     *         administrator.
+     *         <li>{@link #SPECIAL_AUTHORITY_JOB_CONTROL SPECIAL_AUTHORITY_JOB_CONTROL} - Job control.
+     *         <li>{@link #SPECIAL_AUTHORITY_SPOOL_CONTROL SPECIAL_AUTHORITY_SPOOL_CONTROL} - Spool control.
+     *         <li>{@link #SPECIAL_AUTHORITY_SAVE_SYSTEM SPECIAL_AUTHORITY_SAVE_SYSTEM} - Save system.
+     *         <li>{@link #SPECIAL_AUTHORITY_SERVICE SPECIAL_AUTHORITY_SERVICE} - Service.
+     *         <li>{@link #SPECIAL_AUTHORITY_AUDIT SPECIAL_AUTHORITY_AUDIT} - Audit.
+     *         <li>{@link #SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION} -
+     *         Input/output system configuration.
+     *         </ul>
+     * @see #hasSpecialAuthority
+     * @see #setSpecialAuthority
      **/
     public String[] getSpecialAuthority()
     {
@@ -1297,14 +1454,15 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the special environment the user operates in after signing on.
-     @return  The special environment the user operates in after signing on.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QSPCENV is used to determine the user's special environment.
-     <li>{@link #NONE NONE} - The user operates in the IBM i system environment.
-     <li>"*S36" - The user operates in the System/36 environment.
-     </ul>
-     @see #setSpecialEnvironment
+     * Retrieves the special environment the user operates in after signing on.
+     * 
+     * @return The special environment the user operates in after signing on. Possible values are:
+     *         <ul>
+     *         <li>"*SYSVAL" - The system value QSPCENV is used to determine the user's special environment.
+     *         <li>{@link #NONE NONE} - The user operates in the IBM i system environment.
+     *         <li>"*S36" - The user operates in the System/36 environment.
+     *         </ul>
+     * @see #setSpecialEnvironment
      **/
     public String getSpecialEnvironment()
     {
@@ -1313,13 +1471,14 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the status of the user profile.
-     @return  The status of the user profile.  Possible values are:
-     <ul>
-     <li>"*ENABLED" - The user profile is enabled; therefor, the user is able to sign on.
-     <li>"*DISABLED" - The user profile is not enabled; therefor, the user cannot sign on.
-     </ul>
-     @see #setStatus
+     * Retrieves the status of the user profile.
+     * 
+     * @return The status of the user profile. Possible values are:
+     *         <ul>
+     *         <li>"*ENABLED" - The user profile is enabled; therefor, the user is able to sign on.
+     *         <li>"*DISABLED" - The user profile is not enabled; therefor, the user cannot sign on.
+     *         </ul>
+     * @see #setStatus
      **/
     public String getStatus()
     {
@@ -1328,29 +1487,33 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the amount of auxiliary storage (in kilobytes) occupied by this user's owned objects.
-     @return  The amount of auxiliary storage (in kilobytes) occupied by this user's owned objects.
+     * Retrieves the amount of auxiliary storage (in kilobytes) occupied by this user's owned objects.
+     * 
+     * @return The amount of auxiliary storage (in kilobytes) occupied by this user's owned objects.
      **/
     public int getStorageUsed()
     {
         if (!loaded_) loadUserInformation_SwallowExceptions();
         return storageUsed_;
     }
-    
-    /**
-    Retrieves the amount of auxiliary storage (in kilobytes) occupied by this user's owned objects.
-    @return  The amount of auxiliary storage (in kilobytes) occupied by this user's owned objects.
-    **/
-   public long getStorageUsedInLong()//@P1A
-   {
-       if (!loaded_) loadUserInformation_SwallowExceptions();
-       return storageUsedInLong_;
-   }
 
     /**
-     Retrieves the supplemental groups for the user profile.
-     @return  The array of supplemental groups for the user profile, or an array of length 0 if there are no supplemental groups.
-     @see #setSupplementalGroups
+     * Retrieves the amount of auxiliary storage (in kilobytes) occupied by this user's owned objects.
+     * 
+     * @return The amount of auxiliary storage (in kilobytes) occupied by this user's owned objects.
+     **/
+    public long getStorageUsedInLong()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return storageUsedInLong_;
+    }
+
+    /**
+     * Retrieves the supplemental groups for the user profile.
+     * 
+     * @return The array of supplemental groups for the user profile, or an array of length 0 if there are no
+     *         supplemental groups.
+     * @see #setSupplementalGroups
      **/
     public String[] getSupplementalGroups()
     {
@@ -1359,10 +1522,12 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the number of supplemental groups for the user profile.
-     <p>This method simply returns getSupplementalGroups().length.
-     @return  The number of supplemental groups for the user profile.
-     @see  #getSupplementalGroups
+     * Retrieves the number of supplemental groups for the user profile.
+     * <p>
+     * This method simply returns getSupplementalGroups().length.
+     * 
+     * @return The number of supplemental groups for the user profile.
+     * @see #getSupplementalGroups
      **/
     public int getSupplementalGroupsNumber()
     {
@@ -1371,9 +1536,11 @@ public class User implements Serializable
     }
 
     /**
-     Returns the system object representing the system on which the user profile exists.
-     @return  The system object representing the system on which the user profile exists.  If the system has not been set, null is returned.
-     @see #setSystem
+     * Returns the system object representing the system on which the user profile exists.
+     * 
+     * @return The system object representing the system on which the user profile exists. If the system has not been
+     *         set, null is returned.
+     * @see #setSystem
      **/
     public AS400 getSystem()
     {
@@ -1381,26 +1548,76 @@ public class User implements Serializable
         return system_;
     }
 
+    /**
+     * Returns the amount of time, in minutes, a time-based one-time password (TOTP) is optional on an authentication
+     * request for the user. This is the amount of time after a valid user ID and password authentication using a TOTP
+     * value is performed, that subsequent authentications will be allowed without having to specifying a new TOTP value.
+     * When this value is zero, a TOTP is required for every authentication for the user if the user has *TOTP as an
+     * authentication method.
+     * 
+     * @return the TOTP optional interval
+     */
+    public int getTOTPOptionalInterval()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return totpOptionalInterval_;
+    }
 
     /**
-     Retrieves a list of action audit levels for the user.
-     @return  A list of action audit levels for the user.  Possible values for the elements of this array are:
-     <ul>
-     <li>"*CMD" - The user has the *CMD audit value specified in the user profile.
-     <li>"*CREATE" - The user has the *CREATE audit value specified in the user profile.
-     <li>"*DELETE" - The user has the *DELETE audit value specified in the user profile.
-     <li>"*JOBDTA" - The user has the *JOBDTA audit value specified in the user profile.
-     <li>"*OBJMGT" - The user has the *OBJMGT audit value specified in the user profile.
-     <li>"*OFCSRV" - The user has the *OFCSRV audit value specified in the user profile.
-     <li>"*OPTICAL" - The user has the *OPTICAL audit value specified in the user profile.
-     <li>"*PGMADP" - The user has the *PGMADP audit value specified in the user profile.
-     <li>"*SAVRST" - The user has the *SAVRST audit value specified in the user profile.
-     <li>"*SECURITY" - The user has the *SECURITY audit value specified in the user profile.
-     <li>"*SERVICE" - The user has the *SERVICE audit value specified in the user profile.
-     <li>"*SPLFDTA" - The user has the *SPLFDTA audit value specified in the user profile.
-     <li>"*SYSMGT" - The user has the *SYSMGT audit value specified in the user profile.
-     </ul>
-     @see #setUserActionAuditLevel
+     * Returns the The number of minutes remaining in the TOTP optional interval in which an authentication without
+     * specifying a new TOTP value is valid. When this value is zero, subsequent authentications will require a valid TOTP
+     * value be specified.
+     * 
+     * @return the TOTP optional interval remaining
+     */
+    public int getTOTPOptionalIntervalRemaining()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return totpOptionalIntervalRemaining_;
+    }
+
+    /**
+     * Returns whether the user has a TOTP key specified. This key is only used when the additional authentication methods include *TOTP.
+     * 
+     * @return true if TOTP key exists; otherwise, false. 
+     */
+    public boolean getTOTPKeyExistsIndicator()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return totpKeyExistsIndicator_;
+    }
+
+    /**
+     * Returns the date and time the TOTP key was last changed using the Change TOTP Key (CHGTOTPKEY) command. 
+     * 
+     * @return the TOTP key last changed date, or null if unable to retrieve value. 
+     */
+    public Date getTOTPKeyLastChangedDate()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return totpKeyLastChangedDate_;
+    }
+
+    /**
+     * Retrieves a list of action audit levels for the user.
+     * 
+     * @return A list of action audit levels for the user. Possible values for the elements of this array are:
+     *         <ul>
+     *         <li>"*CMD" - The user has the *CMD audit value specified in the user profile.
+     *         <li>"*CREATE" - The user has the *CREATE audit value specified in the user profile.
+     *         <li>"*DELETE" - The user has the *DELETE audit value specified in the user profile.
+     *         <li>"*JOBDTA" - The user has the *JOBDTA audit value specified in the user profile.
+     *         <li>"*OBJMGT" - The user has the *OBJMGT audit value specified in the user profile.
+     *         <li>"*OFCSRV" - The user has the *OFCSRV audit value specified in the user profile.
+     *         <li>"*OPTICAL" - The user has the *OPTICAL audit value specified in the user profile.
+     *         <li>"*PGMADP" - The user has the *PGMADP audit value specified in the user profile.
+     *         <li>"*SAVRST" - The user has the *SAVRST audit value specified in the user profile.
+     *         <li>"*SECURITY" - The user has the *SECURITY audit value specified in the user profile.
+     *         <li>"*SERVICE" - The user has the *SERVICE audit value specified in the user profile.
+     *         <li>"*SPLFDTA" - The user has the *SPLFDTA audit value specified in the user profile.
+     *         <li>"*SYSMGT" - The user has the *SYSMGT audit value specified in the user profile.
+     *         </ul>
+     * @see #setUserActionAuditLevel
      **/
     public String[] getUserActionAuditLevel()
     {
@@ -1446,16 +1663,17 @@ public class User implements Serializable
     };
 
     /**
-     Retrieves the user class name.
-     @return  The user class name.  Possible values are:
-     <ul>
-     <li>"*SECOFR" - The user has a class of security officer.
-     <li>"*SECADM" - The user has a class of security administrator.
-     <li>"*PGMR" - The user has a class of programmer.
-     <li>"*SYSOPR" - The user has a class of system operator.
-     <li>"*USER" - The user has a class of end user.
-     </ul>
-     @see #setUserClassName
+     * Retrieves the user class name.
+     * 
+     * @return The user class name. Possible values are:
+     *         <ul>
+     *         <li>"*SECOFR" - The user has a class of security officer.
+     *         <li>"*SECADM" - The user has a class of security administrator.
+     *         <li>"*PGMR" - The user has a class of programmer.
+     *         <li>"*SYSOPR" - The user has a class of system operator.
+     *         <li>"*USER" - The user has a class of end user.
+     *         </ul>
+     * @see #setUserClassName
      **/
     public String getUserClassName()
     {
@@ -1463,17 +1681,18 @@ public class User implements Serializable
         return userClassName_;
     }
 
-
     /**
-     Retrieves the action that will occur when the user profile has expired.
-     <p>Note: This method should not be used when running to IBM i 6.1 or earlier releases.
-     @return  The action that will occur when the user profile has expired.
-     Possible values include:
-     <ul>
-     <li>{@link #NONE NONE} - The user profile will not expire.
-     <li>"*DISABLE" - The user profile will be disabled.
-     <li>"*DELETE" - The user profile will be deleted. If the user profile cannot be deleted, it will be disabled.
-     </ul>
+     * Retrieves the action that will occur when the user profile has expired.
+     * <p>
+     * Note: This method should not be used when running to IBM i 6.1 or earlier releases.
+     * 
+     * @return The action that will occur when the user profile has expired. Possible values include:
+     *         <ul>
+     *         <li>{@link #NONE NONE} - The user profile will not expire.
+     *         <li>"*DISABLE" - The user profile will be disabled.
+     *         <li>"*DELETE" - The user profile will be deleted. If the user profile cannot be deleted, it will be
+     *         disabled.
+     *         </ul>
      **/
     public String getUserExpirationAction()
     {
@@ -1481,58 +1700,68 @@ public class User implements Serializable
         return userExpirationAction_;
     }
 
-
     /**
-     Retrieves the date when the user profile expires and is automatically disabled.
-     <p>Note: This method should not be used when running to IBM i 6.1 or earlier releases.
-     @return  The date when the user profile expires.
-     <tt>null</tt> is returned if the user profile does not have an expiration date.
-     @see #setUserExpirationDate
+     * Retrieves the date when the user profile expires and is automatically disabled.
+     * <p>
+     * Note: This method should not be used when running to IBM i 6.1 or earlier releases.
+     * 
+     * @return The date when the user profile expires. <tt>null</tt> is returned if the user profile does not have an
+     *         expiration date.
+     * @see #setUserExpirationDate
      **/
     public Date getUserExpirationDate()
     {
-      if (!loaded_) loadUserInformation_SwallowExceptions();
-      if (userExpirationDate_ == null)
-      {
-        try
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+      
+        if (userExpirationDate_ == null)
         {
-          // First see if a blank value was returned.  If so, return null.
-          if (isNullOrBlanks(userExpirationDateBytes_)) return null;
+            try
+            {
+                // First see if a blank value was returned.  If so, return null.
+                if (isNullOrBlanks(userExpirationDateBytes_))
+                    return null;
 
-          AS400Timestamp conv = getTimestampConverter(FORMAT_DTS); // field is in *DTS format
-          // Note.  The conv.toTimestamp method assumes that the reference timezone is GMT
-          // In this case, the conv.toTimestamp method assumes that the timezone is in GMT.  This is then
-          // adjusted by the conv.toDate() method to get to the right timestamp in the current default  
-          // 
+                AS400Timestamp conv = getTimestampConverter(FORMAT_DTS); // field is in *DTS format
+                // Note.  The conv.toTimestamp method assumes that the reference timezone is GMT
+                // In this case, the conv.toTimestamp method assumes that the timezone is in GMT.  This is then
+                // adjusted by the conv.toDate() method to get to the right timestamp in the current default  
 
-          userExpirationDate_ = conv.toDate(conv.toTimestamp(userExpirationDateBytes_), TimeZone.getDefault());
+                userExpirationDate_ = conv.toDate(conv.toTimestamp(userExpirationDateBytes_), TimeZone.getDefault());
+            }
+            catch (Exception e)
+            {
+                if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception while converting userExpirationDate:", e);
+                throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+            }
         }
-        catch (Exception e)
-        {
-          if (Trace.traceOn_) Trace.log(Trace.ERROR, "Exception while converting userExpirationDate:", e);
-          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-        }
-      }
-      return userExpirationDate_;
+      
+        return userExpirationDate_;
     }
 
-    // Returns true if the specified byte array is either null or a sequence of EBCDIC blanks (x40).  Returns false if any character other than EBCDIC blank is encountered.
+    // Returns true if the specified byte array is either null or a sequence of EBCDIC blanks (x40). Returns false if
+    // any character other than EBCDIC blank is encountered.
     private static final boolean isNullOrBlanks(byte[] bytes)
     {
-      if (bytes == null) return true;
-      for (int i=0; i<bytes.length; i++)
-      {
-        if (bytes[i] != (byte)0x40 ) return false;
-      }
-      return true;
+        if (bytes != null)
+        {
+            for (int i = 0; i < bytes.length; i++)
+            {
+                if (bytes[i] != (byte) 0x40)
+                    return false;
+            }
+        }
+        
+        return true;
     }
 
-
     /**
-     Retrieves the number of days before the user profile is automatically disabled.
-     <p>Note: This method should not be used when running to IBM i 6.1 or earlier releases.
-     @return  The number of days until the user profile expires, starting from when the profile was created or last re-enabled.  0 is returned if the user profile does not have a user expiration interval.
-     @see #setUserExpirationInterval
+     * Retrieves the number of days before the user profile is automatically disabled.
+     * <p>
+     * Note: This method should not be used when running to IBM i 6.1 or earlier releases.
+     * 
+     * @return The number of days until the user profile expires, starting from when the profile was created or last
+     *         re-enabled. 0 is returned if the user profile does not have a user expiration interval.
+     * @see #setUserExpirationInterval
      **/
     public int getUserExpirationInterval()
     {
@@ -1541,9 +1770,11 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the user ID (UID) number for the user profile.  The UID is used to identify the user when using the integrated file system.
-     @return  The user ID (UID) number for the user profile.
-     @see #setUserID
+     * Retrieves the user ID (UID) number for the user profile. The UID is used to identify the user when using the
+     * integrated file system.
+     * 
+     * @return The user ID (UID) number for the user profile.
+     * @see #setUserID
      **/
     public long getUserID()
     {
@@ -1552,28 +1783,34 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves the user ID (UID) number for the user profile.  The UID is used to identify the user when using the integrated file system.
-     @return  The user ID (UID) number for the user profile.
-     @deprecated  This method has been replaced by {@link #getUserID getUserID()} which returns a long.
+     * Retrieves the user ID (UID) number for the user profile. The UID is used to identify the user when using the
+     * integrated file system.
+     * 
+     * @return The user ID (UID) number for the user profile.
+     * @deprecated This method has been replaced by {@link #getUserID getUserID()} which returns a long.
      **/
+    @Deprecated
     public int getUserIDNumber()
     {
         return (int)getUserID();
     }
 
     /**
-     Retrieves a list of options for users to customize their environment.
-     @return  The list of options for users to customize their environment.  Possible values include:
-     <ul>
-     <li>"*CLKWD" - The keywords are shown when a CL command is displayed.
-     <li>"*EXPERT" - More detailed information is shown when the user is defining or changing the system using edit or display object authority.  This is independent of the ASTLVL parameter that is available on the user profile and other commands.
-     <li>"*HLPFULL" - UIM online help is to be displayed full screen instead of in a window.
-     <li>"*STSMSG" - Status messages sent to the user are shown.
-     <li>"*NOSTSMSG" - Status messages sent to the user are not shown.
-     <li>"*ROLLKEY" - The opposite action from the system default for roll keys is taken.
-     <li>"*PRTMSG" - A message is sent to the user when a spooled file is printed.
-     </ul>
-     @see #setUserOptions
+     * Retrieves a list of options for users to customize their environment.
+     * 
+     * @return The list of options for users to customize their environment. Possible values include:
+     *         <ul>
+     *         <li>"*CLKWD" - The keywords are shown when a CL command is displayed.
+     *         <li>"*EXPERT" - More detailed information is shown when the user is defining or changing the system using
+     *         edit or display object authority. This is independent of the ASTLVL parameter that is available on the
+     *         user profile and other commands.
+     *         <li>"*HLPFULL" - UIM online help is to be displayed full screen instead of in a window.
+     *         <li>"*STSMSG" - Status messages sent to the user are shown.
+     *         <li>"*NOSTSMSG" - Status messages sent to the user are not shown.
+     *         <li>"*ROLLKEY" - The opposite action from the system default for roll keys is taken.
+     *         <li>"*PRTMSG" - A message is sent to the user when a spooled file is printed.
+     *         </ul>
+     * @see #setUserOptions
      **/
     public String[] getUserOptions()
     {
@@ -1593,8 +1830,11 @@ public class User implements Serializable
     };
 
     /**
-     Retrieves the name of the user profile for which the information is returned.  Note this is the name that is returned by the system, not the name that was set into this User object by the constructor or by a call to setUser().
-     @return  The name of the user profile for which the information is returned.
+     * Retrieves the name of the user profile for which the information is returned. Note this is the name that is
+     * returned by the system, not the name that was set into this User object by the constructor or by a call to
+     * setUser().
+     * 
+     * @return The name of the user profile for which the information is returned.
      **/
     public String getUserProfileName()
     {
@@ -1602,84 +1842,85 @@ public class User implements Serializable
         return userProfileName_;
     }
 
-    //@P1A START
-    public boolean isAuthCollectionActive(){
+    public boolean isAuthCollectionActive()
+    {
       if (!loaded_) loadUserInformation_SwallowExceptions();
       return authCollectionActive_;
     }
-    public boolean isAuthCollectionRepositoryExist(){
-      if (!loaded_) loadUserInformation_SwallowExceptions();
-      return authCollectionRepositoryExist_;
-    }
-   /* public int getLibNamesNumberInSTRAUTCOL(){
-      return 0;
-    }
-    public int getObjectNamesNumberInSTRAUTCOL(){
-      return 0;
-    }
-    public int getObjectTypesNumberInSTRAUTCOL(){
-      return 0;
-    }
-    public int getDLOObjectTypesNumberInSTRAUTCOL(){
-      return 0;
-    }
-    public int getFileSystemObjectTypesNumberInSTRAUTCOL(){
-      return 0;
-    }
-    public int getOmitLibNamesNumberInSTRAUTCOL(){
-      return 0;
-    }*/
-    public boolean isAuthCollectionDeleted(){
-      if (!loaded_) loadUserInformation_SwallowExceptions();
-      return authCollectionDeleted_;
-    }
-    public String getDetailInSTRAUTCOL(){
-      if (!loaded_) loadUserInformation_SwallowExceptions();
-      return detailInSTRAUTCOL_;
+    
+    public boolean isAuthCollectionRepositoryExist()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return authCollectionRepositoryExist_;
     }
     
-    public String[] getLibNameInSTRAUTCOL(){
-      if (!loaded_) loadUserInformation_SwallowExceptions();
-      return libNamesInSTRAUTCOL_;
+    public boolean isAuthCollectionDeleted()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return authCollectionDeleted_;
     }
-    public String[] getObjectNamesInSTRAUTCOL(){
-      if (!loaded_) loadUserInformation_SwallowExceptions();
-      return objectNamesInSTRAUTCOL_;
-    }
-    public String[] getObjectTypesInSTRAUTCOL(){
-      if (!loaded_) loadUserInformation_SwallowExceptions();
-      return objectTypesInSTRAUTCOL_;
-    }
-    public String[] getDLOObjectTypesInSTRAUTCOL(){
-      if (!loaded_) loadUserInformation_SwallowExceptions();
-      return DLOObjectTypesInSTRAUTCOL_;
-    }
-    public String[] getFileSystemObjectTypesInSTRAUTCOL(){
-      if (!loaded_) loadUserInformation_SwallowExceptions();
-      return fileSystemObjectTypesInSTRAUTCOL_;
-    }
-    public String[] getOmitLibNamesInSTRAUTCOL(){
-      if (!loaded_) loadUserInformation_SwallowExceptions();
-      return omitLibNamesInSTRAUTCOL_;
-    }
-   //@P1A END
     
+    public String getDetailInSTRAUTCOL()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return detailInSTRAUTCOL_;
+    }
+    
+    public String[] getLibNameInSTRAUTCOL()
+    {
+         if (!loaded_) loadUserInformation_SwallowExceptions();
+         return libNamesInSTRAUTCOL_;
+    }
+    
+    public String[] getObjectNamesInSTRAUTCOL()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return objectNamesInSTRAUTCOL_;
+    }
+    
+    public String[] getObjectTypesInSTRAUTCOL()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return objectTypesInSTRAUTCOL_;
+    }
+    
+    public String[] getDLOObjectTypesInSTRAUTCOL()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return DLOObjectTypesInSTRAUTCOL_;
+    }
+    
+    public String[] getFileSystemObjectTypesInSTRAUTCOL()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return fileSystemObjectTypesInSTRAUTCOL_;
+    }
+    
+    public String[] getOmitLibNamesInSTRAUTCOL()
+    {
+        if (!loaded_) loadUserInformation_SwallowExceptions();
+        return omitLibNamesInSTRAUTCOL_;
+    }
+
     /**
-     Retrieves if this user profile has been granted the specified authority, or belongs to a group profile that has been granted the specified authority.
-     @param  authority  The authority to check.  It must be one of the following special authority values:
-     <ul>
-     <li>*ALLOBJ - All object.
-     <li>*SECADM - Security administrator.
-     <li>*JOBCTL - Job control.
-     <li>*SPLCTL - Spool control.
-     <li>*SAVSYS - Save system.
-     <li>*SERVICE - Service.
-     <li>*AUDIT - Audit.
-     <li>*IOSYSCFG - Input/output system configuration.
-     </ul>
-     @return  true if this user has the authority or belongs to a group that has the authority; false if it does not have authority or an error occurs.
-     @see #getSpecialAuthority
-     @see #setSpecialAuthority
+     * Retrieves if this user profile has been granted the specified authority, or belongs to a group profile that has
+     * been granted the specified authority.
+     * 
+     * @param authority The authority to check. It must be one of the following special authority values:
+     *                  <ul>
+     *                  <li>*ALLOBJ - All object.
+     *                  <li>*SECADM - Security administrator.
+     *                  <li>*JOBCTL - Job control.
+     *                  <li>*SPLCTL - Spool control.
+     *                  <li>*SAVSYS - Save system.
+     *                  <li>*SERVICE - Service.
+     *                  <li>*AUDIT - Audit.
+     *                  <li>*IOSYSCFG - Input/output system configuration.
+     *                  </ul>
+     * @return true if this user has the authority or belongs to a group that has the authority; false if it does not
+     *         have authority or an error occurs.
+     * @see #getSpecialAuthority
+     * @see #setSpecialAuthority
      **/
     public boolean hasSpecialAuthority(String authority)
     {
@@ -1696,9 +1937,7 @@ public class User implements Serializable
             for (int i = 0; i < specialAuthorities.length; ++i)
             {
                 if (specialAuthorities[i].equals(authority))
-                {
                     return true;
-                }
             }
         }
 
@@ -1710,9 +1949,7 @@ public class User implements Serializable
             {
                 User group = new User(system_, primaryGroup);
                 if (group.hasSpecialAuthority(authority))
-                {
                     return true;
-                }
             }
             catch (Exception e)
             {
@@ -1720,6 +1957,7 @@ public class User implements Serializable
                 throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
             }
         }
+        
         // Check the supplemental groups.
         String[] supplementalGroups = getSupplementalGroups();
         if (supplementalGroups != null)
@@ -1730,9 +1968,7 @@ public class User implements Serializable
                 {
                     User group = new User(system_, supplementalGroups[i]);
                     if (group.hasSpecialAuthority(authority))
-                    {
                         return true;
-                    }
                 }
                 catch (Exception e)
                 {
@@ -1741,15 +1977,19 @@ public class User implements Serializable
                 }
             }
         }
+        
         // Not authorized.
         return false;
     }
 
     /**
-     Retrieves whether this user is a group that has members.
-     <p>For User objects, this should always return false.  For UserGroup objects, this should return true if the group profile has members.
-     @return  true if the user is a group that has members, false otherwise.
-     @see  UserGroup
+     * Retrieves whether this user is a group that has members.
+     * <p>
+     * For User objects, this should always return false. For UserGroup objects, this should return true if the group
+     * profile has members.
+     * 
+     * @return true if the user is a group that has members, false otherwise.
+     * @see UserGroup
      **/
     public boolean isGroupHasMember()
     {
@@ -1758,9 +1998,10 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves whether the password is managed locally.
-     @return  true if the password is managed locally, false otherwise.
-     @see #setLocalPasswordManagement
+     * Retrieves whether the password is managed locally.
+     * 
+     * @return true if the password is managed locally, false otherwise.
+     * @see #setLocalPasswordManagement
      **/
     public boolean isLocalPasswordManagement()
     {
@@ -1769,8 +2010,9 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves whether *NONE is specified for the password in the user profile.
-     @return  true if *NONE is specified for the password in the user profile, false otherwise.
+     * Retrieves whether *NONE is specified for the password in the user profile.
+     * 
+     * @return true if *NONE is specified for the password in the user profile, false otherwise.
      **/
     public boolean isNoPassword()
     {
@@ -1779,9 +2021,11 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves whether the user's password is set to expired, requiring the user to change the password when signing on.
-     @return  true if the password is set to expired, false otherwise.
-     @see #setPasswordSetExpire
+     * Retrieves whether the user's password is set to expired, requiring the user to change the password when signing
+     * on.
+     * 
+     * @return true if the password is set to expired, false otherwise.
+     * @see #setPasswordSetExpire
      **/
     public boolean isPasswordSetExpire()
     {
@@ -1791,9 +2035,11 @@ public class User implements Serializable
 
 
     /**
-     Retrieves whether a user entitlement is required for this user profile. This property should be ignored on systems that do not have feature 5052 installed.
-     Note: This method is valid only when running to IBM i 6.1 or higher.
-     @return  true if a user entitlement is required for this user profile; false otherwise.
+     * Retrieves whether a user entitlement is required for this user profile. This property should be ignored on
+     * systems that do not have feature 5052 installed. Note: This method is valid only when running to IBM i 6.1 or
+     * higher.
+     * 
+     * @return true if a user entitlement is required for this user profile; false otherwise.
      **/
     public boolean isUserEntitlementRequired()
     {
@@ -1802,8 +2048,9 @@ public class User implements Serializable
     }
 
     /**
-     Retrieves whether there are digital certificates associated with this user.
-     @return  true if there are digital certificates associated with this user; false otherwise.
+     * Retrieves whether there are digital certificates associated with this user.
+     * 
+     * @return true if there are digital certificates associated with this user; false otherwise.
      **/
     public boolean isWithDigitalCertificates()
     {
@@ -1814,24 +2061,22 @@ public class User implements Serializable
     // Helper method... calls loadUserInformation and swallows all exceptions so that all of the getters can call it.
     private void loadUserInformation_SwallowExceptions()
     {
-        try
-        {
+        try {
             loadUserInformation();
-        }
-        catch (Exception e)
-        {
+        } catch (Exception e) {
             Trace.log(Trace.ERROR, "Exception swallowed during retrieval of user information:", e);
         }
     }
 
     /**
-     Refreshes the values for all attributes.
-     <br>Same as {@link #refresh refresh()}.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     * Refreshes the values for all attributes. <br>
+     * Same as {@link #refresh refresh()}.
+     * 
+     * @exception AS400SecurityException          If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException            If this thread is interrupted.
+     * @exception IOException                     If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException     If the object does not exist on the system.
      **/
     public void loadUserInformation() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
@@ -1871,9 +2116,7 @@ public class User implements Serializable
         // But honor the ProgramCall.threadsafe property if set.
         pc.suggestThreadsafe();
         if (!pc.run())
-        {
             throw new AS400Exception(pc.getMessageList());
-        }
 
         byte[] data = parameters[0].getOutputData();
 
@@ -1893,10 +2136,9 @@ public class User implements Serializable
                 Trace.log(Trace.ERROR, "Unexpected PropertyVetoException:", e);
                 throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
             }
+            
             if (!pc.run())
-            {
                 throw new AS400Exception(pc.getMessageList());
-            }
             data = parameters[0].getOutputData();
         }
 
@@ -1919,9 +2161,7 @@ public class User implements Serializable
             previousSignedOnDate_ = cal.getTime();
         }
         else
-        {
             previousSignedOnDate_ = null;
-        }
 
         signedOnAttemptsNotValid_ = BinaryConverter.byteArrayToInt(data, 32);
         status_ = conv.byteArrayToString(data, 36, 10).trim();
@@ -1950,18 +2190,14 @@ public class User implements Serializable
         for (int i = 0; i < 8; ++i)
         {
             if (data[83 + i] == (byte)0xE8)  // EBCDIC 'Y' is 0xE8.
-            {
                 ++numSpecAuth;
-            }
         }
         specialAuthority_ = new String[numSpecAuth];
         int counter = 0;
         for (int i = 0; i < 8; ++i)
         {
             if (data[83 + i] == (byte)0xE8)  // EBCDIC 'Y' is 0xE8.
-            {
                 specialAuthority_[counter++] = SPECIAL_AUTHORITIES[i];
-            }
         }
 
         groupProfileName_ = conv.byteArrayToString(data, 98, 10).trim();
@@ -2007,18 +2243,14 @@ public class User implements Serializable
         for (int i = 0; i < 7; ++i)
         {
             if (data[444 + i] == (byte)0xE8)  // EBCDIC 'Y' is 0xE8.
-            {
                 ++numUserOptions;
-            }
         }
         userOptions_ = new String[numUserOptions];
         counter = 0;
         for (int i = 0; i < 7; ++i)
         {
             if (data[444 + i] == (byte)0xE8)  // EBCDIC 'Y' is 0xE8.
-            {
                 userOptions_[counter++] = USER_OPTIONS[i];
-            }
         }
 
         String sortName = conv.byteArrayToString(data, 480, 10).trim();
@@ -2030,18 +2262,14 @@ public class User implements Serializable
         for (int i = 0; i < 33; ++i)//
         {
             if (data[510 + i] == (byte)0xE8)  // EBCDIC 'Y' is 0xE8.
-            {
                 ++numAudLevel;
-            }
         }
         userActionAuditLevel_ = new String[numAudLevel];
         counter = 0;
         for (int i = 0; i < 33; ++i)
         {
             if (data[510 + i] == (byte)0xE8)  // EBCDIC 'Y' is 0xE8.
-            {
                 userActionAuditLevel_[counter++] = AUDIT_LEVELS[i];
-            }
         }
 
         groupAuthorityType_ = conv.byteArrayToString(data, 574, 10).trim();
@@ -2067,26 +2295,20 @@ public class User implements Serializable
         for (int i = 0; i < 8; ++i)
         {
             if (data[608 + i] == (byte)0xE8)  // EBCDIC 'Y' is 0xE8.
-            {
                 ++numLocaleJobAttribs;
-            }
         }
         localeJobAttributes_ = new String[numLocaleJobAttribs];
         counter = 0;
         for (int i = 0; i < 8; ++i)
         {
             if (data[608 + i] == (byte)0xE8)  // EBCDIC 'Y' is 0xE8.
-            {
                 localeJobAttributes_[counter++] = LOCALE_ATTRIBUTES[i];
-            }
         }
 
         int localePathOffset = BinaryConverter.byteArrayToInt(data, 624);
         int localePathLength = BinaryConverter.byteArrayToInt(data, 628);
         if (localePathLength == 10)
-        {
             localePathName_ = conv.byteArrayToString(data, localePathOffset, localePathLength).trim();
-        }
         else
         {
             int localePathCcsid = BinaryConverter.byteArrayToInt(data, localePathOffset);
@@ -2128,104 +2350,141 @@ public class User implements Serializable
                 // EBCDIC 'Y' indicates the password is managed locally.
                 localPasswordManagement_ = (data[660] == (byte)0xE8);
                 
-                if (vrm >= 0x00060100)	// @550 added password change block
+                if (vrm >= 0x00060100)// @550 added password change block
                 {
-                  pwdChangeBlock_ = conv.byteArrayToString(data, 661, 10).trim();
-                  // EBCDIC '1' indicates user entitlement is required.
-                  userEntitlementRequired_ = (data[671] == (byte)0xF1);
+                    pwdChangeBlock_ = conv.byteArrayToString(data, 661, 10).trim();
+                    // EBCDIC '1' indicates user entitlement is required.
+                    userEntitlementRequired_ = (data[671] == (byte) 0xF1);
 
-                  if (vrm >= 0x00070100)	// @710 added more fields
-                  {
-                    userExpirationInterval_ = BinaryConverter.byteArrayToInt(data, 672);
-                    if (userExpirationDateBytes_ == null) userExpirationDateBytes_ = new byte[8];
-                    // *DTS format - convert on getter.
-                    System.arraycopy(data, 676, userExpirationDateBytes_, 0, 8);
-                    userExpirationDate_ = null;  // Reset.
-                    userExpirationAction_ = conv.byteArrayToString(data, 684, 10).trim();
-                    if (vrm >= 0x00070200) // @720 added more fields
+                    if (vrm >= 0x00070100)
                     {
-                      maximumStorageAllowedInLong_ = BinaryConverter.byteArrayToUnsignedInt(data, 696);
-                      storageUsedInLong_= BinaryConverter.byteArrayToUnsignedInt(data, 704);
-                      if (vrm >= 0x00070300)  // @P1A 730 added more fields
-                      {
-                        int STRAUTCOLOffset = BinaryConverter.byteArrayToInt(data, 712);
-                        //int STRAUTCOLLength = BinaryConverter.byteArrayToInt(data, 716);
+                        userExpirationInterval_ = BinaryConverter.byteArrayToInt(data, 672);
+                        if (userExpirationDateBytes_ == null) userExpirationDateBytes_ = new byte[8];
+                        // *DTS format - convert on getter.
+                        System.arraycopy(data, 676, userExpirationDateBytes_, 0, 8);
+                        userExpirationDate_ = null;  // Reset.
+                        userExpirationAction_ = conv.byteArrayToString(data, 684, 10).trim();
+                        
+                        if (vrm >= 0x00070200)
+                        {
+                            maximumStorageAllowedInLong_ = BinaryConverter.byteArrayToUnsignedInt(data, 696);
+                            storageUsedInLong_= BinaryConverter.byteArrayToUnsignedInt(data, 704);
+                          
+                            if (vrm >= 0x00070300)
+                            {
+                                int STRAUTCOLOffset = BinaryConverter.byteArrayToInt(data, 712);
+    
+                                // EBCDIC '1' indicates Authority collection is active for this user.
+                                authCollectionActive_ = (data[720] == (byte)0xF1);
+                                // EBCDIC '1' indicates Authority collection repository exists for this user.
+                                authCollectionRepositoryExist_= (data[721] == (byte)0xF1);
+    
+                                if(STRAUTCOLOffset>0)
+                                {
+                                    int libNamesOffset = STRAUTCOLOffset+ BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset);
+                                    int libNamesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+4);
+                                    int objectNamesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+8);
+                                    int objectNamesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+12);
+                                    int objectTypesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+16);
+                                    int objectTypesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+20);
+                                    int DLOObjectTypesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+24);
+                                    int DLOObjectTypesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+28);
+                                    int fileSystemObjectTypesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+32);
+                                    int fileSystemObjectTypesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+36);
+                                    int omitLibNamesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+40);
+                                    int omitLibNamesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+44);
+        
+                                    authCollectionDeleted_ = "*YES".equalsIgnoreCase(conv.byteArrayToString(data, STRAUTCOLOffset+48, 4).trim())? true:false;
+                                    detailInSTRAUTCOL_ = conv.byteArrayToString(data, STRAUTCOLOffset+52, 10).trim();
+        
+                                    libNamesInSTRAUTCOL_ = new String[libNamesNumber];
+                                    for (int i = 0; i < libNamesNumber; ++i) {
+                                        libNamesInSTRAUTCOL_[i] = conv.byteArrayToString(data, libNamesOffset + i * 20, 20).trim();
+                                    }
+                                    objectNamesInSTRAUTCOL_ = new String[objectNamesNumber];
+                                    for (int i = 0; i < objectNamesNumber; ++i) {
+                                        objectNamesInSTRAUTCOL_[i] = conv.byteArrayToString(data, objectNamesOffset + i * 10, 10).trim();
+                                    }
+                                    objectTypesInSTRAUTCOL_ = new String[objectTypesNumber];
+                                    for (int i = 0; i < objectTypesNumber; ++i) {
+                                        objectTypesInSTRAUTCOL_[i] = conv.byteArrayToString(data, objectTypesOffset + i * 10, 10).trim();
+                                    }
+        
+                                    DLOObjectTypesInSTRAUTCOL_ = new String[DLOObjectTypesNumber];
+                                    for (int i = 0; i < DLOObjectTypesNumber; ++i) {
+                                        DLOObjectTypesInSTRAUTCOL_[i] = conv.byteArrayToString(data, DLOObjectTypesOffset + i * 10, 10).trim();
+                                    }
+        
+                                    fileSystemObjectTypesInSTRAUTCOL_ = new String[fileSystemObjectTypesNumber];
+                                    for (int i = 0; i < fileSystemObjectTypesNumber; ++i) {
+                                        fileSystemObjectTypesInSTRAUTCOL_[i] = conv.byteArrayToString(data, fileSystemObjectTypesOffset + i * 10, 10).trim();
+                                    }
+                                    omitLibNamesInSTRAUTCOL_ = new String[omitLibNamesNumber];
+                                    for (int i = 0; i < omitLibNamesNumber; ++i) {
+                                        omitLibNamesInSTRAUTCOL_[i] = conv.byteArrayToString(data, omitLibNamesOffset + i * 20, 20).trim();
+                                    }
+                                }
+                                
+                                if (vrm > 0x00070500)
+                                {
+                                    boolean totpB  = (data[812] == (byte)0xE8);
+                                    boolean regfac = (data[813] == (byte)0xE8);
+                                    String[] authMethods = new String[(totpB && regfac) ? 2 : 1];
+                                    
+                                    if (totpB || regfac)
+                                    {
+                                        int idx=0;
+                                        if (totpB) 
+                                            authMethods[idx++] = AUTHENTICATION_METHOD_TOTP;
+                                        if (regfac) 
+                                            authMethods[idx++] = AUTHENTICATION_METHOD_REGFAC;
+                                    }
+                                    else
+                                        authMethods[0] = NONE;
+                                    authenticationMethods_ = authMethods;
 
-                        // EBCDIC '1' indicates Authority collection is active for this user.
-                        authCollectionActive_ = (data[720] == (byte)0xF1);
-                        // EBCDIC '1' indicates Authority collection repository exists for this user.
-                        authCollectionRepositoryExist_= (data[721] == (byte)0xF1);
-
-                        if(STRAUTCOLOffset>0){
-                          int libNamesOffset = STRAUTCOLOffset+ BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset);
-                          int libNamesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+4);
-                          int objectNamesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+8);
-                          int objectNamesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+12);
-                          int objectTypesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+16);
-                          int objectTypesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+20);
-                          int DLOObjectTypesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+24);
-                          int DLOObjectTypesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+28);
-                          int fileSystemObjectTypesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+32);
-                          int fileSystemObjectTypesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+36);
-                          int omitLibNamesOffset = STRAUTCOLOffset+BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+40);
-                          int omitLibNamesNumber = BinaryConverter.byteArrayToInt(data, STRAUTCOLOffset+44);
-
-                          authCollectionDeleted_ = "*YES".equalsIgnoreCase(conv.byteArrayToString(data, STRAUTCOLOffset+48, 4).trim())? true:false;
-                          detailInSTRAUTCOL_ = conv.byteArrayToString(data, STRAUTCOLOffset+52, 10).trim();
-
-                          libNamesInSTRAUTCOL_ = new String[libNamesNumber];
-                          for (int i = 0; i < libNamesNumber; ++i)
-                          {
-                            libNamesInSTRAUTCOL_[i] = conv.byteArrayToString(data, libNamesOffset + i * 20, 20).trim();
-                          }
-                          objectNamesInSTRAUTCOL_ = new String[objectNamesNumber];
-                          for (int i = 0; i < objectNamesNumber; ++i)
-                          {
-                            objectNamesInSTRAUTCOL_[i] = conv.byteArrayToString(data, objectNamesOffset + i * 10, 10).trim();
-                          }
-                          objectTypesInSTRAUTCOL_ = new String[objectTypesNumber];
-                          for (int i = 0; i < objectTypesNumber; ++i)
-                          {
-                            objectTypesInSTRAUTCOL_[i] = conv.byteArrayToString(data, objectTypesOffset + i * 10, 10).trim();
-                          }
-
-                          DLOObjectTypesInSTRAUTCOL_ = new String[DLOObjectTypesNumber];
-                          for (int i = 0; i < DLOObjectTypesNumber; ++i)
-                          {
-                            DLOObjectTypesInSTRAUTCOL_[i] = conv.byteArrayToString(data, DLOObjectTypesOffset + i * 10, 10).trim();
-                          }
-
-
-                          fileSystemObjectTypesInSTRAUTCOL_ = new String[fileSystemObjectTypesNumber];
-                          for (int i = 0; i < fileSystemObjectTypesNumber; ++i)
-                          {
-                            fileSystemObjectTypesInSTRAUTCOL_[i] = conv.byteArrayToString(data, fileSystemObjectTypesOffset + i * 10, 10).trim();
-                          }
-                          omitLibNamesInSTRAUTCOL_ = new String[omitLibNamesNumber];
-                          for (int i = 0; i < omitLibNamesNumber; ++i)
-                          {
-                            omitLibNamesInSTRAUTCOL_[i] = conv.byteArrayToString(data, omitLibNamesOffset + i * 20, 20).trim();
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-            }
-        }
+                                    totpOptionalInterval_ = BinaryConverter.byteArrayToInt(data, 824);
+                                    totpOptionalIntervalRemaining_ = BinaryConverter.byteArrayToInt(data, 828);
+                                    totpKeyExistsIndicator_ = (data[832] == (byte)0xF1) ? true : false;
+                                    
+                                    String totpKeyLastChangedDate = conv.byteArrayToString(data, 833, 13); // Note: This time value is relative to the system's local time zone, not UTC.
+                                    if (totpKeyLastChangedDate.trim().length() > 0)
+                                    {
+                                        Calendar cal = AS400Calendar.getGregorianInstance();
+                                        cal.clear();
+                                        cal.set(Calendar.YEAR, 1900 + Integer.parseInt(totpKeyLastChangedDate.substring(0, 3)));
+                                        cal.set(Calendar.MONTH, Integer.parseInt(totpKeyLastChangedDate.substring(3, 5)) - 1);
+                                        cal.set(Calendar.DATE, Integer.parseInt(totpKeyLastChangedDate.substring(5, 7)));
+                                        cal.set(Calendar.HOUR, Integer.parseInt(totpKeyLastChangedDate.substring(7, 9)));
+                                        cal.set(Calendar.MINUTE, Integer.parseInt(totpKeyLastChangedDate.substring(9, 11)));
+                                        cal.set(Calendar.SECOND, Integer.parseInt(totpKeyLastChangedDate.substring(11, 13)));
+                                        // Set the correct time zone (in case client is in a different zone than server).
+                                        cal.setTimeZone(system_.getTimeZone());
+                                        totpKeyLastChangedDate_ = cal.getTime();
+                                    }
+                                    else
+                                        totpKeyLastChangedDate_ = null;
+                                } // vrm > 0x00070500
+                            } // vrm >= 0x00070300
+                        } // vrm >= 0x00070200
+                    } // vrm >= 0x00070100
+                } // vrm >= 0x00060100
+            } // vrm >= 0x00050300
+        } // vrm >= 0x00050100
+        
         loaded_ = true;
         connected_ = true;
     }
 
-
     /**
-     Refreshes all the attribute values for this User object by retrieving them from the system.
-     <br>Same as {@link #loadUserInformation loadUserInformation()}.
-     @exception  AS400SecurityException  If a security or authority error occurs.
-     @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     @exception  InterruptedException  If this thread is interrupted.
-     @exception  IOException  If an error occurs while communicating with the system.
-     @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+     * Refreshes all the attribute values for this User object by retrieving them from the system. <br>
+     * Same as {@link #loadUserInformation loadUserInformation()}.
+     * 
+     * @exception AS400SecurityException          If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException            If this thread is interrupted.
+     * @exception IOException                     If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException     If the object does not exist on the system.
      **/
     public void refresh()
       throws AS400SecurityException,
@@ -2238,8 +2497,9 @@ public class User implements Serializable
     }
 
     /**
-     Removes the PropertyChangeListener.  If the PropertyChangeListener is not on the list, nothing is done.
-     @param  listener  The listener object.
+     * Removes the PropertyChangeListener. If the PropertyChangeListener is not on the list, nothing is done.
+     * 
+     * @param listener The listener object.
      **/
     public void removePropertyChangeListener(PropertyChangeListener listener)
     {
@@ -2249,16 +2509,16 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
+        
         // If we have listeners.
         if (propertyChangeListeners_ != null)
-        {
             propertyChangeListeners_.removePropertyChangeListener(listener);
-        }
     }
 
     /**
-     Removes the VetoableChangeListener.  If the VetoableChangeListener is not on the list, nothing is done.
-     @param  listener  The listener object.
+     * Removes the VetoableChangeListener. If the VetoableChangeListener is not on the list, nothing is done.
+     * 
+     * @param listener The listener object.
      **/
     public void removeVetoableChangeListener(VetoableChangeListener listener)
     {
@@ -2268,11 +2528,10 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'listener' is null.");
             throw new NullPointerException("listener");
         }
+        
         // If we have listeners.
         if (vetoableChangeListeners_ != null)
-        {
             vetoableChangeListeners_.removeVetoableChangeListener(listener);
-        }
     }
 
     // Used by the setters to change the user profile.
@@ -2284,6 +2543,7 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Cannot connect to server before setting system.");
             throw new ExtendedIllegalStateException("system", ExtendedIllegalStateException.PROPERTY_NOT_SET);
         }
+        
         if (name_ == null)
         {
             Trace.log(Trace.ERROR, "Cannot connect to server before setting name.");
@@ -2292,41 +2552,41 @@ public class User implements Serializable
 
         CommandCall cmd = getCommandCallObject(COMMAND_CHGUSRPRF);
         try {
-          cmd.setCommand("QSYS/CHGUSRPRF USRPRF(" + name_ + ") " + parameters);
-        } catch (PropertyVetoException e) {}  // will never happen
+            cmd.setCommand("QSYS/CHGUSRPRF USRPRF(" + name_ + ") " + parameters);
+        } 
+        catch (PropertyVetoException e) {
+        } // will never happen
 
         if (!cmd.run())
-        {
             throw new AS400Exception(cmd.getMessageList());
-        }
+
         loaded_ = false;
         connected_ = true;
     }
 
-
     // Utility method.
     private final CommandCall getCommandCallObject(boolean isChgUsrPrf)
     {
-      if (isChgUsrPrf)
-      {
-        if (chgUsrPrf_ == null)
+        if (isChgUsrPrf)
         {
-          chgUsrPrf_ = new CommandCall(system_);
-          // CHGUSRPRF is not threadsafe, but honor the property if set.
-          chgUsrPrf_.suggestThreadsafe(false);
-        }
-        return chgUsrPrf_;
-      }
-      else
-      {
+            if (chgUsrPrf_ == null)
+            {
+                chgUsrPrf_ = new CommandCall(system_);
+                // CHGUSRPRF is not threadsafe, but honor the property if set.
+                chgUsrPrf_.suggestThreadsafe(false);
+            }
+            
+            return chgUsrPrf_;
+        } 
+    
         if (chgUsrAud_ == null)
         {
-          chgUsrAud_ = new CommandCall(system_);
-          // CHGUSRAUD is not threadsafe, but honor the property if set.
-          chgUsrAud_.suggestThreadsafe(false);
+            chgUsrAud_ = new CommandCall(system_);
+            // CHGUSRAUD is not threadsafe, but honor the property if set.
+            chgUsrAud_.suggestThreadsafe(false);
         }
+        
         return chgUsrAud_;
-      }
     }
 
     // Used by the setters to change the user auditing.
@@ -2347,28 +2607,31 @@ public class User implements Serializable
         CommandCall cmd = getCommandCallObject(COMMAND_CHGUSRAUD);
         try {
           cmd.setCommand("QSYS/CHGUSRAUD USRPRF(" + name_ + ") " + parameters);
-        } catch (PropertyVetoException e) {}  // will never happen
+        }
+        catch (PropertyVetoException e) {}  // will never happen
 
         if (!cmd.run())
-        {
             throw new AS400Exception(cmd.getMessageList());
-        }
+
         loaded_ = false;
         connected_ = true;
     }
 
     /**
-     Sets the accounting code that is associated with this user profile.
-     @param accountingCode The accounting code that is associated with this user profile.  Possible values are:
-     <ul>
-     <li>"*BLANK" - An accounting code of 15 blanks is assigned to this user profile.
-     <li>An accounting code - A 15 character accounting code to be used by jobs that get their accounting code from this user profile.  If less than 15 characters are specified, the string is padded on the right with blanks.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getAccountingCode
+     * Sets the accounting code that is associated with this user profile.
+     * 
+     * @param accountingCode The accounting code that is associated with this user profile. Possible values are:
+     *                       <ul>
+     *                       <li>"*BLANK" - An accounting code of 15 blanks is assigned to this user profile.
+     *                       <li>An accounting code - A 15 character accounting code to be used by jobs that get their
+     *                       accounting code from this user profile. If less than 15 characters are specified, the
+     *                       string is padded on the right with blanks.
+     *                       </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getAccountingCode
      **/
     public void setAccountingCode(String accountingCode) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2377,14 +2640,11 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'accountingCode' is null.");
             throw new NullPointerException("accountingCode");
         }
+        
         if (accountingCode.equals("*BLANK"))
-        {
             runCommand("ACGCDE(*BLANK)");
-        }
         else
-        {
             runCommand("ACGCDE('" + accountingCode + "')");
-        }
     }
 
     // Convenience method for making a command string from array of strings.
@@ -2403,18 +2663,21 @@ public class User implements Serializable
     }
 
     /**
-     Sets which user interface to use.
-     @param assistanceLevel The user interface to use.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The assistance level defined in the system value QASTLVL is used.
-     <li>"*BASIC" - The Operational Assistant user interface is used.
-     <li>"*INTERMED" - The system user interface is used.
-     <li>"*ADVANCED" - The expert system user interface is used.  To allow for more list entries, option keys and function keys are not displayed.  If a command does not have an advanced (*ADVANCED) level, the intermediate (*INTERMED) level is used.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
+     * Sets which user interface to use.
+     * 
+     * @param assistanceLevel The user interface to use. Possible values are:
+     *                        <ul>
+     *                        <li>"*SYSVAL" - The assistance level defined in the system value QASTLVL is used.
+     *                        <li>"*BASIC" - The Operational Assistant user interface is used.
+     *                        <li>"*INTERMED" - The system user interface is used.
+     *                        <li>"*ADVANCED" - The expert system user interface is used. To allow for more list
+     *                        entries, option keys and function keys are not displayed. If a command does not have an
+     *                        advanced (*ADVANCED) level, the intermediate (*INTERMED) level is used.
+     *                        </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
      **/
     public void setAssistanceLevel(String assistanceLevel) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2427,19 +2690,33 @@ public class User implements Serializable
     }
 
     /**
-     Sets the program to be used as the Attention (ATTN) key handling program for this user.  The ATTN key handling program is called when the ATTN key is pressed during an interactive job.  The program is active only when the user routes to the system-supplied QCMD processor.  The ATTN key handling program is set on before the initial program (if any) is called and it is active for both program and menu.  If the program changes the ATNPGM (by using the SETATNPGM command), the new program remains active only for the duration of the program.  When contol returns and QCMD call the menu, the original ATTN key handling program becomes active again.  If the SETATNPGM command is run from the menues or an application is called from the menues, the new ATTN key handling program that is specified overrides the original ATTN key handling program.  If *YES or *PARTIAL is specified for the Limit capabilites (LMTCPB) parameter on the Create User Profile (CRTUSRPRF) or Change User Profile (CHGUSRPRF) command, the ATTN key handling program cannot be changed.  The caller must have *USE authority to the specified program.
-     @param attentionKeyHandlingProgram The program to be used as the Attention (ATTN) key handling program for this user.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QATNPGM is used.
-     <li>{@link #NONE NONE} - No ATTN key handling program is used by this user.
-     <li>"*ASSIST" - The Operational Assistant ATTN key handling program, QEZMAIN, is used.
-     <li>The fully qualified integrated file system path name of the attention key handling program.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see  QSYSObjectPathName
+     * Sets the program to be used as the Attention (ATTN) key handling program for this user. The ATTN key handling
+     * program is called when the ATTN key is pressed during an interactive job. The program is active only when the
+     * user routes to the system-supplied QCMD processor. The ATTN key handling program is set on before the initial
+     * program (if any) is called and it is active for both program and menu. If the program changes the ATNPGM (by
+     * using the SETATNPGM command), the new program remains active only for the duration of the program. When contol
+     * returns and QCMD call the menu, the original ATTN key handling program becomes active again. If the SETATNPGM
+     * command is run from the menues or an application is called from the menues, the new ATTN key handling program
+     * that is specified overrides the original ATTN key handling program. If *YES or *PARTIAL is specified for the
+     * Limit capabilites (LMTCPB) parameter on the Create User Profile (CRTUSRPRF) or Change User Profile (CHGUSRPRF)
+     * command, the ATTN key handling program cannot be changed. The caller must have *USE authority to the specified
+     * program.
+     * 
+     * @param attentionKeyHandlingProgram The program to be used as the Attention (ATTN) key handling program for this
+     *                                    user. Possible values are:
+     *                                    <ul>
+     *                                    <li>"*SYSVAL" - The system value QATNPGM is used.
+     *                                    <li>{@link #NONE NONE} - No ATTN key handling program is used by this user.
+     *                                    <li>"*ASSIST" - The Operational Assistant ATTN key handling program, QEZMAIN,
+     *                                    is used.
+     *                                    <li>The fully qualified integrated file system path name of the attention key
+     *                                    handling program.
+     *                                    </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see QSYSObjectPathName
      **/
     public void setAttentionKeyHandlingProgram(String attentionKeyHandlingProgram) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2449,9 +2726,7 @@ public class User implements Serializable
             throw new NullPointerException("attentionKeyHandlingProgram");
         }
         if (attentionKeyHandlingProgram.length() == 0 || attentionKeyHandlingProgram.startsWith("*"))
-        {
             runCommand("ATNPGM(" + attentionKeyHandlingProgram + ")");
-        }
         else
         {
             QSYSObjectPathName ifs = new QSYSObjectPathName(attentionKeyHandlingProgram, "PGM");
@@ -2460,18 +2735,79 @@ public class User implements Serializable
     }
 
     /**
-     Sets the character code set identifier (CCSID) to be used for this user.
-     <p>A CCSID is a 16-bit number identifying a specific set of encoding scheme identifiers, character set identifiers, code page identifiers, and additional coding-related information that uniquely identifies the coded graphic representation used.
-     <p>Note:  If the value for CCSID is changed, the change does not affect job that are currently running.
-     @param ccsid The character code set identifier (CCSID) to be used for this user.  Possible values are:
-     <ul>
-     <li>-2 - The system value QCCSID is used to determine the user's character code set ID.
-     <li>A character code set ID.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
+     * Set the additional authentication methods used when authenticating a user.
+     * <P>
+     * Note: This method should not be used when running to IBM i 7.5 or earlier releases.
+     * 
+     * @param authenticationMethods String array containing the authentication methods to set. Possible values:
+     *                              <ul>
+     *                              <li>{@link #NONE NONE} - No additional authentication methods are used.
+     *                              <li>{@link #AUTHENTICATION_METHOD_TOTP TOTP} - The time-based one-time password
+     *                              (TOTP) authentication method is used in addition to user ID and password
+     *                              authentication.
+     *                              <li>{@link #AUTHENTICATION_METHOD_REGFAC REGFAC} - The exit program registered under
+     *                              exit point QIBM_QSY_AUTH will be called during user ID and password authentication.
+     *                              </ul>
+     *                              <P>
+     *                              The authentication method {@link #NONE NONE}, if specified, must be the only value
+     *                              in the array. Passing a zero-length array is equivalent to passing an array with
+     *                              {@link #NONE NONE}.
+     * 
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @throws RequestNotSupportedException    If the request is not supported.
+     * @throws ObjectDoesNotExistException     If the object does not exist.
+     */
+    public void setAuthenticationMethods(String[] authenticationMethods)  
+            throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException, RequestNotSupportedException
+    {
+        if (authenticationMethods == null)
+        {
+            Trace.log(Trace.ERROR, "Parameter 'authenticationMethods' is null.");
+            throw new NullPointerException("authenticationMethods");
+        }
+        
+        if (system_.getVRM() <= 0x00070500)
+        {
+            String currentRelease = system_.getVersion() + "." + system_.getRelease();
+            throw new RequestNotSupportedException(currentRelease, RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
+        }
+        
+        String authMethods = NONE;
+        
+        if (authenticationMethods.length > 0)
+        {
+            authMethods = "";
+            for (int i=0; i<authenticationMethods.length; i++) {
+                authMethods += (authenticationMethods[i] + " ");
+            }
+        }
+
+        runCommand("AUTHMTH(" + authMethods + ")");
+        
+        authenticationMethods_ = authenticationMethods;
+    }
+    
+    /**
+     * Sets the character code set identifier (CCSID) to be used for this user.
+     * <p>
+     * A CCSID is a 16-bit number identifying a specific set of encoding scheme identifiers, character set identifiers,
+     * code page identifiers, and additional coding-related information that uniquely identifies the coded graphic
+     * representation used.
+     * <p>
+     * Note: If the value for CCSID is changed, the change does not affect job that are currently running.
+     * 
+     * @param ccsid The character code set identifier (CCSID) to be used for this user. Possible values are:
+     *              <ul>
+     *              <li>-2 - The system value QCCSID is used to determine the user's character code set ID.
+     *              <li>A character code set ID.
+     *              </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
      **/
     public void setCCSID(int ccsid) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2479,19 +2815,24 @@ public class User implements Serializable
     }
 
     /**
-     Sets the character code set identifier (CCSID) to be used for this user.
-     <p>A CCSID is a 16-bit number identifying a specific set of encoding scheme identifiers, character set identifiers, code page identifiers, and additional coding-related information that uniquely identifies the coded graphic representation used.
-     <p>Note:  If the value for CCSID is changed, the change does not affect job that are currently running.
-     @param ccsid The character code set identifier (CCSID) to be used for this user.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QCCSID is used to determine the user's character code set ID.
-     <li>"*HEX" - The CCSID 65535 is used.
-     <li>A character code set ID.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
+     * Sets the character code set identifier (CCSID) to be used for this user.
+     * <p>
+     * A CCSID is a 16-bit number identifying a specific set of encoding scheme identifiers, character set identifiers,
+     * code page identifiers, and additional coding-related information that uniquely identifies the coded graphic
+     * representation used.
+     * <p>
+     * Note: If the value for CCSID is changed, the change does not affect job that are currently running.
+     * 
+     * @param ccsid The character code set identifier (CCSID) to be used for this user. Possible values are:
+     *              <ul>
+     *              <li>"*SYSVAL" - The system value QCCSID is used to determine the user's character code set ID.
+     *              <li>"*HEX" - The CCSID 65535 is used.
+     *              <li>A character code set ID.
+     *              </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
      **/
     public void setCCSID(String ccsid) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2504,18 +2845,24 @@ public class User implements Serializable
     }
 
     /**
-     Sets the character identifier control (CHRIDCTL) for the job.  This attribute controls the type of coded character set identifier (CCSID) conversion that occurs for display files, printer files and panel groups.  The *CHRIDCTL special value must be specified for the Character identifier (CHRID) parameter an the create, change, or override commands for display files, printer files, and panel groups before this attribute will be used.
-     @param chridControl The character identifier control (CHRIDCTL) for the job.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QCHRIDCTL is used.
-     <li>"*DEVD" - The *DEVD special value performs the same function as on the CHRID command parameter for display files, printer files, and panel groups.
-     <li>"*JOBCCSID" - The *JOBCCSID special value performs the same function as on the CHRID command parameter for display files, printer files, and panel groups.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getCHRIDControl
+     * Sets the character identifier control (CHRIDCTL) for the job. This attribute controls the type of coded character
+     * set identifier (CCSID) conversion that occurs for display files, printer files and panel groups. The *CHRIDCTL
+     * special value must be specified for the Character identifier (CHRID) parameter an the create, change, or override
+     * commands for display files, printer files, and panel groups before this attribute will be used.
+     * 
+     * @param chridControl The character identifier control (CHRIDCTL) for the job. Possible values are:
+     *                     <ul>
+     *                     <li>"*SYSVAL" - The system value QCHRIDCTL is used.
+     *                     <li>"*DEVD" - The *DEVD special value performs the same function as on the CHRID command
+     *                     parameter for display files, printer files, and panel groups.
+     *                     <li>"*JOBCCSID" - The *JOBCCSID special value performs the same function as on the CHRID
+     *                     command parameter for display files, printer files, and panel groups.
+     *                     </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getCHRIDControl
      **/
     public void setCHRIDControl(String chridControl) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2528,17 +2875,18 @@ public class User implements Serializable
     }
 
     /**
-     Sets the country or region identifier to be used for this user.
-     @param countryID The country or region identifier to be used for this user.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QCNTRYID is used.
-     <li>A country or region identifier.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getCountryID
+     * Sets the country or region identifier to be used for this user.
+     * 
+     * @param countryID The country or region identifier to be used for this user. Possible values are:
+     *                  <ul>
+     *                  <li>"*SYSVAL" - The system value QCNTRYID is used.
+     *                  <li>A country or region identifier.
+     *                  </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getCountryID
      **/
     public void setCountryID(String countryID) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2551,19 +2899,26 @@ public class User implements Serializable
     }
 
     /**
-     Sets the name of the current library associated with the job being run.
-     <p>Specifies the name of the library to be used as the current library for this user.  If *PARTIAL or *YES is specified for the Limit capabilities (LMTCPB) parameter of the Create User Profile (CRTUSRPRF) or Change User Profile (CHGUSRPRF) command, the user cannot change the current library at sign-on or with the Change Profile (CHGPRF) command.
-     <p>The caller must have *USE authority to the specified library.
-     @param currentLibraryName The name of the current library associated with the job being run.  Possible values are:
-     <ul>
-     <li>"*CRTDFT" - The user has no current library.  The library QGPL is used as the default current library.
-     <li>A library name.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getCurrentLibraryName
+     * Sets the name of the current library associated with the job being run.
+     * <p>
+     * Specifies the name of the library to be used as the current library for this user. If *PARTIAL or *YES is
+     * specified for the Limit capabilities (LMTCPB) parameter of the Create User Profile (CRTUSRPRF) or Change User
+     * Profile (CHGUSRPRF) command, the user cannot change the current library at sign-on or with the Change Profile
+     * (CHGPRF) command.
+     * <p>
+     * The caller must have *USE authority to the specified library.
+     * 
+     * @param currentLibraryName The name of the current library associated with the job being run. Possible values are:
+     *                           <ul>
+     *                           <li>"*CRTDFT" - The user has no current library. The library QGPL is used as the
+     *                           default current library.
+     *                           <li>A library name.
+     *                           </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getCurrentLibraryName
      **/
     public void setCurrentLibraryName(String currentLibraryName) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2576,17 +2931,18 @@ public class User implements Serializable
     }
 
     /**
-     Sets the text that briefly describes the object.
-     @param description The text that briefly describes the object.  Possible values are:
-     <ul>
-     <li>"*BLANK" - No text is specified.
-     <li>No more than 50 characters of text.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getDescription
+     * Sets the text that briefly describes the object.
+     * 
+     * @param description The text that briefly describes the object. Possible values are:
+     *                    <ul>
+     *                    <li>"*BLANK" - No text is specified.
+     *                    <li>No more than 50 characters of text.
+     *                    </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getDescription
      **/
     public void setDescription(String description) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2595,29 +2951,28 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'description' is null.");
             throw new NullPointerException("description");
         }
+        
         if (description.equals("*BLANK"))
-        {
             runCommand("TEXT(*BLANK)");
-        }
         else
-        {
             runCommand("TEXT('" + description + "')");
-        }
     }
 
     /**
-     Sets whether the sign-on information display is shown.
-     @param displaySignOnInformation Whether the sign-on information display is shown.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QDSPSGNINF is used to determine whether the sign-on information display is shown.
-     <li>"*NO" - The sign-on information display is not shown.
-     <li>"*YES" - The sign-on information display is shown.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getDisplaySignOnInformation
+     * Sets whether the sign-on information display is shown.
+     * 
+     * @param displaySignOnInformation Whether the sign-on information display is shown. Possible values are:
+     *                                 <ul>
+     *                                 <li>"*SYSVAL" - The system value QDSPSGNINF is used to determine whether the
+     *                                 sign-on information display is shown.
+     *                                 <li>"*NO" - The sign-on information display is not shown.
+     *                                 <li>"*YES" - The sign-on information display is shown.
+     *                                 </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getDisplaySignOnInformation
      **/
     public void setDisplaySignOnInformation(String displaySignOnInformation) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2630,20 +2985,32 @@ public class User implements Serializable
     }
 
     /**
-     Sets the specific authority given to the group profile for newly created objects.  If *GRPPRF is specified for the Owner (OWNER) parameter, specification of this parameter is not allowed.
-     @param groupAuthority The specific authority given to the group profile for newly created objects.  Possible values are:
-     <ul>
-     <li>{@link #NONE NONE} - No group authority is given.
-     <li>"*ALL" - The user can perform all operations execept those limited to the owner or controlled by authorization list management (*AUTLMGT) authority.  The user can control the object's existence, specify the security for the object, change the object, and perform basic functions on the object.  The user can also change ownership of the object.
-     <li>"*CHANGE" - The user can perform all operations execept those limited to the owner or controlled by the object existence (*OBJEXIST) and object management (*OBJMGT) authorities.  The user can change and perform basic functions on the object.  *CHANGE authority provides object operational (*OBJOPR) authority and all data authority.  If the object is an authorization list, the user cannot add, change, or remove users.
-     <li>"*USE" - The user can perform basic operations on the object, such as running a program or reading a file.  The user cannot change the object.  User (*USE) authority provides object operational (*OBJOPR), read (*READ), and execute (*EXECUTE) authorities.
-     <li>"*EXCLUDE" - The user cannot access the object.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getGroupAuthority
+     * Sets the specific authority given to the group profile for newly created objects. If *GRPPRF is specified for the
+     * Owner (OWNER) parameter, specification of this parameter is not allowed.
+     * 
+     * @param groupAuthority The specific authority given to the group profile for newly created objects. Possible
+     *                       values are:
+     *                       <ul>
+     *                       <li>{@link #NONE NONE} - No group authority is given.
+     *                       <li>"*ALL" - The user can perform all operations execept those limited to the owner or
+     *                       controlled by authorization list management (*AUTLMGT) authority. The user can control the
+     *                       object's existence, specify the security for the object, change the object, and perform
+     *                       basic functions on the object. The user can also change ownership of the object.
+     *                       <li>"*CHANGE" - The user can perform all operations execept those limited to the owner or
+     *                       controlled by the object existence (*OBJEXIST) and object management (*OBJMGT) authorities.
+     *                       The user can change and perform basic functions on the object. *CHANGE authority provides
+     *                       object operational (*OBJOPR) authority and all data authority. If the object is an
+     *                       authorization list, the user cannot add, change, or remove users.
+     *                       <li>"*USE" - The user can perform basic operations on the object, such as running a program
+     *                       or reading a file. The user cannot change the object. User (*USE) authority provides object
+     *                       operational (*OBJOPR), read (*READ), and execute (*EXECUTE) authorities.
+     *                       <li>"*EXCLUDE" - The user cannot access the object.
+     *                       </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getGroupAuthority
      **/
     public void setGroupAuthority(String groupAuthority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2656,17 +3023,24 @@ public class User implements Serializable
     }
 
     /**
-     Sets the type of authority to be granted to the group profile for newly-created objects.  If {@link #NONE NONE} is specified for the Group Authority (GRPAUT) parameter, specification of this parameter is ignored.
-     @param groupAuthorityType The type of authority to be granted to the group profile for newly-created objects.  Possible values are:
-     <ul>
-     <li>"*PRIVATE" - The group profile is granted private authority to newly-created objects, with the authority value determined by the GRPAUT parameter.  If the authority value in the GRPAUT parameter is {@link #NONE NONE}, this value is ignored.
-     <li>"*PGP" - The group profile is the primary group for newly-created objects, with the authority value determined by the GRPAUT parameter.  If the authority value in the GRPAUT parameter is {@link #NONE NONE}, this value is ignored.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getGroupAuthorityType
+     * Sets the type of authority to be granted to the group profile for newly-created objects. If {@link #NONE NONE} is
+     * specified for the Group Authority (GRPAUT) parameter, specification of this parameter is ignored.
+     * 
+     * @param groupAuthorityType The type of authority to be granted to the group profile for newly-created objects.
+     *                           Possible values are:
+     *                           <ul>
+     *                           <li>"*PRIVATE" - The group profile is granted private authority to newly-created
+     *                           objects, with the authority value determined by the GRPAUT parameter. If the authority
+     *                           value in the GRPAUT parameter is {@link #NONE NONE}, this value is ignored.
+     *                           <li>"*PGP" - The group profile is the primary group for newly-created objects, with the
+     *                           authority value determined by the GRPAUT parameter. If the authority value in the
+     *                           GRPAUT parameter is {@link #NONE NONE}, this value is ignored.
+     *                           </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getGroupAuthorityType
      **/
     public void setGroupAuthorityType(String groupAuthorityType) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2679,53 +3053,60 @@ public class User implements Serializable
     }
 
     /**
-     Sets the group ID number (gid number) for this user profile.  The gid number is used to identify the group profile when a member of the group is using the directory file system.  The gid number for a user may not be changed if:
-     <ul>
-     <li>The user profile is the primary group of an object in a directory.
-     <li>There are one or more active jobs for the user.
-     </ul>
-     @param groupID The group ID number (gid number) for this user profile.  Possible values are:
-     <ul>
-     <li>0 - The user does not have a gid number or an existing gid number is removed.
-     <p>Note:  This value cannot be specified if the user is a group profile or the primary group of an object.
-     <li>1-4294967294 - The gid number to be assigned to the user profile.  The gid number assigned must not already be assigned to another user profile.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getGroupID
+     * Sets the group ID number (gid number) for this user profile. The gid number is used to identify the group profile
+     * when a member of the group is using the directory file system. The gid number for a user may not be changed if:
+     * <ul>
+     * <li>The user profile is the primary group of an object in a directory.
+     * <li>There are one or more active jobs for the user.
+     * </ul>
+     * 
+     * @param groupID The group ID number (gid number) for this user profile. Possible values are:
+     *                <ul>
+     *                <li>0 - The user does not have a gid number or an existing gid number is removed.
+     *                <p>
+     *                Note: This value cannot be specified if the user is a group profile or the primary group of an
+     *                object.
+     *                <li>1-4294967294 - The gid number to be assigned to the user profile. The gid number assigned must
+     *                not already be assigned to another user profile.
+     *                </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getGroupID
      **/
     public void setGroupID(long groupID) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
         if (groupID == 0)
-        {
             runCommand("GID(*NONE)");
-        }
         else
-        {
             runCommand("GID(" + Long.toString(groupID) + ")");
-        }
     }
 
     /**
-     Sets the group ID number (gid number) for this user profile.  The gid number is used to identify the group profile when a member of the group is using the directory file system.  The gid number for a user may not be changed if:
-     <ul>
-     <li>The user profile is the primary group of an object in a directory.
-     <li>There are one or more active jobs for the user.
-     </ul>
-     @param groupID The group ID number (gid number) for this user profile.  Possible values are:
-     <ul>
-     <li>{@link #NONE NONE} - The user does not have a gid number or an existing gid number is removed.
-     <p>Note:  This value cannot be specified if the user is a group profile or the primary group of an object.
-     <li>"*GEN" - The gid number will be generated for the user.  The system generates a gid number that is not already assigned to another user.  The gid number generated is greater than 100.
-     <li>1-4294967294 - The gid number to be assigned to the user profile.  The gid number assigned must not already be assigned to another user profile.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getGroupID
+     * Sets the group ID number (gid number) for this user profile. The gid number is used to identify the group profile
+     * when a member of the group is using the directory file system. The gid number for a user may not be changed if:
+     * <ul>
+     * <li>The user profile is the primary group of an object in a directory.
+     * <li>There are one or more active jobs for the user.
+     * </ul>
+     * 
+     * @param groupID The group ID number (gid number) for this user profile. Possible values are:
+     *                <ul>
+     *                <li>{@link #NONE NONE} - The user does not have a gid number or an existing gid number is removed.
+     *                <p>
+     *                Note: This value cannot be specified if the user is a group profile or the primary group of an
+     *                object.
+     *                <li>"*GEN" - The gid number will be generated for the user. The system generates a gid number that
+     *                is not already assigned to another user. The gid number generated is greater than 100.
+     *                <li>1-4294967294 - The gid number to be assigned to the user profile. The gid number assigned must
+     *                not already be assigned to another user profile.
+     *                </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getGroupID
      **/
     public void setGroupID(String groupID) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2738,17 +3119,21 @@ public class User implements Serializable
     }
 
     /**
-     Sets the user's group profile name whose authority is used if no specific authority is given for the user.  The caller must have object management (*OBJMGT) and change (*CHANGE) authority to the profile specified for the Group profile (GRPPRF) parameter.  The required *OBJMGT authority cannot be given by a program adopt operation.
-     @param groupProfileName The user's group profile name whose authority is used if no specific authority is given for the user.  Possible values are:
-     <ul>
-     <li>{@link #NONE NONE} - The user profile has no group profile.
-     <li>The name of the group profile used with this user profile.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getGroupProfileName
+     * Sets the user's group profile name whose authority is used if no specific authority is given for the user. The
+     * caller must have object management (*OBJMGT) and change (*CHANGE) authority to the profile specified for the
+     * Group profile (GRPPRF) parameter. The required *OBJMGT authority cannot be given by a program adopt operation.
+     * 
+     * @param groupProfileName The user's group profile name whose authority is used if no specific authority is given
+     *                         for the user. Possible values are:
+     *                         <ul>
+     *                         <li>{@link #NONE NONE} - The user profile has no group profile.
+     *                         <li>The name of the group profile used with this user profile.
+     *                         </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getGroupProfileName
      **/
     public void setGroupProfileName(String groupProfileName) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2761,13 +3146,19 @@ public class User implements Serializable
     }
 
     /**
-     Sets the highest scheduling priority the user is allowed to have for each job submitted to the system.  This value controls the job processing priority and output priority for any job running under this user profile; that is, values specified in the JOBPTY and OUTPTY parameters of any job command cannot exceed the PTYLMT value of the user profile under which the job is run.  The scheduling priority can have a value ranging from 0 through 9, where 0 is the highest priority and 9 is the lowest priority.
-     @param highestSchedulingPriority The highest scheduling priority the user is allowed to have for each job submitted to the system.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getHighestSchedulingPriority
+     * Sets the highest scheduling priority the user is allowed to have for each job submitted to the system. This value
+     * controls the job processing priority and output priority for any job running under this user profile; that is,
+     * values specified in the JOBPTY and OUTPTY parameters of any job command cannot exceed the PTYLMT value of the
+     * user profile under which the job is run. The scheduling priority can have a value ranging from 0 through 9, where
+     * 0 is the highest priority and 9 is the lowest priority.
+     * 
+     * @param highestSchedulingPriority The highest scheduling priority the user is allowed to have for each job
+     *                                  submitted to the system.
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getHighestSchedulingPriority
      **/
     public void setHighestSchedulingPriority(int highestSchedulingPriority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2775,17 +3166,22 @@ public class User implements Serializable
     }
 
     /**
-     Sets the path name of the home directory for this user profile.  The home directory is the user's initial working directory.  The working directory, associated with a process, is used during path name resolution in the directory file system for path names that do not begin with a slash (/).  If the home directory specified does not exist when the user signs on, the user's initial working directory is the root (/) directory.
-     @param homeDirectory The path name of the home directory for this user profile.  Possible values are:
-     <ul>
-     <li>"*USRPRF" - The home directory assigned to the user will be /home/USRPRF, where USRPRF is the name of the user profile.
-     <li>The path name of the home directory to be assigned to this user.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getHomeDirectory
+     * Sets the path name of the home directory for this user profile. The home directory is the user's initial working
+     * directory. The working directory, associated with a process, is used during path name resolution in the directory
+     * file system for path names that do not begin with a slash (/). If the home directory specified does not exist
+     * when the user signs on, the user's initial working directory is the root (/) directory.
+     * 
+     * @param homeDirectory The path name of the home directory for this user profile. Possible values are:
+     *                      <ul>
+     *                      <li>"*USRPRF" - The home directory assigned to the user will be /home/USRPRF, where USRPRF
+     *                      is the name of the user profile.
+     *                      <li>The path name of the home directory to be assigned to this user.
+     *                      </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getHomeDirectory
      **/
     public void setHomeDirectory(String homeDirectory) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2794,35 +3190,39 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'homeDirectory' is null.");
             throw new NullPointerException("homeDirectory");
         }
+        
         if (homeDirectory.length() == 0 || homeDirectory.startsWith("*"))
-        {
             runCommand("HOMEDIR(" + homeDirectory + ")");
-        }
         else
-        {
             runCommand("HOMEDIR('" + homeDirectory + "')");
-        }
     }
 
     /**
-     Sets the initial menu displayed when the user signs on the system if the user's routing program is the command processor.  If *YES is specified for the Limit capabilities (LMTCPB) parameter, the user cannot change the menu either at sign-on or with the Change Profile (CHGPRF) command.
-     <p>A System/36 environment menu can be specified as the initial menu if either of the following conditions are true:
-     <ul>
-     <li>*S36 is specified for the Special environments (SPCENV) parameter.
-     <li>*SYSVAL is specified on the SPCENV parameter and the system value, QSPCENV, is *S36.
-     </ul>
-     <p>The caller must have *USE authority to the specified menu.
-     @param initialMenu The initial menu displayed when the user signs on the system if the user's routing program is the command processor.  Possible values are:
-     <ul>
-     <li>"*SIGNOFF" - The system signs off the user when the program completes.  This is intended for users authorized only to run the program.
-     <li>The fully qualified integrated file system path name of the initial menu.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see  QSYSObjectPathName
-     @see #getInitialMenu
+     * Sets the initial menu displayed when the user signs on the system if the user's routing program is the command
+     * processor. If *YES is specified for the Limit capabilities (LMTCPB) parameter, the user cannot change the menu
+     * either at sign-on or with the Change Profile (CHGPRF) command.
+     * <p>
+     * A System/36 environment menu can be specified as the initial menu if either of the following conditions are true:
+     * <ul>
+     * <li>*S36 is specified for the Special environments (SPCENV) parameter.
+     * <li>*SYSVAL is specified on the SPCENV parameter and the system value, QSPCENV, is *S36.
+     * </ul>
+     * <p>
+     * The caller must have *USE authority to the specified menu.
+     * 
+     * @param initialMenu The initial menu displayed when the user signs on the system if the user's routing program is
+     *                    the command processor. Possible values are:
+     *                    <ul>
+     *                    <li>"*SIGNOFF" - The system signs off the user when the program completes. This is intended
+     *                    for users authorized only to run the program.
+     *                    <li>The fully qualified integrated file system path name of the initial menu.
+     *                    </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see QSYSObjectPathName
+     * @see #getInitialMenu
      **/
     public void setInitialMenu(String initialMenu) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2831,10 +3231,9 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'initialMenu' is null.");
             throw new NullPointerException("initialMenu");
         }
+        
         if (initialMenu.length() == 0 || initialMenu.startsWith("*"))
-        {
             runCommand("INLMNU(" + initialMenu + ")");
-        }
         else
         {
             QSYSObjectPathName ifs = new QSYSObjectPathName(initialMenu, "MNU");
@@ -2843,24 +3242,33 @@ public class User implements Serializable
     }
 
     /**
-     Sets, for an interactive job, the program called whenever a new routing step is started that has QCMD as the request processing program.  If *PARTIAL or *YES is specified for the Limit capabilities parameter, the program value cannot be changed at sign on or by using the Change Profile (CHGPRF) command.  No parameters can be passed to the program.
-     <p>A System/36 environment procedure name can be specified as the initial program if the procedure is a member of the file QS36PRC (in the library list or specified library) and if either of the following conditions are true:
-     <ul>
-     <li>*36 is specified on the SPCENV parameter.
-     <li>*SYSVAL is specified on the SPCENV parameter and the system value, QSPCENV is *S36.
-     </ul>
-     <p>The caller must have *USE authority to the specified program.
-     @param initialProgram The initial program for the user.  Possible values are:
-     <ul>
-     <li>{@link #NONE NONE} - No program is called when the user signs on.  If a menu name is specified in the Initial menu (INLMNU) parameter, that menu is displayed.
-     <li>The fully qualified integrated file system path name of the initial program for the user.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see  QSYSObjectPathName
-     @see #getInitialProgram
+     * Sets, for an interactive job, the program called whenever a new routing step is started that has QCMD as the
+     * request processing program. If *PARTIAL or *YES is specified for the Limit capabilities parameter, the program
+     * value cannot be changed at sign on or by using the Change Profile (CHGPRF) command. No parameters can be passed
+     * to the program.
+     * <p>
+     * A System/36 environment procedure name can be specified as the initial program if the procedure is a member of
+     * the file QS36PRC (in the library list or specified library) and if either of the following conditions are true:
+     * <ul>
+     * <li>*36 is specified on the SPCENV parameter.
+     * <li>*SYSVAL is specified on the SPCENV parameter and the system value, QSPCENV is *S36.
+     * </ul>
+     * <p>
+     * The caller must have *USE authority to the specified program.
+     * 
+     * @param initialProgram The initial program for the user. Possible values are:
+     *                       <ul>
+     *                       <li>{@link #NONE NONE} - No program is called when the user signs on. If a menu name is
+     *                       specified in the Initial menu (INLMNU) parameter, that menu is displayed.
+     *                       <li>The fully qualified integrated file system path name of the initial program for the
+     *                       user.
+     *                       </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see QSYSObjectPathName
+     * @see #getInitialProgram
      **/
     public void setInitialProgram(String initialProgram) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2869,10 +3277,9 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'initialProgram' is null.");
             throw new NullPointerException("initialProgram");
         }
+        
         if (initialProgram.length() == 0 || initialProgram.startsWith("*"))
-        {
             runCommand("INLPGM(" + initialProgram + ")");
-        }
         else
         {
             QSYSObjectPathName ifs = new QSYSObjectPathName(initialProgram, "PGM");
@@ -2881,14 +3288,19 @@ public class User implements Serializable
     }
 
     /**
-     Sets the fully qualified integrated file system path name of the job description used for jobs that start through subsystem work station entries.  If the job description does not exist when the user profile is created or changed, a library qualifier must be specified, because the job description name is kept in the user profile.  The caller must have *USE authority to the specified job description.
-     @param jobDescription The fully qualified integrated file system path name of the job description used for jobs that start through subsystem work station entries.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see  QSYSObjectPathName
-     @see #getJobDescription
+     * Sets the fully qualified integrated file system path name of the job description used for jobs that start through
+     * subsystem work station entries. If the job description does not exist when the user profile is created or
+     * changed, a library qualifier must be specified, because the job description name is kept in the user profile. The
+     * caller must have *USE authority to the specified job description.
+     * 
+     * @param jobDescription The fully qualified integrated file system path name of the job description used for jobs
+     *                       that start through subsystem work station entries.
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see QSYSObjectPathName
+     * @see #getJobDescription
      **/
     public void setJobDescription(String jobDescription) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2897,10 +3309,9 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'jobDescription' is null.");
             throw new NullPointerException("jobDescription");
         }
+        
         if (jobDescription.length() == 0 || jobDescription.startsWith("*"))
-        {
             runCommand("JOBD(" + jobDescription + ")");
-        }
         else
         {
             QSYSObjectPathName ifs = new QSYSObjectPathName(jobDescription, "JOBD");
@@ -2909,20 +3320,27 @@ public class User implements Serializable
     }
 
     /**
-     Sets the keyboard buffering value to be used when a job is initialized for this user profile.  If the type-ahead feature is active, you can buffer your keyboard strokes.  If the attention key buffering option is active, the attention key is buffered as any other key.  If it is not active, the attention key is not buffered and is sent to the system even if the display station is input-inhibited.  This value can alse be set by a user application.
-     @param keyboardBuffering The keyboard buffering value to be used when a job is initialized for this user profile.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value, QKBDBUF, is used to determine the keyboard buffering value.
-     <li>"*NO" - The type-ahead and attention-key buffering options are not active.
-     <li>"*TYPEAHEAD" - The type-ahead option is active, but the attention key buffering option is not.
-     <li>"*YES" - The type-ahead and attention key buffering options are active.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getKeyboardBuffering
-    **/
+     * Sets the keyboard buffering value to be used when a job is initialized for this user profile. If the type-ahead
+     * feature is active, you can buffer your keyboard strokes. If the attention key buffering option is active, the
+     * attention key is buffered as any other key. If it is not active, the attention key is not buffered and is sent to
+     * the system even if the display station is input-inhibited. This value can alse be set by a user application.
+     * 
+     * @param keyboardBuffering The keyboard buffering value to be used when a job is initialized for this user profile.
+     *                          Possible values are:
+     *                          <ul>
+     *                          <li>"*SYSVAL" - The system value, QKBDBUF, is used to determine the keyboard buffering
+     *                          value.
+     *                          <li>"*NO" - The type-ahead and attention-key buffering options are not active.
+     *                          <li>"*TYPEAHEAD" - The type-ahead option is active, but the attention key buffering
+     *                          option is not.
+     *                          <li>"*YES" - The type-ahead and attention key buffering options are active.
+     *                          </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getKeyboardBuffering
+     **/
     public void setKeyboardBuffering(String keyboardBuffering) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
         if (keyboardBuffering == null)
@@ -2934,17 +3352,18 @@ public class User implements Serializable
     }
 
     /**
-     Sets the language ID to be used for this user.
-     @param languageID The language ID to be used for this user.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QLANGID is used.
-     <li>The language ID to be used.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getLanguageID
+     * Sets the language ID to be used for this user.
+     * 
+     * @param languageID The language ID to be used for this user. Possible values are:
+     *                   <ul>
+     *                   <li>"*SYSVAL" - The system value QLANGID is used.
+     *                   <li>The language ID to be used.
+     *                   </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getLanguageID
      **/
     public void setLanguageID(String languageID) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2957,19 +3376,37 @@ public class User implements Serializable
     }
 
     /**
-     Sets the limit to which the user can control the program, menu, current library, and the ATTN key handling program values.  It alse determines whether the user can run commands from the command line.  This parameter is ignored when the security level is 10.
-     <p>Note:  When creating or changing other users' user profile, you cannot specify values on this parameter that grant greater capabilities to other users than your own user profile grants to you.  For example, if *PARTIAL is specified for the Limit capabilities (LMTCPB) parameter in your user profile, you can specify *PARTIAL or *YES for anther user.  You cannot specify *NO for another user.
-     @param limitCapabilities The limit to which the user can control the program, menu, current library, and the ATTN key handling program values.  Possible values are:
-     <ul>
-     <li>"*NO" - The program, menu, and current library values can be changed when the usre signs on the system.  User may change the program, menu, current library, or ATTN key handling program values is the own user profiles with the Change Profile (CHGPRF) command.  Commands can be run from a command line.
-     <li>"*PARTIAL" - The program and current library cannot be changed on the sign-on display.  The menu can be changed and comands can be run from a command line.  A user can change the menu value with the Change profile (CHGPRF) command.  The program, current library, and the ATTN key handling program cannot be changed using the CHGPRF command.
-     <li>"*YES" - The program, menu, and current library values cannot be changed on the sign-on display.  Commands cannot be run when issued from a command line or by selecting an option from a command grouping menu such as CMDADD, but can still be run from a command entry screen.  The user cannot change the program, menu, current library, or the ATTN key program handling values by using the CHGPRF command.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getLimitCapabilities
+     * Sets the limit to which the user can control the program, menu, current library, and the ATTN key handling
+     * program values. It alse determines whether the user can run commands from the command line. This parameter is
+     * ignored when the security level is 10.
+     * <p>
+     * Note: When creating or changing other users' user profile, you cannot specify values on this parameter that grant
+     * greater capabilities to other users than your own user profile grants to you. For example, if *PARTIAL is
+     * specified for the Limit capabilities (LMTCPB) parameter in your user profile, you can specify *PARTIAL or *YES
+     * for anther user. You cannot specify *NO for another user.
+     * 
+     * @param limitCapabilities The limit to which the user can control the program, menu, current library, and the ATTN
+     *                          key handling program values. Possible values are:
+     *                          <ul>
+     *                          <li>"*NO" - The program, menu, and current library values can be changed when the usre
+     *                          signs on the system. User may change the program, menu, current library, or ATTN key
+     *                          handling program values is the own user profiles with the Change Profile (CHGPRF)
+     *                          command. Commands can be run from a command line.
+     *                          <li>"*PARTIAL" - The program and current library cannot be changed on the sign-on
+     *                          display. The menu can be changed and comands can be run from a command line. A user can
+     *                          change the menu value with the Change profile (CHGPRF) command. The program, current
+     *                          library, and the ATTN key handling program cannot be changed using the CHGPRF command.
+     *                          <li>"*YES" - The program, menu, and current library values cannot be changed on the
+     *                          sign-on display. Commands cannot be run when issued from a command line or by selecting
+     *                          an option from a command grouping menu such as CMDADD, but can still be run from a
+     *                          command entry screen. The user cannot change the program, menu, current library, or the
+     *                          ATTN key program handling values by using the CHGPRF command.
+     *                          </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getLimitCapabilities
      **/
     public void setLimitCapabilities(String limitCapabilities) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -2982,22 +3419,27 @@ public class User implements Serializable
     }
 
     /**
-     Sets if the number of device sessions allowed for a user is limited to 1.  This does not limit SYSREQ and second sign-on.
-     Note:  Values "0-9" are only valid when running to IBM i 6.1 or higher.
-     @param limitDeviceSessions If the number of device sessions allowed for a user is limited to 1.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QLMTDEVSSN is used to determine whether the user is limited to a single device session.
-     <li>"*NO" - The user is not limited to one device session.
-     <li>"*YES" - The user is limited to one session.
-     <li>"0" - The user is not limited to a specific number of device session.  The value has the same meaning as *NO.
-     <li>"1" - The user is limited to a single device session.  The value has the same meaning as *YES.
-     <li>"2-9" - The user is limited to the specified number of device sessions.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getLimitDeviceSessions
+     * Sets if the number of device sessions allowed for a user is limited to 1. This does not limit SYSREQ and second
+     * sign-on. Note: Values "0-9" are only valid when running to IBM i 6.1 or higher.
+     * 
+     * @param limitDeviceSessions If the number of device sessions allowed for a user is limited to 1. Possible values
+     *                            are:
+     *                            <ul>
+     *                            <li>"*SYSVAL" - The system value QLMTDEVSSN is used to determine whether the user is
+     *                            limited to a single device session.
+     *                            <li>"*NO" - The user is not limited to one device session.
+     *                            <li>"*YES" - The user is limited to one session.
+     *                            <li>"0" - The user is not limited to a specific number of device session. The value
+     *                            has the same meaning as *NO.
+     *                            <li>"1" - The user is limited to a single device session. The value has the same
+     *                            meaning as *YES.
+     *                            <li>"2-9" - The user is limited to the specified number of device sessions.
+     *                            </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getLimitDeviceSessions
      **/
     public void setLimitDeviceSessions(String limitDeviceSessions) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3010,23 +3452,29 @@ public class User implements Serializable
     }
 
     /**
-     Sets which job attributes are to be taken from the locale specified for the Locale (LOCALE) parameter when the job is initiated.
-     @param localeJobAttributes A list of attributes which are set from the locale path name at the time a job is started for this user.  Possible values for the elements of this array are:
-     <ul>
-     <li>"*SYSVAL" - The system value, QSETJOBATR, is used to determine which job attributes are taken from the locale.
-     <li>{@link #NONE NONE} - No job attributes are taken from the locale.
-     <li>"*CCSID" - The coded character set identifier from the locale is used.  The CCSID value from the locale overrides the user profile CCSID.
-     <li>"*DATFMT" - The date format from the locale is used.
-     <li>"*DATSEP" - The date separator from the locale is used.
-     <li>"*DECFMT" - The decimal format from the locale is used.
-     <li>"*SRTSEQ" - The sort sequence from the locale is used.  The sort sequence from the locale overrides the user profile sort sequence.
-     <li>"*TIMSEP" - The time separator from the locale is used.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getLocaleJobAttributes
+     * Sets which job attributes are to be taken from the locale specified for the Locale (LOCALE) parameter when the
+     * job is initiated.
+     * 
+     * @param localeJobAttributes A list of attributes which are set from the locale path name at the time a job is
+     *                            started for this user. Possible values for the elements of this array are:
+     *                            <ul>
+     *                            <li>"*SYSVAL" - The system value, QSETJOBATR, is used to determine which job
+     *                            attributes are taken from the locale.
+     *                            <li>{@link #NONE NONE} - No job attributes are taken from the locale.
+     *                            <li>"*CCSID" - The coded character set identifier from the locale is used. The CCSID
+     *                            value from the locale overrides the user profile CCSID.
+     *                            <li>"*DATFMT" - The date format from the locale is used.
+     *                            <li>"*DATSEP" - The date separator from the locale is used.
+     *                            <li>"*DECFMT" - The decimal format from the locale is used.
+     *                            <li>"*SRTSEQ" - The sort sequence from the locale is used. The sort sequence from the
+     *                            locale overrides the user profile sort sequence.
+     *                            <li>"*TIMSEP" - The time separator from the locale is used.
+     *                            </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getLocaleJobAttributes
      **/
     public void setLocaleJobAttributes(String[] localeJobAttributes) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3039,20 +3487,23 @@ public class User implements Serializable
     }
 
     /**
-     Sets the path name of the locale that is assigned to LANG environment variable for this user.
-     @param localePathName The locale path name that is assigned to the user profile when a job is started.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QLOCALE is used to determine the locale path name to be assigned for this user.
-     <li>{@link #NONE NONE} - No locale path name is assigned for this user.
-     <li>"*C" - The C locale path name is assigned for this user.
-     <li>"*POSIX" - The POSIX locale path name is assigned for this user.
-     <li>The path name of the locale to be assigned for this user.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getLocalePathName
+     * Sets the path name of the locale that is assigned to LANG environment variable for this user.
+     * 
+     * @param localePathName The locale path name that is assigned to the user profile when a job is started. Possible
+     *                       values are:
+     *                       <ul>
+     *                       <li>"*SYSVAL" - The system value QLOCALE is used to determine the locale path name to be
+     *                       assigned for this user.
+     *                       <li>{@link #NONE NONE} - No locale path name is assigned for this user.
+     *                       <li>"*C" - The C locale path name is assigned for this user.
+     *                       <li>"*POSIX" - The POSIX locale path name is assigned for this user.
+     *                       <li>The path name of the locale to be assigned for this user.
+     *                       </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getLocalePathName
      **/
     public void setLocalePathName(String localePathName) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3072,13 +3523,14 @@ public class User implements Serializable
     }
 
     /**
-     Sets whether the user profile password should be managed locally.
-     @param localPasswordManagement true if the password will be managed on the local system, false otherwise.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #isLocalPasswordManagement
+     * Sets whether the user profile password should be managed locally.
+     * 
+     * @param localPasswordManagement true if the password will be managed on the local system, false otherwise.
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #isLocalPasswordManagement
      **/
     public void setLocalPasswordManagement(boolean localPasswordManagement) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3086,25 +3538,41 @@ public class User implements Serializable
     }
 
     /**
-     Sets the maximum amount of auxiliary storage (in kilobytes) assigned to store permanant objects owned by this user profile (1 kilobyte equals 1024 bytes).  If the maximum is exceeded, when an interactive user tries to create an object, an error message is displayed, and the object is not created.  If the maximum is exceeded when an object is created in a batch job, an error message is sent to the job log (depending on the logging level of the job), and the object is not created.
-     <p>Storage is allocated in 4K increments.  Therefore, if you specify MAXSTG (9), the profile is allocated 12K of storage.
-     <p>When planning maximum storage for user profiles, consider the following system actions:
-     <ul>
-     <li>A restore operation assigns the storage to the user doing the restore, and then transfers the object to the owner.  For a large restore, specify MAXSTG(*NOMAX).
-     <li>The user profile that creates a journal receiver is assigned the required storage as the receiver size grows.  If new receivers are created using JRNRCV(*GEN), the storage continues to be assigned to the user profile that wons the active journal receiver.  If a very active journal receiver is owned, specify MAXSTG(*NOMAX).
-     <li>User profiles that transfer created objects to their group profile must have adequate storage in the user profiles to contain created objects before the objects are transferred to the group profile.
-     <li>The owner of the library is assigned the storage for the descriptions of objects which are stored in a library, even when the objects are owned by another user profile.  Examples of such objects are text and program references.
-     </ul>
-     @param maximumStorageAllowed The maximum amount of auxiliary storage (in kilobytes) assigned to store permanant objects owned by this user profile.  Possible values are:
-     <ul>
-     <li>-1 - As much storage as is required is assigned to this profile (*NOMAX).
-     <li>The maximum amount of storage for the user, in kilobytes (1 kilobyte equals 1024 bytes).
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getMaximumStorageAllowed
+     * Sets the maximum amount of auxiliary storage (in kilobytes) assigned to store permanant objects owned by this
+     * user profile (1 kilobyte equals 1024 bytes). If the maximum is exceeded, when an interactive user tries to create
+     * an object, an error message is displayed, and the object is not created. If the maximum is exceeded when an
+     * object is created in a batch job, an error message is sent to the job log (depending on the logging level of the
+     * job), and the object is not created.
+     * <p>
+     * Storage is allocated in 4K increments. Therefore, if you specify MAXSTG (9), the profile is allocated 12K of
+     * storage.
+     * <p>
+     * When planning maximum storage for user profiles, consider the following system actions:
+     * <ul>
+     * <li>A restore operation assigns the storage to the user doing the restore, and then transfers the object to the
+     * owner. For a large restore, specify MAXSTG(*NOMAX).
+     * <li>The user profile that creates a journal receiver is assigned the required storage as the receiver size grows.
+     * If new receivers are created using JRNRCV(*GEN), the storage continues to be assigned to the user profile that
+     * wons the active journal receiver. If a very active journal receiver is owned, specify MAXSTG(*NOMAX).
+     * <li>User profiles that transfer created objects to their group profile must have adequate storage in the user
+     * profiles to contain created objects before the objects are transferred to the group profile.
+     * <li>The owner of the library is assigned the storage for the descriptions of objects which are stored in a
+     * library, even when the objects are owned by another user profile. Examples of such objects are text and program
+     * references.
+     * </ul>
+     * 
+     * @param maximumStorageAllowed The maximum amount of auxiliary storage (in kilobytes) assigned to store permanant
+     *                              objects owned by this user profile. Possible values are:
+     *                              <ul>
+     *                              <li>-1 - As much storage as is required is assigned to this profile (*NOMAX).
+     *                              <li>The maximum amount of storage for the user, in kilobytes (1 kilobyte equals 1024
+     *                              bytes).
+     *                              </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getMaximumStorageAllowed
      **/
     public void setMaximumStorageAllowed(int maximumStorageAllowed) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3112,25 +3580,41 @@ public class User implements Serializable
     }
 
     /**
-     Sets the maximum amount of auxiliary storage (in kilobytes) assigned to store permanant objects owned by this user profile (1 kilobyte equals 1024 bytes).  If the maximum is exceeded, when an interactive user tries to create an object, an error message is displayed, and the object is not created.  If the maximum is exceeded when an object is created in a batch job, an error message is sent to the job log (depending on the logging level of the job), and the object is not created.
-     <p>Storage is allocated in 4K increments.  Therefore, if you specify MAXSTG (9), the profile is allocated 12K of storage.
-     <p>When planning maximum storage for user profiles, consider the following system actions:
-     <ul>
-     <li>A restore operation assigns the storage to the user doing the restore, and then transfers the object to the owner.  For a large restore, specify MAXSTG(*NOMAX).
-     <li>The user profile that creates a journal receiver is assigned the required storage as the receiver size grows.  If new receivers are created using JRNRCV(*GEN), the storage continues to be assigned to the user profile that wons the active journal receiver.  If a very active journal receiver is owned, specify MAXSTG(*NOMAX).
-     <li>User profiles that transfer created objects to their group profile must have adequate storage in the user profiles to contain created objects before the objects are transferred to the group profile.
-     <li>The owner of the library is assigned the storage for the descriptions of objects which are stored in a library, even when the objects are owned by another user profile.  Examples of such objects are text and program references.
-     </ul>
-     @param maximumStorageAllowed The maximum amount of auxiliary storage (in kilobytes) assigned to store permanant objects owned by this user profile.  Possible values are:
-     <ul>
-     <li>"*NOMAX" - As much storage as is required is assigned to this profile.
-     <li>The maximum amount of storage for the user, in kilobytes (1 kilobyte equals 1024 bytes).
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getMaximumStorageAllowed
+     * Sets the maximum amount of auxiliary storage (in kilobytes) assigned to store permanant objects owned by this
+     * user profile (1 kilobyte equals 1024 bytes). If the maximum is exceeded, when an interactive user tries to create
+     * an object, an error message is displayed, and the object is not created. If the maximum is exceeded when an
+     * object is created in a batch job, an error message is sent to the job log (depending on the logging level of the
+     * job), and the object is not created.
+     * <p>
+     * Storage is allocated in 4K increments. Therefore, if you specify MAXSTG (9), the profile is allocated 12K of
+     * storage.
+     * <p>
+     * When planning maximum storage for user profiles, consider the following system actions:
+     * <ul>
+     * <li>A restore operation assigns the storage to the user doing the restore, and then transfers the object to the
+     * owner. For a large restore, specify MAXSTG(*NOMAX).
+     * <li>The user profile that creates a journal receiver is assigned the required storage as the receiver size grows.
+     * If new receivers are created using JRNRCV(*GEN), the storage continues to be assigned to the user profile that
+     * wons the active journal receiver. If a very active journal receiver is owned, specify MAXSTG(*NOMAX).
+     * <li>User profiles that transfer created objects to their group profile must have adequate storage in the user
+     * profiles to contain created objects before the objects are transferred to the group profile.
+     * <li>The owner of the library is assigned the storage for the descriptions of objects which are stored in a
+     * library, even when the objects are owned by another user profile. Examples of such objects are text and program
+     * references.
+     * </ul>
+     * 
+     * @param maximumStorageAllowed The maximum amount of auxiliary storage (in kilobytes) assigned to store permanant
+     *                              objects owned by this user profile. Possible values are:
+     *                              <ul>
+     *                              <li>"*NOMAX" - As much storage as is required is assigned to this profile.
+     *                              <li>The maximum amount of storage for the user, in kilobytes (1 kilobyte equals 1024
+     *                              bytes).
+     *                              </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getMaximumStorageAllowed
      **/
     public void setMaximumStorageAllowed(String maximumStorageAllowed) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3143,20 +3627,27 @@ public class User implements Serializable
     }
 
     /**
-     Sets the message queue to which messages are sent.
-     <p>Note:  The message queue is created, if it does not exist.  The user profile specified for the User profile (USRPRF) parameter is the owner of the message queue.
-     <p>The caller must have *USE authority to the specified message queue.
-     @param messageQueue The message queue to which messages are sent.  Possible values are:
-     <ul>
-     <li>"*USRPRF" - A message queue with the same name as that specified for the USRPRF parameter is used as the message queue for this user.  This message queue is located in the QUSERSYS library.
-     <li>The fully qualified integrated file system path name of the message queue to be used with this profile.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see  QSYSObjectPathName
-     @see #getMessageQueue
+     * Sets the message queue to which messages are sent.
+     * <p>
+     * Note: The message queue is created, if it does not exist. The user profile specified for the User profile
+     * (USRPRF) parameter is the owner of the message queue.
+     * <p>
+     * The caller must have *USE authority to the specified message queue.
+     * 
+     * @param messageQueue The message queue to which messages are sent. Possible values are:
+     *                     <ul>
+     *                     <li>"*USRPRF" - A message queue with the same name as that specified for the USRPRF parameter
+     *                     is used as the message queue for this user. This message queue is located in the QUSERSYS
+     *                     library.
+     *                     <li>The fully qualified integrated file system path name of the message queue to be used with
+     *                     this profile.
+     *                     </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see QSYSObjectPathName
+     * @see #getMessageQueue
      **/
     public void setMessageQueue(String messageQueue) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3177,19 +3668,32 @@ public class User implements Serializable
     }
 
     /**
-     Sets how the messages are sent to the message queue for this user are to be delivered.
-     @param messageQueueDeliveryMethod How the messages are sent to the message queue for this user are to be delivered.  Possible values are:
-     <ul>
-     <li>"*NOTIFY" - The job to which the message queue is assigned is notified when a message arrives on the message queue.  For interactive jobs at a work station, the audible alarm is sounded (if the alarm feature is set) and the Message Waiting light is turned on.  The delivery mode cannot be changed to *NOTIFY if the message queue is also being used by another job.
-     <li>"*HOLD" - The messages are held in the message queue until they are requested by the user or program.
-     <li>"*BREAK" - The job to which the message queue is assigned is interrupted when a message arrives at the message queue.  If the job is an interactive job, the autdible alarm is sounded (if the alarm feature is set).  The delivery mode cannot be changed to *BREAK if the message queue is also being used by another job.
-     <li>"*DFT" - The default reply to the inquiry message is sent.  If no default reply is specified in the message description of the inquiry message, the system default reply, *N, is used.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #setMessageQueueDeliveryMethod
+     * Sets how the messages are sent to the message queue for this user are to be delivered.
+     * 
+     * @param messageQueueDeliveryMethod How the messages are sent to the message queue for this user are to be
+     *                                   delivered. Possible values are:
+     *                                   <ul>
+     *                                   <li>"*NOTIFY" - The job to which the message queue is assigned is notified when
+     *                                   a message arrives on the message queue. For interactive jobs at a work station,
+     *                                   the audible alarm is sounded (if the alarm feature is set) and the Message
+     *                                   Waiting light is turned on. The delivery mode cannot be changed to *NOTIFY if
+     *                                   the message queue is also being used by another job.
+     *                                   <li>"*HOLD" - The messages are held in the message queue until they are
+     *                                   requested by the user or program.
+     *                                   <li>"*BREAK" - The job to which the message queue is assigned is interrupted
+     *                                   when a message arrives at the message queue. If the job is an interactive job,
+     *                                   the autdible alarm is sounded (if the alarm feature is set). The delivery mode
+     *                                   cannot be changed to *BREAK if the message queue is also being used by another
+     *                                   job.
+     *                                   <li>"*DFT" - The default reply to the inquiry message is sent. If no default
+     *                                   reply is specified in the message description of the inquiry message, the
+     *                                   system default reply, *N, is used.
+     *                                   </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #setMessageQueueDeliveryMethod
      **/
     public void setMessageQueueDeliveryMethod(String messageQueueDeliveryMethod) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3202,13 +3706,20 @@ public class User implements Serializable
     }
 
     /**
-     Sets the lowest severity code that a message can have and still be delivered to a user in break or notify mode.  Messages arriving at the message queue whose severities are lower than the the severity code specified for this parameter do not interrupt the job or turn on the audible alarm or the message-waiting light; they are held in the queue until they are requested by using the Display Message (DSPMSG) command.  If *BREAK or *NOTIFY is specidied for the Delivery (DLVRY) parameter, and is in effect when a message arrives at the queue, the message is delivered if the severity code associated with the message is equal or greater then the value specified here.  Otherwiese, the message is held in the queue until it is requested.
-     @param messageQueueSeverity A severity code ranging from 00 through 99.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getMessageQueueSeverity
+     * Sets the lowest severity code that a message can have and still be delivered to a user in break or notify mode.
+     * Messages arriving at the message queue whose severities are lower than the the severity code specified for this
+     * parameter do not interrupt the job or turn on the audible alarm or the message-waiting light; they are held in
+     * the queue until they are requested by using the Display Message (DSPMSG) command. If *BREAK or *NOTIFY is
+     * specidied for the Delivery (DLVRY) parameter, and is in effect when a message arrives at the queue, the message
+     * is delivered if the severity code associated with the message is equal or greater then the value specified here.
+     * Otherwiese, the message is held in the queue until it is requested.
+     * 
+     * @param messageQueueSeverity A severity code ranging from 00 through 99.
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getMessageQueueSeverity
      **/
     public void setMessageQueueSeverity(int messageQueueSeverity) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3216,10 +3727,13 @@ public class User implements Serializable
     }
 
     /**
-     Sets the user profile name.  This does not change the name of the user profile on the system.  Instead, it changes the user profile to which this User object references.  This property cannot be changed if the object has established a connection to the system.
-     @param  name  The user profile name.
-     @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
-     @see  #getName
+     * Sets the user profile name. This does not change the name of the user profile on the system. Instead, it changes
+     * the user profile to which this User object references. This property cannot be changed if the object has
+     * established a connection to the system.
+     * 
+     * @param name The user profile name.
+     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
+     * @see #getName
      **/
     public void setName(String name) throws PropertyVetoException
     {
@@ -3248,39 +3762,42 @@ public class User implements Serializable
         }
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
-        {
             name_ = name.toUpperCase();
-        }
         else
         {
             String oldValue = name_;
             String newValue = name.toUpperCase();
             if (vetoableChangeListeners_ != null)
-            {
                 vetoableChangeListeners_.fireVetoableChange("name", oldValue, newValue);
-            }
+
             name_ = newValue;
             if (propertyChangeListeners_ != null)
-            {
                 propertyChangeListeners_.firePropertyChange("name", oldValue, newValue);
-            }
         }
     }
 
     /**
-     Sets the object auditing value for the user.  This value only takes effect if the object auditing (OBJAUD) value for the object being accessed has the value *USRPRF.
-     <p>Implementation note:  The method internally calls the Change User Auditing (CHGUSRAUD) command and not the Change User Profile (CHGUSRPRF) command.  The caller must have audit (*AUDIT) special authority.  Changes take effect the next time a job is started for this user.
-     @param objectAuditingValue The object auditing value for the user.  Possible values are:
-     <ul>
-     <li>{@link #NONE NONE} - The auditing value for the object determines when auditing is performed.
-     <li>"*CHANGE" - All changes accesses by this user on all objects with the *USRPRF audit value are logged.
-     <li>"*ALL" - All change and read accesses by this use on all objects with the *USRPRF audit value are logged.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getObjectAuditingValue
+     * Sets the object auditing value for the user. This value only takes effect if the object auditing (OBJAUD) value
+     * for the object being accessed has the value *USRPRF.
+     * <p>
+     * Implementation note: The method internally calls the Change User Auditing (CHGUSRAUD) command and not the Change
+     * User Profile (CHGUSRPRF) command. The caller must have audit (*AUDIT) special authority. Changes take effect the
+     * next time a job is started for this user.
+     * 
+     * @param objectAuditingValue The object auditing value for the user. Possible values are:
+     *                            <ul>
+     *                            <li>{@link #NONE NONE} - The auditing value for the object determines when auditing is
+     *                            performed.
+     *                            <li>"*CHANGE" - All changes accesses by this user on all objects with the *USRPRF
+     *                            audit value are logged.
+     *                            <li>"*ALL" - All change and read accesses by this use on all objects with the *USRPRF
+     *                            audit value are logged.
+     *                            </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getObjectAuditingValue
      **/
     public void setObjectAuditingValue(String objectAuditingValue) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3293,20 +3810,27 @@ public class User implements Serializable
     }
 
     /**
-     Sets the output queue to be used by this user profile.  The output queue must already exist when this command is run.  The caller must have *USE authority to the specified output queue.
-     @param outputQueue The output queue to be used by this user profile.  Possible values are:
-     <ul>
-     <li>"*WRKSTN" - The output queue assigned to the user's work station is used.
-     <li>"*DEV" - The output queue associated with the printer specified for the Print device (PRTDEV) parameter is used.  The output queue has the same name as the printer.  (The pringer file DEV parameter is determined by the CRTPRTF, CHGPRTF, or the OVRPRTF command).
-     <p>Note:  This assumes the defaults are specified for the Output queue (OUTQ) parameter for the printer file, job description, user profile, and workstation.
-     <li>The fully qualified integrated file system path name of the output queue to be used by this user profile.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see  QSYSObjectPathName
-     @see #getOutputQueue
+     * Sets the output queue to be used by this user profile. The output queue must already exist when this command is
+     * run. The caller must have *USE authority to the specified output queue.
+     * 
+     * @param outputQueue The output queue to be used by this user profile. Possible values are:
+     *                    <ul>
+     *                    <li>"*WRKSTN" - The output queue assigned to the user's work station is used.
+     *                    <li>"*DEV" - The output queue associated with the printer specified for the Print device
+     *                    (PRTDEV) parameter is used. The output queue has the same name as the printer. (The pringer
+     *                    file DEV parameter is determined by the CRTPRTF, CHGPRTF, or the OVRPRTF command).
+     *                    <p>
+     *                    Note: This assumes the defaults are specified for the Output queue (OUTQ) parameter for the
+     *                    printer file, job description, user profile, and workstation.
+     *                    <li>The fully qualified integrated file system path name of the output queue to be used by
+     *                    this user profile.
+     *                    </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see QSYSObjectPathName
+     * @see #getOutputQueue
      **/
     public void setOutputQueue(String outputQueue) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3315,10 +3839,9 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'outputQueue' is null.");
             throw new NullPointerException("outputQueue");
         }
+        
         if (outputQueue.length() == 0 || outputQueue.startsWith("*"))
-        {
             runCommand("OUTQ(" + outputQueue + ")");
-        }
         else
         {
             QSYSObjectPathName ifs = new QSYSObjectPathName(outputQueue, "OUTQ");
@@ -3327,17 +3850,21 @@ public class User implements Serializable
     }
 
     /**
-     Sets the user profile that is to be the owner of objects created by this user.
-     @param owner The user profile that is to be the owner of objects created by this user.  Possible values are:
-     <ul>
-     <li>"*USRPRF" - The user profile associated with the job is the owner of the object.
-     <li>"*GRPPRF" - The group profile is made the owner of newly created objects and has all authority to the object.  The user profile associated with the job does not have any specific authority to the object.  If *GRPPRF is specified, a user profile name must be specified for the Group profile (GRPPRF) parameter, and the Group authority (GRPAUT) parameter cannot be specified.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getOwner
+     * Sets the user profile that is to be the owner of objects created by this user.
+     * 
+     * @param owner The user profile that is to be the owner of objects created by this user. Possible values are:
+     *              <ul>
+     *              <li>"*USRPRF" - The user profile associated with the job is the owner of the object.
+     *              <li>"*GRPPRF" - The group profile is made the owner of newly created objects and has all authority
+     *              to the object. The user profile associated with the job does not have any specific authority to the
+     *              object. If *GRPPRF is specified, a user profile name must be specified for the Group profile
+     *              (GRPPRF) parameter, and the Group authority (GRPAUT) parameter cannot be specified.
+     *              </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getOwner
      **/
     public void setOwner(String owner) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3349,22 +3876,24 @@ public class User implements Serializable
         runCommand("OWNER(" + owner + ")");
     }
 
-    // @610
     /**
-     * Sets the time period during which a password is blocked from being changed
-     * following the prior successful password change operation.
-     * <p>Note: This method should not be used when running to IBM i 5.4 or earlier releases.
-     * @param pwdChangeBlock The time period during which a password is blocked from being changed.  Possible values are:
-     * <ul>
-     * <li>"*SYSVAL" - The system value QPWDCHGBLK is used to determine the block password change value.</li>
-     * <li>{@link #NONE NONE} - The password can be changed at any time.</li>
-     * <li>1-99 - Indicates the number of hours a user must wait after the prior successful password change operation
-     * before they are able to change the password again.</li>
-     * </ul> 
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
+     * Sets the time period during which a password is blocked from being changed following the prior successful
+     * password change operation.
+     * <p>
+     * Note: This method should not be used when running to IBM i 5.4 or earlier releases.
+     * 
+     * @param pwdChangeBlock The time period during which a password is blocked from being changed. Possible values are:
+     *                       <ul>
+     *                       <li>"*SYSVAL" - The system value QPWDCHGBLK is used to determine the block password change
+     *                       value.</li>
+     *                       <li>{@link #NONE NONE} - The password can be changed at any time.</li>
+     *                       <li>1-99 - Indicates the number of hours a user must wait after the prior successful
+     *                       password change operation before they are able to change the password again.</li>
+     *                       </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
      * @see #getPasswordChangeBlock
      */
     public void setPasswordChangeBlock(String pwdChangeBlock) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
@@ -3378,18 +3907,22 @@ public class User implements Serializable
     }
     
     /**
-     Sets the password expiration interval (in days).
-     @param passwordExpirationInterval The number of days the user's password can remain active before it must be changed.  Possible values are:
-     <ul>
-     <li>0 - The system value QPWDEXPITV is used to determine the password expiration interval (*SYSVAL).
-     <li>-1 - The password does not expire (*NOMAX).
-     <li>1-366 - The number of days between the date when the password is changed and the date when the password expires.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getPasswordExpirationInterval
+     * Sets the password expiration interval (in days).
+     * 
+     * @param passwordExpirationInterval The number of days the user's password can remain active before it must be
+     *                                   changed. Possible values are:
+     *                                   <ul>
+     *                                   <li>0 - The system value QPWDEXPITV is used to determine the password
+     *                                   expiration interval (*SYSVAL).
+     *                                   <li>-1 - The password does not expire (*NOMAX).
+     *                                   <li>1-366 - The number of days between the date when the password is changed
+     *                                   and the date when the password expires.
+     *                                   </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getPasswordExpirationInterval
      **/
     public void setPasswordExpirationInterval(int passwordExpirationInterval) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3397,18 +3930,22 @@ public class User implements Serializable
     }
 
     /**
-     Sets the password expiration interval (in days).
-     @param passwordExpirationInterval The number of days the user's password can remain active before it must be changed.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QPWDEXPITV is used to determine the password expiration interval.
-     <li>"*NOMAX" - The password does not expire.
-     <li>1-366 - The number of days between the date when the password is changed and the date when the password expires.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getPasswordExpirationInterval
+     * Sets the password expiration interval (in days).
+     * 
+     * @param passwordExpirationInterval The number of days the user's password can remain active before it must be
+     *                                   changed. Possible values are:
+     *                                   <ul>
+     *                                   <li>"*SYSVAL" - The system value QPWDEXPITV is used to determine the password
+     *                                   expiration interval.
+     *                                   <li>"*NOMAX" - The password does not expire.
+     *                                   <li>1-366 - The number of days between the date when the password is changed
+     *                                   and the date when the password expires.
+     *                                   </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getPasswordExpirationInterval
      **/
     public void setPasswordExpirationInterval(String passwordExpirationInterval) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3421,13 +3958,16 @@ public class User implements Serializable
     }
 
     /**
-     Sets whether the password for this user is set to expired.  If the password is set to expired, the user is required to change the password to sign on to the system.  When the user attempts to sign on to the system, the sign-on information display is shown and the user has the option to change this password.
-     @param passwordSetExpire true if the password set to expired, false otherwise.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #isPasswordSetExpire
+     * Sets whether the password for this user is set to expired. If the password is set to expired, the user is
+     * required to change the password to sign on to the system. When the user attempts to sign on to the system, the
+     * sign-on information display is shown and the user has the option to change this password.
+     * 
+     * @param passwordSetExpire true if the password set to expired, false otherwise.
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #isPasswordSetExpire
      **/
     public void setPasswordSetExpire(boolean passwordSetExpire) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3435,20 +3975,25 @@ public class User implements Serializable
     }
 
     /**
-     Sets the default printer device for this user.  If the pringer file used to create printed output specifies to spool the data, the spooled file is placed on the device's output queue, which is named the same as the device.
-     <p>Note:  This assumes the defaults are specified for the Output queue (OUTQ) parameter for the printer file, job description, user profile, and workstation.
-     <p>The caller must have *USE authority to the specified print device.
-     @param printDevice The default printer device for this user.  Possible values are:
-     <ul>
-     <li>"*WRKSTN" - The printer assigned to the user's work station is used.
-     <li>"*SYSVAL" - The value specified in the system value QPRTDEV is used.
-     <li>The name of a printer that is to be used to print the output for this user.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getPrintDevice
+     * Sets the default printer device for this user. If the pringer file used to create printed output specifies to
+     * spool the data, the spooled file is placed on the device's output queue, which is named the same as the device.
+     * <p>
+     * Note: This assumes the defaults are specified for the Output queue (OUTQ) parameter for the printer file, job
+     * description, user profile, and workstation.
+     * <p>
+     * The caller must have *USE authority to the specified print device.
+     * 
+     * @param printDevice The default printer device for this user. Possible values are:
+     *                    <ul>
+     *                    <li>"*WRKSTN" - The printer assigned to the user's work station is used.
+     *                    <li>"*SYSVAL" - The value specified in the system value QPRTDEV is used.
+     *                    <li>The name of a printer that is to be used to print the output for this user.
+     *                    </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getPrintDevice
      **/
     public void setPrintDevice(String printDevice) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3461,21 +4006,25 @@ public class User implements Serializable
     }
 
     /**
-     Sets the sort sequence table to be used for string comparisons for this profile.
-     @param sortSequenceTable The sort sequence table to be used for string comparisons for this profile.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value QSRTSEQ is used.
-     <li>"*HEX" - A sort sequence table is not used.  The hexadecimal values of the characters are used to determine the sort sequence.
-     <li>"*LANGIDUNQ" - A unique-weight sort table is used
-     <li>"*LANGIDSHR" - A shared-weight sort table is used.
-     <li>The fully qualified integrated file system path name of the sort sequence table to be used with this profile.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see  QSYSObjectPathName
-     @see #getSortSequenceTable
+     * Sets the sort sequence table to be used for string comparisons for this profile.
+     * 
+     * @param sortSequenceTable The sort sequence table to be used for string comparisons for this profile. Possible
+     *                          values are:
+     *                          <ul>
+     *                          <li>"*SYSVAL" - The system value QSRTSEQ is used.
+     *                          <li>"*HEX" - A sort sequence table is not used. The hexadecimal values of the characters
+     *                          are used to determine the sort sequence.
+     *                          <li>"*LANGIDUNQ" - A unique-weight sort table is used
+     *                          <li>"*LANGIDSHR" - A shared-weight sort table is used.
+     *                          <li>The fully qualified integrated file system path name of the sort sequence table to
+     *                          be used with this profile.
+     *                          </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see QSYSObjectPathName
+     * @see #getSortSequenceTable
      **/
     public void setSortSequenceTable(String sortSequenceTable) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3484,10 +4033,9 @@ public class User implements Serializable
             Trace.log(Trace.ERROR, "Parameter 'sortSequenceTable' is null.");
             throw new NullPointerException("sortSequenceTable");
         }
+        
         if (sortSequenceTable.length() == 0 || sortSequenceTable.startsWith("*"))
-        {
             runCommand("SRTSEQ(" + sortSequenceTable + ")");
-        }
         else
         {
             QSYSObjectPathName ifs = new QSYSObjectPathName(sortSequenceTable, "FILE");
@@ -3496,43 +4044,80 @@ public class User implements Serializable
     }
 
     /**
-     Sets the special authorities given to a user.  Special authorities are required to perform certain functions on the system.  Special authorities cannot be removed from many of the system-supplied user profiles, including QSECOFR and QSYS.
-     <p>The following special authorities are usually given:
-     <ul>
-     <li>Save system (*SAVSYS) special authority to users who need to operate the system.
-     <li>Input/output system configuration (*IOSYSCFG) special authority to users who need to change system I/O configurations.
-     <li>Job control (*JOBCTL) special authority is given to the user. The user is given the authority to change, display, hold, release, cancel, and clear all jobs that are running on the system or that are on a job queue or output queue that has OPRCTL (*YES) specified.  The user also has the authority to load the system, to start writers, and to stop active subsystems.
-     <li>Security administrator (*SECADM) special authority to users who need to create, change, or delete user profiles.
-     <li>All object (*ALLOBJ) special authority to users who need to work with system resources.
-     <li>Service (*SERVICE) special authority to users who need to perform service functions.
-     <li>Spool control (*SPLCTL) special authority to users who need to perform all spool-related functions.
-     <li>Audit (*AUDIT) special authority to users who need to perform auditing functions.
-     </ul>
-     <p>Restrictions:
-     <ul>
-     <li>The user profile creating or changing another user profile must have all of the special authorities being given.  All special authorities are needed to give all special authorities to another user profile.
-     <li>A user must have *ALLOBJ and *SECADM special authorities to give a user *SECADM special authority when using the CHGUSRPRF command.
-     <li>The user must have *ALLOBJ, *SECADM, and *AUDIT special authorities to give a user *AUDIT special authority when using the CHGUSRPRF command.
-     </ul>
-     @param specialAuthority The special authorities given to a user.  Possible values for the elements of this array are:
-     <ul>
-     <li>"*USRCLS" - Special authorities are granted to this user based on the value specified on User class (USRCLS) parameter.
-     <li>{@link #NONE NONE} - No special authorities are granted to this user.
-     <li>{@link #SPECIAL_AUTHORITY_ALL_OBJECT SPECIAL_AUTHORITY_ALL_OBJECT} - All object authority is given to the user.  The user can access any system resource with or without private user authorizations.
-     <li>{@link #SPECIAL_AUTHORITY_AUDIT SPECIAL_AUTHORITY_AUDIT} - Audit authority is granted to this user.  The user is given the authority to perform auditing functions.  Auditing functions include turning auditing on or off for the system and controlling the level of auditing on an object or user. 
-     <li>{@link #SPECIAL_AUTHORITY_JOB_CONTROL SPECIAL_AUTHORITY_JOB_CONTROL} - Job control authority is given to the user.  The user has authority to change, display, hold, release, cancel, and clear all jobs that are running on the system or that are on a job queue or output queue that has OPRCTL (*YES) specified.  The user also has the authority to start writers and to stop active subsystems.
-     <li>{@link #SPECIAL_AUTHORITY_SAVE_SYSTEM SPECIAL_AUTHORITY_SAVE_SYSTEM} - Save system authority is given to the user profile.  This user has the authority to save, restore, and free storage for all objects on the system, with or without object management authority. 
-     <li>{@link #SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION} - Input/output (I/O) system configuration authority is given to the user.  The user has authority to change system I/O configurations. 
-     <li>{@link #SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR} - Security administrator authority is given to the user.  The user can create, change, or delete user profiles if authorized to the Create User Profile (CRTUSRPRF), Change User Profile (CHGUSRPRF), or Delete User Profile (DLTUSRPRF) commands and is authorized to the user profile.  This authority does not allow giving special authorities that this user profile does not have.  To give *SECADM special authority to another user, a user must have both *ALLOBJ and *SECADM special authorities. 
-     <li>{@link #SPECIAL_AUTHORITY_SERVICE SPECIAL_AUTHORITY_SERVICE} - Service authority is given to this user.  The user can perform service functions. 
-     <li>{@link #SPECIAL_AUTHORITY_SPOOL_CONTROL SPECIAL_AUTHORITY_SPOOL_CONTROL} - Spool control authority is given to this user.  The user can perform all spool functions.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getSpecialAuthority
-     @see #hasSpecialAuthority
+     * Sets the special authorities given to a user. Special authorities are required to perform certain functions on
+     * the system. Special authorities cannot be removed from many of the system-supplied user profiles, including
+     * QSECOFR and QSYS.
+     * <p>
+     * The following special authorities are usually given:
+     * <ul>
+     * <li>Save system (*SAVSYS) special authority to users who need to operate the system.
+     * <li>Input/output system configuration (*IOSYSCFG) special authority to users who need to change system I/O
+     * configurations.
+     * <li>Job control (*JOBCTL) special authority is given to the user. The user is given the authority to change,
+     * display, hold, release, cancel, and clear all jobs that are running on the system or that are on a job queue or
+     * output queue that has OPRCTL (*YES) specified. The user also has the authority to load the system, to start
+     * writers, and to stop active subsystems.
+     * <li>Security administrator (*SECADM) special authority to users who need to create, change, or delete user
+     * profiles.
+     * <li>All object (*ALLOBJ) special authority to users who need to work with system resources.
+     * <li>Service (*SERVICE) special authority to users who need to perform service functions.
+     * <li>Spool control (*SPLCTL) special authority to users who need to perform all spool-related functions.
+     * <li>Audit (*AUDIT) special authority to users who need to perform auditing functions.
+     * </ul>
+     * <p>
+     * Restrictions:
+     * <ul>
+     * <li>The user profile creating or changing another user profile must have all of the special authorities being
+     * given. All special authorities are needed to give all special authorities to another user profile.
+     * <li>A user must have *ALLOBJ and *SECADM special authorities to give a user *SECADM special authority when using
+     * the CHGUSRPRF command.
+     * <li>The user must have *ALLOBJ, *SECADM, and *AUDIT special authorities to give a user *AUDIT special authority
+     * when using the CHGUSRPRF command.
+     * </ul>
+     * 
+     * @param specialAuthority The special authorities given to a user. Possible values for the elements of this array
+     *                         are:
+     *                         <ul>
+     *                         <li>"*USRCLS" - Special authorities are granted to this user based on the value specified
+     *                         on User class (USRCLS) parameter.
+     *                         <li>{@link #NONE NONE} - No special authorities are granted to this user.
+     *                         <li>{@link #SPECIAL_AUTHORITY_ALL_OBJECT SPECIAL_AUTHORITY_ALL_OBJECT} - All object
+     *                         authority is given to the user. The user can access any system resource with or without
+     *                         private user authorizations.
+     *                         <li>{@link #SPECIAL_AUTHORITY_AUDIT SPECIAL_AUTHORITY_AUDIT} - Audit authority is granted
+     *                         to this user. The user is given the authority to perform auditing functions. Auditing
+     *                         functions include turning auditing on or off for the system and controlling the level of
+     *                         auditing on an object or user.
+     *                         <li>{@link #SPECIAL_AUTHORITY_JOB_CONTROL SPECIAL_AUTHORITY_JOB_CONTROL} - Job control
+     *                         authority is given to the user. The user has authority to change, display, hold, release,
+     *                         cancel, and clear all jobs that are running on the system or that are on a job queue or
+     *                         output queue that has OPRCTL (*YES) specified. The user also has the authority to start
+     *                         writers and to stop active subsystems.
+     *                         <li>{@link #SPECIAL_AUTHORITY_SAVE_SYSTEM SPECIAL_AUTHORITY_SAVE_SYSTEM} - Save system
+     *                         authority is given to the user profile. This user has the authority to save, restore, and
+     *                         free storage for all objects on the system, with or without object management authority.
+     *                         <li>{@link #SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION
+     *                         SPECIAL_AUTHORITY_IO_SYSTEM_CONFIGURATION} - Input/output (I/O) system configuration
+     *                         authority is given to the user. The user has authority to change system I/O
+     *                         configurations.
+     *                         <li>{@link #SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR
+     *                         SPECIAL_AUTHORITY_SECURITY_ADMINISTRATOR} - Security administrator authority is given to
+     *                         the user. The user can create, change, or delete user profiles if authorized to the
+     *                         Create User Profile (CRTUSRPRF), Change User Profile (CHGUSRPRF), or Delete User Profile
+     *                         (DLTUSRPRF) commands and is authorized to the user profile. This authority does not allow
+     *                         giving special authorities that this user profile does not have. To give *SECADM special
+     *                         authority to another user, a user must have both *ALLOBJ and *SECADM special authorities.
+     *                         <li>{@link #SPECIAL_AUTHORITY_SERVICE SPECIAL_AUTHORITY_SERVICE} - Service authority is
+     *                         given to this user. The user can perform service functions.
+     *                         <li>{@link #SPECIAL_AUTHORITY_SPOOL_CONTROL SPECIAL_AUTHORITY_SPOOL_CONTROL} - Spool
+     *                         control authority is given to this user. The user can perform all spool functions.
+     *                         </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getSpecialAuthority
+     * @see #hasSpecialAuthority
      **/
     public void setSpecialAuthority(String[] specialAuthority) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3545,18 +4130,23 @@ public class User implements Serializable
     }
 
     /**
-     Sets the special environment in which the user operates after signing on.
-     @param specialEnvironment The special environment in which the user operates after signing on.  Possible values are:
-     <ul>
-     <li>"*SYSVAL" - The system value, QSPCENV, is used to determine the system environment after the user signs on the system.
-     <li>{@link #NONE NONE} - The user operates in the IBM i system environment after signing on the system.
-     <li>"*S36" - The user operates in the System/36 environment after signing on the system.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getSpecialEnvironment
+     * Sets the special environment in which the user operates after signing on.
+     * 
+     * @param specialEnvironment The special environment in which the user operates after signing on. Possible values
+     *                           are:
+     *                           <ul>
+     *                           <li>"*SYSVAL" - The system value, QSPCENV, is used to determine the system environment
+     *                           after the user signs on the system.
+     *                           <li>{@link #NONE NONE} - The user operates in the IBM i system environment after
+     *                           signing on the system.
+     *                           <li>"*S36" - The user operates in the System/36 environment after signing on the
+     *                           system.
+     *                           </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getSpecialEnvironment
      **/
     public void setSpecialEnvironment(String specialEnvironment) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3569,18 +4159,22 @@ public class User implements Serializable
     }
 
     /**
-     Sets the status of the user profile.
-     <p>The system will disable a user profile if the number of failed sign-on attempts reaches the limit specified on the QMAXSIGN system value and option 2 or 3 has been specified on the QMAXSGNACN system value.
-     @param status The status of the user profile.  Possible values are:
-     <ul>
-     <li>"*ENABLED" - The user profile is valid for sign-on.
-     <li>"*DISABLED" - The user profile is not valid for sign-on until an authorized user enables it again.  Batch jobs can be submitted under a disabled user profile.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getStatus
+     * Sets the status of the user profile.
+     * <p>
+     * The system will disable a user profile if the number of failed sign-on attempts reaches the limit specified on
+     * the QMAXSIGN system value and option 2 or 3 has been specified on the QMAXSGNACN system value.
+     * 
+     * @param status The status of the user profile. Possible values are:
+     *               <ul>
+     *               <li>"*ENABLED" - The user profile is valid for sign-on.
+     *               <li>"*DISABLED" - The user profile is not valid for sign-on until an authorized user enables it
+     *               again. Batch jobs can be submitted under a disabled user profile.
+     *               </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getStatus
      **/
     public void setStatus(String status) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3593,23 +4187,40 @@ public class User implements Serializable
     }
 
     /**
-     Sets the user's supplemental group profiles.  The profiles specified here, along with the group profile specified for the Group profile (GRPPRF) parameter, are used to determine what authority the user has if no specific user authority is given for the job.  If profiles are specified for this parameter, a group profile name must be specified on the GRPPRF parameter for this user profile (either on this command or on a previous Create User Profile (CRTUSRPRF) or Change User Profile (CHGUSRPRF) command.  The current user of this command must have object management (*OBJMGT) and change (*CHANGE) authority to the profiles specified for this.  The required *OBJMGT authority cannot be given by a program adopt operation.
-     <p>Notes:
-     <ul>
-     <li>When a group profile is specified, the user is automatically granted *CHANGE and *OBJMGT authority to the group profile.
-     <li>The following IBM-supplied user profiles are not valid for this parameter:
-     <p>QAUTPROF, QCLUMGT, QCLUSTER, QCOLSRV, QDBSHR, QDBSHRDO, QDFTOWN, QDIRSRV, QDLFM, QDOC, QDSNX, QEJB, QFNC, QGATE, QIPP, QLPAUTO, QLPINSTALL, QMGTC, QMSF, QNETSPLF, QNFSANON, QNTP, QPEX, QPM400, QRJE, QSNADS, QSPL, QSPLJOB, QSRV, QSRVAGT, QSRVBAS, QSYS, QTCM, QTCP, QTFTP, QTSTRQS, QYCMCIMOM, QYPSJSVR
-     </ul>
-     @param supplementalGroups The user's supplemental group profiles.  Possible values for the elements of this array are:
-     <ul>
-     <li>{@link #NONE NONE} - No supplemental group profiles are used with this user profile.</li>
-     <li>The group profile names to be used with this user profile and the group profile specified on the GRPPRF parameter to determine a job's eligibility for getting access to existing objects and special authority.  A maximum of 15 group profile names may be specified.</li>
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getSupplementalGroups
+     * Sets the user's supplemental group profiles. The profiles specified here, along with the group profile specified
+     * for the Group profile (GRPPRF) parameter, are used to determine what authority the user has if no specific user
+     * authority is given for the job. If profiles are specified for this parameter, a group profile name must be
+     * specified on the GRPPRF parameter for this user profile (either on this command or on a previous Create User
+     * Profile (CRTUSRPRF) or Change User Profile (CHGUSRPRF) command. The current user of this command must have object
+     * management (*OBJMGT) and change (*CHANGE) authority to the profiles specified for this. The required *OBJMGT
+     * authority cannot be given by a program adopt operation.
+     * <p>
+     * Notes:
+     * <ul>
+     * <li>When a group profile is specified, the user is automatically granted *CHANGE and *OBJMGT authority to the
+     * group profile.
+     * <li>The following IBM-supplied user profiles are not valid for this parameter:
+     * <p>
+     * QAUTPROF, QCLUMGT, QCLUSTER, QCOLSRV, QDBSHR, QDBSHRDO, QDFTOWN, QDIRSRV, QDLFM, QDOC, QDSNX, QEJB, QFNC, QGATE,
+     * QIPP, QLPAUTO, QLPINSTALL, QMGTC, QMSF, QNETSPLF, QNFSANON, QNTP, QPEX, QPM400, QRJE, QSNADS, QSPL, QSPLJOB,
+     * QSRV, QSRVAGT, QSRVBAS, QSYS, QTCM, QTCP, QTFTP, QTSTRQS, QYCMCIMOM, QYPSJSVR
+     * </ul>
+     * 
+     * @param supplementalGroups The user's supplemental group profiles. Possible values for the elements of this array
+     *                           are:
+     *                           <ul>
+     *                           <li>{@link #NONE NONE} - No supplemental group profiles are used with this user
+     *                           profile.</li>
+     *                           <li>The group profile names to be used with this user profile and the group profile
+     *                           specified on the GRPPRF parameter to determine a job's eligibility for getting access
+     *                           to existing objects and special authority. A maximum of 15 group profile names may be
+     *                           specified.</li>
+     *                           </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getSupplementalGroups
      **/
     public void setSupplementalGroups(String[] supplementalGroups) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3622,10 +4233,12 @@ public class User implements Serializable
     }
 
     /**
-     Sets the system object representing the system on which the user profile exists.  This property cannot be changed if the object has established a connection to the system.
-     @param  system  The system object representing the system on which the user profile exists.
-     @exception  PropertyVetoException  If any of the registered listeners vetos the property change.
-     @see #getSystem
+     * Sets the system object representing the system on which the user profile exists. This property cannot be changed
+     * if the object has established a connection to the system.
+     * 
+     * @param system The system object representing the system on which the user profile exists.
+     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
+     * @see #getSystem
      **/
     public void setSystem(AS400 system) throws PropertyVetoException
     {
@@ -3643,70 +4256,78 @@ public class User implements Serializable
         }
 
         if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
-        {
             system_ = system;
-        }
         else
         {
             AS400 oldValue = system_;
             AS400 newValue = system;
 
             if (vetoableChangeListeners_ != null)
-            {
                 vetoableChangeListeners_.fireVetoableChange("system", oldValue, newValue);
-            }
+
             system_ = system;
             if (propertyChangeListeners_ != null)
-            {
                 propertyChangeListeners_.firePropertyChange("system", oldValue, newValue);
-            }
         }
     }
 
     /**
-     Sets the level of activity that is audited for this user profile.  Note:  The system values QAUDLVL and QAUDLVL2 are used in conjunction with this parameter.  Example:  If QAUDLVL is set to *DELETE and AUDLVL is set to *CREATE, then both *DELETE and *CREATE would be audited for this user.  The default value for the QAUDLVL and QAUDLVL2 system values is {@link #NONE NONE}.
-     <p>Implementation note:  The method internally calls the Change User Auditing (CHGUSRAUD) command and not the Change User Profile (CHGUSRPRF) command.  The caller must have audit (*AUDIT) special authority.  Changes take effect the next time a job is started for this user.
-     @param userActionAuditLevel The level of activity that is audited for this user profile.  Possible values for the elements of this array are:
-     <ul>
-     <li>{@link #NONE NONE} - No auditing level is specified.  The auditing level for this user is taken from system values QAUDLVL and QAUDLVL2.
-     <li>"*CMD" - CL command strings, System/36 environment operator control commands, and System/36 enviromnent procedures are logged for this user.
-     <li>"*CREATE" - Auditing entries are sent when objects are created by this user.
-     <li>"*DELETE" - Auditing entries are sent when objects are deleteed by this user.
-     <li>"*JOBDTA" - The following actions taken by this user that affect a job are audited:
-     <ul>
-     <li>Job start and stop data.
-     <li>Hold, release, stop, continue, change, disconnect, end, end abnormal.
-     <li>Program start request (PSR) is attached to a prestart job.
-     </ul>
-     <li>"*OBJMGT" - Object management changes made by this user, such as move or rename, are audited.
-     <li>"*OFCSRV" -  Office services changes made by this user, such as changes to the system directory and use of OfficeVision, are audited.
-     <li>"*OPTICAL" - The following optical functions are audited:
-     <ul>
-     <li>Add or remove optical cartridge.
-     <li>Change the authorization list used to secure an optical volume.
-     <li>Open optical file or directory.
-     <li>Create or delete optical directory.
-     <li>Change or retrieve optical directory attributes.
-     <li>Copy, move, or rename optical file.
-     <li>Copy optical directory.
-     <li>Back up optical volume.
-     <li>Initialize or rename optical volume.
-     <li>Convert backup optical volume to a primary volume.
-     <li>Save or release help optical file.
-     <li>Absolute read of an optical volume.
-     </ul>
-     <li>"*PGMADP" - Authority obtained through program adoption is audited for this user.
-     <li>"*SAVRST" - Save and restore actions performed by this user are audited.
-     <li>"*SECURITY" - Security changes made by this user are audited.
-     <li>"*SERVICE" - User of the system service tools by this user is audited.
-     <li>"*SPLFDTA" - Spooled file operations made by this user are audited.
-     <li>"*SYSMGT" - Use of system management functions by this user are audited.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getUserActionAuditLevel
+     * Sets the level of activity that is audited for this user profile. Note: The system values QAUDLVL and QAUDLVL2
+     * are used in conjunction with this parameter. Example: If QAUDLVL is set to *DELETE and AUDLVL is set to *CREATE,
+     * then both *DELETE and *CREATE would be audited for this user. The default value for the QAUDLVL and QAUDLVL2
+     * system values is {@link #NONE NONE}.
+     * <p>
+     * Implementation note: The method internally calls the Change User Auditing (CHGUSRAUD) command and not the Change
+     * User Profile (CHGUSRPRF) command. The caller must have audit (*AUDIT) special authority. Changes take effect the
+     * next time a job is started for this user.
+     * 
+     * @param userActionAuditLevel The level of activity that is audited for this user profile. Possible values for the
+     *                             elements of this array are:
+     *                             <ul>
+     *                             <li>{@link #NONE NONE} - No auditing level is specified. The auditing level for this
+     *                             user is taken from system values QAUDLVL and QAUDLVL2.
+     *                             <li>"*CMD" - CL command strings, System/36 environment operator control commands, and
+     *                             System/36 enviromnent procedures are logged for this user.
+     *                             <li>"*CREATE" - Auditing entries are sent when objects are created by this user.
+     *                             <li>"*DELETE" - Auditing entries are sent when objects are deleteed by this user.
+     *                             <li>"*JOBDTA" - The following actions taken by this user that affect a job are
+     *                             audited:
+     *                             <ul>
+     *                             <li>Job start and stop data.
+     *                             <li>Hold, release, stop, continue, change, disconnect, end, end abnormal.
+     *                             <li>Program start request (PSR) is attached to a prestart job.
+     *                             </ul>
+     *                             <li>"*OBJMGT" - Object management changes made by this user, such as move or rename,
+     *                             are audited.
+     *                             <li>"*OFCSRV" - Office services changes made by this user, such as changes to the
+     *                             system directory and use of OfficeVision, are audited.
+     *                             <li>"*OPTICAL" - The following optical functions are audited:
+     *                             <ul>
+     *                             <li>Add or remove optical cartridge.
+     *                             <li>Change the authorization list used to secure an optical volume.
+     *                             <li>Open optical file or directory.
+     *                             <li>Create or delete optical directory.
+     *                             <li>Change or retrieve optical directory attributes.
+     *                             <li>Copy, move, or rename optical file.
+     *                             <li>Copy optical directory.
+     *                             <li>Back up optical volume.
+     *                             <li>Initialize or rename optical volume.
+     *                             <li>Convert backup optical volume to a primary volume.
+     *                             <li>Save or release help optical file.
+     *                             <li>Absolute read of an optical volume.
+     *                             </ul>
+     *                             <li>"*PGMADP" - Authority obtained through program adoption is audited for this user.
+     *                             <li>"*SAVRST" - Save and restore actions performed by this user are audited.
+     *                             <li>"*SECURITY" - Security changes made by this user are audited.
+     *                             <li>"*SERVICE" - User of the system service tools by this user is audited.
+     *                             <li>"*SPLFDTA" - Spooled file operations made by this user are audited.
+     *                             <li>"*SYSMGT" - Use of system management functions by this user are audited.
+     *                             </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getUserActionAuditLevel
      **/
     public void setUserActionAuditLevel(String[] userActionAuditLevel) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3719,30 +4340,41 @@ public class User implements Serializable
     }
 
     /**
-     Sets the type of user associated with this user profile: security officer, security administrator, programmer, system operator, or user.  The user class controls the options that are shown on a menu.  Special authorities are given only if *USRCLS is specified for the Special authority (SPCAUT) parameter.  If SPCAUT(*USRCLS) is specified, the special authorities granted will differ depending on the QSECURITY value.
-     @param userClassName The type of user associated with this user profile.  Possible values are:
-     <ul>
-     <li>"*USER" - At QSECURITY level 10 or 20, the user has *ALLOBJ and *SAVSYS authority.  At QSECURITY level 30 or above, the user has no special authorities.
-     <li>"*SECOFR" - At all levels of security, the security officer is granted the following special authorities:
-     <ul>
-     <li>*ALLOBJ
-     <li>*SAVSYS
-     <li>*JOBCTL
-     <li>*SERVICE
-     <li>*SPLCTL
-     <li>*SECADM
-     <li>*AUDIT
-     <li>*IOSYSCFG
-     </ul>
-     <li>"*SECADM" - At QSECURITY level 10 or 20, the security administrator has *ALLOBJ, *SAVSYS, *SECADM, and *JOBCTL special authorities.  At QSECURITY level 30 or above, the user has *SECADM special authority.
-     <li>"*PGMR" - At QSECURITY level 10 or 20, the programmer has *ALLOBJ, *SAVSYS, and *JOBCTL special authorities.  At QSECURITY level 30 or above, the user has no special authorities.
-     <li>"*SYSOPR" - At QSECURITY level 10 or 20, the system operator has *ALLOBJ, *SAVSYS, and *JOBCTL special authorities.  At QSECURITY level 30 or above, the user has *SAVSYS and *JOBCTL special authorities.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getUserClassName
+     * Sets the type of user associated with this user profile: security officer, security administrator, programmer,
+     * system operator, or user. The user class controls the options that are shown on a menu. Special authorities are
+     * given only if *USRCLS is specified for the Special authority (SPCAUT) parameter. If SPCAUT(*USRCLS) is specified,
+     * the special authorities granted will differ depending on the QSECURITY value.
+     * 
+     * @param userClassName The type of user associated with this user profile. Possible values are:
+     *                      <ul>
+     *                      <li>"*USER" - At QSECURITY level 10 or 20, the user has *ALLOBJ and *SAVSYS authority. At
+     *                      QSECURITY level 30 or above, the user has no special authorities.
+     *                      <li>"*SECOFR" - At all levels of security, the security officer is granted the following
+     *                      special authorities:
+     *                      <ul>
+     *                      <li>*ALLOBJ
+     *                      <li>*SAVSYS
+     *                      <li>*JOBCTL
+     *                      <li>*SERVICE
+     *                      <li>*SPLCTL
+     *                      <li>*SECADM
+     *                      <li>*AUDIT
+     *                      <li>*IOSYSCFG
+     *                      </ul>
+     *                      <li>"*SECADM" - At QSECURITY level 10 or 20, the security administrator has *ALLOBJ,
+     *                      *SAVSYS, *SECADM, and *JOBCTL special authorities. At QSECURITY level 30 or above, the user
+     *                      has *SECADM special authority.
+     *                      <li>"*PGMR" - At QSECURITY level 10 or 20, the programmer has *ALLOBJ, *SAVSYS, and *JOBCTL
+     *                      special authorities. At QSECURITY level 30 or above, the user has no special authorities.
+     *                      <li>"*SYSOPR" - At QSECURITY level 10 or 20, the system operator has *ALLOBJ, *SAVSYS, and
+     *                      *JOBCTL special authorities. At QSECURITY level 30 or above, the user has *SAVSYS and
+     *                      *JOBCTL special authorities.
+     *                      </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getUserClassName
      **/
     public void setUserClassName(String userClassName) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3754,111 +4386,162 @@ public class User implements Serializable
         runCommand("USRCLS(" + userClassName + ")");
     }
 
-
     /**
-     Sets the date when the user profile expires and is automatically disabled.
-     <p>Note: Certain IBM-supplied user profiles cannot specify a user expiration date. 
-     <p>Note: This method should not be used when running to IBM i 6.1 or earlier releases.
-     @param expirationDate The date when the user profile expires and is automatically disabled.  <tt>null</tt> is returned if the user profile does not have an expiration date.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     * @throws RequestNotSupportedException  If the request is not supported.
-     * @throws ObjectDoesNotExistException  If the object does not exist.
-     @see #getUserExpirationDate
-     @see #setUserExpirationInterval
+     * Sets the date when the user profile expires and is automatically disabled.
+     * <p>
+     * Note: Certain IBM-supplied user profiles cannot specify a user expiration date.
+     * <p>
+     * Note: This method should not be used when running to IBM i 6.1 or earlier releases.
+     * 
+     * @param expirationDate The date when the user profile expires and is automatically disabled. <tt>null</tt> is
+     *                       returned if the user profile does not have an expiration date.
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @throws RequestNotSupportedException    If the request is not supported.
+     * @throws ObjectDoesNotExistException     If the object does not exist.
+     * @see #getUserExpirationDate
+     * @see #setUserExpirationInterval
      **/
     public void setUserExpirationDate(Date expirationDate)
       throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, RequestNotSupportedException, ObjectDoesNotExistException
     {
-      if (system_.getVRM() < 0x00070100)
-      {
-        String currentRelease = system_.getVersion() + "." + system_.getRelease();
-        throw new RequestNotSupportedException(currentRelease, RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
-      }
+        if (system_.getVRM() < 0x00070100)
+        {
+            String currentRelease = system_.getVersion() + "." + system_.getRelease();
+            throw new RequestNotSupportedException(currentRelease, RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
+        }
 
-      String expDate;
-      if (expirationDate == null)
-      {
-        expDate = NONE;
-      }
-      else
-      {
-        // The date must be specified in the "job date format".
-        String jobDateFormat = getJobDateFormat();
-        byte[] dateBytes = getDateTimeConverter().convert(expirationDate, jobDateFormat);
-        expDate = DateTimeConverter.formatDateForCommandParameter(dateBytes, jobDateFormat);
-      }
+        String expDate;
+        if (expirationDate == null)
+            expDate = NONE;
+        else
+        {
+            // The date must be specified in the "job date format".
+            String jobDateFormat = getJobDateFormat();
+            byte[] dateBytes = getDateTimeConverter().convert(expirationDate, jobDateFormat);
+            expDate = DateTimeConverter.formatDateForCommandParameter(dateBytes, jobDateFormat);
+        }
 
-      runCommand("USREXPDATE(" + expDate + ")");
+        runCommand("USREXPDATE(" + expDate + ")");
     }
+    
+    /**
+     * Set the amount of time, in minutes, a time-base one-time password (TOTP) is optional on an authentication request
+     * for the user. This is the amount of time after a valid user ID and password authentication using a TOTP value is
+     * performed, that subsequent authentications will be allowed without having to specifying a TOTP value. This value
+     * is only valid when Authentication method includes *TOTP.
+     * <P>
+     * Note: This method should not be used when running to IBM i 7.5 or earlier releases.
+     * 
+     * @param totpOptionalInterval the TOTP optional interval to set. Valid values include 0-720. A value of zero
+     *                             indicates that there is no optional interval, the time-based one-time password must
+     *                             be entered for every authentication.
+     * 
+     * @throws AS400SecurityException           If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException  If an error occurs before the request is completed.
+     * @throws ExtendedIllegalArgumentException If TOTP optional interval value is not valid.
+     * @throws InterruptedException             If this thread is interrupted.
+     * @throws IOException                      If an error occurs while communicating with the system.
+     * @throws RequestNotSupportedException     If the request is not supported.
+     * @throws ObjectDoesNotExistException      If the object does not exist.
+     */
+    public void setTOTPOptionalInterval(int totpOptionalInterval)
+            throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, RequestNotSupportedException, ObjectDoesNotExistException
+    {
+        if (system_.getVRM() <= 0x00070500)
+        {
+            String currentRelease = system_.getVersion() + "." + system_.getRelease();
+            throw new RequestNotSupportedException(currentRelease, RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
+        }
+        
+        if (totpOptionalInterval < 0 || totpOptionalInterval > 720)
+            throw new ExtendedIllegalArgumentException("totpOptionalInterval (" + totpOptionalInterval + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
+        
+        String totpOptionalIntervalString = null;
+        if (totpOptionalInterval == 0)
+            totpOptionalIntervalString = NONE;
+        
+        runCommand("TOTPOPTITV(" + ((totpOptionalIntervalString != null) ? totpOptionalIntervalString : totpOptionalInterval) + ")");
+        
+        totpOptionalInterval_ = totpOptionalInterval;
+    }
 
     // Utility method.  Returns this object's internal DateTimeConverter object.
     // If we haven't already created dateConverter_, creates it now.
     private final DateTimeConverter getDateTimeConverter()
     {
-      if (dateConverter_ == null) {
-        dateConverter_ = new DateTimeConverter(system_);
-      }
-      return dateConverter_;
-    }
+        if (dateConverter_ == null)
+            dateConverter_ = new DateTimeConverter(system_);
 
+        return dateConverter_;
+    }
 
     // Utility method.  Gets the job date format for the job in which CHGUSRPRF will be run.
     private final String getJobDateFormat()
       throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
-      if (jobDateFormat_ == null)
-      {
-        // First, get the CommandCall object that will be used to submit the CHGUSRPRF command. This will ensure that we're querying the correct job (on-thread versus off-thread).
-        CommandCall cmd = getCommandCallObject(COMMAND_CHGUSRPRF);
-        Job job = cmd.getServerJob();
-        jobDateFormat_ = job.getDateFormat();
-      }
-      return jobDateFormat_;
+        if (jobDateFormat_ == null)
+        {
+            // First, get the CommandCall object that will be used to submit the CHGUSRPRF command. This will ensure
+            // that we're querying the correct job (on-thread versus off-thread).
+            CommandCall cmd = getCommandCallObject(COMMAND_CHGUSRPRF);
+            Job job = cmd.getServerJob();
+            jobDateFormat_ = job.getDateFormat();
+        }
+        
+        return jobDateFormat_;
     }
 
-
     /**
-     Sets the expiration interval (in days) before the user profile is automatically disabled.
-     If the user profile does not have a user expiration date, or the user profile has expired and the Status parameter is set to *ENABLED, specifies the number of days between today and the new date when the user profile expires. If the user profile has not yet expired, the user expiration interval is changed, but the existing user expiration date is not changed.
-     <p>Note: This method should not be used when running to IBM i 6.1 or earlier releases.
-     @param expirationInterval The number of days from today until the user profile is automatically disabled.  Valid values range from 1 through 366.  To specify that the user profile has no expiration interval, call {@link #setUserExpirationDate setUserExpirationDate(null)}.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     * @throws RequestNotSupportedException  If the request is not supported.
-     @see #getUserExpirationInterval
-     @see #setUserExpirationDate
+     * Sets the expiration interval (in days) before the user profile is automatically disabled. If the user profile
+     * does not have a user expiration date, or the user profile has expired and the Status parameter is set to
+     * *ENABLED, specifies the number of days between today and the new date when the user profile expires. If the user
+     * profile has not yet expired, the user expiration interval is changed, but the existing user expiration date is
+     * not changed.
+     * <p>
+     * Note: This method should not be used when running to IBM i 6.1 or earlier releases.
+     * 
+     * @param expirationInterval The number of days from today until the user profile is automatically disabled. Valid
+     *                           values range from 1 through 366. To specify that the user profile has no expiration
+     *                           interval, call {@link #setUserExpirationDate setUserExpirationDate(null)}.
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @throws RequestNotSupportedException    If the request is not supported.
+     * @see #getUserExpirationInterval
+     * @see #setUserExpirationDate
      **/
     public void setUserExpirationInterval(int expirationInterval)
       throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, RequestNotSupportedException
     {
-      if (system_.getVRM() < 0x00070100)
-      {
-        String currentRelease = system_.getVersion() + "." + system_.getRelease();
-        throw new RequestNotSupportedException(currentRelease, RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
-      }
+        if (system_.getVRM() < 0x00070100)
+        {
+            String currentRelease = system_.getVersion() + "." + system_.getRelease();
+            throw new RequestNotSupportedException(currentRelease, RequestNotSupportedException.SYSTEM_LEVEL_NOT_CORRECT);
+        }
 
-      if (expirationInterval < 1 || expirationInterval > 366)
-      {
-        throw new ExtendedIllegalArgumentException("expirationInterval (" + expirationInterval + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
-      }
+        if (expirationInterval < 1 || expirationInterval > 366)
+            throw new ExtendedIllegalArgumentException("expirationInterval (" + expirationInterval + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
 
-      runCommand("USREXPITV(" + expirationInterval + ") USREXPDATE(*USREXPITV)");
+        runCommand("USREXPITV(" + expirationInterval + ") USREXPDATE(*USREXPITV)");
     }
 
     /**
-     Sets the user ID number (uid number) for this user profile.  The uid number is used to identify the user when the user is using the directory file system.  The uid number for a user cannot be changed if there are one or more active jobs for the user.
-     @param userID The uid number to be assigned to the user profile.  A value from 1 to 4294967294 can be entered.  The uid number assigned must not already be assigned to another user profile.
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getUserID
+     * Sets the user ID number (uid number) for this user profile. The uid number is used to identify the user when the
+     * user is using the directory file system. The uid number for a user cannot be changed if there are one or more
+     * active jobs for the user.
+     * 
+     * @param userID The uid number to be assigned to the user profile. A value from 1 to 4294967294 can be entered. The
+     *               uid number assigned must not already be assigned to another user profile.
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getUserID
      **/
     public void setUserID(long userID) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3866,23 +4549,31 @@ public class User implements Serializable
     }
 
     /**
-     Sets the level of help information detail to be shown and the function of the Page Up and Page Down keys by default.  The system shows several displays that are suitable for the inexperienced user.  More experienced users must perform an extra action to see detailed information.  When values are specified for this parameter, the system presents detailed information without further action by the experienced user.
-     @param userOptions The level of help information detail to be shown and the function of the Page Up and Page Down keys by default.  Possible values include:
-     <ul>
-     <li>{@link #NONE NONE} - Detailed information is not shown.
-     <li>"*CLKWD" - Parameter keywords are shown instead of the possible parameter values when a control language (CL) command is prompted.
-     <li>"*EXPERT" - More detailed information is shown when the user is performing display and edit options to define or change the system (such as edit or display object authority).
-     <li>"*ROLLKEY" - The actions of the Page Up and Page Down keys are reversed.
-     <li>"*NOSTSMSG" - Status messages are not displayed when sent to the user.
-     <li>"*STSMSG" - Status messages are displayed when sent to the user.
-     <li>"*HLPFULL" - Help text is shown on a full display rather than in a window.
-     <li>"*PRTMSG" - A message is sent to this user's message queue when a spooled file for this user is printed or held by the printer writer.
-     </ul>
-     * @throws  AS400SecurityException  If a security or authority error occurs.
-     * @throws  ErrorCompletingRequestException  If an error occurs before the request is completed.
-     * @throws  InterruptedException  If this thread is interrupted.
-     * @throws  IOException  If an error occurs while communicating with the system.
-     @see #getUserOptions
+     * Sets the level of help information detail to be shown and the function of the Page Up and Page Down keys by
+     * default. The system shows several displays that are suitable for the inexperienced user. More experienced users
+     * must perform an extra action to see detailed information. When values are specified for this parameter, the
+     * system presents detailed information without further action by the experienced user.
+     * 
+     * @param userOptions The level of help information detail to be shown and the function of the Page Up and Page Down
+     *                    keys by default. Possible values include:
+     *                    <ul>
+     *                    <li>{@link #NONE NONE} - Detailed information is not shown.
+     *                    <li>"*CLKWD" - Parameter keywords are shown instead of the possible parameter values when a
+     *                    control language (CL) command is prompted.
+     *                    <li>"*EXPERT" - More detailed information is shown when the user is performing display and
+     *                    edit options to define or change the system (such as edit or display object authority).
+     *                    <li>"*ROLLKEY" - The actions of the Page Up and Page Down keys are reversed.
+     *                    <li>"*NOSTSMSG" - Status messages are not displayed when sent to the user.
+     *                    <li>"*STSMSG" - Status messages are displayed when sent to the user.
+     *                    <li>"*HLPFULL" - Help text is shown on a full display rather than in a window.
+     *                    <li>"*PRTMSG" - A message is sent to this user's message queue when a spooled file for this
+     *                    user is printed or held by the printer writer.
+     *                    </ul>
+     * @throws AS400SecurityException          If a security or authority error occurs.
+     * @throws ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @throws InterruptedException            If this thread is interrupted.
+     * @throws IOException                     If an error occurs while communicating with the system.
+     * @see #getUserOptions
      **/
     public void setUserOptions(String[] userOptions) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
@@ -3895,11 +4586,11 @@ public class User implements Serializable
     }
 
     /**
-     Sets the string representation of this User object.
-     @return  The user profile name.
+     * Sets the string representation of this User object.
+     * 
+     * @return The user profile name.
      **/
-    public String toString()
-    {
+    public String toString() {
         return super.toString() + "[" + name_ + "]";
     }
 }

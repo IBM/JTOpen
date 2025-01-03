@@ -18,18 +18,17 @@ import java.io.OutputStream;
 
 class SignonExchangeAttributeReq extends ClientAccessDataStream
 {
-    SignonExchangeAttributeReq(byte[] seed)
+    SignonExchangeAttributeReq(int serverId, byte[] seed)
     {
         super(new byte[seed != null ? 52 : 38]);
 
         setLength(data_.length);
         // setHeaderID(0x0000);
-        setServerID(0xE009);
+        setServerID(serverId);
         // setCSInstance(0x00000000);
         // setCorrelation(0x00000000);
         // setTemplateLen(0x0000);
-        setReqRepID(0x7003);
-
+        setReqRepID(serverId == 0xE009 ? 0x7003 : 0x7103); // signon or hostcnn
         // Set client version.
         //   LL
         set32bit(10, 20);
@@ -44,7 +43,7 @@ class SignonExchangeAttributeReq extends ClientAccessDataStream
         //   CP
         set16bit(0x1102, 34);
         //   Client level.
-        set16bit(10, 36); //@AF2C pwd level 4, datastream level = 8, pwd level 2,3, datastream level = 5
+        set16bit(serverId == 0xE009 ? 10 : 0, 36); //@AF2C pwd level 4, datastream level = 8, pwd level 2,3, datastream level = 5
 
         if (seed != null)
         {
@@ -60,7 +59,7 @@ class SignonExchangeAttributeReq extends ClientAccessDataStream
 
     void write(OutputStream out) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending signon server exchange client/server attributes request...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending exchange client/server attributes request...");
         super.write(out);
     }
 }

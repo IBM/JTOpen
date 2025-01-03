@@ -18,16 +18,38 @@ import java.util.GregorianCalendar;
 
 class SignonInfo implements Serializable
 {
-  private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
-
+    private static final String copyright = "Copyright (C) 1997-2001 International Business Machines Corporation and others.";
     static final long serialVersionUID = 4L;
+    
     GregorianCalendar currentSignonDate;
     GregorianCalendar lastSignonDate;
     GregorianCalendar expirationDate;
     int PWDexpirationWarning;
     ServerVersion version;
     int serverCCSID;
-    // Note: not maintained as com.ibm.as400.security.auth.ProfileToken.  Class is currently not available in proxy environments, so don't want to force instantiation during signon.
+    // Note: not maintained as com.ibm.as400.security.auth.ProfileToken.  Class is currently not available in 
+    // proxy environments, so don't want to force instantiation during signon.
     Object profileToken;
     String userId;
+
+    SignonInfo() {
+        super();
+    }
+    
+    SignonInfo(SignonInfo signonInfo) {
+        super();
+        
+        currentSignonDate = signonInfo.currentSignonDate;
+        lastSignonDate = signonInfo.lastSignonDate;
+        expirationDate = signonInfo.expirationDate;
+        PWDexpirationWarning = signonInfo.PWDexpirationWarning;
+        version = signonInfo.version;
+        serverCCSID = signonInfo.serverCCSID;
+        profileToken = signonInfo.profileToken;
+        userId = signonInfo.userId;
+    }
+    
+    SignonInfo(int vrm) {
+    	version = new ServerVersion(vrm); 
+    }
 }

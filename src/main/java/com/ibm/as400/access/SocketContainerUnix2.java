@@ -26,6 +26,7 @@ class SocketContainerUnix2 extends SocketContainer
     private Object lock_ = new Object();
     private int timeout_ = 0; /* timeout in milliseconds */ 
     
+    @Override
     void setProperties(Socket socket, String serviceName, String systemName, int port, SSLOptions options) throws IOException
     {
         int serverNumber = 0;
@@ -61,6 +62,7 @@ class SocketContainerUnix2 extends SocketContainer
         {
           if (Trace.traceOn_) Trace.log(Trace.WARNING, "Unrecognized serviceName: " + serviceName + ". Defaulting to as-central");
         }
+        
         try
         {
             /*  A little background:  From jt400Native.jar (NativeMethod.java)
@@ -137,66 +139,69 @@ class SocketContainerUnix2 extends SocketContainer
         }
     }
 
+    @Override
     void close() throws IOException
     {
-        if (!closed_)
+        if (closed_)
+            return;
+
+        try
         {
-            try
+            boolean paseCallSucceeded = false;
+            if(NativeMethods.paseLibLoaded)
             {
-                boolean paseCallSucceeded = false;
-                if(NativeMethods.paseLibLoaded)
-                {
-                    try{
-                        if (sd_.length < 2) {
-                          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Descriptor is not paired:", (sd_.length == 0 ? "null" : Integer.toString(sd_[0])));
-                          throw new Throwable();
-                        }
-                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketPaseClose("+Integer.toString(sd_[0])+")");
+                try{
+                    if (sd_.length < 2) {
+                      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Descriptor is not paired:", (sd_.length == 0 ? "null" : Integer.toString(sd_[0])));
+                      throw new Throwable();
+                    }
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketPaseClose("+Integer.toString(sd_[0])+")");
 
-                        NativeMethods.socketPaseClose(sd_[0], sd_[1]);
-                        paseCallSucceeded = true;
-                    }
-                    catch(NativeException ne){
-                        // Got here because of actual exception calling 'close' on host.
-                      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "NativeException while calling NativeMethods.socketPaseClose("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")");
-                      throw ne;
-                    }
-                    catch(UnsatisfiedLinkError e){
-                        // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
-                        // so we just call the generic-named method in qyjspaseXX.so
-                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "UnsatisfiedLinkError while calling NativeMethods.socketPaseClose("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")");
-                    }
-                    catch(Throwable e){
-                        // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
-                        // so we just call the generic-named method in qyjspaseXX.so
-                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Throwable while calling NativeMethods.socketPaseClose("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")", e);
-                    }
+                    NativeMethods.socketPaseClose(sd_[0], sd_[1]);
+                    paseCallSucceeded = true;
                 }
-
-                if (!paseCallSucceeded)  // try calling the generic-named method
-                {
-                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketClose("+Integer.toString(sd_[0])+")");
-
-                    NativeMethods.socketClose(sd_[0]);
+                catch(NativeException ne){
+                    // Got here because of actual exception calling 'close' on host.
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "NativeException while calling NativeMethods.socketPaseClose("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")");
+                  throw ne;
+                }
+                catch(UnsatisfiedLinkError e){
+                    // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
+                    // so we just call the generic-named method in qyjspaseXX.so
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "UnsatisfiedLinkError while calling NativeMethods.socketPaseClose("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")");
+                }
+                catch(Throwable e){
+                    // Probably got here because using new jt400Native.jar with old qyjspaseXX.so,
+                    // so we just call the generic-named method in qyjspaseXX.so
+                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Throwable while calling NativeMethods.socketPaseClose("+Integer.toString(sd_[0])+","+Integer.toString(sd_[1])+")", e);
                 }
             }
-            catch (NativeException e)
+
+            if (!paseCallSucceeded)  // try calling the generic-named method
             {
-                throw createSocketException(e);
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Calling NativeMethods.socketClose("+Integer.toString(sd_[0])+")");
+
+                NativeMethods.socketClose(sd_[0]);
             }
-            finally //@socket2
-            {
-                sd_ = null; //@socket2
-                closed_ = true; //@socket2 //add this so if close fails, we don't keep trying to close a broken socket
-            }
+        }
+        catch (NativeException e)
+        {
+            throw createSocketException(e);
+        }
+        finally //@socket2
+        {
+            sd_ = null; //@socket2
+            closed_ = true; //@socket2 //add this so if close fails, we don't keep trying to close a broken socket
         }
     }
 
+    @Override
     protected void finalize() throws IOException
     {
         close();
     }
 
+    @Override
     InputStream getInputStream() throws IOException
     {
         synchronized (lock_)
@@ -205,6 +210,7 @@ class SocketContainerUnix2 extends SocketContainer
         }
     }
 
+    @Override
     OutputStream getOutputStream() throws IOException
     {
         synchronized (lock_)
@@ -468,12 +474,18 @@ class SocketContainerUnix2 extends SocketContainer
         }
     }
 
+    @Override
     int getSoTimeout() throws SocketException {
       return timeout_;
     }
 
+    @Override
     void setSoTimeout(int timeout) throws SocketException {
       timeout_ = timeout; 
-     
+    }
+
+    @Override
+    String getLocalAddress() {
+        return "127.0.0.1";
     }
 }

@@ -706,7 +706,7 @@ public class SpooledFileOpenList extends OpenList
         }
 
         // Call the program.
-        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGY.LIB/QGYOLSPL.PGM", parameters);
+        ProgramCall pc = new ProgramCall(system_, "/QSYS.LIB/QGYOLSPL.PGM", parameters);
         if (!pc.run())
         {
             throw new AS400Exception(pc.getMessageList());

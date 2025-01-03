@@ -30,7 +30,7 @@ class JobCCSIDNative
     {
         try
         {
-            if (AS400.nativeVRM.vrm_ < 0x00050300)
+            if (AS400.nativeVRM.getVersionReleaseModification() < 0x00050300)
             {
                 return new NLSImplNative().ccsidNative();
             }

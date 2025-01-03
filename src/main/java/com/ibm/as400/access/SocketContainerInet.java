@@ -23,31 +23,42 @@ class SocketContainerInet extends SocketContainer
 {
     Socket socket_;
 
+    @Override
     void setProperties(Socket socket, String serviceName, String systemName, int port, SSLOptions options) throws IOException
     {
         socket_ = socket;
     }
 
+    @Override
     void close() throws IOException
     {
         socket_.close();
     }
 
+    @Override
     InputStream getInputStream() throws IOException
     {
         return socket_.getInputStream();
     }
 
+    @Override
     OutputStream getOutputStream() throws IOException
     {
         return socket_.getOutputStream();
     }
-
+    
+    @Override
     int getSoTimeout() throws SocketException {
       return socket_.getSoTimeout(); 
     }
 
+    @Override
     void setSoTimeout(int timeout) throws SocketException {
       socket_.setSoTimeout(timeout); 
+    }
+
+    @Override
+    String getLocalAddress() {
+        return socket_.getLocalAddress().getHostAddress();
     }
 }
