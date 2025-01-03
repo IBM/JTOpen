@@ -33,11 +33,11 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.net.URL;
-/* ifdef JDBC42
+/* ifdef JDBC42 */
 import java.time.LocalTime;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-endif */ 
+/* endif */ 
 final class SQLChar
 extends SQLDataBase
 {
@@ -175,7 +175,7 @@ extends SQLDataBase
             value = xml.getString();
         }     
 /* endif */ 
-        /* ifdef JDBC42
+/* ifdef JDBC42 */
 
         else if(object instanceof java.time.LocalDate) 
         {    
@@ -189,7 +189,7 @@ extends SQLDataBase
             value = SQLTimestamp.localDateTimeToStringTrimTrailingZeros((LocalDateTime)object,  calendar, settings_);   
         } 
         
-endif */ 
+/* endif */ 
         
            // @C2C
         

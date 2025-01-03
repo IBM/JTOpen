@@ -136,12 +136,12 @@ implements java.sql.Driver
 endif JAVA9 */
     
 /* ifndef JAVA9 */    
-/* ifdef JDBC42 
+/* ifdef JDBC42 */
     public static final int JDBC_MINOR_VERSION_ = 2;
-endif */ 
-/* ifndef JDBC42 */ 
+/* endif */ 
+/* ifndef JDBC42 
     public static final int JDBC_MINOR_VERSION_ = 0;
-/* endif */
+ endif */ 
   
     
 /* endif JAVA9 */ 

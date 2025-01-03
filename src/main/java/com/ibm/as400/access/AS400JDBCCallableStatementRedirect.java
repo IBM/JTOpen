@@ -573,12 +573,12 @@ public class AS400JDBCCallableStatementRedirect extends
 /* endif */ 
   public void setObject(String parameterName,
                          Object x,
-                         /* ifdef JDBC42        
+/* ifdef JDBC42 */
                          SQLType  
-                   endif*/ 
-                   /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
                    Object
-                   /* endif */
+ endif */ 
                          targetSqlType,
                          int scaleOrLength)                    throws SQLException
          {
@@ -588,12 +588,12 @@ public class AS400JDBCCallableStatementRedirect extends
 
  public void setObject(String parameterName,
                          Object x,
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
                          SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
                    Object
-/* endif */
+ endif */ 
                          targetSqlType)
                   throws SQLException
                   {
@@ -603,12 +603,12 @@ setObject(findParameterIndex(parameterName),  x, targetSqlType);
 
 
   public void registerOutParameter(int parameterIndex,
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
       SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
       Object
-/* endif */
+ endif */ 
                                     sqlType)
                              throws SQLException{
     cstmt_.registerOutParameter(parameterIndex, sqlType); 
@@ -616,12 +616,12 @@ endif*/
 
   
   public void registerOutParameter(int parameterIndex,
-      /* ifdef JDBC42        
+/* ifdef JDBC42 */
       SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
       Object
-/* endif */
+ endif */ 
                                     sqlType,
                                     int scale)
                              throws SQLException {
@@ -629,12 +629,12 @@ endif*/
   }
 
   public void registerOutParameter(int parameterIndex,
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
       SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
       Object
-/* endif */
+ endif */ 
                                     sqlType,
                                     String typeName)
                              throws SQLException {
@@ -642,24 +642,24 @@ endif*/
   }
 
  public void registerOutParameter(String parameterName,
-     /* ifdef JDBC42        
+/* ifdef JDBC42 */
      SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
      Object
-/* endif */
+ endif */ 
                                     sqlType)
                              throws SQLException {
    registerOutParameter(findParameterIndex(parameterName), sqlType); 
  }
 
 public void registerOutParameter(String parameterName,
-    /* ifdef JDBC42        
+/* ifdef JDBC42 */
     SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
     Object
-/* endif */
+ endif */ 
                                     sqlType,
                                     int scale)
                              throws SQLException {
@@ -668,12 +668,12 @@ endif*/
 
 
 public void registerOutParameter(String parameterName,
-    /* ifdef JDBC42        
+/* ifdef JDBC42 */
     SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
     Object
-/* endif */
+ endif */ 
                                     sqlType,
                                     String typeName)
                              throws SQLException
