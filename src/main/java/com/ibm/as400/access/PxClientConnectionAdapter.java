@@ -102,8 +102,8 @@ Closes the connection to the proxy server.
                throw new ProxyException (ProxyException.CONNECTION_DROPPED,e);
            }
 
-           // $$ Question for Jim, his new class skipped the above
-           //    two funtions -- input_.close() and output_.close().
+           // $$ Question, the new class skipped the above
+           //    two functions -- input_.close() and output_.close().
            //    If a good idea then remove from here as well.
            try {
                socket_.close ();

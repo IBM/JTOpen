@@ -610,10 +610,12 @@ extends AS400JDBCConnection {
     int sqlCode = e.getErrorCode(); 
     String sqlState = e.getSQLState(); 
     if (((sqlCode == -99999) &&
-        ((JDError.EXC_COMMUNICATION_LINK_FAILURE.equals(sqlState)) ||
-        (JDError.EXC_CONNECTION_UNABLE.equals(sqlState))))
+         ((JDError.EXC_COMMUNICATION_LINK_FAILURE.equals(sqlState)) ||
+          (JDError.EXC_CONNECTION_UNABLE.equals(sqlState))))
         || ( sqlCode == -7061  && should7061Reconnect(e))
+        || (sqlCode == -401 && JDError.EXC_SERVER_ERROR.equals(sqlState)) /* also retry for server errors */ 
         ) {
+    	
       // We do not use EXC_CONNECTION_NONE, since that is what is returned
       // after the connection has been closed or aborted.
       // 
