@@ -80,6 +80,7 @@ class IFSFileDescriptorImplRemote implements IFSFileDescriptorImpl
         AS400Server.addReplyStream(new IFSReturnCodeRep(), AS400.FILE);
         AS400Server.addReplyStream(new IFSWriteRep(), AS400.FILE);
         AS400Server.addReplyStream(new IFSReadRep(), AS400.FILE);
+        AS400Server.addReplyStream(new IFSLookupRep(), AS400.FILE);
     }
 
 
