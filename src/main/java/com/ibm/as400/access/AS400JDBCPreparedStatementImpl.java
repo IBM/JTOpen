@@ -39,11 +39,11 @@ import java.sql.ResultSetMetaData;
  import java.sql.RowId;
 /* endif */ 
 import java.sql.SQLException;
-/* ifdef JDBC42
+/* ifdef JDBC42 */
 import java.sql.SQLType;
 import java.sql.JDBCType;
 
-endif */
+/* endif */ 
 /* ifdef JDBC40 */
  import java.sql.SQLXML;
  import java.sql.SQLFeatureNotSupportedException;
@@ -4972,12 +4972,12 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
  */
   public void setObject(int parameterIndex,
         Object x,
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
         SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
 Object
-/* endif */
+ endif */ 
         targetSqlType,
         int scaleOrLength)
  throws SQLException {
@@ -4991,24 +4991,24 @@ Object
    */
   
   int mapSQLType(
-      /* ifdef JDBC42        
+/* ifdef JDBC42 */
       SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
 Object
-/* endif */
+ endif */ 
       targetSqlType ) throws SQLException {
-     /* ifdef JDBC42 
+/* ifdef JDBC42 */
        
     if (targetSqlType instanceof JDBCType) {
       return targetSqlType.getVendorTypeNumber(); 
     }
       throw new SQLFeatureNotSupportedException("targetSqlType="+targetSqlType);    
  
-      endif */
-    /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
        return 0; 
-    /* endif */ 
+ endif */ 
   }
   
 
@@ -5025,12 +5025,12 @@ Object
    */
   public void setObject(int parameterIndex,
                          Object x,
-                         /* ifdef JDBC42        
+/* ifdef JDBC42 */
                          SQLType  
-                   endif*/ 
-                   /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
                    Object
-                   /* endif */
+ endif */ 
                          targetSqlType)
                   throws SQLException {
     int intType = mapSQLType(targetSqlType);

@@ -1673,12 +1673,12 @@ while (true) {
     
     public  void setObject(int parameterIndex,
         Object x,
-/* ifdef JDBC42        
+/* ifdef JDBC42 */
         SQLType  
-endif*/ 
-/* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
 Object
-/* endif */
+ endif */ 
         targetSqlType,
         int scaleOrLength)
  throws SQLException  {
@@ -1705,12 +1705,12 @@ Object
 
     public void setObject(int parameterIndex,
         Object x,
-        /* ifdef JDBC42        
+/* ifdef JDBC42 */
         SQLType  
-  endif*/ 
-  /* ifndef JDBC42 */
+/* endif */ 
+/* ifndef JDBC42 
   Object
-  /* endif */
+ endif */ 
         targetSqlType)
  throws SQLException {
       int retryCount = AS400JDBCConnectionRedirect.SEAMLESS_RETRY_COUNT;
