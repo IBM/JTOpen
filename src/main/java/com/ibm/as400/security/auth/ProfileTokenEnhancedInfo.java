@@ -86,7 +86,9 @@ public final class ProfileTokenEnhancedInfo implements Serializable
 				enhancedInfo.localPort_);
 	}
 
-	public String getVerificationID() { return verificationID_; }
+	public String getVerificationID() { 
+	    return (verificationID_ != null) ? verificationID_ : ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
+	}
 	public String getRemoteIPAddress() { return remoteIPAddress_; } 
 	public int    getRemotePort() { return remotePort_; }
 	public String getLocalIPAddress() { return localIPAddress_; } 
