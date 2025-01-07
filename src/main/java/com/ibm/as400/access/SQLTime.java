@@ -29,10 +29,10 @@ import java.sql.SQLXML;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
-/* ifdef JDBC42
+/* ifdef JDBC42 */
 import java.time.LocalTime;
 import java.time.LocalDateTime;
-endif */
+/* endif */ 
 
 final class SQLTime
 extends SQLDataBase
@@ -157,7 +157,7 @@ extends SQLDataBase
         }
     }
 
-     /* ifdef JDBC42
+/* ifdef JDBC42 */
   public static String localTimeToString(java.time.LocalTime lt,
       SQLConversionSettings dataFormat, Calendar calendar0) {
     Calendar calendar = AS400Calendar.getGregorianInstance();
@@ -171,7 +171,7 @@ extends SQLDataBase
 
     return timeToString(t, dataFormat, calendar0, -1); // @E3C
   }
-  endif */ 
+/* endif */ 
     
     public static String timeToString(Time t,
                                       SQLConversionSettings dataFormat,
@@ -393,7 +393,7 @@ extends SQLDataBase
             second_ = calendar.get(Calendar.SECOND);
         }
 
-        /* ifdef JDBC42
+/* ifdef JDBC42 */
                 else if(object instanceof LocalTime)
         {
             LocalTime t = ((LocalTime) object);
@@ -410,7 +410,7 @@ extends SQLDataBase
             second_ = t.getSecond(); 
         }
 
- endif */ 
+/* endif */ 
 
         
         
