@@ -37,28 +37,29 @@ class AS400ImplNative
     /* swapFromPH is the profile to swap to */ 
     static native void swapBackNative(byte[] swapToPH, byte[] swapFromPH) throws NativeException;
     
-    
-    /* New method to create a profile handle.   This method is only available after IBM 7.5. 
-     * The create profile handle should be used with SwapToProfileHandleNative to do the
-     * swap.
-     * This profile handle should be released when the AS400 object is closed */
-    static native void createProfileHandleNative(byte[] profileHandle, String userId, char[] password, char[] additionalAuthenticationFactor) throws NativeException;
 
-    /* Swap to the user associated with swapToPH.  The swapFromPH is the handle for the original user, */
-    /* which is used with swapping back using swapBackAndReleaseNative */ 
-    static native void swapToProfileHandleNative(byte[] swapToPH, byte[] swapFromPH) throws NativeException;
-
-    /* Swap back to the original profile handle and free it */ 
-    static native void swapBackAndReleaseNative(byte[] swapFromPH) throws NativeException;
-
+     
     /* Create profile handle with additional authentication information. 
      * This method is only available after IBM 7.5. 
      * This profile handle should be released when the AS400 object is done with it.  */
-    public static native void createProfileHandle2Native(byte[] profileHandle, 
+    static native void createProfileHandle2Native(byte[] profileHandle, 
     		String userId, char[] password, char[] additionalAuthenticationFactor,
     		String verificationId, String remoteIpAddress, int jRemotePort,   String localIpAddress, int jLocalPort ) throws NativeException;
     
-    
+   
+    /* Swap to the user associated with swapToPH.  The swapFromPH is the handle for the original user, 
+     * which is used with swapping back using swapBackAndReleaseNative.
+     * This method is only available after IBM 7.5. 
+      */ 
+    static native void swapToProfileHandleNative(byte[] swapToPH, byte[] swapFromPH) throws NativeException;
+
+    /* Swap back to the original profile handle and free it.. This method is only available after IBM 7.5.  */ 
+    static native void swapBackAndReleaseNative(byte[] swapFromPH) throws NativeException;
+
+  
+    /* Release the originally allocated handle.  This method is only available after IBM 7.5.   */ 
+    static native void releaseProfileHandleNative(byte[] profileHandle) throws NativeException;
+
   
     
 }
