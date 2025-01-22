@@ -639,8 +639,9 @@ class IFSFileDescriptorImplRemote implements IFSFileDescriptorImpl
                    if (errorRC_ == IFSReturnCodeRep.FILE_NOT_FOUND || errorRC_ == IFSReturnCodeRep.PATH_NOT_FOUND)
                        throw new ExtendedIOException(path_, ExtendedIOException.PATH_NOT_FOUND);
                    
-                   // Cannot create file handle to object, so let us try the other way
-                   return getCCSID();
+                   // Cannot create file handle to object, so let us try the other way only
+                   if (retrieveAll)
+                       return getCCSID();
                }
            } 
            catch (AS400SecurityException e) {
@@ -668,44 +669,52 @@ class IFSFileDescriptorImplRemote implements IFSFileDescriptorImpl
               {
                   // In 7.5 and prior releases, need to create user handle for IFS tables to be initialized.
                   userHandle = (getSystem().getVRM() <= 0x00070500) ? system_.createUserHandle() : 0;
-    
-                  try
+                  if (userHandle == UNINITIALIZED)
                   {
-                      byte[] path = getConverter().stringToByteArray(path_);
-    
-                      IFSLookupReq req = new IFSLookupReq(path, preferredServerCCSID_, userHandle, IFSLookupReq.OA12, IFSObjAttrs1.OWNERANAME_ASP_FLAS, 0);
-                      ds = (ClientAccessDataStream) server_.sendAndReceive(req);
-                  }
-                  catch(ConnectionDroppedException e)
-                  {
-                      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-                      connectionDropped(e);
-                  }
-                  catch(InterruptedException e)
-                  {
-                      Trace.log(Trace.ERROR, "Interrupted");
-                      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-                      throwException.initCause(e);
-                      throw throwException;
-                  }
-    
-                  int rc = 0;
-                  if (ds instanceof IFSLookupRep)
-                  {
-                      objectHandle = ((IFSLookupRep) ds).getHandle();
-                      retrieveAttributes(ds, objectHandle);
-                  }
-                  else if (ds instanceof IFSReturnCodeRep)
-                  {
-                      rc = ((IFSReturnCodeRep) ds).getReturnCode();
-                      if (rc != IFSReturnCodeRep.SUCCESS) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
-    
-                      throw new ExtendedIOException(path_, rc);
+                      IFSListAttrsRep reply = listObjAttrs2();  // the 'ccsid' field is in the OA2 structure
+                      if (reply != null)
+                        fileDataCCSID_ = reply.getCCSID(serverDatastreamLevel_);
                   }
                   else
                   {
-                      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
-                      throw new InternalErrorException(Integer.toHexString(ds.getReqRepID()), InternalErrorException.DATA_STREAM_UNKNOWN);
+                      try
+                      {
+                          byte[] path = getConverter().stringToByteArray(path_);
+        
+                          IFSLookupReq req = new IFSLookupReq(path, preferredServerCCSID_, userHandle, IFSLookupReq.OA12, IFSObjAttrs1.OWNERANAME_ASP_FLAS, 0);
+                          ds = (ClientAccessDataStream) server_.sendAndReceive(req);
+                      }
+                      catch(ConnectionDroppedException e)
+                      {
+                          Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+                          connectionDropped(e);
+                      }
+                      catch(InterruptedException e)
+                      {
+                          Trace.log(Trace.ERROR, "Interrupted");
+                          InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+                          throwException.initCause(e);
+                          throw throwException;
+                      }
+        
+                      int rc = 0;
+                      if (ds instanceof IFSLookupRep)
+                      {
+                          objectHandle = ((IFSLookupRep) ds).getHandle();
+                          retrieveAttributes(ds, objectHandle);
+                      }
+                      else if (ds instanceof IFSReturnCodeRep)
+                      {
+                          rc = ((IFSReturnCodeRep) ds).getReturnCode();
+                          if (rc != IFSReturnCodeRep.SUCCESS) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+        
+                          throw new ExtendedIOException(path_, rc);
+                      }
+                      else
+                      {
+                          Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
+                          throw new InternalErrorException(Integer.toHexString(ds.getReqRepID()), InternalErrorException.DATA_STREAM_UNKNOWN);
+                      }
                   }
               }
               finally
@@ -1496,44 +1505,50 @@ class IFSFileDescriptorImplRemote implements IFSFileDescriptorImpl
           {
               // In 7.5 and prior releases, need to create user handle for IFS tables to be initialized.
               userHandle = (getSystem().getVRM() <= 0x00070500) ? system_.createUserHandle() : 0;
-              
-              try
+              if (userHandle == UNINITIALIZED)
               {
-                  // Issue a Look up request to create an object handle.
-                  IFSLookupReq req = new IFSLookupReq(pathname, preferredServerCCSID_, userHandle, IFSLookupReq.OA12, IFSObjAttrs1.OWNERANAME_ASP_FLAS, 0); 
-                  ds = (ClientAccessDataStream) server_.sendAndReceive(req);
-              }
-              catch(ConnectionDroppedException e)
-              {
-                  Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-                  connectionDropped(e);
-              }
-              catch(InterruptedException e)
-              {
-                  Trace.log(Trace.ERROR, "Interrupted");
-                  InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-                  throwException.initCause(e);
-                  throw throwException;
-              }
-
-              rc = 0;
-              if (ds instanceof IFSLookupRep)
-              {
-                  objectHandle = ((IFSLookupRep) ds).getHandle();
-                  retrieveAttributes(ds, objectHandle);  //@AC7A 
-              }
-              else if (ds instanceof IFSReturnCodeRep)
-              {
-                  rc = ((IFSReturnCodeRep) ds).getReturnCode();
-                  if (rc != IFSReturnCodeRep.SUCCESS)
-                      Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
-
-                  throw new ExtendedIOException(path_, rc);
+                  // Not sure what to do here...20.0.7 returned -1.  So we do that same in 20.0.8.
               }
               else
               {
-                  Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
-                  throw new InternalErrorException(Integer.toHexString(ds.getReqRepID()), InternalErrorException.DATA_STREAM_UNKNOWN);
+                  try
+                  {
+                      // Issue a Look up request to create an object handle.
+                      IFSLookupReq req = new IFSLookupReq(pathname, preferredServerCCSID_, userHandle, IFSLookupReq.OA12, IFSObjAttrs1.OWNERANAME_ASP_FLAS, 0); 
+                      ds = (ClientAccessDataStream) server_.sendAndReceive(req);
+                  }
+                  catch(ConnectionDroppedException e)
+                  {
+                      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+                      connectionDropped(e);
+                  }
+                  catch(InterruptedException e)
+                  {
+                      Trace.log(Trace.ERROR, "Interrupted");
+                      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+                      throwException.initCause(e);
+                      throw throwException;
+                  }
+    
+                  rc = 0;
+                  if (ds instanceof IFSLookupRep)
+                  {
+                      objectHandle = ((IFSLookupRep) ds).getHandle();
+                      retrieveAttributes(ds, objectHandle);  //@AC7A 
+                  }
+                  else if (ds instanceof IFSReturnCodeRep)
+                  {
+                      rc = ((IFSReturnCodeRep) ds).getReturnCode();
+                      if (rc != IFSReturnCodeRep.SUCCESS)
+                          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+    
+                      throw new ExtendedIOException(path_, rc);
+                  }
+                  else
+                  {
+                      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
+                      throw new InternalErrorException(Integer.toHexString(ds.getReqRepID()), InternalErrorException.DATA_STREAM_UNKNOWN);
+                  }
               }
           }
           finally
@@ -1566,43 +1581,58 @@ class IFSFileDescriptorImplRemote implements IFSFileDescriptorImpl
           {
               // In 7.5 and prior releases, need to create user handle for IFS tables to be initialized.
               userHandle = (getSystem().getVRM() <= 0x00070500) ? system_.createUserHandle() : 0;
-              
-              try
+              if (userHandle == UNINITIALIZED)
               {
-                  // Issue a Look up request to create an object handle.
-                  IFSLookupReq req = new IFSLookupReq(pathname, preferredServerCCSID_, userHandle, IFSLookupReq.OA12, IFSObjAttrs1.OWNERANAME_ASP_FLAS, 0); 
-                  ds = (ClientAccessDataStream) server_.sendAndReceive(req);
+                  IFSListAttrsRep reply = listObjAttrs1(IFSObjAttrs1.OWNER_NAME_FLAG, 0);
+                  if (reply != null)
+                      fileOwnerName_ = reply.getOwnerName(system_.getCcsid());
+                  else
+                  {
+                      if (Trace.traceOn_) Trace.log(Trace.WARNING, "getOwnerNameByUserHandle: IFSReturnCodeRep return code", errorRC_);
+                  
+                      if (errorRC_ == IFSReturnCodeRep.FILE_NOT_FOUND || errorRC_ == IFSReturnCodeRep.PATH_NOT_FOUND)
+                          throw new ExtendedIOException(path_, ExtendedIOException.PATH_NOT_FOUND);
+                  }
               }
-              catch(ConnectionDroppedException e)
-              {
-                  Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-                  connectionDropped(e);
-              }
-              catch(InterruptedException e)
-              {
-                  Trace.log(Trace.ERROR, "Interrupted");
-                  InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-                  throwException.initCause(e);
-                  throw throwException;
-              }
-
-              // Verify that we got a handle back.
-              rc = 0;
-              if (ds instanceof IFSLookupRep)
-              {
-                  objectHandle = ((IFSLookupRep) ds).getHandle();
-                  retrieveAttributes(ds, objectHandle);  //@AC7A
-              }
-              else if (ds instanceof IFSReturnCodeRep)
-              {
-                  rc = ((IFSReturnCodeRep) ds).getReturnCode();
-                  if (rc != IFSReturnCodeRep.SUCCESS) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
-                  throw new ExtendedIOException(path_, rc);
-              } 
               else
               {
-                  Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
-                  throw new InternalErrorException(Integer.toHexString(ds.getReqRepID()), InternalErrorException.DATA_STREAM_UNKNOWN);
+                  try
+                  {
+                      // Issue a Look up request to create an object handle.
+                      IFSLookupReq req = new IFSLookupReq(pathname, preferredServerCCSID_, userHandle, IFSLookupReq.OA12, IFSObjAttrs1.OWNERANAME_ASP_FLAS, 0); 
+                      ds = (ClientAccessDataStream) server_.sendAndReceive(req);
+                  }
+                  catch(ConnectionDroppedException e)
+                  {
+                      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+                      connectionDropped(e);
+                  }
+                  catch(InterruptedException e)
+                  {
+                      Trace.log(Trace.ERROR, "Interrupted");
+                      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+                      throwException.initCause(e);
+                      throw throwException;
+                  }
+    
+                  // Verify that we got a handle back.
+                  rc = 0;
+                  if (ds instanceof IFSLookupRep)
+                  {
+                      objectHandle = ((IFSLookupRep) ds).getHandle();
+                      retrieveAttributes(ds, objectHandle);  //@AC7A
+                  }
+                  else if (ds instanceof IFSReturnCodeRep)
+                  {
+                      rc = ((IFSReturnCodeRep) ds).getReturnCode();
+                      if (rc != IFSReturnCodeRep.SUCCESS) Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+                      throw new ExtendedIOException(path_, rc);
+                  } 
+                  else
+                  {
+                      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
+                      throw new InternalErrorException(Integer.toHexString(ds.getReqRepID()), InternalErrorException.DATA_STREAM_UNKNOWN);
+                  }
               }
           }
           finally
@@ -1633,44 +1663,50 @@ class IFSFileDescriptorImplRemote implements IFSFileDescriptorImpl
           try
           {
               userHandle = (getSystem().getVRM() <= 0x00070500) ? system_.createUserHandle() : 0;
-              
-              try
+              if (userHandle == UNINITIALIZED)
               {
-                  // Issue a Look up request to create an object handle.
-                  IFSLookupReq req = new IFSLookupReq(pathname, preferredServerCCSID_, userHandle, IFSLookupReq.OA12, IFSObjAttrs1.OWNERANAME_ASP_FLAS, 0);
-                  ds = (ClientAccessDataStream) server_.sendAndReceive(req);
-              }
-              catch(ConnectionDroppedException e)
-              {
-                  Trace.log(Trace.ERROR, "Byte stream server connection lost.");
-                  connectionDropped(e);
-              }
-              catch(InterruptedException e)
-              {
-                  Trace.log(Trace.ERROR, "Interrupted");
-                  InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
-                  throwException.initCause(e);
-                  throw throwException;
-              }
-
-              rc = 0;
-              if (ds instanceof IFSLookupRep)
-              {
-                  objectHandle = ((IFSLookupRep) ds).getHandle();
-                  retrieveAttributes(ds, objectHandle); //@AC7A 
-              }
-              else if (ds instanceof IFSReturnCodeRep)
-              {
-                  rc = ((IFSReturnCodeRep) ds).getReturnCode();
-                  if (rc != IFSReturnCodeRep.SUCCESS)
-                      Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
-
-                  throw new ExtendedIOException(path_, rc);
+                  // Not sure what to do here...20.0.7 returned null string.  For 20.0.8, return unknown.
               }
               else
               {
-                  Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
-                  throw new InternalErrorException(Integer.toHexString(ds.getReqRepID()), InternalErrorException.DATA_STREAM_UNKNOWN);
+                  try
+                  {
+                      // Issue a Look up request to create an object handle.
+                      IFSLookupReq req = new IFSLookupReq(pathname, preferredServerCCSID_, userHandle, IFSLookupReq.OA12, IFSObjAttrs1.OWNERANAME_ASP_FLAS, 0);
+                      ds = (ClientAccessDataStream) server_.sendAndReceive(req);
+                  }
+                  catch(ConnectionDroppedException e)
+                  {
+                      Trace.log(Trace.ERROR, "Byte stream server connection lost.");
+                      connectionDropped(e);
+                  }
+                  catch(InterruptedException e)
+                  {
+                      Trace.log(Trace.ERROR, "Interrupted");
+                      InterruptedIOException throwException = new InterruptedIOException(e.getMessage());
+                      throwException.initCause(e);
+                      throw throwException;
+                  }
+    
+                  rc = 0;
+                  if (ds instanceof IFSLookupRep)
+                  {
+                      objectHandle = ((IFSLookupRep) ds).getHandle();
+                      retrieveAttributes(ds, objectHandle); //@AC7A 
+                  }
+                  else if (ds instanceof IFSReturnCodeRep)
+                  {
+                      rc = ((IFSReturnCodeRep) ds).getReturnCode();
+                      if (rc != IFSReturnCodeRep.SUCCESS)
+                          Trace.log(Trace.ERROR, "IFSReturnCodeRep return code", rc);
+    
+                      throw new ExtendedIOException(path_, rc);
+                  }
+                  else
+                  {
+                      Trace.log(Trace.ERROR, "Unknown reply data stream", ds.getReqRepID());
+                      throw new InternalErrorException(Integer.toHexString(ds.getReqRepID()), InternalErrorException.DATA_STREAM_UNKNOWN);
+                  }
               }
           }
           finally
