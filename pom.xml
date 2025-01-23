@@ -7,7 +7,7 @@
   <groupId>net.sf.jt400</groupId>
   <artifactId>jt400</artifactId>
   <packaging>jar</packaging>
-  <version>dev</version>
+  <version>21.0.0-dev</version>
   <name>JT400</name>
   <description>The Open Source version of the IBM Toolbox for Java</description>
   <url>http://github.com/IBM/JTOpen</url>
@@ -34,6 +34,7 @@
       <email>jgorzins@us.ibm.com</email>
       <organization>IBM</organization>
       <organizationUrl>http://www.ibm.com</organizationUrl>
+      <jtopen.specversion>7.5.0.5</jtopen.specversion>
     </developer>
   </developers>
 
