@@ -27,6 +27,7 @@
     <maven.compiler.target>7</maven.compiler.target>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
     <prod.build>false</prod.build>
+    <jtopen.specversion>7.5.0.5</jtopen.specversion>
   </properties>
   <developers>
     <developer>
@@ -34,7 +35,6 @@
       <email>jgorzins@us.ibm.com</email>
       <organization>IBM</organization>
       <organizationUrl>http://www.ibm.com</organizationUrl>
-      <jtopen.specversion>7.5.0.5</jtopen.specversion>
     </developer>
   </developers>
 
