@@ -2073,8 +2073,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         }
         final String truststoreFile = getString(TLS_TRUSTSTORE_FILE);
         final String truststorePass = getString(TLS_TRUSTSTORE_FILE_PASS);
-        if (null != truststoreFile && null != truststorePass && !truststoreFile.isEmpty()
-                && !truststorePass.isEmpty()) {
+        if (null != truststoreFile && !truststoreFile.isEmpty()) {
             return new SSLSocketFactory() {
                 private SSLSocketFactory sslSocketFactory_ = null;
 
@@ -2101,7 +2100,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
                     }
                     try (FileInputStream trustFile = new FileInputStream(truststoreFile)) {
                         KeyStore myTrustStore = KeyStore.getInstance("JKS");
-                        myTrustStore.load(trustFile, truststorePass.toCharArray());
+                        myTrustStore.load(trustFile, null == truststorePass ? null :truststorePass.toCharArray());
                         TrustManagerFactory trustManagerFactory = TrustManagerFactory
                                 .getInstance(TrustManagerFactory.getDefaultAlgorithm());
                         trustManagerFactory.init(myTrustStore);
