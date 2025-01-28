@@ -32,7 +32,7 @@ class SocketContainerJSSE extends SocketContainer
     {
         if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "SocketContainerJSSE: create SSLSocket");
         
-        SSLSocketFactory sslFactory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+        SSLSocketFactory sslFactory = ((options != null) && (options.sslSocketFactory_ != null)) ? options.sslSocketFactory_ : (SSLSocketFactory)SSLSocketFactory.getDefault();
         sslSocket_ = (SSLSocket)sslFactory.createSocket(socket, systemName, port, true);
         //@P4A START
         if(SecureAS400.changeCipherSuites)

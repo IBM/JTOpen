@@ -479,7 +479,7 @@ extends SQLDataBase
     throws SQLException
     {
         truncated_ = 0; outOfBounds_ = false; 
-        String stringRep = JDUtilities.bigDecimalToPlainString(value_); //@big java 1.5 support
+        String stringRep = value_.toPlainString();
         int decimal = stringRep.indexOf('.');
         if(decimal == -1)
             return stringRep;
