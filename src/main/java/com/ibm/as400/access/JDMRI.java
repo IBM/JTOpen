@@ -149,6 +149,10 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_MAX_RETRIES_FOR_CLIENT_REROUTE", "maxRetriesForClientReroute" },
       { "PROP_NAME_RETRY_INTERVAL_FOR_CLIENT_REROUTE", "retryIntervalForClientReroute"},
       { "PROP_NAME_ENABLE_SEAMLESS_FAILOVER",  "enableSeamlessFailover"}, 
+      { "PROP_NAME_ADDITIONAL_AUTHENTICATION_FACTOR", "additionalAuthenticationFactor"},
+      { "PROP_NAME_TLS_TRUSTSTORE", "tlsTruststore"},
+      { "PROP_NAME_TLS_TRUSTSTORE_PASSWORD", "tlsTruststorePassword"},
+      { "PROP_NAME_STAY_ALIVE", "stayAlive"}, 
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
       { "BEHAVIOR_OVERRIDE_DESC", "Specifies the Toolbox JDBC driver behavior to override." },     //@J5A
@@ -264,6 +268,8 @@ public class JDMRI extends ListResourceBundle
       {"ADDITIONAL_AUTHENTICATION_FACTOR_DESC", "Specifies the additional authentication factor to be used in conjunction with the password."},
       {"STAY_ALIVE_DESC","Specifies the number of seconds between pings to the Host Server.  "
       		+ "This is used to prevent a connection from being viewed as inactive.  A value of 0 means to not send pings to keep the connection alive."},
+      {"TLS_TRUSTSTORE_DESC","Specifies a file to be used as the truststore for TLS connections."},
+      {"TLS_TRUSTSTORE_PASSWORD_DESC","Specifies the password associated with the configured TLS truststore."},
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },
       { "PROP_NAME_RS_CONCURRENCY", "concurrency" },
