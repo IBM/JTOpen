@@ -1043,6 +1043,27 @@ it throws an SQLException indicating the first error seen using the connection.<
     <TD HEADERS="cat8t5">&quot;false&quot;</TD>
   </TR>
 
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat8">&quot;tls truststore&quot;</TD>
+    <TD HEADERS="cat8t2">Specifies the file to be used as the truststore to validate TLS connections.  
+    Using *ANY with the tls truststore password=*ANY will allow TLS to be used without validating the server certificate. 
+     
+    </TD>
+    <TD HEADERS="cat8t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat8t4"> filename <br>&quot;*ANY&quot;</TD>
+    <TD HEADERS="cat8t5">&quot;default JVM truststore is used&quot;</TD>
+  </TR>
+
+  <TR VALIGN="TOP"> 
+    <TD HEADERS="cat8">&quot;tls truststore password&quot;</TD>
+    <TD HEADERS="cat8t2">Password used to validate the file specified by the &quot;tls truststore&quot; property. 
+    Using *ANY with the tls truststore=*ANY will allow TLS to be used without validating the server certificate. 
+     
+    </TD>
+    <TD HEADERS="cat8t3" ALIGN="CENTER">no</TD>
+    <TD HEADERS="cat8t4"> password <br>&quot;*ANY&quot;</TD>
+    <TD HEADERS="cat8t5"> unset </TD>
+  </TR>
 
 
 </TABLE>

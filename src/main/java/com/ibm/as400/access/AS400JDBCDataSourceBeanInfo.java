@@ -55,10 +55,10 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo {
 
 			PropertyDescriptor additionalAuthenticationFactor = new PropertyDescriptor("additionalAuthenticationFactor",
 					beanClass, "getAdditionalAuthenticationFactor", "setAdditionalAuthenticationFactor");
-			access.setBound(true);
-			access.setConstrained(false);
-			access.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_ADDITIONAL_AUTHENTICATION_FACTOR", null));
-			access.setShortDescription(AS400JDBCDriver.getResource("ADDITIONAL_AUTHENTICATION_FACTOR_DESC", null));
+			additionalAuthenticationFactor.setBound(true);
+			additionalAuthenticationFactor.setConstrained(false);
+			additionalAuthenticationFactor.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_ADDITIONAL_AUTHENTICATION_FACTOR", null));
+			additionalAuthenticationFactor.setShortDescription(AS400JDBCDriver.getResource("ADDITIONAL_AUTHENTICATION_FACTOR_DESC", null));
 
 			PropertyDescriptor behaviorOverride = new PropertyDescriptor("behaviorOverride", beanClass,
 					"getBehaviorOverride", "setBehaviorOverride"); // @J7A
@@ -432,6 +432,23 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo {
 			timeSeparator.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TIME_SEPARATOR", null));
 			timeSeparator.setShortDescription(AS400JDBCDriver.getResource("TIME_SEPARATOR_DESC", null));
 
+			PropertyDescriptor tlsTruststore = new PropertyDescriptor("tlsTruststore", beanClass, "getTlsTruststore",
+					"setTlsTruststore");
+			tlsTruststore.setBound(true);
+			tlsTruststore.setConstrained(false);
+			tlsTruststore.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TLS_TRUSTSTORE", null));
+			tlsTruststore.setShortDescription(AS400JDBCDriver.getResource("TLS_TRUSTSTORE_DESC", null));
+
+			PropertyDescriptor tlsTruststorePassword = new PropertyDescriptor("tlsTruststorePassword", beanClass, "getTlsTruststorePassword",
+					"setTlsTruststorePassword");
+			tlsTruststorePassword.setBound(true);
+			tlsTruststorePassword.setConstrained(false);
+			tlsTruststorePassword.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TLS_TRUSTSTORE_PASSWORD", null));
+			tlsTruststorePassword.setShortDescription(AS400JDBCDriver.getResource("TLS_TRUSTSTORE_PASSWORD_DESC", null));
+
+			
+			
+			
 			PropertyDescriptor trace = new PropertyDescriptor("trace", beanClass, "isTrace", "setTrace"); // @w2c
 			trace.setBound(true);
 			trace.setConstrained(false);
@@ -929,7 +946,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo {
 					useBlockUpdate, describeOption, decimalDataErrors, timestampFormat, useDrdaMetadataVersion,
 					portNumber, enableClientAffinitiesList, clientRerouteAlternateServerName,
 					clientRerouteAlternatePortNumber, affinityFailbackInterval, maxRetriesForClientReroute,
-					retryIntervalForClientReroute, enableSeamlessFailover, additionalAuthenticationFactor, stayAlive };
+					retryIntervalForClientReroute, enableSeamlessFailover, additionalAuthenticationFactor, stayAlive,tlsTruststore,tlsTruststorePassword };
 
 		} catch (Exception e) {
 			throw new Error(e);
