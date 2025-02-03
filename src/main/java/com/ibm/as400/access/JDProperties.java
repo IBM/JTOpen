@@ -27,6 +27,8 @@ import java.sql.DriverPropertyInfo;
 import java.util.Enumeration;
 import java.util.Properties;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
@@ -194,8 +196,8 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     static final int              ADDITIONAL_AUTHENTICATION_FACTOR=101;
     static final int              STAY_ALIVE                 = 102; 
 
-    static final int              TLS_TRUSTSTORE_FILE = 103;
-    static final int              TLS_TRUSTSTORE_FILE_PASS = 104;
+    static final int              TLS_TRUSTSTORE = 103;
+    static final int              TLS_TRUSTSTORE_PASSWORD = 104;
 
     // @W2 always add to the end of the array!
 
@@ -203,107 +205,107 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
 
 
     // Property names.
-    private static final String ACCESS_                 = "access";
-    private static final String AFFINITY_FAILBACK_INTERVAL_ = "affinityFailbackInterval"; 
-    private static final String ADDITIONAL_AUTHENTICATION_FACTOR_ = "additionalAuthenticationFactor"; 
-    private static final String BEHAVIOR_OVERRIDE_      = "behavior override";      // @F7A
-    private static final String BIDI_STRING_TYPE_       = "bidi string type";       // @E9A
-    private static final String BIG_DECIMAL_            = "big decimal";            // @E0A
-    private static final String BLOCK_SIZE_             = "block size";
-    private static final String BLOCK_CRITERIA_         = "block criteria";
-    private static final String CHARACTER_TRUNCATION_   = "character truncation"; 
-    private static final String CLIENT_REROUTE_ALTERNATE_PORT_NUMBER_ = "clientRerouteAlternatePortNumber"; 
-    private static final String CLIENT_REROUTE_ALTERNATE_SERVER_NAME_ = "clientRerouteAlternateServerName"; 
-    private static final String CURSOR_HOLD_            = "cursor hold";            // @D1
-    private static final String CURSORHOLD_             = "CURSORHOLD";             // @D1
-    private static final String CURSOR_SENSITIVITY_     = "cursor sensitivity";     // @F6A
-    private static final String DATA_COMPRESSION_       = "data compression";       // @D0A
-    private static final String DATA_TRUNCATION_        = "data truncation";        // @C1A
-    private static final String DATABASE_NAME_          = "database name";          // @J2A
-    private static final String DATE_FORMAT_            = "date format";
-    private static final String DATE_SEPARATOR_         = "date separator";
-    private static final String DECIMAL_SEPARATOR_      = "decimal separator";
-    private static final String DRIVER_                 = "driver";                 // @E3A
-    private static final String ENABLE_CLIENT_AFFINITIES_LIST_ = "enableClientAffinitiesList"; 
-    private static final String ENABLE_SEAMLESS_FAILOVER_ = "enableSeamlessFailover"; 
-    private static final String ERRORS_                 = "errors";
-    private static final String EXTENDED_DYNAMIC_       = "extended dynamic";
-    private static final String EXTENDED_METADATA_      = "extended metadata";      // @F5A
-    private static final String FULL_OPEN_              = "full open";              // @W1a
-    private static final String HOLD_LOCATORS_          = "hold input locators";          // @KBL
-    private static final String LAZY_CLOSE_             = "lazy close";             // @E2A
-    private static final String LIBRARIES_              = "libraries";
-    private static final String LOB_THRESHOLD_          = "lob threshold";
-    private static final String MAX_RETRIES_FOR_CLIENT_REROUTE_ = "maxRetriesForClientReroute";
-    private static final String MAXIMUM_PRECISION_      = "maximum precision";      // @M0A
-    private static final String MAXIMUM_SCALE_          = "maximum scale";          // @M0A
-    private static final String MINIMUM_DIVIDE_SCALE_   = "minimum divide scale";   // @M0A
-    private static final String NAMING_                 = "naming";
-    private static final String NUMERIC_RANGE_ERROR_    = "numeric range error";    // @R3A
-    private static final String PACKAGE_                = "package";
-    private static final String PACKAGE_ADD_            = "package add";
-    private static final String PACKAGE_CACHE_          = "package cache";
-    private static final String PACKAGE_CCSID_          = "package ccsid";          // @M0A
-    private static final String PACKAGE_CLEAR_          = "package clear";
-    private static final String PACKAGE_CRITERIA_       = "package criteria";       // @A0A
-    private static final String PACKAGE_ERROR_          = "package error";
-    private static final String PACKAGE_LIBRARY_        = "package library";
+    static final String ACCESS_                 = "access";
+    static final String AFFINITY_FAILBACK_INTERVAL_ = "affinityFailbackInterval"; 
+    static final String ADDITIONAL_AUTHENTICATION_FACTOR_ = "additionalAuthenticationFactor"; 
+    static final String BEHAVIOR_OVERRIDE_      = "behavior override";      // @F7A
+    static final String BIDI_STRING_TYPE_       = "bidi string type";       // @E9A
+    static final String BIG_DECIMAL_            = "big decimal";            // @E0A
+    static final String BLOCK_SIZE_             = "block size";
+    static final String BLOCK_CRITERIA_         = "block criteria";
+    static final String CHARACTER_TRUNCATION_   = "character truncation"; 
+    static final String CLIENT_REROUTE_ALTERNATE_PORT_NUMBER_ = "clientRerouteAlternatePortNumber"; 
+    static final String CLIENT_REROUTE_ALTERNATE_SERVER_NAME_ = "clientRerouteAlternateServerName"; 
+    static final String CURSOR_HOLD_            = "cursor hold";            // @D1
+    static final String CURSORHOLD_             = "CURSORHOLD";             // @D1
+    static final String CURSOR_SENSITIVITY_     = "cursor sensitivity";     // @F6A
+    static final String DATA_COMPRESSION_       = "data compression";       // @D0A
+    static final String DATA_TRUNCATION_        = "data truncation";        // @C1A
+    static final String DATABASE_NAME_          = "database name";          // @J2A
+    static final String DATE_FORMAT_            = "date format";
+    static final String DATE_SEPARATOR_         = "date separator";
+    static final String DECIMAL_SEPARATOR_      = "decimal separator";
+    static final String DRIVER_                 = "driver";                 // @E3A
+    static final String ENABLE_CLIENT_AFFINITIES_LIST_ = "enableClientAffinitiesList"; 
+    static final String ENABLE_SEAMLESS_FAILOVER_ = "enableSeamlessFailover"; 
+    static final String ERRORS_                 = "errors";
+    static final String EXTENDED_DYNAMIC_       = "extended dynamic";
+    static final String EXTENDED_METADATA_      = "extended metadata";      // @F5A
+    static final String FULL_OPEN_              = "full open";              // @W1a
+    static final String HOLD_LOCATORS_          = "hold input locators";          // @KBL
+    static final String LAZY_CLOSE_             = "lazy close";             // @E2A
+    static final String LIBRARIES_              = "libraries";
+    static final String LOB_THRESHOLD_          = "lob threshold";
+    static final String MAX_RETRIES_FOR_CLIENT_REROUTE_ = "maxRetriesForClientReroute";
+    static final String MAXIMUM_PRECISION_      = "maximum precision";      // @M0A
+    static final String MAXIMUM_SCALE_          = "maximum scale";          // @M0A
+    static final String MINIMUM_DIVIDE_SCALE_   = "minimum divide scale";   // @M0A
+    static final String NAMING_                 = "naming";
+    static final String NUMERIC_RANGE_ERROR_    = "numeric range error";    // @R3A
+    static final String PACKAGE_                = "package";
+    static final String PACKAGE_ADD_            = "package add";
+    static final String PACKAGE_CACHE_          = "package cache";
+    static final String PACKAGE_CCSID_          = "package ccsid";          // @M0A
+    static final String PACKAGE_CLEAR_          = "package clear";
+    static final String PACKAGE_CRITERIA_       = "package criteria";       // @A0A
+    static final String PACKAGE_ERROR_          = "package error";
+    static final String PACKAGE_LIBRARY_        = "package library";
     static final String PASSWORD_                       = "password";            //@native
-    private static final String PORTNUMBER_             = "portNumber"; /*@V1A*/ 
-    private static final String PREFETCH_               = "prefetch";
-    private static final String PROMPT_                 = "prompt";
-    private static final String PROXY_SERVER_           = "proxy server";           // @A3A
-    //private static final String PROXY_SERVER_SECURE_    = "proxy server secure";    // @A3A
-    private static final String QUERY_REPLACE_TRUNCATED_PARAMETER_ = "query replace truncated parameter";
-    private static final String QUERY_TIMEOUT_MECHANISM_  = "query timeout mechanism";
-    private static final String REMARKS_                = "remarks";
-    private static final String RETRY_INTERVAL_FOR_CLIENT_REROUTE_="retryIntervalForClientReroute"; 
+    static final String PORTNUMBER_             = "portNumber"; /*@V1A*/ 
+    static final String PREFETCH_               = "prefetch";
+    static final String PROMPT_                 = "prompt";
+    static final String PROXY_SERVER_           = "proxy server";           // @A3A
+    //nstatic final String PROXY_SERVER_SECURE_    = "proxy server secure";    // @A3A
+    static final String QUERY_REPLACE_TRUNCATED_PARAMETER_ = "query replace truncated parameter";
+    static final String QUERY_TIMEOUT_MECHANISM_  = "query timeout mechanism";
+    static final String REMARKS_                = "remarks";
+    static final String RETRY_INTERVAL_FOR_CLIENT_REROUTE_="retryIntervalForClientReroute"; 
     static final String SECONDARY_URL_                  = "secondary URL";          // @A3A
-    private static final String SECURE_                 = "secure";
-    private static final String SORT_                   = "sort";
-    private static final String SORT_LANGUAGE_          = "sort language";
-    private static final String SORT_TABLE_             = "sort table";
-    private static final String SORT_WEIGHT_            = "sort weight";
-    private static final String STAY_ALIVE_             = "stay alive"; 
-    private static final String TCP_NO_DELAY_           = "tcp no delay"; 
-    private static final String THREAD_USED_            = "thread used";            // @E1A
-    private static final String TIME_FORMAT_            = "time format";
-    private static final String TIMESTAMP_FORMAT_       = "timestamp format";
-    private static final String TIME_SEPARATOR_         = "time separator";
-    private static final String TLS_TRUSTSTORE_FILE_    = "tls truststore";
-    private static final String TLS_TRUSTSTORE_FILE_PASS_ = "tls truststore password";
-    private static final String TRACE_                  = "trace";
-    private static final String TRACE_SERVER_           = "server trace";           // @j1a
-    private static final String TRACE_TOOLBOX_          = "toolbox trace";          // @K1A
-    private static final String TRANSACTION_ISOLATION_  = "transaction isolation";
-    private static final String TRANSLATE_BINARY_       = "translate binary";
-    private static final String TRANSLATE_HEX_          = "translate hex";          // @M0A
+    static final String SECURE_                 = "secure";
+    static final String SORT_                   = "sort";
+    static final String SORT_LANGUAGE_          = "sort language";
+    static final String SORT_TABLE_             = "sort table";
+    static final String SORT_WEIGHT_            = "sort weight";
+    static final String STAY_ALIVE_             = "stay alive"; 
+    static final String TCP_NO_DELAY_           = "tcp no delay"; 
+    static final String THREAD_USED_            = "thread used";            // @E1A
+    static final String TIME_FORMAT_            = "time format";
+    static final String TIMESTAMP_FORMAT_       = "timestamp format";
+    static final String TIME_SEPARATOR_         = "time separator";
+    static final String TLS_TRUSTSTORE_    = "tls truststore";
+    static final String TLS_TRUSTSTORE_PASSWORD_ = "tls truststore password";
+    static final String TRACE_                  = "trace";
+    static final String TRACE_SERVER_           = "server trace";           // @j1a
+    static final String TRACE_TOOLBOX_          = "toolbox trace";          // @K1A
+    static final String TRANSACTION_ISOLATION_  = "transaction isolation";
+    static final String TRANSLATE_BINARY_       = "translate binary";
+    static final String TRANSLATE_HEX_          = "translate hex";          // @M0A
     static final String USER_                           = "user";                  //@native
     static final String USE_DRDA_METADATA_VERSION_ = "use drda metadata version"; 
-    private static final String QAQQINILIB_             = "qaqqinilib";             // @K2A
-    private static final String LOGIN_TIMEOUT_          = "login timeout";          //@K5A
-    private static final String TRUE_AUTO_COMMIT_            = "true autocommit";            //@KBA //@true
-    private static final String BIDI_IMPLICIT_REORDERING_ = "bidi implicit reordering"; //@K24
-    private static final String BIDI_NUMERIC_ORDERING_  = "bidi numeric ordering";      //@K24
-    private static final String HOLD_STATEMENTS_ = "hold statements";   //@KBL
-    private static final String ROLLBACK_CURSOR_HOLD_ = "rollback cursor hold";  //@K94
-    private static final String VARIABLE_FIELD_COMPRESSION_ = "variable field compression";  //@K54
-    private static final String QUERY_OPTIMIZE_GOAL_ = "query optimize goal";       //@540
-    private static final String KEEP_ALIVE_ = "keep alive";  //@540
-    private static final String RECEIVE_BUFFER_SIZE_ = "receive buffer size"; //@540
-    private static final String SEND_BUFFER_SIZE_ = "send buffer size"; //@540
-    private static final String XA_LOOSELY_COUPLED_SUPPORT_ = "XA loosely coupled support";       //@540
-    private static final String TRANSLATE_BOOLEAN_ = "translate boolean";       //@PDA
-    private static final String METADATA_SOURCE_ = "metadata source";       //@PDA
-    private static final String QUERY_STORAGE_LIMIT_ = "query storage limit";   //@550
-    private static final String DECFLOAT_ROUNDING_MODE_ = "decfloat rounding mode"; //@DFA
-    private static final String AUTOCOMMIT_EXCEPTION_ = "autocommit exception"; //@CE1
-    private static final String AUTO_COMMIT_ = "auto commit"; //@AC1  (match Native driver property spelling)
-    private static final String IGNORE_WARNINGS_ = "ignore warnings"; //@igwrn
-    private static final String SECURE_CURRENT_USER_ = "secure current user"; //@pw3 (switch to turn on/off old code. see @pw1)
-    private static final String CONCURRENT_ACCESS_RESOLUTION_ = "concurrent access resolution"; //@cc1
-    private static final String JVM16_SYNCHRONIZE_ = "jvm16 synchronize"; //@dmy
-    private static final String SOCKET_TIMEOUT_ = "socket timeout"; //@STIMEOUT
+    static final String QAQQINILIB_             = "qaqqinilib";             // @K2A
+    static final String LOGIN_TIMEOUT_          = "login timeout";          //@K5A
+    static final String TRUE_AUTO_COMMIT_            = "true autocommit";            //@KBA //@true
+    static final String BIDI_IMPLICIT_REORDERING_ = "bidi implicit reordering"; //@K24
+    static final String BIDI_NUMERIC_ORDERING_  = "bidi numeric ordering";      //@K24
+    static final String HOLD_STATEMENTS_ = "hold statements";   //@KBL
+    static final String ROLLBACK_CURSOR_HOLD_ = "rollback cursor hold";  //@K94
+    static final String VARIABLE_FIELD_COMPRESSION_ = "variable field compression";  //@K54
+    static final String QUERY_OPTIMIZE_GOAL_ = "query optimize goal";       //@540
+    static final String KEEP_ALIVE_ = "keep alive";  //@540
+    static final String RECEIVE_BUFFER_SIZE_ = "receive buffer size"; //@540
+    static final String SEND_BUFFER_SIZE_ = "send buffer size"; //@540
+    static final String XA_LOOSELY_COUPLED_SUPPORT_ = "XA loosely coupled support";       //@540
+    static final String TRANSLATE_BOOLEAN_ = "translate boolean";       //@PDA
+    static final String METADATA_SOURCE_ = "metadata source";       //@PDA
+    static final String QUERY_STORAGE_LIMIT_ = "query storage limit";   //@550
+    static final String DECFLOAT_ROUNDING_MODE_ = "decfloat rounding mode"; //@DFA
+    static final String AUTOCOMMIT_EXCEPTION_ = "autocommit exception"; //@CE1
+    static final String AUTO_COMMIT_ = "auto commit"; //@AC1  (match Native driver property spelling)
+    static final String IGNORE_WARNINGS_ = "ignore warnings"; //@igwrn
+    static final String SECURE_CURRENT_USER_ = "secure current user"; //@pw3 (switch to turn on/off old code. see @pw1)
+    static final String CONCURRENT_ACCESS_RESOLUTION_ = "concurrent access resolution"; //@cc1
+    static final String JVM16_SYNCHRONIZE_ = "jvm16 synchronize"; //@dmy
+    static final String SOCKET_TIMEOUT_ = "socket timeout"; //@STIMEOUT
     static final String USE_BLOCK_UPDATE_ = "use block update"; // @A2 Property must be visible in package
     static final String MAXIMUM_BLOCKED_INPUT_ROWS_ = "maximum blocked input rows";  // @A6A
     static final String DESCRIBE_OPTION_ = "describe option";   //@F6A
@@ -312,7 +314,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     // Common String objects.  Using these will theoretically
     // cut down on the number of String allocations.
     //
-    private static final String COMMA_                  = ",";
+    static final String COMMA_                  = ",";
     static final String EMPTY_                          = ""; //@pw1 provide way to know if property was set here or by application via (Str == JDProperties.EMPTY)
     private static final String EUR_                    = "eur";
     private static final String FALSE_                  = "false";
@@ -583,7 +585,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         // affinity failback interval
         i = AFFINITY_FAILBACK_INTERVAL; 
         dpi_[i] = new DriverPropertyInfo (AFFINITY_FAILBACK_INTERVAL_, "");
-        dpi_[i].description = "AFFINITYFAILBACKINTERVAL_DESC";
+        dpi_[i].description = "AFFINITY_FAILBACK_INTERVAL_DESC";
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]        = "0";               
@@ -1020,7 +1022,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
         // Port /*@V1A*/
         i = PORTNUMBER;
         dpi_[i] = new DriverPropertyInfo (PORTNUMBER_, "");
-        dpi_[i].description = "PORT_DESC";
+        dpi_[i].description = "PORTNUMBER_DESC";
         dpi_[i].required    = false;
         dpi_[i].choices     = new String[0];
         defaults_[i]        = "0";
@@ -1671,17 +1673,17 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
        dpi_[i].choices     = new String[0];
        defaults_[i]  = "0"; 
 
-       i = TLS_TRUSTSTORE_FILE;
-       dpi_[i] = new DriverPropertyInfo (TLS_TRUSTSTORE_FILE_, "");
-       dpi_[i].description = "TLS_TRUSTSTORE_FILE";
+       i = TLS_TRUSTSTORE;
+       dpi_[i] = new DriverPropertyInfo (TLS_TRUSTSTORE_, "");
+       dpi_[i].description = "TLS_TRUSTSTORE_DESC";
        dpi_[i].required    = false;
        dpi_[i].choices     = new String[0];
        defaults_[i]  = EMPTY_; 
        
 
-       i = TLS_TRUSTSTORE_FILE_PASS;
-       dpi_[i] = new DriverPropertyInfo (TLS_TRUSTSTORE_FILE_PASS_, "");
-       dpi_[i].description = "TLS_TRUSTSTORE_FILE_PASS";
+       i = TLS_TRUSTSTORE_PASSWORD;
+       dpi_[i] = new DriverPropertyInfo (TLS_TRUSTSTORE_PASSWORD_, "");
+       dpi_[i].description = "TLS_TRUSTSTORE_PASSWORD_DESC";
        dpi_[i].required    = false;
        dpi_[i].choices     = new String[0];
        defaults_[i]  = EMPTY_; 
@@ -2060,31 +2062,32 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
      *  <li>If an {@link SSLSocketFactory} object was provided through the special property defined by
      *      {@link AS400JDBCDriver#PROPERTY_SSL_SOCKET_FACTORY}, all other properties are ignored and 
      *      that object is returned.
-     *  <li>A {@link SSLSocketFactory} will be created if both the {@value #TLS_TRUSTSTORE_FILE_}  {@value #TLS_TRUSTSTORE_FILE_PASS_}
+     *  <li>A {@link SSLSocketFactory} will be created if both the {@value #TLS_TRUSTSTORE_}  {@value #TLS_TRUSTSTORE_PASSWORD_}
      *      properties were specified, indicating a JKS-format truststore file and password. Note that the special value '*ANY'
      *      can be used to disable all verification.
      * </ul>
      */
-    SSLSocketFactory getCustomSSLSocketFactory() {
-        Properties originalProps = this.getOriginalInfo();
-        Object sslSocketFactoryObject = null == originalProps ? null: originalProps.get(AS400JDBCDriver.PROPERTY_SSL_SOCKET_FACTORY);
-        if ((sslSocketFactoryObject != null) && (sslSocketFactoryObject instanceof SSLSocketFactory)) {
-            return (SSLSocketFactory) sslSocketFactoryObject;
-        }
-        final String truststoreFile = getString(TLS_TRUSTSTORE_FILE);
-        final String truststorePass = getString(TLS_TRUSTSTORE_FILE_PASS);
-        if (null != truststoreFile && !truststoreFile.isEmpty()) {
-            return new SSLSocketFactory() {
-                private SSLSocketFactory sslSocketFactory_ = null;
+	SSLSocketFactory getCustomSSLSocketFactory() {
+		Properties originalProps = this.getOriginalInfo();
+		Object sslSocketFactoryObject = null == originalProps ? null
+				: originalProps.get(AS400JDBCDriver.PROPERTY_SSL_SOCKET_FACTORY);
+		if ((sslSocketFactoryObject != null) && (sslSocketFactoryObject instanceof SSLSocketFactory)) {
+			return (SSLSocketFactory) sslSocketFactoryObject;
+		}
+		final String truststoreFile = getString(TLS_TRUSTSTORE);
+		final String truststorePass = getString(TLS_TRUSTSTORE_PASSWORD);
+		if (null != truststoreFile && !truststoreFile.isEmpty()) {
+			return new SSLSocketFactory() {
+				private SSLSocketFactory sslSocketFactory_ = null;
 
-                private synchronized SSLSocketFactory getSSLSocketFactory() throws IOException {
-                    if (null != sslSocketFactory_) {
-                        return sslSocketFactory_;
-                    }
-                    if ("*ANY".equalsIgnoreCase(truststoreFile) && "*ANY".equalsIgnoreCase(truststorePass)) {
-                        try {
-                            SSLContext ctx = SSLContext.getInstance("TLS");
-                            //@formatter:off
+				private synchronized SSLSocketFactory getSSLSocketFactory() throws IOException {
+					if (null != sslSocketFactory_) {
+						return sslSocketFactory_;
+					}
+					if ("*ANY".equalsIgnoreCase(truststoreFile) && "*ANY".equalsIgnoreCase(truststorePass)) {
+						try {
+							SSLContext ctx = SSLContext.getInstance("TLS");
+							//@formatter:off
                             ctx.init(null, new TrustManager[] { 
                                     new X509TrustManager() { 
                                         @Override  public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException { }
@@ -2093,24 +2096,39 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
                                     } 
                                 }, null);
                             //@formatter:on
-                            return sslSocketFactory_ = ctx.getSocketFactory();
-                        } catch (Exception e) {
-                            throw e instanceof IOException ? (IOException) e : new IOException(e);
-                        }
-                    }
-                    try (FileInputStream trustFile = new FileInputStream(truststoreFile)) {
-                        KeyStore myTrustStore = KeyStore.getInstance("JKS");
-                        myTrustStore.load(trustFile, null == truststorePass ? null :truststorePass.toCharArray());
-                        TrustManagerFactory trustManagerFactory = TrustManagerFactory
-                                .getInstance(TrustManagerFactory.getDefaultAlgorithm());
-                        trustManagerFactory.init(myTrustStore);
-                        SSLContext ctx = SSLContext.getInstance("TLS");
-                        ctx.init(null, trustManagerFactory.getTrustManagers(), null);
-                        return sslSocketFactory_ = ctx.getSocketFactory();
-                    } catch (Exception e) {
-                        throw e instanceof IOException ? (IOException) e : new IOException(e);
-                    }
-                }
+							return sslSocketFactory_ = ctx.getSocketFactory();
+						} catch (Exception e) {
+							throw e instanceof IOException ? (IOException) e : new IOException(e);
+						}
+					}
+					try (FileInputStream trustFile = new FileInputStream(truststoreFile)) {
+
+						KeyManager[] keyManagers = null;
+						TrustManager[] trustManagers = null;
+						SSLContext ctx = SSLContext.getInstance("TLS");
+						KeyStore myKeyStore = KeyStore.getInstance("JKS");
+						TrustManagerFactory trustManagerFactory = TrustManagerFactory
+								.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+						/* If the truststore password is null assume that the keystore is to be trusted   */
+						/* without validating with password.  This is the same effect as if the           */
+						/* javax.net.ssl.trustStore JVM property was set without a corresponding password */
+						if (truststorePass == null || truststorePass.length() == 0) {
+							myKeyStore.load(trustFile, null);
+							KeyManagerFactory keyManagerFactory = null;
+							keyManagerFactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+							keyManagerFactory.init(myKeyStore, new char[0]);
+							keyManagers = keyManagerFactory.getKeyManagers();
+						} else {
+							myKeyStore.load(trustFile, truststorePass.toCharArray());
+						}
+						trustManagerFactory.init(myKeyStore);
+						trustManagers = trustManagerFactory.getTrustManagers();
+						ctx.init(keyManagers, trustManagers, null);
+						return sslSocketFactory_ = ctx.getSocketFactory();
+					} catch (Exception e) {
+						throw e instanceof IOException ? (IOException) e : new IOException(e);
+					}
+				}
 
                 //@formatter:off
                 @Override

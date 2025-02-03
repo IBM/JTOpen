@@ -34,6 +34,7 @@ import java.util.Random;                          // @J3a
 
 import javax.sql.DataSource;                      // JDBC2.0 std-ext
 import javax.naming.NamingException;              // JNDI
+import javax.naming.RefAddr;
 import javax.naming.Reference;                    // JNDI
 import javax.naming.Referenceable;                // JNDI
 import javax.naming.StringRefAddr;                // JNDI
@@ -330,7 +331,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         Properties properties = new Properties();
         sockProps_ = new SocketProperties();
 
-        Enumeration list = reference.getAll();
+        Enumeration<RefAddr> list = reference.getAll();
         while (list.hasMoreElements())
         {
             StringRefAddr refAddr = (StringRefAddr)list.nextElement();
@@ -3783,7 +3784,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         //or setup socket properties or set in properties_
         //Note: this is similar to AS400JDBCDataSource(Reference reference)logic
 
-        Enumeration e = newProperties.keys();
+        Enumeration<?> e = newProperties.keys();
         while (e.hasMoreElements())
         {
             String propertyName = (String) e.nextElement();
@@ -5825,6 +5826,53 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, property + ": " + setting);  
     }
 
+    /**
+    *  Returns the TLS truststore  
+    **/
+    public String getTlsTruststore()
+    {
+        return properties_.getString(JDProperties.TLS_TRUSTSTORE);
+    }
+
+    /**
+    *  Sets the TLS truststore 
+    **/
+    public void setTlsTruststore(String truststore)
+    {
+        String property = JDProperties.TLS_TRUSTSTORE_;
+
+        String old = getTlsTruststore();
+        properties_.setString(JDProperties.TLS_TRUSTSTORE, truststore);
+
+        changes_.firePropertyChange(property, old, truststore);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + truststore ); 
+    }
+
+    /**
+    *  Returns the TLS truststore  passowrd
+    **/
+    public String getTlsTruststorePassword()
+    {
+        return properties_.getString(JDProperties.TLS_TRUSTSTORE_PASSWORD);
+    }
+
+    /**
+    *  Sets the TLS truststore password
+    **/
+    public void setTlsTruststorePassword(String truststorePassword)
+    {
+        String property = JDProperties.TLS_TRUSTSTORE_PASSWORD_;
+
+        String old = getTlsTruststore();
+        properties_.setString(JDProperties.TLS_TRUSTSTORE_PASSWORD, truststorePassword);
+
+        changes_.firePropertyChange(property, old, truststorePassword);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + truststorePassword ); 
+    }
 
     
     
