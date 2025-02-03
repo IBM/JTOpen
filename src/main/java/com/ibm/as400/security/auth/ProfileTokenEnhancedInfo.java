@@ -58,73 +58,83 @@ import java.io.Serializable;
  */
 public final class ProfileTokenEnhancedInfo implements Serializable
 {
-	private static final long serialVersionUID = 1L;
-	private boolean enhancedTokenCreated_ = false;
-	private boolean createEnhancedIfPossible_ = true;
+    private static final long serialVersionUID = 1L;
+    private boolean enhancedTokenCreated_ = false;
+    private boolean createEnhancedIfPossible_ = true;
 
-	private String verificationID_ = null;
-	private String remoteIPAddress_ = null;
-	private int remotePort_ = 0;
-	private String localIPAddress_ = null;
-	private int localPort_ = 0;
+    private String verificationID_ = null;
+    private String remoteIPAddress_ = null;
+    private int remotePort_ = 0;
+    private String localIPAddress_ = null;
+    private int localPort_ = 0;
 
-	public ProfileTokenEnhancedInfo() {
-	}
+    public ProfileTokenEnhancedInfo() {
+    }
 
-	public ProfileTokenEnhancedInfo(String verificationID, String remoteIPAddress, int remotePort,
-			String localIPAddress, int localPort) {
-		initialize(false, verificationID, remoteIPAddress, remotePort, localIPAddress, localPort);
-	}
+    public ProfileTokenEnhancedInfo(String verificationID, String remoteIPAddress, int remotePort,
+            String localIPAddress, int localPort) {
+        initialize(false, verificationID, remoteIPAddress, remotePort, localIPAddress, localPort);
+    }
 
 
-	public ProfileTokenEnhancedInfo(ProfileTokenEnhancedInfo enhancedInfo) {
-		initialize(false, 
-				enhancedInfo.verificationID_,
-				enhancedInfo.remoteIPAddress_, 
-				enhancedInfo.remotePort_, 
-				enhancedInfo.localIPAddress_, 
-				enhancedInfo.localPort_);
-	}
+    public ProfileTokenEnhancedInfo(ProfileTokenEnhancedInfo enhancedInfo) {
+        initialize(false, 
+                enhancedInfo.verificationID_,
+                enhancedInfo.remoteIPAddress_, 
+                enhancedInfo.remotePort_, 
+                enhancedInfo.localIPAddress_, 
+                enhancedInfo.localPort_);
+    }
 
-	public String getVerificationID() { 
-	    return (verificationID_ != null) ? verificationID_ : ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
-	}
-	public String getRemoteIPAddress() { return remoteIPAddress_; } 
-	public int    getRemotePort() { return remotePort_; }
-	public String getLocalIPAddress() { return localIPAddress_; } 
-	public int    getLocalPort() { return localPort_; }
+    public String getVerificationID() {
+        return (verificationID_ != null) ? verificationID_ : ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
+    }
+    public String getRemoteIPAddress() { return remoteIPAddress_; } 
+    public int    getRemotePort() { return remotePort_; }
+    public String getLocalIPAddress() { return localIPAddress_; } 
+    public int    getLocalPort() { return localPort_; }
     public boolean getCreateEnhancedIfPossible() { return createEnhancedIfPossible_;} 
-	
-	public void setVerificationID(String verificationID ) { verificationID_ = verificationID; }
-	public void setRemoteIPAddress(String remoteIPAddress) { remoteIPAddress_ = remoteIPAddress; } 
-	public void setRemotePort(int remotePort ) { remotePort_ = remotePort; }
-	public void setLocalIPAddress(String localIPAddress ) { localIPAddress_ = localIPAddress; } 
-	public void setLocalPort(int localPort ) {  localPort_ = localPort; }
+    
+    public void setVerificationID(String verificationID ) { verificationID_ = verificationID; }
+    public void setRemoteIPAddress(String remoteIPAddress) { remoteIPAddress_ = remoteIPAddress; } 
+    public void setRemotePort(int remotePort ) { remotePort_ = remotePort; }
+    public void setLocalIPAddress(String localIPAddress ) { localIPAddress_ = localIPAddress; } 
+    public void setLocalPort(int localPort ) {  localPort_ = localPort; }
     public void setCreateEnhancedIfPossible(boolean ifPossible) { createEnhancedIfPossible_ = ifPossible;}
-	public boolean wasEnhancedTokenCreated() { return enhancedTokenCreated_; }
-	public void setEnhancedTokenCreated(boolean enhancedTokenCreated) { enhancedTokenCreated_ = enhancedTokenCreated; }
+    public boolean wasEnhancedTokenCreated() { return enhancedTokenCreated_; }
+    public void setEnhancedTokenCreated(boolean enhancedTokenCreated) { enhancedTokenCreated_ = enhancedTokenCreated; }
 
-	public void reset() {
-		enhancedTokenCreated_ = false;
-		verificationID_ = null;
-		localIPAddress_ = null;
-		remoteIPAddress_ = null;
-		localPort_ = 0;
-		remotePort_ = 0;
-	}
+    public void reset() {
+        enhancedTokenCreated_ = false;
+        verificationID_ = null;
+        localIPAddress_ = null;
+        remoteIPAddress_ = null;
+        localPort_ = 0;
+        remotePort_ = 0;
+    }
 
-	public void initialize(boolean enhancedTokenCreated, String verificationID, String remoteIPAddress, int remotePort,
-			String localIPAddress, int localPort) {
-		enhancedTokenCreated_ = enhancedTokenCreated;
-		verificationID_ = verificationID;
-		remoteIPAddress_ = remoteIPAddress;
-		remotePort_ = remotePort;
-		localIPAddress_ = localIPAddress;
-		localPort_ = localPort;
-		
-	}
-	
-	
-	
-	
+    public void initialize(boolean enhancedTokenCreated, String verificationID, String remoteIPAddress, int remotePort,
+            String localIPAddress, int localPort) {
+        enhancedTokenCreated_ = enhancedTokenCreated;
+        verificationID_ = verificationID;
+        remoteIPAddress_ = remoteIPAddress;
+        remotePort_ = remotePort;
+        localIPAddress_ = localIPAddress;
+        localPort_ = localPort;
+        
+    }
+    
+    @Override
+    public String toString() 
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.append("enhancedTokenCreated: ").append(enhancedTokenCreated_);
+        if (enhancedTokenCreated_)
+        {
+            sb.append(",").append("verificationID=").append(verificationID_);
+            sb.append(",").append("remoteIPAddress=").append(remoteIPAddress_);
+        }
+        
+        return sb.toString();
+    }
 }

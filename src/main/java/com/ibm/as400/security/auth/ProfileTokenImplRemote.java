@@ -155,7 +155,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
             parmlist[18] = new ProgramParameter(BinaryConverter.intToByteArray(enhancedInfo.getLocalPort()));
         }
 
-        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenImpleRemote generating profile token w/special value for user: " + uid);
+        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenImpleRemote generating profile token w/special value: user=" + uid + ", " + enhancedInfo);
 
         ProgramCall programCall = new ProgramCall(sys);
 

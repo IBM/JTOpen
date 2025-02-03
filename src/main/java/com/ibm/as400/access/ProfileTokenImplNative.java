@@ -142,7 +142,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
                 throw new ExtendedIllegalArgumentException("password special value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         
-        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenImplNative generating profile token w/special value for user: " + uid);
+        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenImplNative generating profile token w/special value: user=" + uid + ", " + enhancedInfo);
 
 
         // Call native method and return token bytes, we rely on the fact this class is only called if running on AS400.
