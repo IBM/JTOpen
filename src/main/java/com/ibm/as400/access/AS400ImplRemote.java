@@ -944,7 +944,7 @@ public class AS400ImplRemote implements AS400Impl
           }
           
           // [0]=notUsed, [1]=verification ID, [2]=remote ip address 
-          Object[] additionalAuthInfo = getAdditionalAuthInfo(profileToken, null);
+          Object[] additionalAuthInfo = getAdditionalAuthInfo(profileToken, null, null);
           
           SignonGenAuthTokenRequestDS req2 = new SignonGenAuthTokenRequestDS(
                   BinaryConverter.charArrayToByteArray(userIdentity.toCharArray()), profileToken.getTokenType(),
@@ -965,17 +965,17 @@ public class AS400ImplRemote implements AS400Impl
           try {
               int vrm = (version_ != null) ? version_.getVersionReleaseModification() : getVRM();
               if (vrm > 0x00070500 ) {
-            	    /* server always generates enhanced profile token */
-            	  ProfileTokenEnhancedInfo enhancedInfo = new ProfileTokenEnhancedInfo((String) additionalAuthInfo[3],
-            			  (String) additionalAuthInfo[4],
-            			  profileToken.getRemotePort(),
-            			  profileToken.getLocalIPAddress(),
-            			  profileToken.getLocalPort());
-            	  enhancedInfo.setEnhancedTokenCreated(true); 
-            	  profileToken.setToken(rep.getProfileTokenBytes(),
-            			  enhancedInfo);
+                    /* server always generates enhanced profile token */
+                  ProfileTokenEnhancedInfo enhancedInfo = new ProfileTokenEnhancedInfo((String) additionalAuthInfo[3],
+                          (String) additionalAuthInfo[4],
+                          profileToken.getRemotePort(),
+                          profileToken.getLocalIPAddress(),
+                          profileToken.getLocalPort());
+                  enhancedInfo.setEnhancedTokenCreated(true); 
+                  profileToken.setToken(rep.getProfileTokenBytes(),
+                          enhancedInfo);
               } else {
-            	  profileToken.setToken(rep.getProfileTokenBytes());
+                  profileToken.setToken(rep.getProfileTokenBytes());
               }
 
               
@@ -1136,17 +1136,13 @@ public class AS400ImplRemote implements AS400Impl
           
           if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "AS400ImplRemote generating profile token for user: " + userId);
 
-          byte[] additionalAuthFactorUtf8 = null; 
-          if (additionalAuthFactor != null) { 
-        	 additionalAuthFactorUtf8 =   (new String(additionalAuthFactor)).getBytes(StandardCharsets.UTF_8);
-          }
-          // [0]=unused, [1]=verification ID, [2]=remote ip address 
-          Object[] additionalAuthInfo = getAdditionalAuthInfo(profileToken, null);
+          // [0]=Factor, [1]=verification ID, [2]=remote ip address 
+          Object[] additionalAuthInfo = getAdditionalAuthInfo(profileToken, null, additionalAuthFactor);
 
           AS400GenAuthTknDS req = new AS400GenAuthTknDS(userIdEbcdic,
                   authenticationBytes, authScheme, profileToken.getTokenType(),
                   profileToken.getTimeoutInterval(), serverLevel_, 
-                  additionalAuthFactorUtf8,  (byte[])additionalAuthInfo[1],  (byte[])additionalAuthInfo[2]);
+                  (byte[])additionalAuthInfo[0],  (byte[])additionalAuthInfo[1],  (byte[])additionalAuthInfo[2]);
           
           CredentialVault.clearArray(authenticationBytes);
           AS400GenAuthTknReplyDS rep = (AS400GenAuthTknReplyDS) signonServer_.sendAndReceive(req);
@@ -1165,16 +1161,16 @@ public class AS400ImplRemote implements AS400Impl
           try {
               int vrm = (version_ != null) ? version_.getVersionReleaseModification() : getVRM();
               if (vrm > 0x00070500 ) {
-            	  ProfileTokenEnhancedInfo enhancedInfo = new ProfileTokenEnhancedInfo((String) additionalAuthInfo[3],
-            			  (String) additionalAuthInfo[4],
-            			  profileToken.getRemotePort(),
-            			  profileToken.getLocalIPAddress(),
-            			  profileToken.getLocalPort());
-            	  enhancedInfo.setEnhancedTokenCreated(true); 
-            	  profileToken.setToken(rep.getProfileTokenBytes(),
-            			  	enhancedInfo       			  ); 
+                  ProfileTokenEnhancedInfo enhancedInfo = new ProfileTokenEnhancedInfo((String) additionalAuthInfo[3],
+                          (String) additionalAuthInfo[4],
+                          profileToken.getRemotePort(),
+                          profileToken.getLocalIPAddress(),
+                          profileToken.getLocalPort());
+                  enhancedInfo.setEnhancedTokenCreated(true); 
+                  profileToken.setToken(rep.getProfileTokenBytes(),
+                              enhancedInfo                     ); 
               } else { 
-            	  profileToken.setToken(rep.getProfileTokenBytes());
+                  profileToken.setToken(rep.getProfileTokenBytes());
               }
               profileToken.setTokenCreator(ProfileTokenCredential.CREATOR_SIGNON_SERVER);
           } catch (PropertyVetoException e) {
@@ -1539,7 +1535,7 @@ public class AS400ImplRemote implements AS400Impl
 
                       userIDbytes = getEncryptedUserid(sharedKeyBytes, serverSeed);
                       if (credVault_.isEmpty() &&
-                    		  !mustUseSuppliedProfile_
+                              !mustUseSuppliedProfile_
                               && AS400.onAS400
                               && AS400.currentUserAvailable()
                               && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification()))) {
@@ -1573,15 +1569,11 @@ public class AS400ImplRemote implements AS400Impl
                   }
                   
                   // [0]=factor, [1]=verification ID, [2]=remote ip address 
-                  Object[] additonalAuthInfo = getAdditionalAuthInfo(null, aafIndicator_);
-                  byte[] additionalAuthFactorUtf8 = null;
-                  if (additionalAuthFactor_ != null) { 
-                    additionalAuthFactorUtf8 = (new String(additionalAuthFactor_)).getBytes(StandardCharsets.UTF_8);
-                  }
+                  Object[] additonalAuthInfo = getAdditionalAuthInfo(null, aafIndicator_, additionalAuthFactor_);
+
                   ClassDecoupler.connectDDMPhase2(outStream, inStream, userIDbytes, ddmSubstitutePassword, iaspBytes,
                                                   authScheme, ddmRDB_, systemName_, connectionID, 
-                                                  additionalAuthFactorUtf8,  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
-                  
+                                                  (byte[])additonalAuthInfo[0],  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
               }
               else
               {
@@ -1634,15 +1626,11 @@ public class AS400ImplRemote implements AS400Impl
                       Trace.log(Trace.DIAGNOSTIC, "  Password level: ", passwordLevel_);
                   }
 
-                  // [0]= unused [1]=verification ID, [2]=remote ip address 
-                  Object[] additonalAuthInfo = getAdditionalAuthInfo(null, xChgReply.getAAFIndicator());
-                  byte[] additionalAuthFactorUtf8 = null  ;
-                  if (additionalAuthFactor_ != null) { 
-                	  additionalAuthFactorUtf8 = (new String(additionalAuthFactor_)).getBytes(StandardCharsets.UTF_8);
-                  }
+                  // [0]= factor [1]=verification ID, [2]=remote ip address 
+                  Object[] additonalAuthInfo = getAdditionalAuthInfo(null, xChgReply.getAAFIndicator(), additionalAuthFactor_);
 
                   AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType(),
-                          additionalAuthFactorUtf8,  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
+                          (byte[])additonalAuthInfo[0],  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
                   
                   if (Trace.traceOn_) req.setConnectionID(connectionID);
                   req.write(outStream);
@@ -3876,14 +3864,10 @@ public class AS400ImplRemote implements AS400Impl
               }
     
               // [0]=factor, [1]=verification ID, [2]=remote ip address 
-              Object[] additonalAuthInfo = getAdditionalAuthInfo(null, aafIndicator_);
-              byte[] additionalAuthFactorUtf8 = null;
-              if (additionalAuthFactor_ != null) {
-            	 additionalAuthFactorUtf8 =  (new String(additionalAuthFactor_)).getBytes(StandardCharsets.UTF_8);
-              }
+              Object[] additonalAuthInfo = getAdditionalAuthInfo(null, aafIndicator_, additionalAuthFactor_);
 
               AS400StrSvrDS req = new AS400StrSvrDS(serverId, userIDbytes, encryptedPassword, credVault_.getType(), 
-                      additionalAuthFactorUtf8,  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
+                      (byte[])additonalAuthInfo[0],  (byte[])additonalAuthInfo[1],  (byte[])additonalAuthInfo[2]);
               
               if (Trace.traceOn_) req.setConnectionID(connectionID);
               req.write(outStream);
@@ -4095,7 +4079,7 @@ public class AS400ImplRemote implements AS400Impl
     
     if (swapToPH_ != null || swapFromPH_ != null) { 
         Trace.log(Trace.ERROR, "Nested swapTo / swapBack calls.");
-    	throw new AS400SecurityException(AS400SecurityException.UNKNOWN);
+        throw new AS400SecurityException(AS400SecurityException.UNKNOWN);
     }
     
     byte[] temp = credVault_.getClearCredential();
@@ -4130,8 +4114,8 @@ public class AS400ImplRemote implements AS400Impl
       } catch (NativeException e) {
           throw mapNativeSecurityException(e);
       } finally {
-    	  swapToPH_ = null; 
-    	  swapFromPH_ = null; 
+          swapToPH_ = null; 
+          swapFromPH_ = null; 
       }
   }
 
@@ -5132,9 +5116,9 @@ public class AS400ImplRemote implements AS400Impl
   public void setVRM(int v, int r, int m)
   {
       if (signonInfo_ == null)
-		  signonInfo_ = new SignonInfo((v << 16) + (r << 8) + m); 
-	  else
-		  signonInfo_.version.setVersionReleaseModification((v << 16) + (r << 8) + m);
+          signonInfo_ = new SignonInfo((v << 16) + (r << 8) + m); 
+      else
+          signonInfo_.version.setVersionReleaseModification((v << 16) + (r << 8) + m);
   }
 
   @Override
@@ -5143,77 +5127,94 @@ public class AS400ImplRemote implements AS400Impl
       additionalAuthFactor_ = (null != additionalAuthFactor && 0 < additionalAuthFactor.length )
               ? (new String(additionalAuthFactor)).getBytes(StandardCharsets.UTF_8) : null;
   }
+  
   /*
    * Get the additional authentication info to be sent to the server as well as 
    * the information that needs to be associated with an enhanced profile token. 
    * The output is the following
+   *  object[0] = byte[] additional authentication factor UTF-8
    *  object[1] = byte[] verification id in UTF-8
    *  object[2] = byte[] remoteIPAddress in UTF-8
    *  object[3] = String verificationId
    *  object[4] = String remoteIpAddress 
    */
-  private Object[] getAdditionalAuthInfo(ProfileTokenCredential profileToken, Boolean aafIndicator)
+  private Object[] getAdditionalAuthInfo(ProfileTokenCredential profileToken, Boolean aafIndicator, Object additionalAuthFactor)
   {
       Object[] authdata = new Object[] { null, null, null, null, null };
       
       int vrm = (version_ != null) ? version_.getVersionReleaseModification() : getVRM();
       if (vrm > 0x00070500 || (aafIndicator != null && aafIndicator))
       {
-         
+          // If additional authentication factor passed in and not already byte[], convert it and stash in array. 
+          if (additionalAuthFactor != null)
+          {
+              authdata[0]  =  (additionalAuthFactor instanceof char[])
+                  ? (new String((char[])additionalAuthFactor)).getBytes(StandardCharsets.UTF_8)
+                  :  (byte[])additionalAuthFactor;
+          }
           
           // If profile token is null,  means we are not generating a profile token, so profile token should be in credential.
           boolean creatingToken = (profileToken != null);
           if (profileToken == null && (credVault_ instanceof ProfileTokenVault))
               profileToken = ((ProfileTokenVault)credVault_).getProfileTokenCredential();
           
-			if (profileToken != null) {
-				String verificationID_s = profileToken.getVerificationID();
-				if (verificationID_s == null || verificationID_s.isEmpty() ) {
-					/* Make sure a default value is set */ 
-					verificationID_s = ProfileTokenCredential.DEFAULT_VERIFICATION_ID; 
-				}
-				authdata[1] = verificationID_s.getBytes(StandardCharsets.UTF_8);
-				authdata[3] = verificationID_s;
+          if (profileToken != null)
+          {
+              String verificationID_s = profileToken.getVerificationID();
+              if (verificationID_s == null || verificationID_s.isEmpty() )
+              {
+                    /* Make sure a default value is set */ 
+                    verificationID_s = ProfileTokenCredential.DEFAULT_VERIFICATION_ID; 
+              }
+              
+              authdata[1] = verificationID_s.getBytes(StandardCharsets.UTF_8);
+              authdata[3] = verificationID_s;
 
-				String clientIPAddress_s = profileToken.getRemoteIPAddress();
-				if (clientIPAddress_s != null && !clientIPAddress_s.isEmpty()) {
-					authdata[2] = clientIPAddress_s.getBytes(StandardCharsets.UTF_8);
-					authdata[4] = clientIPAddress_s;
-				} else {
-					authdata[2] = null;
-					authdata[4] = null;
-				}
+              String clientIPAddress_s = profileToken.getRemoteIPAddress();
+              if (clientIPAddress_s != null && !clientIPAddress_s.isEmpty())
+              {
+                  authdata[2] = clientIPAddress_s.getBytes(StandardCharsets.UTF_8);
+                  authdata[4] = clientIPAddress_s;
+              } 
+              else
+              {
+                  authdata[2] = null;
+                  authdata[4] = null;
+              }
 
-				// Verification ID will always be set to something. However, depending on where
-				// token was created, the client IP address
-	              // may or may not be set.  If creating the token and it is not set, use the IP address of the sign-on server. Thus, all tokens
-              // that signon server creates should have client IP address. 
+              // Verification ID will always be set to something. However, depending on where
+              // token was created, the client IP address
+              // may or may not be set. If creating the token and it is not set, use the IP address of the sign-on
+              // server. Thus, all tokens that signon server creates should have client IP address.
               if (authdata[2] == null)
               {
-                  // Note that not setting client IP address will result in sign-on host server setting the client IP address.
+                  // Note that not setting client IP address will result in sign-on host server setting the client IP
+                  // address.
                   if (creatingToken && signonServer_ != null)
                   {
                       // We are creating token, try to set client IP address using sign-on server.
                       clientIPAddress_s = signonServer_.getLocalAddress();
-      				if (clientIPAddress_s != null && !clientIPAddress_s.isEmpty()) {
-    					authdata[2] = clientIPAddress_s.getBytes(StandardCharsets.UTF_8);
-    					authdata[4] = clientIPAddress_s;
-    				} else {
-    					authdata[2] = null;
-    					authdata[4] = null;
-    				}
-                      
+                      if (clientIPAddress_s != null && !clientIPAddress_s.isEmpty())
+                      {
+                          authdata[2] = clientIPAddress_s.getBytes(StandardCharsets.UTF_8);
+                          authdata[4] = clientIPAddress_s;
+                      }
+                      else {
+                          authdata[2] = null;
+                          authdata[4] = null;
+                      }
+
                       try {
                           profileToken.setRemoteIPAddress(clientIPAddress_s);
                       } catch (PropertyVetoException e) {
-                        throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+                          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
                       }
                   }
-                  else if (profileToken.getTokenCreator() != ProfileTokenCredential.CREATOR_SIGNON_SERVER) {
-                	  
+                  else if (profileToken.getTokenCreator() != ProfileTokenCredential.CREATOR_SIGNON_SERVER)
+                  {
                       authdata[2] = "*NOUSE".getBytes(StandardCharsets.UTF_8);
                       authdata[4] = "*NOUSE";
-                  }	
+                  }
               }
           }
       }

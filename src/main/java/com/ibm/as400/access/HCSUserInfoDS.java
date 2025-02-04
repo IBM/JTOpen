@@ -29,7 +29,7 @@ class HCSUserInfoDS extends ClientAccessDataStream
         setServerID(0xE00B);
         // setCSInstance(0x00000000);
         // setCorrelation(0x00000000);
-        setTemplateLen(24);
+        setTemplateLen(0);
         setReqRepID(0x7104);
 
         // Return function registration timestamps.
