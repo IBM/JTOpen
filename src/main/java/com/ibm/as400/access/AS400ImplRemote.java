@@ -3740,102 +3740,100 @@ public class AS400ImplRemote implements AS400Impl
   // And it never goes away unless there is a request to disconnect or the connection has been severed.
   synchronized private void hostcnnConnect(boolean authenticate) throws AS400SecurityException, IOException
   {
-      // If we have a hostcnn connection, make sure it is alive
+      // If HOSTCNN server not supported or cannot connect to it over TLS, simply return.
+      // Note that if we do have HOSTCNN connection, we later verify that the connection is still alive, and if not, 
+      // we try to reestablish connection. 
+      if (hostcnnServer_ == null && (useSSLConnection_ == null || (signonInfo_ != null && getVRM() <= 0x00070500)))
+          return;
       
-      boolean reconnecting =  (hostcnnServer_ != null && !isConnectionAlive(AS400.HOSTCNN));
-      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Reconnecting as-hostcnn connection? " + reconnecting);
-
-      // If already have a connection or this object is not secure, or 
-      //  hostcnn connect was already tried and failed, simply return. 
-      if (!reconnecting)
-          if (hostcnnServer_ != null || useSSLConnection_ == null || (signonInfo_ != null && getVRM() <= 0x00070500))
-              return;
-      
-      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Attempting to connect to as-hostcnn server.");
-
-      boolean connectedSuccessfully = false;
-      
-      SocketContainer socketContainer =  null;
-      int connectionID;
-      
-      AS400NoThreadServer hostcnnServer = (reconnecting) ? hostcnnServer_ : new AS400NoThreadServer(this, AS400.HOSTCNN);
+      boolean connectedSuccessfully     = false;
+     
+      AS400NoThreadServer hostcnnServer = (hostcnnServer_ != null) ? hostcnnServer_ : new AS400NoThreadServer(this, AS400.HOSTCNN);
      
       try 
       {
           // So we need to synchronize since we may be reconnecting and thus we do not want other AS400 objects 
-          // attempting the same process of reconnecting. 
+          // that may share same HOSTCNN connection attempt the same process of reconnecting. 
           hostcnnServer.lock();
+                
+          if (hostcnnServer_ != null && isConnectionAlive(AS400.HOSTCNN))
+          {
+              // User already authenticated and HOSTCNN connection is fine. Simply return. 
+              
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "The as-hostcnn connnection exists and is alive.");
+
+              connectedSuccessfully = true;
+              return;
+          }
+
+          // If here, either there is no HOSTCNN connection, or the connection is not alive and thus an
+          // attempt is made to reconnect. 
           
-          // We need to check if connection is alive again just in case some other thread has already gone through
-          // the process of reconnecting. 
-          InputStream inStream = null;
-          OutputStream outStream = null;
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Attempting to connect to as-hostcnn server.");
+
+          // If going to releases that do not support MFA, portmapper will throw an exception, need to handle.
+          SocketContainer socketContainer  =  PortMapper.getServerSocket( (systemNameLocal_) ? "localhost"  : systemName_,  
+                  AS400.HOSTCNN, -1, useSSLConnection_, socketProperties_, mustUseNetSockets_);
+          hostcnnServer.setSocket(socketContainer);
+          int connectionID = hostcnnServer.getConnectionID();
+          
+          InputStream inStream = socketContainer.getInputStream();
+          OutputStream outStream = socketContainer.getOutputStream();
+          
+          hostcnn_clientSeed_ = (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD)
+                  ? BinaryConverter.longToByteArray(System.currentTimeMillis()) : null;
+
+          // -------
+          // The first request we send is "exchange client/server attributes"...
+          // -------
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Send exchange client/server attributes request");
+
           int serverId = AS400Server.getServerId(AS400.HOSTCNN);
 
-          if (!reconnecting || (reconnecting && !isConnectionAlive(AS400.HOSTCNN)))
+          SignonExchangeAttributeReq attrReq = new SignonExchangeAttributeReq(serverId, hostcnn_clientSeed_);
+
+          if (Trace.traceOn_) attrReq.setConnectionID(connectionID);
+          attrReq.write(outStream);
+
+          SignonExchangeAttributeRep attrRep = new SignonExchangeAttributeRep();
+          if (Trace.traceOn_) attrRep.setConnectionID(connectionID);
+          attrRep.read(inStream);
+
+          if (attrRep.getRC() != 0)
           {
-              // If going to releases that do not support MFA, portmapper will throw an exception, need to handle.
-              socketContainer =  PortMapper.getServerSocket( (systemNameLocal_)  ? "localhost"  : systemName_, 
-                      AS400.HOSTCNN, -1, useSSLConnection_, socketProperties_, mustUseNetSockets_);
-              hostcnnServer.setSocket(socketContainer);
-              connectionID = hostcnnServer.getConnectionID();
-              
-              inStream = socketContainer.getInputStream();
-              outStream = socketContainer.getOutputStream();
-              
-              hostcnn_clientSeed_ = (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD)
-                      ? BinaryConverter.longToByteArray(System.currentTimeMillis())
-                      : null;
-    
-              // -------
-              // The first request we send is "exchange client/server attributes"...
-              // -------
-              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Send exchange client/server attributes request");
-    
-              SignonExchangeAttributeReq attrReq = new SignonExchangeAttributeReq(serverId, hostcnn_clientSeed_);
-    
-              if (Trace.traceOn_) attrReq.setConnectionID(connectionID);
-              attrReq.write(outStream);
-    
-              SignonExchangeAttributeRep attrRep = new SignonExchangeAttributeRep();
-              if (Trace.traceOn_) attrRep.setConnectionID(connectionID);
-              attrRep.read(inStream);
-    
-              if (attrRep.getRC() != 0)
-              {
-                  // Connect failed, throw exception.
-                  byte[] rcBytes = new byte[4];
-                  BinaryConverter.intToByteArray(attrRep.getRC(), rcBytes, 0);
-                  Trace.log(Trace.ERROR, "Server exchange client/server attributes failed, return code:", rcBytes);
-                  throw AS400ImplRemote.returnSecurityException(attrRep.getRC(), null, userId_);
-              }
-              
-              // -------
-              // Bookkeeping...
-              // -------
-              
-              version_ = new ServerVersion(attrRep.getServerVersion());
-              serverLevel_ = attrRep.getServerLevel();
-              passwordLevel_ = attrRep.getPasswordLevel();
-              isPasswordTypeSet_ = true;
-              hostcnn_serverSeed_ = attrRep.getServerSeed();
-              aafIndicator_ = attrRep.getAAFIndicator();
-              
-              if (Trace.traceOn_)
-              {
-                  byte[] versionBytes = new byte[4];
-                  BinaryConverter.intToByteArray(version_.getVersionReleaseModification(), versionBytes, 0);
-                  Trace.log(Trace.DIAGNOSTIC, "Server vrm:", versionBytes);
-                  Trace.log(Trace.DIAGNOSTIC, "Server level: ", serverLevel_);
-                  Trace.log(Trace.DIAGNOSTIC, "MFA enbled: ", aafIndicator_);
-              }
-              
-              // Will be overridden if we authenticate!
-              hostcnnServer.setJobString(obtainJobIdForConnection(attrRep.getJobNameBytes()));
+              // Connect failed, throw exception.
+              byte[] rcBytes = new byte[4];
+              BinaryConverter.intToByteArray(attrRep.getRC(), rcBytes, 0);
+              Trace.log(Trace.ERROR, "Server exchange client/server attributes failed, return code:", rcBytes);
+              throw AS400ImplRemote.returnSecurityException(attrRep.getRC(), null, userId_);
           }
           
+          // -------
+          // Bookkeeping...
+          // -------
+          
+          version_ = new ServerVersion(attrRep.getServerVersion());
+          serverLevel_ = attrRep.getServerLevel();
+          passwordLevel_ = attrRep.getPasswordLevel();
+          isPasswordTypeSet_ = true;
+          hostcnn_serverSeed_ = attrRep.getServerSeed();
+          aafIndicator_ = attrRep.getAAFIndicator();
+          
+          if (Trace.traceOn_)
+          {
+              byte[] versionBytes = new byte[4];
+              BinaryConverter.intToByteArray(version_.getVersionReleaseModification(), versionBytes, 0);
+              Trace.log(Trace.DIAGNOSTIC, "Server vrm:", versionBytes);
+              Trace.log(Trace.DIAGNOSTIC, "Server level: ", serverLevel_);
+              Trace.log(Trace.DIAGNOSTIC, "MFA enbled: ", aafIndicator_);
+          }
+          
+          // Will be overridden if we authenticate!
+          hostcnnServer.setJobString(obtainJobIdForConnection(attrRep.getJobNameBytes()));
+
+          
           // Only reason we do not authenticate is when we need to retrieve server information
-          // and thus the hostcnn connection MUST be disconnected immediately. 
+          // and thus the HOSTCNN connection MUST be disconnected immediately. 
           // TODO AMRA move block of code to own method and remove duplication
           if (authenticate)
           {
@@ -3924,18 +3922,24 @@ public class AS400ImplRemote implements AS400Impl
           
           if (connectedSuccessfully)
               hostcnnServer_ = hostcnnServer;
-          else if (hostcnnServer != null)
+          else if (hostcnnServer_ != null)
           {
-              // if reconnecting, then that is it, sever ties with shared hostcnn connection. 
-              if (reconnecting)
-              {
-                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Reconnecting as-hostcnn failed, marking as closed ");
+              // Must have been trying to reconnect and failed
+              
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Reconnecting as-hostcnn failed, marking as closed ");
 
-                  hostcnnServer.markClosed();
-                  hostcnnDisconnect();
-              }
-              else
-                  hostcnnServer.forceDisconnect();                  
+              // Mark as closed so if shared it is known that it is not viable.
+              hostcnnServer.markClosed();
+              
+              hostcnnDisconnect();
+          }
+          else
+          {
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Connecting to as-hostcnn failed, forcing disconnect ");
+
+              // It is not shared...just force disconnect. We do not mark as closed, we want 
+              // to go through the process of closing the socket. 
+              hostcnnServer.forceDisconnect();     
           }
       }
   }
