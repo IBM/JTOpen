@@ -4290,7 +4290,10 @@ public class AS400 implements Serializable, AutoCloseable
             if (PASSWORD_TRACE)  Trace.log(Trace.DIAGNOSTIC, "AS400 object proxySeed:", proxySeed);
           
             if (skipSignonServer_)
+            {
+                impl_.setAdditionalAuthenticationFactor(additionalAuthenticationFactor_);
                 signonInfo_ = impl_.skipSignon(systemName_, systemNameLocal_, userId_, tempVault, gssName_);
+            }
             else
                 signonInfo_ = impl_.signon(systemName_, systemNameLocal_, userId_, tempVault, gssName_, additionalAuthenticationFactor_);
         }

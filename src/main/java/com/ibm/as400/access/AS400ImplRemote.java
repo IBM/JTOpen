@@ -40,6 +40,7 @@ import java.security.spec.KeySpec;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -66,7 +67,7 @@ public class AS400ImplRemote implements AS400Impl
 {
   private static boolean PASSWORD_TRACE = false;
   private static final boolean DEBUG = false;
-  private static final int UNINITIALIZED = -1;// @S5A
+  private static final int UNINITIALIZED = -1;
 
   // The pool of systems. The systems are in service constant order!
   // The following are not in the pool since these are singleton objects.
@@ -175,9 +176,11 @@ public class AS400ImplRemote implements AS400Impl
   // Additional authentication factor. We have to hold on to it because it may be timed, and thus can be reused. 
   private byte[] additionalAuthFactor_;
   
-  // Profile handles used by swapTo / swapBack
+  // Profile handles used by swapTo / swapBack. The swapToPH should always match userID to be authenticated
   private byte[] swapToPH_ = null;
   private byte[] swapFromPH_ = null;
+  private String swapToPHUserID_ = null;
+  private AtomicInteger swapToPHRefCount_ = null;
   
   private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
 
@@ -623,12 +626,6 @@ public class AS400ImplRemote implements AS400Impl
   {
       if (service == AS400.SIGNON)
           signonConnect();
-      else if (service == AS400.HOSTCNN)
-      {
-          // Do not allow for connections to hostcnn - do not see reason to allow it.
-          Trace.log(Trace.DIAGNOSTIC, "Connecting to as-hostcnn is not allowed. ");
-          throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
-      }
       else
           getConnection(service, overridePort, false, skipSignonServer);
   }
@@ -1442,13 +1439,10 @@ public class AS400ImplRemote implements AS400Impl
           Trace.log(Trace.DIAGNOSTIC, "Get connection for as-hostcnn is not allowed ");
           throw new ServerStartupException(ServerStartupException.CONNECTION_NOT_ESTABLISHED);
       }
-      
-      // Ensure we have an authenticated connection to hostcnn, if possible
-      hostcnnConnect(true);
 
       // Necessary for case where we are connecting after native sign-on.
       // Skip this test if not using the signon server.
-      if (!isPasswordTypeSet_ && !skipSignonServer && hostcnnServer_ == null)
+      if (!isPasswordTypeSet_ && !skipSignonServer)
       {
           signonConnect();
           signonDisconnect();
@@ -1478,15 +1472,17 @@ public class AS400ImplRemote implements AS400Impl
       // or directly to the host server.
       // -------
       
+      // Ensure we have an authenticated connection to hostcnn, if possible
+      hostcnnConnect(true);
+      
       SocketContainer socketContainer = null;
       int connectionID;
       String jobString = "";
       InputStream inStream = null;
       OutputStream outStream = null;
-      boolean haveHostcnnConnection = (hostcnnServer_ != null);
 
       // DDM (AS400.RECORDACCESS) does not fall under the HOSTCNN umbrella, it is a separate server. 
-      if (!haveHostcnnConnection || service == AS400.RECORDACCESS)
+      if ((hostcnnServer_ == null) || (service == AS400.RECORDACCESS))
       {
           try
           {
@@ -3306,7 +3302,7 @@ public class AS400ImplRemote implements AS400Impl
 
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Server as-hostcnn being passed to impl, server is: " + hostcnnServer_);
       
-      // TODO AMRA - need to verify what can be copied. 
+      // TODO - need to verify what can be copied. 
       
       credVault_ =  credVault.clone();
       systemName_ = parentImpl.systemName_;
@@ -3340,6 +3336,16 @@ public class AS400ImplRemote implements AS400Impl
       additionalAuthFactor_ = parentImpl.additionalAuthFactor_; 
       bidiStringType_ = parentImpl.bidiStringType_;
       socketProperties_ = parentImpl.socketProperties_;
+      
+      if (swapToPH_ != null)
+      {
+          swapToPH_ = parentImpl.swapToPH_;
+          swapFromPH_ = null;
+          swapToPHUserID_ = parentImpl.swapToPHUserID_;
+      
+          parentImpl.swapToPHRefCount_.incrementAndGet();
+          swapToPHRefCount_ = parentImpl.swapToPHRefCount_;
+      }
       
       return signonInfo_;
   }
@@ -3413,7 +3419,7 @@ public class AS400ImplRemote implements AS400Impl
       if (hostcnnServer_ != null && 
               ( !systemName_.equalsIgnoreCase(systemName) || !userId_.equalsIgnoreCase(userId)))
       {
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Authentication information has changed or as-hostcnn is not connected...");
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Authentication information has changed...");
 
           hostcnnDisconnect();
           signonDisconnect();
@@ -3443,56 +3449,26 @@ public class AS400ImplRemote implements AS400Impl
       proxySeed_ = null;
       remoteSeed_ = null;
 
+      // Try to use native signon if we can. 
       if (canUseNativeOptimization_)
       {
-          // If -Xshareclasses is specified when using Java on an IBM i system
-          // then classes cannot be loaded when the profile is swapped. Load the classes before doing the swap.
-          Class x = BinaryConverter.class;
-          x = GregorianCalendar.class;
-          x = SignonInfo.class;
-          x = com.ibm.as400.access.NLSImplNative.class;
-          x = com.ibm.as400.access.NLSImplRemote.class;
-          boolean didSwap = swapTo();
-          try
-          {
-            byte[] data = AS400ImplNative.signonNative(SignonConverter.stringToByteArray(userId));
-            GregorianCalendar date = new GregorianCalendar(
-                BinaryConverter.byteArrayToUnsignedShort(data, 0)/* year */,
-                (int) (data[2] - 1)/* month convert to zero based */,
-                (int) (data[3])/* day */, (int) (data[4])/* hour */,
-                (int) (data[5])/* minute */, (int) (data[6])/* second */);
-            signonInfo_ = new SignonInfo();
-            signonInfo_.currentSignonDate = date;
-            signonInfo_.lastSignonDate = date;
-            signonInfo_.expirationDate = (BinaryConverter.byteArrayToInt(data, 8) == 0) ? null
-                : new GregorianCalendar(
-                        BinaryConverter.byteArrayToUnsignedShort(data, 8)/* year */,
-                        (int) (data[10] - 1)/* month convert to zero based */,
-                        (int) (data[11])/* day */,
-                        (int) (data[12])/* hour */,
-                        (int) (data[13])/* minute */, 
-                        (int) (data[14])/* second */);
-    
-            signonInfo_.version = AS400.nativeVRM;
-            signonInfo_.serverCCSID = getCcsidFromServer();
-          }
-          catch (NativeException e) {
-            throw mapNativeSecurityException(e);
-          }
-          finally {
-            if (didSwap)
-              swapBack();
-          }
+          if (AS400.nativeVRM.getVersionReleaseModification() > 0x00070500 
+                    && additionalAuthFactor_ != null && useSSLConnection_ != null)
+              hostcnnConnect(true);
           
-          return signonInfo_;
+          if (hostcnnServer_ == null)
+          {
+              nativeSignon();
+              return signonInfo_;
+          }
       }
-
-      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Opening a socket to authenticate...");
-    
-      // Get connection to authenticating server. Will try hostcnn, and if that is not up, fall back to signon.
-      hostcnnConnect(true);
-      if (hostcnnServer_ == null)
-          signonConnect();
+      else
+      {
+          // Get connection to authenticating server. Will try hostcnn, and if that is not up, fall back to signon.
+          hostcnnConnect(true);
+          if (hostcnnServer_ == null)
+              signonConnect();
+      }
     
       // -------
       // If we are connected to hostcnn, just use that to retrieve user information
@@ -3621,117 +3597,125 @@ public class AS400ImplRemote implements AS400Impl
       
       return signonInfo_;
   }
-
-  // Initialize the impl without calling the sign-on server.
-  @Override
-  public SignonInfo skipSignon(String systemName, boolean systemNameLocal,
-      String userId, CredentialVault vault, String gssName)
-      throws AS400SecurityException, IOException 
+  
+  private void nativeSignon() throws AS400SecurityException, IOException 
   {
-    systemName_ = systemName;
-    systemNameLocal_ = systemNameLocal;
-    userId_ = userId;
-    gssName_ = gssName;
+      if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Native signon authentication...");
 
-    // We are accepting a credential vault from the caller.
-    // This vault will replace our existing one.
-    // So if our existing one is not the same as the one being given to us,
-    // then empty our existing one since we are discarding it.
-    if (!vault.equals(credVault_))
-      credVault_.empty();
-    
-    credVault_ = vault; 
-
-    // gssOption_ = gssOption; // not used
-
-    if (credVault_.getType() == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN) {
-      // No decoding to do.
-    } else {
-      // Must first decode the credential using the seeds that were previously
-      // exchanged between the public AS400 class and this class.
-      credVault_.storeEncodedUsingInternalSeeds(proxySeed_, remoteSeed_);
-      // Note: The called method ends up storing a "twiddled" representation of
-      // the credential info.
-    }
-
-    proxySeed_ = null;
-    remoteSeed_ = null;
-
-    if (canUseNativeOptimization_) {
-      byte[] swapToPH = new byte[12];
-      byte[] swapFromPH = new byte[12];
       // If -Xshareclasses is specified when using Java on an IBM i system
-      // then classes cannot be loaded when the profile is swapped.
-      // Load the classes before doing the swap. @K4A
+      // then classes cannot be loaded when the profile is swapped.  
+      // Load the classes before doing the swap.
       Class x = BinaryConverter.class;
       x = GregorianCalendar.class;
       x = SignonInfo.class;
       x = com.ibm.as400.access.NLSImplNative.class;
       x = com.ibm.as400.access.NLSImplRemote.class;
       boolean didSwap = swapTo();
-      try {
-        byte[] data = AS400ImplNative.signonNative(SignonConverter
-            .stringToByteArray(userId));
-        GregorianCalendar date = new GregorianCalendar(
-            BinaryConverter.byteArrayToUnsignedShort(data, 0)/* year */,
-            (int) (data[2] - 1)/* month convert to zero based */,
-            (int) (data[3])/* day */, (int) (data[4])/* hour */,
-            (int) (data[5])/* minute */, (int) (data[6])/* second */);
-        signonInfo_ = new SignonInfo();
-        signonInfo_.currentSignonDate = date;
-        signonInfo_.lastSignonDate = date;
-        signonInfo_.expirationDate = (BinaryConverter.byteArrayToInt(data, 8) == 0) ? null
-            : new GregorianCalendar(BinaryConverter.byteArrayToUnsignedShort(
-                data, 8)/* year */, (int) (data[10] - 1)/*
-                                                         * month convert to zero
-                                                         * based
-                                                         */,
-                (int) (data[11])/* day */, (int) (data[12])/* hour */,
-                (int) (data[13])/* minute */, (int) (data[14])/* second */);
-
-        signonInfo_.version = AS400.nativeVRM;
-        signonInfo_.serverCCSID = getCcsidFromServer();
-      } catch (NativeException e) {
-        // Map native exception to AS400SecurityException.
-        throw mapNativeSecurityException(e);
-      } finally {
-        if (didSwap)
-          swapBack();
-      }
-    }
-    else
-    {
-      try {
-
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
-
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Security validated successfully.");
-
-        signonInfo_ = new SignonInfo();
-        signonInfo_.currentSignonDate = null;
-        signonInfo_.lastSignonDate = null;
-        signonInfo_.expirationDate = null;
-        signonInfo_.PWDexpirationWarning = -1;
-        signonInfo_.version = new ServerVersion(0x70400);
-        signonInfo_.serverCCSID = 37;
-        signonInfo_.userId = userId_;
-
-        if (DataStream.getDefaultConverter() == null)
-        {
-          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server reports CCSID:", signonInfo_.serverCCSID);
-          DataStream.setDefaultConverter(ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this));
-        }
-        signonInfo_ = null;
-      }
-      catch (IOException e)
+      try
       {
-        Trace.log(Trace.ERROR, "Signon failed:", e);
-        signonServer_.forceDisconnect();
-        signonServer_ = null;
-        throw e;
+          byte[] data = AS400ImplNative.signonNative(SignonConverter.stringToByteArray(userId_));
+          GregorianCalendar date = new GregorianCalendar(
+                BinaryConverter.byteArrayToUnsignedShort(data, 0)/* year */,
+                (int) (data[2] - 1)/* month convert to zero based */,
+                (int) (data[3])/* day */, (int) (data[4])/* hour */,
+                (int) (data[5])/* minute */, (int) (data[6])/* second */);
+        
+          signonInfo_ = new SignonInfo();
+          signonInfo_.currentSignonDate = date;
+          signonInfo_.lastSignonDate = date;
+          signonInfo_.expirationDate = (BinaryConverter.byteArrayToInt(data, 8) == 0) ? null
+                : new GregorianCalendar(
+                        BinaryConverter.byteArrayToUnsignedShort(data, 8)/* year */, 
+                        (int) (data[10] - 1)/* month convert to zero based */,
+                        (int) (data[11])/* day */, 
+                        (int) (data[12])/* hour */,
+                        (int) (data[13])/* minute */,
+                        (int) (data[14])/* second */);
+
+          signonInfo_.version = AS400.nativeVRM;
+          signonInfo_.serverCCSID = getCcsidFromServer();
       }
-    }
-    return signonInfo_;
+      catch (NativeException e) {
+          throw mapNativeSecurityException(e);
+      } 
+      finally {
+          if (didSwap)
+              swapBack();
+      }
+  }
+
+  // Initialize the impl without calling the sign-on server.
+  // skipSignon was meant to allow a JDBC user to connect directly to the database host 
+  // server without connecting to the signon server.  This only happens if a port is specified on the URL.
+  @Override
+  public SignonInfo skipSignon(String systemName, boolean systemNameLocal, String userId, CredentialVault vault, String gssName)
+      throws AS400SecurityException, IOException 
+  {
+      systemName_ = systemName;
+      systemNameLocal_ = systemNameLocal;
+      userId_ = userId;
+      gssName_ = gssName;
+
+      // We are accepting a credential vault from the caller.
+      // This vault will replace our existing one.
+      // So if our existing one is not the same as the one being given to us,
+      // then empty our existing one since we are discarding it.
+      if (!vault.equals(credVault_))
+          credVault_.empty();
+    
+      credVault_ = vault; 
+
+      if (credVault_.getType() != AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
+      {
+          // Must first decode the credential using the seeds that were previously
+          // exchanged between the public AS400 class and this class.
+          credVault_.storeEncodedUsingInternalSeeds(proxySeed_, remoteSeed_);
+          // Note: The called method ends up storing a "twiddled" representation of
+          // the credential info.
+      }
+
+      proxySeed_ = null;
+      remoteSeed_ = null;
+
+      if (canUseNativeOptimization_)
+          nativeSignon();
+      else
+      {
+          try
+          {
+              if (Trace.traceOn_)
+                  Trace.log(Trace.DIAGNOSTIC, "Read security validation reply...");
+
+              if (Trace.traceOn_)
+                  Trace.log(Trace.DIAGNOSTIC, "Security validated successfully.");
+
+              signonInfo_ = new SignonInfo();
+              signonInfo_.currentSignonDate = null;
+              signonInfo_.lastSignonDate = null;
+              signonInfo_.expirationDate = null;
+              signonInfo_.PWDexpirationWarning = -1;
+              signonInfo_.version = new ServerVersion(0x70400);
+              signonInfo_.serverCCSID = 37;
+              signonInfo_.userId = userId_;
+
+              if (DataStream.getDefaultConverter() == null)
+              {
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Signon server reports CCSID:", signonInfo_.serverCCSID);
+                  DataStream.setDefaultConverter(ConverterImplRemote.getConverter(signonInfo_.serverCCSID, this));
+              }
+              
+              signonInfo_ = null;
+          }
+          catch (IOException e)
+          {
+              Trace.log(Trace.ERROR, "Signon failed:", e);
+              signonServer_.forceDisconnect();
+              signonServer_ = null;
+              throw e;
+          }
+      }
+      
+      return signonInfo_;
   }
   
   // The hostcnn connection takes over for signon server when it comes to authentication.
@@ -4068,58 +4052,210 @@ public class AS400ImplRemote implements AS400Impl
 
       fireConnectEvent(false, AS400.SIGNON);
   }
-
-  boolean swapTo() throws AS400SecurityException, IOException
+  
+  private synchronized void createSwapUserProfileHandle() throws AS400SecurityException, IOException
   {
-    if (AS400.onAS400
-        && AS400.currentUserAvailable()
-        && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
-      return false;
-
-    if (credVault_.isEmpty()) {
-      Trace.log(Trace.ERROR, "Password is null.");
-      throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
-    }
-    
-    if (swapToPH_ != null || swapFromPH_ != null) { 
-        Trace.log(Trace.ERROR, "Nested swapTo / swapBack calls.");
-        throw new AS400SecurityException(AS400SecurityException.UNKNOWN);
-    }
-    
-    byte[] temp = credVault_.getClearCredential();
-    try
-    {
-      // Screen out passwords that start with a star.
-      if (temp[0] == 0x00 && temp[1] == 0x2A) {
-        Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
-        throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+      if (!AS400.onAS400 || (AS400.nativeVRM.getVersionReleaseModification() <= 0x00070500))
+          return;
+      
+      // credentials cannot be empty
+      if (credVault_.isEmpty() || credVault_.getType() != AS400.AUTHENTICATION_SCHEME_PASSWORD)
+      {
+          Trace.log(Trace.ERROR, "Password is null.");
+          throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
       }
       
-      // Initialize the values before swapping.  
-      // TODO:  Need to change this code when we cache the swapToPH_  (and authenticate with the password once)
-      swapToPH_ = new byte[12];
-      swapFromPH_ = new byte[12];
+      // If we have a handle, see if we can use; otherwise, release it. 
+      if (swapToPH_ != null)
+      {
+          if (swapToPHUserID_.equals(userId_))
+          {
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Existing swap profile handle matched userID:" + userId_);
+              return;
+          }
+          
+          releaseSwapUserProfileHandle();
+      }
+      
+      // Create profile handle matching credentials
+      byte[] temp = credVault_.getClearCredential();
+      try
+      {
+          // Screen out passwords that start with a star.
+          if (temp[0] == 0x00 && temp[1] == 0x2A)
+          {
+              Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
+              throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+          }
+          
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating swap profile handle for userID:" + userId_);
 
-      AS400ImplNative.swapToNative(SignonConverter.stringToByteArray(userId_), temp, swapToPH_, swapFromPH_);
-    }
-    catch (NativeException e) {
-      throw mapNativeSecurityException(e);
-    } finally {
-        CredentialVault.clearArray(temp); 
-    }
+          // Initialize the values before swapping.
+          byte[] swapToPH_temp = new byte[12];
+          
+          char [] tempAAF = additionalAuthFactor_ == null ? null : new String(additionalAuthFactor_, StandardCharsets.UTF_8).toCharArray();
+
+          AS400ImplNative.createProfileHandle2Native(swapToPH_temp,  userId_, temp, tempAAF,
+                  ProfileTokenCredential.DEFAULT_VERIFICATION_ID, "127.0.0.1", 0, "", 0 );
+          
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Created swap profile handle for userID:" + userId_);
+
+          swapToPH_ = swapToPH_temp;
+          swapToPHUserID_ = userId_;
+          swapToPHRefCount_ = new AtomicInteger(1);
+      }
+      catch (NativeException e) {
+          throw mapNativeSecurityException(e);
+      } finally {
+          CredentialVault.clearArray(temp);
+      }
+  }
+
+  private synchronized void releaseSwapUserProfileHandle() throws AS400SecurityException, IOException
+  {
+      // If we have a handle, see if we can use; otherwise, release it. 
+      if (swapToPH_ == null)
+          return;
+
+      try 
+      {
+          int count = swapToPHRefCount_.decrementAndGet();
+          if (count == 0)
+          {
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "releasing swap profile handle for userID:" + swapToPHUserID_);
+
+              AS400ImplNative.releaseProfileHandleNative(swapToPH_);
+          }
+      }
+      catch (NativeException e) {
+          throw mapNativeSecurityException(e);
+      }
+      finally {
+          swapToPH_ = null;
+          swapToPHUserID_ = null;
+          swapToPHRefCount_ = null;
+      }
+  }
+  
+  /**
+   * swapTo is called by the various native-optimized pieces of the Java Toolbox when 
+   * canUseNativeOptimization_ is set to true. In the determination whether optimization 
+   * can be used is the check to ensure that the credential vault is of type 
+   * AUTHENTICATION_SCHEME_PASSWORD. The method also ensures this. 
+   */
+  boolean swapTo() throws AS400SecurityException, IOException
+  {
+      // This method MUST not be called if not running natively. 
+      if (!AS400.onAS400)
+      {
+          Trace.log(Trace.ERROR, "swapTo called when not running natively");
+          throw new AS400SecurityException(AS400SecurityException.UNKNOWN);
+      }
+      
+      // If thread userID matches AS400 userID, no swapping necessary. 
+      if (AS400.currentUserAvailable()
+              && userId_.equals(CurrentUser.getUserID(AS400.nativeVRM.getVersionReleaseModification())))
+          return false;
+
+      // credentials cannot be empty
+      if (credVault_.isEmpty() || !(credVault_.getType() == AS400.AUTHENTICATION_SCHEME_PASSWORD))
+      {
+          Trace.log(Trace.ERROR, "Password is null.");
+          throw new AS400SecurityException(AS400SecurityException.PASSWORD_NOT_SET);
+      }
+      
+      // If already swapped, do not allow another swap
+      if (swapFromPH_ != null) 
+      {
+          Trace.log(Trace.ERROR, "Nested swapTo / swapBack calls.");
+          throw new AS400SecurityException(AS400SecurityException.UNKNOWN);
+      }
     
-    return true;
+      // For 7.5 and older releases, we create and delete profile handles as needed. 
+      // In subsequent releases, we do not due to additional authentication factor. 
+      // We create profile handle corresponding to credential and only delete when 
+      // profile handle does not match the credential. 
+      if (AS400.nativeVRM.getVersionReleaseModification() <= 0x00070500)
+      {
+          byte[] temp = credVault_.getClearCredential();
+          try
+          {
+              // Screen out passwords that start with a star.
+              if (temp[0] == 0x00 && temp[1] == 0x2A)
+              {
+                  Trace.log(Trace.ERROR, "Parameter 'password' begins with a '*' character.");
+                  throw new AS400SecurityException(AS400SecurityException.SIGNON_CHAR_NOT_VALID);
+              }
+    
+              // Initialize the values before swapping.
+              byte[] swapToPH_temp = new byte[12];
+              byte[] swapFromPH_temp = new byte[12];
+              
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Swap old way to userID:" + userId_);
+
+              AS400ImplNative.swapToNative(SignonConverter.stringToByteArray(userId_), temp, swapToPH_temp, swapFromPH_temp);
+              swapToPH_   = swapToPH_temp;
+              swapFromPH_ = swapFromPH_temp;
+          }
+          catch (NativeException e) {
+              throw mapNativeSecurityException(e);
+          }
+          finally {
+              CredentialVault.clearArray(temp);
+          }
+      }
+      else
+      {
+          createSwapUserProfileHandle(); 
+          
+          try
+          {
+              // Initialize the value before swapping. This will hold profile handle for thread userID so we can swap back.
+              byte[] swapFromPH_temp = new byte[12];
+    
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Swap new way to profile handle for userID:" + userId_);
+
+              AS400ImplNative.swapToProfileHandleNative(swapToPH_, swapFromPH_temp);
+              swapFromPH_ = swapFromPH_temp;
+          }
+          catch (NativeException e) {
+              throw mapNativeSecurityException(e);
+          } 
+      }
+
+      return true;
   }
 
   void swapBack() throws AS400SecurityException, IOException
   {
-      try {
-          AS400ImplNative.swapBackNative(swapToPH_, swapFromPH_);
-      } catch (NativeException e) {
-          throw mapNativeSecurityException(e);
-      } finally {
-          swapToPH_ = null; 
-          swapFromPH_ = null; 
+      if (AS400.nativeVRM.getVersionReleaseModification() <= 0x00070500)
+      {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Swapping back - old way");
+
+          try {
+              AS400ImplNative.swapBackNative(swapToPH_, swapFromPH_);
+          }
+          catch (NativeException e) {
+              throw mapNativeSecurityException(e);
+          }
+          finally {
+              swapToPH_ = null;
+              swapFromPH_ = null;
+          }
+      }
+      else
+      {
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Swapping back - new way");
+
+          try {
+              AS400ImplNative.swapBackAndReleaseNative(swapFromPH_);
+          }
+          catch (NativeException e) {
+              throw mapNativeSecurityException(e);
+          }
+          finally {
+              swapFromPH_ = null;
+          }
       }
   }
 
