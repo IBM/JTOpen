@@ -850,14 +850,14 @@ public class JDSQLStatement
                         // @C3A added the following block to handle case sensitive table and collection names
                         if(token.endsWith(namingSeparator))
                         {
-                            StringBuffer table = new StringBuffer(token);
+                            StringBuilder table = new StringBuilder(token);
                             if(tokenizer_.hasMoreTokens())
                                 table.append(tokenizer_.nextToken());
                             selectTable_ = table.toString();
                         }
                         else if(tokenizer_.hasMoreTokens() && tokenizer_.peekToken().equals(namingSeparator))
                         {
-                            StringBuffer table = new StringBuffer(token);
+                            StringBuilder table = new StringBuilder(token);
                             table.append(tokenizer_.nextToken());
                             if(tokenizer_.hasMoreTokens())
                                 table.append(tokenizer_.nextToken());
@@ -865,7 +865,7 @@ public class JDSQLStatement
                         }
                         else if(tokenizer_.hasMoreTokens() && tokenizer_.peekToken().startsWith(namingSeparator))
                         {
-                            StringBuffer table = new StringBuffer(token);
+                            StringBuilder table = new StringBuilder(token);
                             table.append(tokenizer_.nextToken());
                             selectTable_ = table.toString();
                         }

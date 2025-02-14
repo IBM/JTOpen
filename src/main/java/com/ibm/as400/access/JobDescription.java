@@ -151,7 +151,7 @@ public class JobDescription implements Serializable
     AS400Text text20 = new AS400Text(20, ccsid);
 
     // concat jobdname + library for program parameter[3]
-    StringBuffer qualifiedJobDName = new StringBuffer(20);
+    StringBuilder qualifiedJobDName = new StringBuilder(20);
     qualifiedJobDName.append(name_);
     for (int i = 0; i < (10 - name_.length()); i++) {
       qualifiedJobDName.append(" ");

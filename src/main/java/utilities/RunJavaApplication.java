@@ -242,7 +242,7 @@ public class RunJavaApplication
     **/
     private static void displayProperties()
     {
-        StringBuffer optionString = new StringBuffer();
+        StringBuilder optionString = new StringBuilder();
         for (int i = 0 ; i < option_.length ; i++) {
             optionString.append(option_[i]);
             optionString.append(" ");

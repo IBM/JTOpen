@@ -2828,7 +2828,7 @@ Computes a resource key.
 **/
     static Object computeResourceKey(AS400 system, String name)
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(RUser.class);
         buffer.append(':');
         buffer.append(system.getSystemName());
@@ -2857,7 +2857,7 @@ Deletes the user.
         {
             fireBusy();
         // Remove the directory entry.
-        StringBuffer buffer = new StringBuffer("RMVDIRE USRID(");
+        StringBuilder buffer = new StringBuilder("RMVDIRE USRID(");
         //@B1D buffer.append(name_);
         buffer.append(getAttributeValue(RUser.USER_ID)); //@B1A
         buffer.append(' '); //@B1A
@@ -2883,7 +2883,7 @@ Deletes the user.
         }
 
         // Delete the user profile.
-        StringBuffer buffer = new StringBuffer("DLTUSRPRF USRPRF(");
+        StringBuilder buffer = new StringBuilder("DLTUSRPRF USRPRF(");
         buffer.append(name_);
         buffer.append(')');
         try

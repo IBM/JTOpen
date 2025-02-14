@@ -47,7 +47,7 @@ public void appendText(String text)
     if (oldText.length() == 0)
         setText(text);
     else {
-        StringBuffer buffer = new StringBuffer(oldText);
+        StringBuilder buffer = new StringBuilder(oldText);
         buffer.append(' ');
         buffer.append(text);
         setText(buffer.toString());
@@ -62,7 +62,7 @@ public void appendTextWithComma(String text)
     if (oldText.length() == 0)
         setText(text);
     else {
-        StringBuffer buffer = new StringBuffer(oldText);
+        StringBuilder buffer = new StringBuilder(oldText);
         buffer.append(", ");
         buffer.append(text);
         setText(buffer.toString());

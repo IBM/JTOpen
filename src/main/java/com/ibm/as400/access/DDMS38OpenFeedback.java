@@ -321,7 +321,7 @@ class DDMS38OpenFeedback
   **/
   public String toString()
   {
-    StringBuffer str = new StringBuffer(0);
+    StringBuilder str = new StringBuilder(0);
     try
     {
       str.append("Open type: ");

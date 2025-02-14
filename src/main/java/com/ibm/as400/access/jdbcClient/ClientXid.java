@@ -62,7 +62,7 @@ public class ClientXid implements Xid {
   }
 
   public String toString() {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for (int i = 0; i < gtrid.length; i++) {
       int unsignedInt = 0xFF & gtrid[i];
       if (unsignedInt < 0x10) {

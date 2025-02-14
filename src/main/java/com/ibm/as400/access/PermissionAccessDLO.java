@@ -98,7 +98,7 @@ class PermissionAccessDLO extends PermissionAccess
     **/
     static String expandQuotes0(String objName)
     {  // @B4c
-      StringBuffer buf = new StringBuffer(objName);
+      StringBuilder buf = new StringBuilder(objName);
       // First, if the name contains single-quotes, double-up the quotes.
       if (objName.indexOf('\'') != -1) {
         for (int i=objName.length()-1; i>=0; i--) {

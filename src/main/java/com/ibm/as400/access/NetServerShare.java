@@ -189,7 +189,7 @@ extends ChangeableResource
    **/
   static Object computeResourceKey(AS400 system, String name)
   {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     buffer.append(NetServerShare.class);
     buffer.append(':');
     buffer.append(system.getSystemName());

@@ -80,7 +80,7 @@ Maps from a logical value to a physical value.
         // For each possible logical value, check to see if its specified,
         // and build up the physical value.
         String[] asArray = (String[])logicalValue;
-        StringBuffer buffer = new StringBuffer(possibleLogicalValues_.length);
+        StringBuilder buffer = new StringBuilder(possibleLogicalValues_.length);
         for (int i = 0; i < possibleLogicalValues_.length; ++i) {
             boolean found = false;
             for(int j = 0; (j < asArray.length) && (!found); ++j) {

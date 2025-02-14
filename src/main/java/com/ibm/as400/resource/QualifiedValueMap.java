@@ -91,7 +91,7 @@ Maps from a logical value to a physical value.
             throw new ExtendedIllegalArgumentException("logicalValue", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         QSYSObjectPathName asPath;
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         switch(format_) {
 
@@ -195,7 +195,7 @@ with spaces as needed.
     {
         int sourceLength = source.length();
         if (sourceLength < length) {
-            StringBuffer buffer = new StringBuffer(source);
+            StringBuilder buffer = new StringBuilder(source);
             for(int i = sourceLength; i < length; ++i)
                 buffer.append(' ');
             return buffer.toString();

@@ -57,7 +57,7 @@ class PcmlDimensions extends Object implements Serializable
 
     public String toString()
     {
-        StringBuffer buf = new StringBuffer(v.size()*10);
+        StringBuilder buf = new StringBuilder(v.size()*10);
         buf.append("{");
         for (int i=0; i < v.size(); i++)
         {

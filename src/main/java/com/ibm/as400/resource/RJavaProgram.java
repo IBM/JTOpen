@@ -568,7 +568,7 @@ operating system for which the object was created.
         public Object ptol(Object physicalValue)
         {
             byte[] asBytes = (byte[])physicalValue;
-            StringBuffer buffer = new StringBuffer("V");
+            StringBuilder buffer = new StringBuilder("V");
             buffer.append(asBytes[0]);
             buffer.append("R");
             buffer.append(asBytes[1] >> 4);
@@ -774,7 +774,7 @@ Computes the resource key.
 **/
     static Object computeResourceKey(AS400 system, String path)
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(RJavaProgram.class);
         buffer.append(':');
         buffer.append(system.getSystemName());
@@ -801,7 +801,7 @@ Deletes the Java program.  This does not delete the class, jar, or zip file.
         if (!isConnectionEstablished())
             establishConnection();
 
-        StringBuffer buffer = new StringBuffer("DLTJVAPGM CLSF('");
+        StringBuilder buffer = new StringBuilder("DLTJVAPGM CLSF('");
         buffer.append(path_);
         buffer.append("')");
         try {

@@ -653,7 +653,7 @@ public class JarMaker
 
      if (lineSHA != null || lineMD5 != null)
      {
-       buffer.append("Name: " + entryName + "\n");
+       buffer.append("Name: ").append(entryName).append("\n");
        buffer.append("Digest-Algorithms:");
        if (lineSHA != null) buffer.append(" SHA");
        if (lineMD5 != null) buffer.append(" MD5");
@@ -1133,7 +1133,7 @@ public class JarMaker
   {
     if (basePath == null) throw new NullPointerException("basePath");
     if (entryName == null) throw new NullPointerException("entryName");
-    StringBuffer pathBuf = new StringBuffer(basePath.trim());
+    StringBuilder pathBuf = new StringBuilder(basePath.trim());
     if (pathBuf.charAt(pathBuf.length()-1) != FILE_SEPARATOR)
       pathBuf.append(FILE_SEPARATOR);
 
@@ -1613,16 +1613,16 @@ public class JarMaker
   /** Internal utility that prints out the command-line options, when in verbose mode. **/
   static String listCommandOptions(CommandLineArguments arguments, boolean listAll)
   {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     Enumeration opts;
     if (listAll) opts = arguments.getOptionNames();
     else         opts = arguments.getExtraOptions();
 
     while (opts.hasMoreElements()) {
       String name = (String)opts.nextElement();
-      sb.append(" [" + name);
+      sb.append(" [").append(name);
       String val = arguments.getOptionValue(name);
-      if (val != null && val.length() != 0) sb.append(" " + val);
+      if (val != null && val.length() != 0) sb.append(" ").append(val);
       sb.append("]");
     }
     return sb.toString().trim();
@@ -3020,7 +3020,7 @@ public class JarMaker
       zipOutStream = new ZipOutputStream(bufferedOutStream);
 
       // Build the manifest (if needed).
-      StringBuffer manifestBuffer = new StringBuffer();
+      StringBuilder manifestBuffer = new StringBuilder();
       if (jarMap.hasManifest())
       {
         String manifestHeader = manifestMap.getHeader();
@@ -3325,9 +3325,9 @@ public class JarMaker
         if (st.countTokens() > 1)
         {
           val = st.nextToken();
-          StringBuffer sb = new StringBuffer();
+          StringBuilder sb = new StringBuilder();
           while (st.hasMoreTokens()) {
-            sb.append(st.nextToken() + " ");
+            sb.append(st.nextToken()).append(" ");
           }
           System.err.println("Warning: Ignoring extra arguments: " + sb.toString());
         }
@@ -3851,7 +3851,7 @@ public class JarMaker
             {
               if (line.startsWith(MANIFEST_NAME_KEYWORD)) // is this a "name" line
               {
-                StringBuffer buffer = new StringBuffer();
+                StringBuilder buffer = new StringBuilder();
                 String entryName = line.substring(MANIFEST_NAME_KEYWORD.length()).trim();
                 if (DEBUG_MANIFEST) System.out.println("Manifest entry: ");
                 if (DEBUG_MANIFEST) System.out.println(line);
@@ -3941,7 +3941,7 @@ public class JarMaker
     {
       String version = get(MANIFEST_VERSION_KEYWORD);
       String reqVersion = get(MANIFEST_REQVERS_KEYWORD);
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       if (version != null) buffer.append(version);
       if (reqVersion != null) buffer.append(reqVersion);
       return buffer.toString();

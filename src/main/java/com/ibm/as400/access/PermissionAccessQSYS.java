@@ -101,7 +101,7 @@ class PermissionAccessQSYS extends PermissionAccess
     **/
     static String expandQuotes0(String objName)
     {
-      StringBuffer buf = new StringBuffer(objName);
+      StringBuilder buf = new StringBuilder(objName);
       // First, enclose the entire name in single-quotes.
       buf.insert(0,'\'');
       buf.append('\'');

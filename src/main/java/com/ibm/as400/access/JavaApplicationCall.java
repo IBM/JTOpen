@@ -925,14 +925,14 @@ public class JavaApplicationCall implements Serializable
         // 12. OPTION
 
         // 1.CLASS
-        StringBuffer commandString = new StringBuffer("JAVA CLASS(" + getJavaApplication() + ") ");
+        StringBuilder commandString = new StringBuilder("JAVA CLASS(" + getJavaApplication() + ") ");
         // 2.PARM
         String[] parm = getParameters();
         if (parm.length > 0)
         {
             commandString.append("PARM(");
             for (int i = 0 ; i < parm.length; i++) {
-                commandString.append("'" + parm[i] + "' ");
+                commandString.append("'").append(parm[i]).append("' ");
             }
             // delete last space
             commandString.delete(commandString.length()-1, commandString.length());
@@ -940,13 +940,13 @@ public class JavaApplicationCall implements Serializable
         }
         // 3.CLASSPATH
         if (getClassPath().length() > 0)
-            commandString.append("CLASSPATH('" + getClassPath() + "') ");
+            commandString.append("CLASSPATH('").append(getClassPath()).append("') ");
         // 4.CHKPATH
-        commandString.append("CHKPATH(" + getSecurityCheckLevel() +") ");
+        commandString.append("CHKPATH(").append(getSecurityCheckLevel()).append(") ");
         // 5.OPTIMIZE
-        commandString.append("OPTIMIZE(" + getOptimization() + ") ");
+        commandString.append("OPTIMIZE(").append(getOptimization()).append(") ");
         // 6.INTERPRET
-        commandString.append("INTERPRET(" + getInterpret() + ") ");
+        commandString.append("INTERPRET(").append(getInterpret()).append(") ");
         // 7.PROP
 
         String localAddress = null;                                         // @E1c
@@ -977,10 +977,9 @@ public class JavaApplicationCall implements Serializable
            }
         }                                                                   // @E1a
 
-        commandString.append("PROP("
-                        +"(os400.stdin 'port:"+localAddress+":"+Integer.toString(getStandardInPort())+"') "
-                        +"(os400.stdout 'port:"+localAddress+":"+Integer.toString(getStandardOutPort())+"') "
-                        +"(os400.stderr 'port:"+localAddress+":"+Integer.toString(getStandardErrorPort())+"') ");
+        commandString.append("PROP((os400.stdin 'port:").append(localAddress).append(":").append(Integer.toString(getStandardInPort()))
+                .append("') (os400.stdout 'port:").append(localAddress).append(":").append(Integer.toString(getStandardOutPort()))
+                .append("') (os400.stderr 'port:").append(localAddress).append(":").append(Integer.toString(getStandardErrorPort())).append("') ");
         commandString.append("(os400.stdio.convert N)");
 
         if (getProperties() != null)
@@ -990,26 +989,26 @@ public class JavaApplicationCall implements Serializable
             while (e.hasMoreElements()) {
                 String key = (String) e.nextElement();
                 String value = (String)properties_.get(key);
-                commandString.append(" (" + key + " " + value + ")");
+                commandString.append(" (").append(key).append(" ").append(value).append(")");
             }
         }
 
         commandString.append(") ");
         // 8.GCHINL
-        commandString.append("GCHINL(" + getGarbageCollectionInitialSize() + ") ");
+        commandString.append("GCHINL(").append(getGarbageCollectionInitialSize()).append(") ");
         // 9.GCHMAX
-        commandString.append("GCHMAX(" + getGarbageCollectionMaximumSize() + ") ");
+        commandString.append("GCHMAX(").append(getGarbageCollectionMaximumSize()).append(") ");
         // 10.GCFRQ
-        commandString.append("GCFRQ(" + getGarbageCollectionFrequency() + ") ");
+        commandString.append("GCFRQ(").append(getGarbageCollectionFrequency()).append(") ");
         // 11.GCPTY
-        commandString.append("GCPTY(" + getGarbageCollectionPriority() + ") ");
+        commandString.append("GCPTY(").append(getGarbageCollectionPriority()).append(") ");
         // 12.OPTION
         String[] opt = getOptions();
         if (opt.length > 0)
         {
           commandString.append("OPTION(");
           for (int i = 0 ; i < opt.length; i++) {
-            commandString.append(opt[i] + " ");
+            commandString.append(opt[i]).append(" ");
           }
           // delete last space
           commandString.delete(commandString.length()-1, commandString.length());
@@ -1017,7 +1016,7 @@ public class JavaApplicationCall implements Serializable
         }
         // 13.JOB                                            @F0A
         if (as400_.getVRM() >= 0x00050300)  // New in V5R3M0 @F0A
-            commandString.append("JOB(" + getJobName() +") "); // @F0A
+            commandString.append("JOB(").append(getJobName()).append(") "); // @F0A
         //run the command
         boolean success = false;
 

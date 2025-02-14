@@ -288,7 +288,7 @@ class SystemValueUtility
         boolean isNetA = info.group_ == SystemValueList.GROUP_NET;
 
         // String containing command.
-        StringBuffer command = new StringBuffer(
+        StringBuilder command = new StringBuilder(
              (isNetA) ? "QSYS/CHGNETA " + info.name_ + "(" :
                         "QSYS/CHGSYSVAL SYSVAL(" + info.name_ + ") VALUE(");
 

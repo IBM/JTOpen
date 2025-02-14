@@ -3012,7 +3012,7 @@ Computes the resource key.
     static Object computeResourceKey(AS400 system, String name, String user, String number, byte[] internalJobID)
     {
         if (internalJobID == null) {
-           StringBuffer buffer = new StringBuffer();
+           StringBuilder buffer = new StringBuilder();
             buffer.append(RJob.class);
             buffer.append(':');
             buffer.append(system.getSystemName());
@@ -3103,7 +3103,7 @@ Ends the job.
         // Issue the ENDJOB CL command.
         AS400 sys = null;
         try {
-            StringBuffer buffer = new StringBuffer();
+            StringBuilder buffer = new StringBuilder();
             buffer.append("ENDJOB JOB(");
             buffer.append(number_);
             buffer.append('/');
@@ -3516,7 +3516,7 @@ Returns the string representation in the format
 **/
     public String toString()
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(number_);
         buffer.append('/');
         buffer.append(user_);

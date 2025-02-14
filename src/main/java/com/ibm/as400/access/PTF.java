@@ -2148,7 +2148,7 @@ public class PTF
   **/
   public String toString()
   {
-    StringBuffer buf = new StringBuffer(ptfID_);
+    StringBuilder buf = new StringBuilder(ptfID_);
     buf.append('/');
     buf.append(ptfReleaseLevel_);
     buf.append('/');

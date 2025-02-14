@@ -1767,7 +1767,7 @@ public class Record implements Serializable
     {
       return "";
     }
-    StringBuffer theRecord = new StringBuffer(0);
+    StringBuilder theRecord = new StringBuilder(0);
     Object obj = null;
     for (int i = 0; i < fields_.length; ++i)
     { // Append each field as a String to theRecord.  Separate each field's

@@ -367,7 +367,7 @@ public class Main implements Runnable {
       if (result != null) {
         if (result.indexOf("\\u") >= 0) {
           int resultLen = result.length();
-          StringBuffer sb = new StringBuffer();
+          StringBuilder sb = new StringBuilder();
           int startIndex = 0;
           int escapeIndex = result.indexOf("\\u", startIndex);
           while (escapeIndex >= 0) {
@@ -2837,8 +2837,7 @@ public class Main implements Runnable {
                             || (argsLeft.charAt(argEndIndex + 1) == ')')) {
                           nextArgIndex = argEndIndex + 2;
                         } else {
-                          possibleErrors.append("[,)] does not follow #"
-                              + argsLeft.charAt(0) + "#\n");
+                          possibleErrors.append("[,)] does not follow #").append(argsLeft.charAt(0)).append("#\n");
                           argEndIndex = -1;
                         }
                       }
@@ -2853,10 +2852,8 @@ public class Main implements Runnable {
                     }
                     if (argEndIndex < 0) {
                       methodFound = false;
-                      possibleErrors.append("Unable to find arg with remaining args "
-                          + argsLeft+"\n");
-                      possibleErrors.append("Number of parameters is "
-                          + parameterTypes.length+"\n");
+                      possibleErrors.append("Unable to find arg with remaining args ").append(argsLeft).append("\n");
+                      possibleErrors.append("Number of parameters is ").append(parameterTypes.length).append("\n");
                       methodFound = false;
                     } else {
                       if (argStartIndex <= argEndIndex) {
@@ -2889,56 +2886,49 @@ public class Main implements Runnable {
                             if (arg.length() == 1) {
                               parameters[p] = Character.valueOf(arg.charAt(0));
                             } else {
-                              possibleErrors.append("Could not parse " + arg
-                                  + " as char\n");
+                              possibleErrors.append("Could not parse ").append(arg).append(" as char\n");
                               methodFound = false; 
                             }
                           } else if (parameterTypeName.equals("boolean")) {
                             try {
                               parameters[p] = Boolean.valueOf(arg);
                             } catch (Exception e) {
-                              possibleErrors.append("Could not parse " + arg
-                                  + " as integer\n");
+                              possibleErrors.append("Could not parse ").append(arg).append(" as integer\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName.equals("short")) {
                             try {
                               parameters[p] = Short.valueOf(arg);
                             } catch (Exception e) {
-                              possibleErrors.append("Could not parse " + arg
-                                  + " as short\n");
+                              possibleErrors.append("Could not parse ").append(arg).append(" as short\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName.equals("int")) {
                             try {
                               parameters[p] = Integer.valueOf(arg);
                             } catch (Exception e) {
-                              possibleErrors.append("Could not parse " + arg
-                                  + " as integer\n");
+                              possibleErrors.append("Could not parse ").append(arg).append(" as integer\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName.equals("long")) {
                             try {
                               parameters[p] = Long.valueOf(arg);
                             } catch (Exception e) {
-                              possibleErrors.append("Could not parse " + arg
-                                  + " as long\n");
+                              possibleErrors.append("Could not parse ").append(arg).append(" as long\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName.equals("float")) {
                             try {
                               parameters[p] = Float.valueOf(arg);
                             } catch (Exception e) {
-                              possibleErrors.append("Could not parse " + arg
-                                  + " as float\n");
+                              possibleErrors.append("Could not parse ").append(arg).append(" as float\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName.equals("double")) {
                             try {
                               parameters[p] = Double.valueOf(arg);
                             } catch (Exception e) {
-                              possibleErrors.append("Could not parse " + arg
-                                  + " as double\n");
+                              possibleErrors.append("Could not parse ").append(arg).append(" as double\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName
@@ -2979,8 +2969,7 @@ public class Main implements Runnable {
                               }
 
                             } else {
-                              possibleErrors.append("Could not parse " + arg
-                                  + " as String array .. try [A+B+C]\n");
+                              possibleErrors.append("Could not parse ").append(arg).append(" as String array .. try [A+B+C]\n");
                               methodFound = false;
                             }
                           } else if (parameterTypeName.equals("[I")) {
@@ -3023,21 +3012,17 @@ public class Main implements Runnable {
                                   }
                                 }
                               } catch (Exception e) {
-                                possibleErrors.append("Exception " + e + " piece = "
-                                    + piece+"\n");
-                                possibleErrors.append("Could not parse " + arg
-                                    + " as Integer.. try [1+2+3]\n");
+                                possibleErrors.append("Exception ").append(e).append(" piece = ").append(piece).append("\n");
+                                possibleErrors.append("Could not parse ").append(arg).append(" as Integer.. try [1+2+3]\n");
                                 methodFound = false;
                               }
 
                             } else {
-                              possibleErrors.append("Could not parse " + arg
-                                  + " as Integer.. try [1+2+3]\n");
+                              possibleErrors.append("Could not parse ").append(arg).append(" as Integer.. try [1+2+3]\n");
                               methodFound = false;
                             }
                           } else {
-                            possibleErrors.append("Did not handle parameter with class "
-                                + parameterTypeName+"\n");
+                            possibleErrors.append("Did not handle parameter with class ").append(parameterTypeName).append("\n");
                             methodFound = false;
                           }
                         } /* parameter was a variable */
@@ -3059,38 +3044,36 @@ public class Main implements Runnable {
                             }
                           }
                           if (e instanceof XAException) {
-                            possibleErrors.append("XAException:"+e.toString()+" code="+getXACodeInfo((XAException)e)+"\n"); 
+                            possibleErrors.append("XAException:").append(e.toString()).append(" code=").append(getXACodeInfo((XAException)e)).append("\n"); 
                           }
-                          possibleErrors.append("Exception "+e+"\n");
+                          possibleErrors.append("Exception ").append(e).append("\n");
                           if (printStackTrace_) printStackTraceToStringBuffer(e, possibleErrors);
-                          possibleErrors.append("Calling method " + methodName
-                              + " with " + methodParameters + " failed exception in Exeception"+exceptionCount+"\n");
+                          possibleErrors.append("Calling method ").append(methodName).append(" with ").append(methodParameters)
+                                  .append(" failed exception in Exeception").append(exceptionCount).append("\n");
                           addVariable("Exception"+exceptionCount, e);
                           exceptionCount++; 
                           methodFound = false;
                         }
                       } else {
-                        possibleErrors.append("Not calling method " + methodName
-                            + " with " + methodParameters
-                            + " because argsLeft = " + argsLeft+"\n");
+                        possibleErrors.append("Not calling method ").append(methodName).append(" with ")
+                                .append(methodParameters).append(" because argsLeft = ").append(argsLeft).append("\n");
                         methodFound = false;
                       }
                     } else {
-                      possibleErrors.append("Not calling method " + methodName
-                          + " with " + methodParameters
-                          + " because parsed parameter count = " + p+"\n");
+                      possibleErrors.append("Not calling method ").append(methodName).append(" with ").append(methodParameters)
+                              .append(" because parsed parameter count = ").append(p).append("\n");
                     }
                   } else {
-                    possibleErrors.append("Method not found " + methodName+"\n");
+                    possibleErrors.append("Method not found ").append(methodName).append("\n");
                   }
                 }
               }
               if (!anyMethodFound) {
-                possibleErrors.append("ERROR:  Method not found " + methodName+"\n");
+                possibleErrors.append("ERROR:  Method not found ").append(methodName).append("\n");
               }
 
             } else {
-              possibleErrors.append("ERROR:  could find ( in " + left+"\n");
+              possibleErrors.append("ERROR:  could find ( in ").append(left).append("\n");
             }
           } else {
             printStreamForCallMethod.println("ERROR:  could not find variable or class "
@@ -3099,10 +3082,10 @@ public class Main implements Runnable {
 
           }
         } else {
-          possibleErrors.append("ERROR:  could find . in " + left);
+          possibleErrors.append("ERROR:  could find . in ").append(left);
         }
       } else {
-        possibleErrors.append("ERROR:  could find ( in " + left);
+        possibleErrors.append("ERROR:  could find ( in ").append(left);
       }
       if (!methodFound) {
         printStreamForCallMethod.println("No matching method found, possible errors are the following:\n"+possibleErrors.toString());
@@ -3234,7 +3217,7 @@ private String getXACodeInfo(XAException e) {
                 }
                 if (argEndIndex < 0) {
                   methodFound = false;
-                  possibleErrors.append("Unable to find arg in " + argsLeft+"\n");
+                  possibleErrors.append("Unable to find arg in ").append(argsLeft).append("\n");
                 } else {
                   String arg = argsLeft.substring(argStartIndex, argEndIndex)
                       .trim();
@@ -3266,24 +3249,21 @@ private String getXACodeInfo(XAException e) {
                       try {
                         parameters[p] = Integer.valueOf(arg);
                       } catch (Exception e) {
-                        possibleErrors.append("Could not parse " + arg
-                            + " as integer\n");
+                        possibleErrors.append("Could not parse ").append(arg).append(" as integer\n");
                         methodFound = false;
                       }
                     } else if (parameterTypeName.equals("boolean")) {
                       try {
                         parameters[p] = Boolean.valueOf(arg);
                       } catch (Exception e) {
-                        possibleErrors.append("Could not parse " + arg
-                            + " as integer\n");
+                        possibleErrors.append("Could not parse ").append(arg).append(" as integer\n");
                         methodFound = false;
                       }
                     } else if (parameterTypeName.equals("long")) {
                       try {
                         parameters[p] = Long.valueOf(arg);
                       } catch (Exception e) {
-                        possibleErrors.append("Could not parse " + arg
-                            + " as long\n");
+                        possibleErrors.append("Could not parse ").append(arg).append(" as long\n");
                         methodFound = false;
                       }
                     } else if (parameterTypeName.equals("[Ljava.lang.String;")) {
@@ -3321,8 +3301,7 @@ private String getXACodeInfo(XAException e) {
                         }
 
                       } else {
-                        possibleErrors.append("Could not parse " + arg
-                            + " as String array .. try [A+B+C]\n");
+                        possibleErrors.append("Could not parse ").append(arg).append(" as String array .. try [A+B+C]\n");
                         methodFound = false;
                       }
                     } else if (parameterTypeName.equals("[I")) {
@@ -3361,21 +3340,17 @@ private String getXACodeInfo(XAException e) {
                             }
                           }
                         } catch (Exception e) {
-                          possibleErrors.append("Exception " + e + " piece = "
-                              + piece+"\n");
-                          possibleErrors.append("Could not parse " + arg
-                              + " as Integer.. try [1+2+3]\n");
+                          possibleErrors.append("Exception ").append(e).append(" piece = ").append(piece).append("\n");
+                          possibleErrors.append("Could not parse ").append(arg).append(" as Integer.. try [1+2+3]\n");
                           methodFound = false;
                         }
 
                       } else {
-                        possibleErrors.append("Could not parse " + arg
-                            + " as Integer.. try [1+2+3\n]");
+                        possibleErrors.append("Could not parse ").append(arg).append(" as Integer.. try [1+2+3\n]");
                         methodFound = false;
                       }
                     } else {
-                      possibleErrors.append("Did not handle parameter with class "
-                          + parameterTypeName);
+                      possibleErrors.append("Did not handle parameter with class ").append(parameterTypeName);
                       methodFound = false;
                     }
                   } /* parameter was not a variable */
@@ -3389,34 +3364,31 @@ private String getXACodeInfo(XAException e) {
                     variable = constructors[m].newInstance(parameters);
                     methodFound = true; 
                   } catch (Exception e) {
-                    possibleErrors.append("Exception "+e+"\n");
+                    possibleErrors.append("Exception ").append(e).append("\n");
                     if (printStackTrace_) printStackTraceToStringBuffer(e, possibleErrors); 
                     
                     Throwable t = e.getCause(); 
                     while ( t != null) {
-                      possibleErrors.append("..Caused by "+t+"\n"); 
+                      possibleErrors.append("..Caused by ").append(t).append("\n"); 
                      
                       if (printStackTrace_) printStackTraceToStringBuffer(t, possibleErrors); 
                       t = t.getCause(); 
                     }
-                    possibleErrors.append("Creating object  with "
-                        + methodParameters + " failed\n");
+                    possibleErrors.append("Creating object  with ").append(methodParameters).append(" failed\n");
                     methodFound = false;
                   }
                 } else {
-                  possibleErrors.append("Not calling constructor " + " with "
-                      + methodParameters + " because argsLeft = " + argsLeft+"\n");
+                  possibleErrors.append("Not calling constructor  with ").append(methodParameters).append(" because argsLeft = ").append(argsLeft).append("\n");
                   methodFound = false;
                 }
               } /* method not found */
             } /* for loop for constructors */
         } else {
-          possibleErrors.append("ERROR:  could not find variable or class "
-              + newClassName+"\n");
+          possibleErrors.append("ERROR:  could not find variable or class ").append(newClassName).append("\n");
 
         }
       } else {
-        possibleErrors.append("ERROR:  could find ( in " + left+"\n");
+        possibleErrors.append("ERROR:  could find ( in ").append(left).append("\n");
       }
       if (!methodFound) {
         
@@ -3523,7 +3495,7 @@ private String getXACodeInfo(XAException e) {
     for (i = 1; i <= numCols; i++) {
       columnLabel[i] = rsmd.getColumnLabel(i);
       if (html) {
-        output.append("<th>" + columnLabel[i].replace('_', ' '));
+        output.append("<th>").append(columnLabel[i].replace('_', ' '));
       } else {
         if (!xml) {
           if (i > 1)
@@ -3565,7 +3537,7 @@ private String getXACodeInfo(XAException e) {
       if (html) {
         output.append("<td>");
       } else if (xml) {
-        output.append("   <" + columnLabel[i] + ">");
+        output.append("   <").append(columnLabel[i]).append(">");
       } else {
         if (i > 1)
           output.append(",");
@@ -3585,7 +3557,7 @@ private String getXACodeInfo(XAException e) {
               "com.ibm.db2.jdbc.app.DB2BlobLocator")) {
             try {
               int loc = ReflectionUtil.callMethod_I(blob, "getLocator");
-              output.append("L#" + loc + ":");
+              output.append("L#").append(loc).append(":");
             } catch (Exception e) {
               // just ignore
             }
@@ -3607,14 +3579,13 @@ private String getXACodeInfo(XAException e) {
               if (showInt >= 0x10) {
                 output.append(Integer.toHexString(showInt));
               } else {
-                output.append("0" + Integer.toHexString(showInt));
+                output.append("0").append(Integer.toHexString(showInt));
               }
             }
           } else {
             CRC32 checksum = new CRC32();
             checksum.update(bytes);
-            output.append("ARRAY[size=" + bytes.length + ",CRC32="
-                + checksum.getValue() + "]");
+            output.append("ARRAY[size=").append(bytes.length).append(",CRC32=").append(checksum.getValue()).append("]");
           }
         }
         break;
@@ -3640,7 +3611,7 @@ private String getXACodeInfo(XAException e) {
         break;
       }
       if (xml) {
-        output.append("</" + columnLabel[i] + ">\n");
+        output.append("</").append(columnLabel[i]).append(">\n");
       }
     } /* for i */
     if (html) {
@@ -3966,8 +3937,7 @@ private String getXACodeInfo(XAException e) {
     if (outString != null) {
       int length = outString.length();
       if (length > showLobThreshold) {
-        sb.append("CHARARRAY[size=" + length + ",CRC32=" + getCRC32(outString)
-            + "]->");
+        sb.append("CHARARRAY[size=").append(length).append(",CRC32=").append(getCRC32(outString)).append("]->");
         if (!characterDetails) {
           outString = outString.substring(0, stringSampleSize);
         }
@@ -4010,11 +3980,11 @@ private String getXACodeInfo(XAException e) {
               if (showInt >= 0x1000) {
                 sb.append(showString);
               } else if (showInt >= 0x0100) {
-                sb.append("0" + showString);
+                sb.append("0").append(showString);
               } else if (showInt >= 0x0010) {
-                sb.append("00" + showString);
+                sb.append("00").append(showString);
               } else {
-                sb.append("000" + showString);
+                sb.append("000").append(showString);
               }
             }
           }
@@ -4083,11 +4053,11 @@ private String getXACodeInfo(XAException e) {
         if (showInt >= 0x1000) {
           sb.append(showString);
         } else if (showInt >= 0x0100) {
-          sb.append("0" + showString);
+          sb.append("0").append(showString);
         } else if (showInt >= 0x0010) {
-          sb.append("00" + showString);
+          sb.append("00").append(showString);
         } else {
-          sb.append("000" + showString);
+          sb.append("000").append(showString);
         }
       }
     } /* for */

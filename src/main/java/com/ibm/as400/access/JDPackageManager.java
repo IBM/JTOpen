@@ -93,7 +93,7 @@ class JDPackageManager
 
         // Normalize the package name to 6 characters and tack
         // on the appropriate 4 character suffix.
-        StringBuffer buffer = new StringBuffer (10);
+        StringBuilder buffer = new StringBuilder (10);
         String normalizedName;
         if (packageName.length() >= 6)                   //@hex
           normalizedName = packageName.substring (0, 6); //@hex
@@ -452,7 +452,7 @@ class JDPackageManager
     // This mechanism is exactly the same as is used in
     // Client Access/ODBC.
     //
-    StringBuffer suffix = new StringBuffer (4);  //@hex
+    StringBuilder suffix = new StringBuilder (4);  //@hex
     int index;
 
     //@hex adding additional char at front of (now 4 length) suffix.

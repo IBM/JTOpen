@@ -167,7 +167,7 @@ its left brace.  It will end at the matching right brace.
         throws SQLException
     {
         // Initialize.
-        StringBuffer buffer = new StringBuffer ();
+        StringBuilder buffer = new StringBuilder ();
         boolean quotes = false;
         char quoteType = ' ';
 
@@ -244,7 +244,7 @@ Convert the escape syntax to native SQL.
                                    String decimalSeparator, int vrm) // @C1M accept vrm
         throws SQLException
     {
-		StringBuffer buffer	= new StringBuffer ();
+		StringBuilder buffer	= new StringBuilder ();
 
 		// Parse out the keyword and the value.  The value
 		// is just the rest of the escape syntax.
@@ -417,7 +417,7 @@ Convert a scalar function call to native SQL.
             }                                                                                                   // @C1A
                                                                                                                 // @C1A
             // Get the native SQL from the scalar function table.                                               // @C1A
-            StringBuffer buffer = new StringBuffer ();
+            StringBuilder buffer = new StringBuilder ();
             String nativeSQL = scalarFunctionTable_.get(functionName, vrm).toString();                          // @C1M
 
             // Handle the substitution variables.

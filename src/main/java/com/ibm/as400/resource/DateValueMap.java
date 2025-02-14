@@ -179,7 +179,7 @@ Converts a Date to a String in the format CYYMMDDHHMMSS.
     {
         Calendar calendar = AS400Calendar.getGregorianInstance();
         calendar.setTime(date);
-        StringBuffer buffer13 = new StringBuffer(13);
+        StringBuilder buffer13 = new StringBuilder(13);
         int year13 = calendar.get(Calendar.YEAR);
         buffer13.append((year13 < 2000) ? '0' : '1');
         buffer13.append(twoDigits(year13 % 100));

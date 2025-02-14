@@ -190,9 +190,9 @@ public class CommandList implements Serializable
             throw new ExtendedIllegalStateException("command", ExtendedIllegalStateException.PROPERTY_NOT_SET);
 
         CharConverter conv37_ = new CharConverter(37);
-        StringBuffer commandString = new StringBuffer(cmd_.toUpperCase().trim());
+        StringBuilder commandString = new StringBuilder(cmd_.toUpperCase().trim());
         while (commandString.length() < 10) commandString.append(' ');
-        StringBuffer libraryString = new StringBuffer(lib_.toUpperCase().trim());
+        StringBuilder libraryString = new StringBuilder(lib_.toUpperCase().trim());
         while (libraryString.length() < 10) libraryString.append(' ');
 
         // Create the program parameters for the list object program call.

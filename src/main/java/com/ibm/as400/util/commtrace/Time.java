@@ -83,7 +83,7 @@ class Time {
 		if (cal == null) {
 			return "";
 		} else {
-			StringBuffer time = new StringBuffer();
+			StringBuilder time = new StringBuilder();
 			time.append(cal.get(Calendar.HOUR_OF_DAY));
 			time.append(":");
 			String min = Integer.toString(cal.get(Calendar.MINUTE));
