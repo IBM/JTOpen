@@ -246,15 +246,15 @@ public class AS400ClassPathOptimizer {
 		StringBuffer sb = new StringBuffer();
 
 		sb.append( "CRTJVAPGM " );
-		sb.append( "CLSF(" + file.getAbsolutePath() + ") "  );
-		sb.append( "OPTIMIZE(" + optimizationLevel_ + ") " );
+		sb.append("CLSF(").append(file.getAbsolutePath()).append(") ");
+		sb.append("OPTIMIZE(").append(optimizationLevel_).append(") ");
 
 		if ( file.isDirectory() && optimizeDirectories_ ) {
 			sb.append( "SUBTREE(*ALL) " );
 		}
 
 		if ( licensedInternalCodeOptions_ != null ) {
-			sb.append( "LICOPT(" + licensedInternalCodeOptions_ + ") " );
+			sb.append("LICOPT(").append(licensedInternalCodeOptions_).append(") ");
 		}
 
 		return sb.toString();

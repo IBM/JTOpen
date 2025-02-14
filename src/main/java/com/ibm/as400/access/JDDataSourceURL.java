@@ -165,15 +165,15 @@ public class JDDataSourceURL implements Serializable {
     String user = (String) properties_.getProperty(JDProperties.USER_); // @native
     String pass = (String) properties_.getProperty(JDProperties.PASSWORD_); // @native
     if (user != null) // @native
-      buffer.append(";user=" + user); // @native
+      buffer.append(";user=").append(user); // @native
     if (pass != null) // @native
-      buffer.append(";password=" + pass); // @native
+      buffer.append(";password=").append(pass); // @native
 
     Enumeration en = properties_.keys(); // @natprops
     while (en.hasMoreElements()) // @natprops
     { // @natprops
       String key = (String) en.nextElement(); // @natprops
-      buffer.append(";" + key + "=" + (String) properties_.getProperty(key)); // @natprops
+      buffer.append(";").append(key).append("=").append((String) properties_.getProperty(key)); // @natprops
     } // @natprops
 
     return buffer.toString();

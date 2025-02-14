@@ -276,7 +276,8 @@ public class Swapper
 
         sql.append("', X'0000'");
         if (enhancedProfileToken) {
-        	sql.append(", CAST('"+enhancedProfileToken+"' AS CHAR(30)),'"+remoteIpAddress+"',"+remoteIpAddress.length());
+        	sql.append(", CAST('").append(enhancedProfileToken).append("' AS CHAR(30)),'")
+                    .append(remoteIpAddress).append("',").append(remoteIpAddress.length());
         }
         sql.append(")");
 

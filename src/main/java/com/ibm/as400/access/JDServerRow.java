@@ -513,7 +513,7 @@ implements JDRow
             StringBuffer sb = new StringBuffer();
             for (int i = 1; i <= sqlData_.length; i++)
             {
-               sb.append("["+i+"]="+getFieldName(i)+" ");
+               sb.append("[").append(i).append("]=").append(getFieldName(i)).append(" ");
             }
             JDTrace.logInformation (this, "Columns are " + sb.toString());
         }

@@ -1913,7 +1913,7 @@ public class FTP implements java.io.Serializable
           else
           {
              currentLine = reader_.readLine();
-             buf.append("\n" + currentLine);
+             buf.append("\n").append(currentLine);
           }
         }
 

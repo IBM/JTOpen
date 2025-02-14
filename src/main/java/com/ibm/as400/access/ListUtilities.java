@@ -119,12 +119,10 @@ class ListUtilities
         StringBuffer msg = new StringBuffer("Unable to synchronously build object list on server.");
 
         try {
-          msg.append("\n  List status indicator: " + listStatusIndicator);
-          msg.append("\n  Info complete indicator: " + infoCompleteIndicator);
-          msg.append("\n  Total records:    " +
-                     BinaryConverter.byteArrayToInt(listInformation, 0));
-          msg.append("\n  Records returned: " +
-                     BinaryConverter.byteArrayToInt(listInformation, 4));
+          msg.append("\n  List status indicator: ").append(listStatusIndicator);
+          msg.append("\n  Info complete indicator: ").append(infoCompleteIndicator);
+          msg.append("\n  Total records:    ").append(BinaryConverter.byteArrayToInt(listInformation, 0));
+          msg.append("\n  Records returned: ").append(BinaryConverter.byteArrayToInt(listInformation, 4));
         }
         catch (Throwable t) {}  // will never happen
         finally {

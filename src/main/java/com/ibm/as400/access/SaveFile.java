@@ -223,11 +223,11 @@ implements Serializable
       cmdBuf.append("MAXRCDS(*NOMAX) ");
     }
     else {
-      cmdBuf.append("MAXRCDS("+maxRecords+") ");
+      cmdBuf.append("MAXRCDS(").append(maxRecords).append(") ");
     }
 
     if (asp != DEFAULT) {  
-      cmdBuf.append("ASP("+asp+") ");
+      cmdBuf.append("ASP(").append(asp).append(") ");
     }
 
     switch (waitTime) {
@@ -241,18 +241,18 @@ implements Serializable
         cmdBuf.append("WAITFILE(*IMMED) ");
         break;
       default:
-        cmdBuf.append("WAITFILE("+Integer.toString(waitTime) + ") ");
+        cmdBuf.append("WAITFILE(").append(Integer.toString(waitTime)).append(") ");
     }
 
     if (shared) { cmdBuf.append("SHARE(*YES) "); }
     // Note: Default is *NO.
 
     if (authority != null) {
-      cmdBuf.append("AUT("+authority+") ");
+      cmdBuf.append("AUT(").append(authority).append(") ");
     }
 
     if (description != null) {
-      cmdBuf.append("TEXT('"+description+"') ");
+      cmdBuf.append("TEXT('").append(description).append("') ");
     }
 
     if (DEBUG) System.out.println("Running command: " + cmdBuf.toString());
@@ -1024,14 +1024,14 @@ implements Serializable
     // Build the object list for the OBJ parameter.
     StringBuffer objects = new StringBuffer();
     for (int i=0; i<objectList.length; i++) {
-      objects.append(objectList[i] + " ");
+      objects.append(objectList[i]).append(" ");
     }
 
     StringBuffer cmdBuf = new StringBuffer("QSYS/RSTOBJ OBJ("+objects.toString()+") " +
       "SAVLIB("+libraryName+") " +
       "DEV(*SAVF) SAVF("+library_+"/"+name_+") " +
       "OUTPUT("+saveOutput_+") ");
-    if (toLibraryName != null) cmdBuf.append("RSTLIB("+toLibraryName+") ");
+    if (toLibraryName != null) cmdBuf.append("RSTLIB(").append(toLibraryName).append(") ");
     if (DEBUG) System.out.println("Running command: " + cmdBuf.toString());
     CommandCall cmd = new CommandCall(system_);
     try
@@ -1097,7 +1097,7 @@ implements Serializable
 
     String lang = product.getPrimaryLanguageFeatureID();
     if (lang != null && lang.length() != 0) {
-      cmdBuf.append("LNG("+lang+") ");
+      cmdBuf.append("LNG(").append(lang).append(") ");
     }
 
     if (DEBUG) System.out.println("Running command: " + cmdBuf.toString());
@@ -1172,7 +1172,7 @@ implements Serializable
     // Build the object list for the OBJ parameter.
     StringBuffer objects = new StringBuffer();
     for (int i=0; i<objectList.length; i++) {
-      objects.append(objectList[i] + " ");
+      objects.append(objectList[i]).append(" ");
     }
 
     // Build the command string.
@@ -1214,7 +1214,7 @@ implements Serializable
     // Build the path list for the OBJ parameter.
     StringBuffer paths = new StringBuffer();
     for (int i=0; i<pathList.length; i++) {
-      paths.append("('" + pathList[i] + "') ");
+      paths.append("('").append(pathList[i]).append("') ");
     }
 
     // Build the command string.
@@ -1265,7 +1265,7 @@ implements Serializable
 
     String lang = product.getPrimaryLanguageFeatureID();
     if (lang != null && lang.length() != 0) {
-      cmdBuf.append("LNG("+lang+") ");
+      cmdBuf.append("LNG(").append(lang).append(") ");
     }
 
     // Note: This API has no OUTPUT parameter.

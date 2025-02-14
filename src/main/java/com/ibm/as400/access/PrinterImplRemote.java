@@ -215,11 +215,11 @@ implements PrinterImpl
          StringBuffer cmdBuf = new StringBuffer("CHGWTR WTR(" + printerName + ")");
 
          if (changes != null) {  // When to change writer.
-           cmdBuf.append(" OPTION(" + changes + ")");
+             cmdBuf.append(" OPTION(").append(changes).append(")");
          }
 
          if (formType != null) {  // Form type options.
-           cmdBuf.append(" FORMTYPE(" + formType + ")");
+             cmdBuf.append(" FORMTYPE(").append(formType).append(")");
          }
 
          if (fileSep != null) {  // File separators.
@@ -230,13 +230,13 @@ implements PrinterImpl
              case -1: stringVal = "*FILE"; break;
              default: stringVal = fileSep.toString();
            }
-           cmdBuf.append(" FILESEP(" + stringVal + ")");
+           cmdBuf.append(" FILESEP(").append(stringVal).append(")");
          }
 
          if (outQ != null) {  // Output queue.
            // Note that this parameter comes to us as a fully qualified IFS pathname.
            QSYSObjectPathName path = new QSYSObjectPathName(outQ);
-           cmdBuf.append(" OUTQ(" + path.getLibraryName() + "/" + path.getObjectName() + ")");
+           cmdBuf.append(" OUTQ(").append(path.getLibraryName()).append("/").append(path.getObjectName()).append(")");
          }
 
          if (drawerSep != null) {  // Drawer for separators.
@@ -248,7 +248,7 @@ implements PrinterImpl
              case -2: stringVal = "*DEVD"; break;
              default: stringVal = drawerSep.toString();
            }
-           cmdBuf.append(" SEPDRAWER(" + stringVal + ")");
+           cmdBuf.append(" SEPDRAWER(").append(stringVal).append(")");
          }
 
          // Setup for remote program call.

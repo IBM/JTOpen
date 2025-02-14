@@ -653,7 +653,7 @@ public class JarMaker
 
      if (lineSHA != null || lineMD5 != null)
      {
-       buffer.append("Name: " + entryName + "\n");
+       buffer.append("Name: ").append(entryName).append("\n");
        buffer.append("Digest-Algorithms:");
        if (lineSHA != null) buffer.append(" SHA");
        if (lineMD5 != null) buffer.append(" MD5");
@@ -1620,9 +1620,9 @@ public class JarMaker
 
     while (opts.hasMoreElements()) {
       String name = (String)opts.nextElement();
-      sb.append(" [" + name);
+      sb.append(" [").append(name);
       String val = arguments.getOptionValue(name);
-      if (val != null && val.length() != 0) sb.append(" " + val);
+      if (val != null && val.length() != 0) sb.append(" ").append(val);
       sb.append("]");
     }
     return sb.toString().trim();
@@ -3327,7 +3327,7 @@ public class JarMaker
           val = st.nextToken();
           StringBuffer sb = new StringBuffer();
           while (st.hasMoreTokens()) {
-            sb.append(st.nextToken() + " ");
+            sb.append(st.nextToken()).append(" ");
           }
           System.err.println("Warning: Ignoring extra arguments: " + sb.toString());
         }

@@ -3636,7 +3636,7 @@ implements DatabaseMetaData
                 selectStmt.append ("SELECT SPECIFIC_SCHEMA, SPECIFIC_NAME, PARAMETER_NAME, PARAMETER_MODE, ");
                 selectStmt.append ("DATA_TYPE, NUMERIC_PRECISION, CHARACTER_MAXIMUM_LENGTH, NUMERIC_SCALE, ");
                 selectStmt.append ("NUMERIC_PRECISION_RADIX, IS_NULLABLE, LONG_COMMENT ");
-                selectStmt.append ("FROM QSYS2" + getCatalogSeparator() + "SYSPARMS "); // use . or /
+                selectStmt.append("FROM QSYS2").append(getCatalogSeparator()).append ("SYSPARMS "); // use . or /
 
 
 
@@ -3645,7 +3645,7 @@ implements DatabaseMetaData
                 {
                     JDSearchPattern schema = new JDSearchPattern (normalize(schemaPattern)); //@pdc normalize
                     String schemaWhereClause = schema.getSQLWhereClause("SPECIFIC_SCHEMA");
-                    selectStmt.append("WHERE " + schemaWhereClause);
+                    selectStmt.append("WHERE ").append(schemaWhereClause);
                 }
 
 
@@ -3887,7 +3887,7 @@ implements DatabaseMetaData
 /* ifndef JDBC40 
                 selectStmt.append ("SELECT ROUTINE_SCHEMA, ROUTINE_NAME, REMARKS, RESULTS ");//@PROC
  endif */ 
-                selectStmt.append ("FROM QSYS2" + getCatalogSeparator() + "SYSPROCS "); // use . or /
+                selectStmt.append("FROM QSYS2").append(getCatalogSeparator()).append ("SYSPROCS "); // use . or /
 
 
 
@@ -3895,7 +3895,7 @@ implements DatabaseMetaData
                 {
                     JDSearchPattern schema = new JDSearchPattern (schemaPattern);
                     String schemaWhereClause = schema.getSQLWhereClause("ROUTINE_SCHEMA");//@PROC
-                    selectStmt.append("WHERE " + schemaWhereClause);
+                    selectStmt.append("WHERE ").append(schemaWhereClause);
                 }
 
 

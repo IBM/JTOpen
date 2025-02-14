@@ -75,7 +75,7 @@ public class AboutToolbox
     catch(Exception e)
     {
       //e.printStackTrace();
-      sbuf.append("\nUnexpected error occurred: " + e);
+        sbuf.append("\nUnexpected error occurred: ").append(e);
     }
 
     return sbuf.toString();
@@ -104,9 +104,7 @@ public class AboutToolbox
         Class driver = Class.forName("com.ibm.as400.access.AS400JDBCDriver");
         Field majorVersion = driver.getDeclaredField("JDBC_MAJOR_VERSION_");
         Field minorVersion = driver.getDeclaredField("JDBC_MINOR_VERSION_");
-        sbuf.append("\nSupports JDBC version " +
-                    majorVersion.getInt(null) + "." +
-                    minorVersion.getInt(null));
+        sbuf.append("\nSupports JDBC version ").append(majorVersion.getInt(null)).append(".").append(minorVersion.getInt(null));
       }
       catch(NoSuchFieldException e)
       {  
@@ -119,7 +117,7 @@ public class AboutToolbox
         int driverMajor = d.getMajorVersion();
         int driverMinor = d.getMinorVersion();
 
-        sbuf.append("\nToolbox driver version " + driverMajor  + "." + driverMinor );
+        sbuf.append("\nToolbox driver version ").append(driverMajor).append(".").append(driverMinor);
       }catch(Throwable t)
       {  
         // Skip if get any error
@@ -140,7 +138,7 @@ public class AboutToolbox
     catch(Exception e)
     {
       //e.printStackTrace();
-      sbuf.append("\nUnexpected error occurred: " + e);
+        sbuf.append("\nUnexpected error occurred: ").append(e);
     }
 
     return sbuf.toString();
