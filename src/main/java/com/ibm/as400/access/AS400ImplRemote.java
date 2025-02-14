@@ -37,8 +37,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -206,7 +208,7 @@ public class AS400ImplRemote implements AS400Impl
       AS400Server.addReplyStream(new HCSGetNewConnReplyDS(), AS400.HOSTCNN);
       AS400Server.addReplyStream(new HCSPrepareNewConnReplyDS(), AS400.HOSTCNN);
       AS400Server.addReplyStream(new HCSRouteNewConnReplyDS(), AS400.HOSTCNN);
-      AS400Server.addReplyStream(new SignonPingRep(), AS400.HOSTCNN);
+      AS400Server.addReplyStream(new PingReplyDS(), AS400.HOSTCNN);
 
     
       if (DEBUG)
@@ -2388,8 +2390,21 @@ public class AS400ImplRemote implements AS400Impl
       }
   }
 
-  private SignonPingReq signonPingRequest_;
-  private IFSPingReq ifsPingRequest_;
+  // The list of ping requests for each server - ORDER MUST BE PRESERVED
+  private List<ClientAccessDataStream> pingRequests_ = 
+          new ArrayList<>(Arrays.asList(
+                  new IFSPingReq(),                                    // AS400.FILE (0)
+                  new PingDS(AS400Server.getServerId(AS400.PRINT)),    // AS400.PRINT (1)
+                  new PingDS(AS400Server.getServerId(AS400.COMMAND)),  // AS400.COMMAND (2)
+                  new PingDS(AS400Server.getServerId(AS400.DATAQUEUE)),// AS400.DATAQUEUE (3)
+                  new PingDS(AS400Server.getServerId(AS400.DATABASE)), // AS400.DATABASE (4)
+                  null,                                                // AS400.RECORDACCESS (5)
+                  new PingDS(AS400Server.getServerId(AS400.CENTRAL)),  // AS400.CENTRAL (6)
+                  new PingDS(AS400Server.getServerId(AS400.SIGNON)),   // AS400.SIGNON (7)
+                  new PingDS(AS400Server.getServerId(AS400.HOSTCNN))   // AS400.HOSTCNN (8)
+                  ));
+
+
   private static final int NO_PRIOR_SERVICE = -1;
   private int priorService_ = NO_PRIOR_SERVICE;
 
@@ -2397,56 +2412,21 @@ public class AS400ImplRemote implements AS400Impl
   private boolean doPingRequest(AS400Server connectedServer, boolean setPriorService) throws IOException, InterruptedException
   {
       int service = connectedServer.getService();
-      
-      if (service == AS400.FILE)
-      {
-          // a dummy request, just to get a reply
-          if (ifsPingRequest_ == null)
-              ifsPingRequest_ = new IFSPingReq();
 
-          // We expect to get back a reply indicating "request not supported".
-          DataStream reply = connectedServer.sendAndReceive(ifsPingRequest_);
+      DataStream request = pingRequests_.get(service);
+      
+      // A null request indicates server cannot be ping'ed. Simply return true.  For example, 
+      // the DDM server cannot be ping'ed without creating an error entry in the job log.
+      // Note that the FILE host server cannot be ping'ed, but we send dummy request and it will respond 
+      // with something like "request not supported".
+      DataStream reply = (request != null) ? connectedServer.sendAndReceive(request) : null;
 
-          if (DEBUG)
-          {
-              // Sanity-check the reply.
-              if (reply instanceof IFSReturnCodeRep)
-              {
-                  int returnCode = ((IFSReturnCodeRep) reply).getReturnCode();
-                  // We expect the return code to indicate REQUEST_NOT_SUPPORTED.
-                  // That sort of error doesn't clutter the job log with error entries.
-                  if (returnCode != IFSReturnCodeRep.REQUEST_NOT_SUPPORTED && Trace.traceOn_)
-                      Trace.log(Trace.DIAGNOSTIC, "Ping of File Server failed with unexpected return code " + returnCode);
-              }
-              else
-                  Trace.log(Trace.WARNING, "Unexpected IFS reply datastream received.", reply.data_);
-          }
-      }
-      else if (service == AS400.RECORDACCESS)
-      {
-          // If all we have is a connection to the DDM Server, simply return true.
-          // We don't have a way to ping the DDM server without creating an error entry in the job log.
-      }
-      else
-      {
-          // Only for common servers that support signon ping request
-      
-          // To reliably detect a connection is still up, we need to
-          // send a payload and do a receive. Just sending and discarding reply will not detect broken pipe!
-          
-          if (signonPingRequest_ == null)
-              signonPingRequest_ = new SignonPingReq(12345);
-    
-          connectedServer.sendAndReceive(signonPingRequest_);
-      }
-      
       if (setPriorService)
           priorService_ = (service != AS400.RECORDACCESS) ? service : NO_PRIOR_SERVICE;
       
       // Note that an exception will be thrown if not connected. 
       return true;
   }
-  
   
   // Check connection's current status.
   @Override
