@@ -137,7 +137,7 @@ class IPAddressConversion {
 			} else {
 				seg[i]= (Integer.valueOf(Integer.parseInt(seg[i]))).toString();
 			}
-			ret.append(seg[i] + ".");
+			ret.append(seg[i]).append(".");
 		}
 		// Remove the last delimiter and return the array
 		return ret.substring(0, (ret.length() - 1));
@@ -177,13 +177,13 @@ class IPAddressConversion {
 			// If we don't have any 0s just append the segments to the 
 			// return string.
 			if (!zero) {
-				ret.append(seg[i] + ":");
+				ret.append(seg[i]).append(":");
 			} else {
 				if (!compressed) {
 
 					// If this segment isn't a 0 append it to the return string.
 					if (seg[i].charAt(0) != '0') {
-						ret.append(seg[i] + ":");
+						ret.append(seg[i]).append(":");
 						// If the space between 0s is not equal we need to compress.
 					} else if (start != end) {
 						// Add another : so we get the compression
@@ -193,7 +193,7 @@ class IPAddressConversion {
 						compressed= true;
 					}
 				} else {
-					ret.append(seg[i] + ":");
+					ret.append(seg[i]).append(":");
 				}
 			}
 		}
@@ -320,13 +320,13 @@ class IPAddressConversion {
 			int length= seg[i].length();
 			// If we have a full address just add the delimiter.
 			if (length == 3) {
-				ret.append(seg[i] + ".");
+				ret.append(seg[i]).append(".");
 				// Otherwise add one 0 and a delimiter
 			} else if (length == 2) {
-				ret.append("0".concat(seg[i]) + ".");
+				ret.append("0".concat(seg[i])).append(".");
 				// Add two 0s and a delimiter
 			} else if (length == 1) {
-				ret.append("00".concat(seg[i]) + ".");
+				ret.append("00".concat(seg[i])).append(".");
 			}
 		}
 		// Remove the last delimiter and return the array 
@@ -382,16 +382,16 @@ class IPAddressConversion {
 			int length= seg[i].length();
 			// If we have a full address just add the delimiter.
 			if (length == 4) {
-				ret.append(seg[i] + ":");
+				ret.append(seg[i]).append(":");
 				// Add one 0 and a delimiter 
 			} else if (length == 3) {
-				ret.append("0".concat(seg[i]) + ":");
+				ret.append("0".concat(seg[i])).append(":");
 				// Otherwise add two 0 and a delimiter
 			} else if (length == 2) {
-				ret.append("00".concat(seg[i]) + ":");
+				ret.append("00".concat(seg[i])).append(":");
 				// Add three 0s and a delimiter
 			} else if (length == 1) {
-				ret.append("000".concat(seg[i]) + ":");
+				ret.append("000".concat(seg[i])).append(":");
 			}
 		}
 		// Remove the last delimiter and return the array 

@@ -226,11 +226,9 @@ public class Frame {
 			// end of the Frame
 			int notTraced= Integer.parseInt(IFSPDULN.toString()) - data.getByteSize() + 22;
 			if (notTraced > 0) {
-				ret.append(
-					"\t\t\t * * * * * * * * * * * * * *     "
-						+ notTraced
-						+ "  BYTES OF DATA NOT TRACED  "
-						+ "* * * * * * * * * * * * * *\n");
+				ret.append("\t\t\t * * * * * * * * * * * * * *     ")
+                        .append(notTraced)
+                        .append("  BYTES OF DATA NOT TRACED  * * * * * * * * * * * * * *\n");
 			}
 			return ret.toString();
 		} else {

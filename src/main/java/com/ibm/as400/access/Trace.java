@@ -666,7 +666,7 @@ public class Trace implements Runnable
   {
     if (component != null)
       if (component.toString() != null)
-        buf.append("[" + component.toString() + "]  ");
+        buf.append("[").append(component.toString()).append("]  ");
 
     if (traceThread_)
     {
