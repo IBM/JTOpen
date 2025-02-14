@@ -20,11 +20,8 @@ class AS400ImplNative
     static
     {
         if (Trace.traceOn_) Trace.logLoadPath(CLASSNAME);
-    }
 
-    static
-    {
- 	   NativeMethods.loadNativeLibraryQyjspart(); 
+        NativeMethods.loadNativeLibraryQyjspart(); 
     }
 
     static native byte[] signonNative(byte[] userId) throws NativeException;
@@ -43,7 +40,7 @@ class AS400ImplNative
      * This method is only available after IBM 7.5. 
      * This profile handle should be released when the AS400 object is done with it.  */
     static native void createProfileHandle2Native(byte[] profileHandle, 
-    		String userId, char[] password, char[] additionalAuthenticationFactor,
+    		String userId, byte[] bytes, char[] additionalAuthenticationFactor,
     		String verificationId, String remoteIpAddress, int jRemotePort,   String localIpAddress, int jLocalPort ) throws NativeException;
     
    
