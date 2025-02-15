@@ -675,8 +675,7 @@ public class GenerateConverterTable {
             f.write("    }\n");
             f.write("  }\n");
             f.write("\n");
-            surrogateInitStringBuffer.append(
-                "   initToUnicodeSurrogateMappings" + startIndex + "();\n");
+            surrogateInitStringBuffer.append("   initToUnicodeSurrogateMappings").append(startIndex).append("();\n");
 
             startIndex += MAX_SURROGATE_LENGTH;
           }
@@ -762,8 +761,7 @@ public class GenerateConverterTable {
             f.write("    }\n");
             f.write("  }\n");
             f.write("\n");
-            surrogateInitStringBuffer.append(
-                "   initToUnicodeTripletMappings" + startIndex + "();\n");
+            surrogateInitStringBuffer.append("   initToUnicodeTripletMappings").append(startIndex).append("();\n");
 
             startIndex += MAX_SURROGATE_LENGTH;
           }
@@ -853,8 +851,8 @@ public class GenerateConverterTable {
             f.write("    }\n");
             f.write("  }\n");
             f.write("\n");
-            surrogateInitStringBuffer
-                .append("   initToUnicodeQuadMappings" + startIndex + "();\n");
+            surrogateInitStringBuffer.append("   initToUnicodeQuadMappings").append(startIndex)
+                .append("();\n");
 
             startIndex += MAX_SURROGATE_LENGTH;
           }
@@ -1127,10 +1125,10 @@ public class GenerateConverterTable {
           if ((unicodeChars[0] != 0x1a) && (unicodeChars[0] != 0xd800)
               && (unicodeChars[0] != 0xd801)
               && ((ebcdicChar == 0xFEFE) || (ebcdicChar == 0x3F))) {
-            sb1.append("Fixing up EBCDIC RoundTrip Failure " + ebcdicPrefix
-                + "'" + Integer.toHexString(i) + "'" + " -> UX'"
-                + Integer.toHexString(unicodeChars[0]) + "'" + " -> "
-                + ebcdicPrefix + "'" + Integer.toHexString(ebcdicChar) + "'\n");
+            sb1.append("Fixing up EBCDIC RoundTrip Failure ")
+                    .append(ebcdicPrefix).append("'").append(Integer.toHexString(i)).append("' -> UX'")
+                    .append(Integer.toHexString(unicodeChars[0])).append("' -> ").append(ebcdicPrefix)
+                    .append("'").append(Integer.toHexString(ebcdicChar)).append("'\n");
             if (ebcdicIsDBCS) {
               tableToEbcdic[unicodeChars[0]] = (char) i;
             } else {
@@ -1176,28 +1174,24 @@ public class GenerateConverterTable {
               }
             }
             if (matches) {
-              sb2.append("Secondary EBCDIC mapping " + ebcdicPrefix + "'"
-                  + Integer.toHexString(i) + "'" + " -> UX'");
+              sb2.append("Secondary EBCDIC mapping ").append(ebcdicPrefix).append("'").append(Integer.toHexString(i)).append("' -> UX'");
               for (int j = 0; j < unicodeChars.length; j++) {
-                sb2.append(Integer.toHexString(unicodeChars[j]) + ".");
+                sb2.append(Integer.toHexString(unicodeChars[j])).append(".");
               }
-              sb2.append("'" + " -> " + ebcdicPrefix + "'"
-                  + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
+              sb2.append("' -> ").append(ebcdicPrefix).append("'").append(Integer.toHexString(ebcdicChar)).append("' -> UX'");
               for (int j = 0; j < unicodeChars2.length; j++) {
-                sb2.append(Integer.toHexString(unicodeChars2[j]) + ".");
+                sb2.append(Integer.toHexString(unicodeChars2[j])).append(".");
               }
               sb2.append("'\n");
 
             } else {
-              sb3.append("EBCDIC RoundTrip Failure 2 " + ebcdicPrefix + "'"
-                  + Integer.toHexString(i) + "'" + " -> UX'");
+              sb3.append("EBCDIC RoundTrip Failure 2 ").append(ebcdicPrefix).append("'").append(Integer.toHexString(i)).append("' -> UX'");
               for (int j = 0; j < unicodeChars.length; j++) {
-                sb3.append(Integer.toHexString(unicodeChars[j]) + ".");
+                sb3.append(Integer.toHexString(unicodeChars[j])).append(".");
               }
-              sb3.append("'" + " -> " + ebcdicPrefix + "'"
-                  + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
+              sb3.append("' -> ").append(ebcdicPrefix).append("'").append(Integer.toHexString(ebcdicChar)).append("' -> UX'");
               for (int j = 0; j < unicodeChars2.length; j++) {
-                sb3.append(Integer.toHexString(unicodeChars2[j]) + ".");
+                sb3.append(Integer.toHexString(unicodeChars2[j])).append(".");
               }
               sb3.append("'\n");
               passed = false;
@@ -1243,11 +1237,10 @@ public class GenerateConverterTable {
 
         if (i != unicodeChars[0]) {
           if (unicodeChars[0] == 0xFFFD) {
-            sb1.append("Unicode RoundTrip Failure UX'" + Integer.toHexString(i)
-                + "'" + " -> " + ebcdicPrefix + "'"
-                + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
+            sb1.append("Unicode RoundTrip Failure UX'").append(Integer.toHexString(i)).append("' -> ").append(ebcdicPrefix)
+                    .append("'").append(Integer.toHexString(ebcdicChar)).append("' -> UX'");
             for (int j = 0; j < unicodeChars.length; j++) {
-              sb1.append(Integer.toHexString(unicodeChars[j]) + ".");
+              sb1.append(Integer.toHexString(unicodeChars[j])).append(".");
             }
             sb1.append("'\n");
 
@@ -1257,11 +1250,10 @@ public class GenerateConverterTable {
               char1Buffer[0] = tableToUnicode[ebcdicChar];
               unicodeChars = char1Buffer;
 
-              sb1.append("Fixed up ................ UX'"
-                  + Integer.toHexString(i) + "'" + " -> " + ebcdicPrefix + "'"
-                  + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
+              sb1.append("Fixed up ................ UX'").append(Integer.toHexString(i)).append("' -> ").append(ebcdicPrefix)
+                      .append("'").append(Integer.toHexString(ebcdicChar)).append("' -> UX'");
               for (int j = 0; j < unicodeChars.length; j++) {
-                sb1.append(Integer.toHexString(unicodeChars[j]) + ".");
+                sb1.append(Integer.toHexString(unicodeChars[j])).append(".");
               }
               sb1.append("'\n");
 
@@ -1289,25 +1281,21 @@ public class GenerateConverterTable {
             }
 
             if (ebcdicChar2 == ebcdicChar) {
-              sb2.append("Secondary Unicode mapping UX'"
-                  + Integer.toHexString(i) + "'" + " -> " + ebcdicPrefix + "'"
-                  + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
+              sb2.append("Secondary Unicode mapping UX'").append(Integer.toHexString(i)).append("' -> ").append(ebcdicPrefix)
+                      .append("'").append(Integer.toHexString(ebcdicChar)).append("' -> UX'");
               for (int j = 0; j < unicodeChars.length; j++) {
-                sb2.append(Integer.toHexString(unicodeChars[j]) + ".");
+                sb2.append(Integer.toHexString(unicodeChars[j])).append(".");
               }
-              sb2.append("'" + " -> " + ebcdicPrefix + "'"
-                  + Integer.toHexString(ebcdicChar2) + "'\n");
+              sb2.append("' -> ").append(ebcdicPrefix).append("'").append(Integer.toHexString(ebcdicChar2)).append("'\n");
 
             } else {
-              sb3.append("Unicode RoundTrip Failure 2 UX'"
-                  + Integer.toHexString(i) + "'" + " -> " + ebcdicPrefix + "'"
-                  + Integer.toHexString(ebcdicChar) + "'" + " -> UX'");
+              sb3.append("Unicode RoundTrip Failure 2 UX'").append(Integer.toHexString(i)).append("' -> ").append(ebcdicPrefix)
+                      .append("'").append(Integer.toHexString(ebcdicChar)).append("' -> UX'");
               for (int j = 0; j < unicodeChars.length; j++) {
-                sb3.append(Integer.toHexString(unicodeChars[j]) + ".");
+                sb3.append(Integer.toHexString(unicodeChars[j])).append(".");
               }
 
-              sb3.append("'" + " -> " + ebcdicPrefix + "'"
-                  + Integer.toHexString(ebcdicChar2) + "'\n");
+              sb3.append("' -> ").append(ebcdicPrefix).append("'").append(Integer.toHexString(ebcdicChar2)).append("'\n");
               passed = false;
 
             }
