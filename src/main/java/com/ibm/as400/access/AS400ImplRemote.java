@@ -1444,10 +1444,15 @@ public class AS400ImplRemote implements AS400Impl
 
       // Necessary for case where we are connecting after native sign-on.
       // Skip this test if not using the signon server.
-      if (!isPasswordTypeSet_ && !skipSignonServer)
+      if (!isPasswordTypeSet_ && !skipSignonServer && hostcnnServer_ == null)
       {
-          signonConnect();
-          signonDisconnect();
+          hostcnnConnect(true);
+
+          if (hostcnnServer_ == null)
+          {
+              signonConnect();
+              signonDisconnect();
+          }
       }
 
       // -------
