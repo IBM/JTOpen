@@ -20,10 +20,12 @@ import java.beans.VetoableChangeListener;
 import java.beans.VetoableChangeSupport;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.TimeZone;
-import java.util.Vector;
 
 /**
  Provides access to a group of statistics that represent the current status of the system.
@@ -40,8 +42,8 @@ public class SystemStatus implements Serializable
 
     // The receiver variables retrieved for each format.  Index zero will be set to the last format retrieved.
     byte[][] receiverVariables_ = new byte[4][];
-    // A vector of SystemPool object retrieved from the system.
-    private Vector poolsVector_;
+    // A list of SystemPool object retrieved from the system.
+    private List<SystemPool> poolsList_;
 
     // Flag indicating if we have connected to the system yet.
     private transient boolean connected_ = false;
@@ -790,23 +792,39 @@ public class SystemStatus implements Serializable
         Converter conv = new Converter(system_.getJobCcsid(), system_);
         return conv.byteArrayToString(receiverVariables_[0], 16, 8).trim();
     }
+  
+    /**
+    Returns an enumeration containing a SystemPool object for each system pool.
+    @return  An enumeration containing a SystemPool object for each system pool.
+    @exception  AS400SecurityException  If a security or authority error occurs.
+    @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
+    @exception  InterruptedException  If this thread is interrupted.
+    @exception  IOException  If an error occurs while communicating with the system.
+    @exception  ObjectDoesNotExistException  If the object does not exist on the system.
+    @deprecated see getSystemPoolsList()
+    @see #getSystemPoolsList()
+    **/
+    public Enumeration<SystemPool> getSystemPools() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    {
+    	return Collections.enumeration(getSystemPoolsList());
+    }
 
     /**
-     Returns an enumeration containing a SystemPool object for each system pool.
-     @return  An enumeration containing a SystemPool object for each system pool.
+     Returns a list containing a SystemPool object for each system pool.
+     @return  A list containing a SystemPool object for each system pool.
      @exception  AS400SecurityException  If a security or authority error occurs.
      @exception  ErrorCompletingRequestException  If an error occurs before the request is completed.
      @exception  InterruptedException  If this thread is interrupted.
      @exception  IOException  If an error occurs while communicating with the system.
      @exception  ObjectDoesNotExistException  If the object does not exist on the system.
      **/
-    public Enumeration getSystemPools() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
+    public List<SystemPool> getSystemPoolsList() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         loadInformation(3);
 
         // If we've already retrieved the pools, just return it.
-        if (poolsVector_ != null) return poolsVector_.elements();
-        poolsVector_ = new Vector();
+        if (poolsList_ != null) return poolsList_;
+        poolsList_ = new ArrayList<SystemPool>();
 
         // Parse the pool information.
         int number = BinaryConverter.byteArrayToInt(receiverVariables_[3], 32);
@@ -827,11 +845,13 @@ public class SystemStatus implements Serializable
               String poolName = new CharConverter(system_.getJobCcsid(), system_).byteArrayToString(poolInformation, 44, 10);
               systemPool = new SystemPool(system_, poolName);
             }
-            poolsVector_.addElement(systemPool);
+            poolsList_.add(systemPool);
             offset += length;
         }
-        return poolsVector_.elements();
+        return poolsList_;
     }
+    
+    
 
 
     private static final int FORMAT_DTS = AS400Timestamp.FORMAT_DTS;  // *DTS format
@@ -1047,7 +1067,7 @@ public class SystemStatus implements Serializable
         // Clear the receiver variables;
         receiverVariables_ = new byte[4][];
         // Clear the vector of pools.
-        poolsVector_ = null;
+        poolsList_ = null;
     }
 
     /**
