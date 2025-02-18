@@ -2378,9 +2378,9 @@ public class AS400ImplRemote implements AS400Impl
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking for service connection implementation:", service);
 
       if (service == AS400.SIGNON)
-          return signonServer_ != null;
+          return (signonServer_ != null && signonServer_.isConnected());
       else if (service == AS400.HOSTCNN)
-          return (hostcnnServer_ != null);
+          return (hostcnnServer_ != null && hostcnnServer_.isConnected());
 
       Vector serverList = serverPool_[service];
       
