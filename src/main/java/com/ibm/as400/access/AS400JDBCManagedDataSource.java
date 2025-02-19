@@ -289,7 +289,9 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
     this();
 
     setSecure(true);
+    long stayalive = as400_.getStayAlive();
     as400_ = AS400.newInstance(true, as400_);
+    as400_.setStayAlive(stayalive);
 
     setServerName(serverName);
     setUser(user);
@@ -443,6 +445,7 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
       // If the user asks for the object
       // to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object.
       as400Object = AS400.newInstance((isSecure_ || isSecure()), as400_);
+      as400Object.setStayAlive(as400_.getStayAlive());
 
       if (sockProps_.isAnyOptionSet()) { // only need to set if not default
         as400Object.setSocketProperties(sockProps_);
@@ -486,6 +489,7 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
       as400Object = AS400.newInstance((isSecure_ || isSecure()), as400_);
 
       try {
+        as400Object.setStayAlive(as400_.getStayAlive());
         as400Object.setUserId(user);
         as400Object.setPassword(password);
       } catch (PropertyVetoException pve) {
