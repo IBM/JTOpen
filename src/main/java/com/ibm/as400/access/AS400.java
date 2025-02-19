@@ -5046,9 +5046,23 @@ public class AS400 implements Serializable, AutoCloseable
         signonHandler_ = handler;
     }
 
+
+    
     private volatile long stayAliveMilliSeconds_ = 0;
     private class StayAliveThread extends Thread
     {
+        private boolean stayAliveIsConnectionAlive(int service)
+        {
+            try {
+                return isConnectionAlive(service);
+            }
+            catch (Exception e) {
+                if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Stayalive isConnectionAlive thread exception on service " + service + " ignored. ", e);
+            }
+            
+            return false;
+        }
+        
         @Override
         public void run()
         {
@@ -5074,12 +5088,13 @@ public class AS400 implements Serializable, AutoCloseable
                     {
                         whenToPing = stayAliveMilliSeconds_original;
                         
-                        boolean bDATABASE   = isConnectionAlive(AS400.DATABASE);
-                        boolean bCOMMAND    = isConnectionAlive(AS400.COMMAND);
-                        boolean bDATAQUEUE  = isConnectionAlive(AS400.DATAQUEUE);
-                        boolean bFILE       = isConnectionAlive(AS400.FILE);
-                        boolean bPRINT      = isConnectionAlive(AS400.PRINT);
-                        boolean bHOSTCNN    = isConnectionAlive(AS400.HOSTCNN);
+                        boolean bDATABASE   =stayAliveIsConnectionAlive(AS400.DATABASE);
+                        boolean bCOMMAND    =stayAliveIsConnectionAlive(AS400.COMMAND);
+                        boolean bDATAQUEUE  =stayAliveIsConnectionAlive(AS400.DATAQUEUE);
+                        boolean bFILE       =stayAliveIsConnectionAlive(AS400.FILE);
+                        boolean bPRINT      =stayAliveIsConnectionAlive(AS400.PRINT);
+                        boolean bSIGNON     =stayAliveIsConnectionAlive(AS400.SIGNON);
+                        boolean bHOSTCNN    =stayAliveIsConnectionAlive(AS400.HOSTCNN);
                         
                         if (Trace.traceOn_) 
                         {
@@ -5089,6 +5104,7 @@ public class AS400 implements Serializable, AutoCloseable
                                     + "DATAQUEUE=" + bDATAQUEUE + ", "
                                     + "FILE=" + bFILE + ", "
                                     + "PRINT=" + bPRINT + ", "
+                                    + "SIGNON=" + bSIGNON + ", "
                                     + "HOSTCNN=" + bHOSTCNN);
                         }
                     }
@@ -5114,8 +5130,8 @@ public class AS400 implements Serializable, AutoCloseable
      * from dropping stale connections.  
      * <P>
      * This stay-alive functionality only applies to connections to the following host servers: {@link #COMMAND
-     * COMMAND}, {@link #DATABASE DATABASE}, {@link #DATAQUEUE DATAQUEUE}, {@link #FILE FILE}, {@link #PRINT PRINT}, and
-     * {@link #HOSTCNN HOSTCNN}.
+     * COMMAND}, {@link #DATABASE DATABASE}, {@link #DATAQUEUE DATAQUEUE}, {@link #FILE FILE}, {@link #PRINT PRINT}, 
+     * {@link #HOSTCNN HOSTCNN}, and {@link #SIGNON SIGNON}.
      * <p>
      * <b>Notes:</b>
      * <ul>
@@ -5123,6 +5139,8 @@ public class AS400 implements Serializable, AutoCloseable
      * to ensure connections are alive are ignored. 
      * <li>If {@link #resetAllServices()} is called on the object, the number of seconds is set to zero.  You will 
      *     need to invoke setStayAlive() method to re-enable the stay-alive functionality. 
+     * <li>If the AS400 object is used in constructor to create another AS400 object, the newly created AS400 object
+     *     will not inherit the stay-alive value set for the object.
      * </ul>
      * 
      * @param seconds The number of seconds between requests to the server. If set to zero, then this
@@ -5150,6 +5168,16 @@ public class AS400 implements Serializable, AutoCloseable
             stayAliveThread_.setDaemon(true);
             stayAliveThread_.start();
         }
+    }
+    
+    /**
+     * Returns the stay-alve interval for the AS400 object. See {@link #setStayAlive(long)} for 
+     * further information.
+     *  
+     * @return The stay-alive interval in seconds. 
+     */
+    public long getStayAlive() {
+        return (stayAliveMilliSeconds_ / 1000);
     }
 
     /**

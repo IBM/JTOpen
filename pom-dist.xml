@@ -560,7 +560,17 @@
                 <manifestFile>${project.build.outputDirectory}/../manifests/jt400_manifest.txt</manifestFile>
               </archive>
               <excludes>
-                <exclude>**/com/ibm/as400/access/*ImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/AS400CertificateUsrPrfUtilImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/AS400CertificateUtilImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/AS400CertificateVldlUtilImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/AS400FileImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/AS400ImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/BaseDataQueueImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/NLSImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/ProfileHandleImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/RemoteCommandImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/UserSpaceImplNative.class</exclude>
+                
                 <exclude>**/com/ibm/as400/access/BytesWithOffset.class</exclude>
                 <exclude>**/com/ibm/as400/access/LocalIOFB.class</exclude>
                 <exclude>**/com/ibm/as400/access/LocalOpenFeedback.class</exclude>
@@ -625,7 +635,17 @@
                 <manifestFile>${project.build.outputDirectory}/../manifests/jt400_manifest.txt</manifestFile>
               </archive>
               <excludes>
-                <exclude>**/com/ibm/as400/access/*ImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/AS400CertificateUsrPrfUtilImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/AS400CertificateUtilImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/AS400CertificateVldlUtilImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/AS400FileImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/AS400ImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/BaseDataQueueImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/NLSImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/ProfileHandleImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/RemoteCommandImplNative.class</exclude>
+                <exclude>**/com/ibm/as400/access/UserSpaceImplNative.class</exclude>
+                
                 <exclude>**/com/ibm/as400/access/BytesWithOffset.class</exclude>
                 <exclude>**/com/ibm/as400/access/LocalIOFB.class</exclude>
                 <exclude>**/com/ibm/as400/access/LocalOpenFeedback.class</exclude>

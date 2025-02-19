@@ -16,7 +16,7 @@ package com.ibm.as400.access;
 import java.io.IOException;
 import java.io.InputStream;
 
-class SignonPingRep extends ClientAccessDataStream
+class PingReplyDS extends ClientAccessDataStream
 {
     /**
      Generate a new instance of this type.
@@ -24,7 +24,7 @@ class SignonPingRep extends ClientAccessDataStream
      **/
     public Object getNewDataStream()
     {
-      return new SignonPingRep();
+      return new PingReplyDS();
     }
 
     int getPingResponse() {
@@ -33,18 +33,15 @@ class SignonPingRep extends ClientAccessDataStream
 
     void read(InputStream in) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving signon ping response...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Receiving ping response...");
 
-        // Only data sent is returned...no header.
-        byte[] header = new byte[4];
-        if (readFromStream(in, header, 0, 4) < 4)
+        // Receive the header.
+        byte[] header = new byte[20];
+        if (readFromStream(in, header, 0, 20) < 20)
         {
-            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read all of the retrieve signon ping reply.");
+            if (Trace.traceOn_) Trace.log(Trace.ERROR, "Failed to read all of ping reply header.");
             throw new ConnectionDroppedException(ConnectionDroppedException.CONNECTION_DROPPED);
         }
-
-        // Allocate bytes for datastream.
-        data_ = header;
     }
 
     /**

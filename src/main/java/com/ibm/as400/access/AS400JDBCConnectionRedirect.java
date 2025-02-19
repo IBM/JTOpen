@@ -156,6 +156,7 @@ extends AS400JDBCConnection {
     reconnectUrls_[0] = originalDataSourceUrl_; 
     reconnectProperties_[0] = originalProperties_; 
     reconnectAS400s_[0] = new AS400(originalAs400); 
+    reconnectAS400s_[0].setStayAlive(originalAs400.getStayAlive());
 
     
     if (traceOn) { 
@@ -195,6 +196,7 @@ extends AS400JDBCConnection {
   private AS400 fixupAS400( String server, String port) {
     AS400 as400 = new AS400(originalAs400); 
     try {
+      as400.setStayAlive(originalAs400.getStayAlive());
       as400.setSystemName(server);
     } catch (PropertyVetoException e) {
       // This should not happen 
@@ -474,6 +476,7 @@ extends AS400JDBCConnection {
       for (int i = searchStart; i < reconnectUrls_.length; i++) {
         connection = new AS400JDBCConnectionImpl();
         AS400 as400 = new AS400(reconnectAS400s_[i]);
+        as400.setStayAlive(reconnectAS400s_[i].getStayAlive());
         try {
           if (JDTrace.isTraceOn()) { 
             JDTrace.logInformation(this, "findNewConnection attempting "+ reconnectUrls_[i]+","+ reconnectProperties_[i]);
@@ -615,7 +618,7 @@ extends AS400JDBCConnection {
         || ( sqlCode == -7061  && should7061Reconnect(e))
         || (sqlCode == -401 && JDError.EXC_SERVER_ERROR.equals(sqlState)) /* also retry for server errors */ 
         ) {
-    	
+        
       // We do not use EXC_CONNECTION_NONE, since that is what is returned
       // after the connection has been closed or aborted.
       // 
@@ -1335,17 +1338,17 @@ extends AS400JDBCConnection {
 
   }
   public synchronized void postWarning(int id, int errorCode, int returnCode) throws SQLException {
-	    boolean retryOperation = true;
-	    while (retryOperation) {
-	      try {
-	        currentConnection_.postWarning(id, errorCode, returnCode);
-	        retryOperation = false;
-	      } catch (SQLException e) {
-	        retryOperation = handleException(e);
-	      }
-	    }
+        boolean retryOperation = true;
+        while (retryOperation) {
+          try {
+            currentConnection_.postWarning(id, errorCode, returnCode);
+            retryOperation = false;
+          } catch (SQLException e) {
+            retryOperation = handleException(e);
+          }
+        }
 
-	  }
+      }
 
   public synchronized CallableStatement prepareCall(String sql) throws SQLException {
     boolean retryOperation = true;

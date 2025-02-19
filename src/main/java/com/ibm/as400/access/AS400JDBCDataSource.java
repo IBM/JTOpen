@@ -572,6 +572,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         //to be secure, clone a SecureAS400 object; otherwise, clone an AS400 object
     	char[] aaf = properties_.getAdditionalAuthenticationFactor(); 
     	AS400 newAs400 = AS400.newInstance((isSecure_ || isSecure()), as400_);
+    	newAs400.setStayAlive(as400_.getStayAlive());
     	newAs400.setAdditionalAuthenticationFactor(aaf);
     	
         return getConnection(newAs400);
