@@ -303,9 +303,11 @@ class AS400NoThreadServer extends AS400Server
             if (service_ == AS400.DATABASE || service_ == AS400.COMMAND 
                     || service_ == AS400.CENTRAL || service_ == AS400.SIGNON || service_ == AS400.HOSTCNN)
             {
-                if (readWriteException_== null)
+                if (readWriteException_ == null)
                 {
                     AS400EndJobDS endjob = new AS400EndJobDS(AS400Server.getServerId(service_));
+                    if (Trace.traceOn_) endjob.setConnectionID(connectionID_);
+
                     try {
                         endjob.write(outStream_);
                     }
