@@ -62,7 +62,6 @@ final class ConnectionList
         this.properties_ = properties;
     }
 
-
     /**
      * Sees if the specified connection is due for removal.
      *
@@ -127,7 +126,7 @@ final class ConnectionList
      **/
     private PoolItem createNewConnection(int service, boolean connect, boolean secure, 
                                        ConnectionPoolEventSupport poolListeners, Locale locale, 
-                                       AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties, int ccsid)
+                                       AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties, int ccsid, AS400 rootSystem)
                                                throws AS400SecurityException, IOException, ConnectionPoolException
     {     
         if (log_ != null || Trace.traceOn_) log(ResourceBundleLoader.getText("CL_CREATING", new String[] {systemName_, userID_} ));
@@ -154,7 +153,7 @@ final class ConnectionList
 
         boolean threadUse = properties_.isThreadUsed();
         // create a new connection
-        PoolItem sys = new PoolItem (systemName_, userID_, poolAuth, secure, locale, service, connect, threadUse, socketProperties, ccsid);
+        PoolItem sys = new PoolItem (systemName_, userID_, poolAuth, secure, locale, service, connect, threadUse, socketProperties, ccsid, rootSystem);
 
         // set the item is in use since we are going to return it to caller
         sys.setInUse(true);
@@ -250,7 +249,7 @@ final class ConnectionList
      *  @return The pool item.
      **/
     PoolItem getConnection(Integer service, boolean secure, ConnectionPoolEventSupport poolListeners, Locale locale, 
-          AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties, int ccsid) 
+          AS400ConnectionPoolAuthentication poolAuth, SocketProperties socketProperties, int ccsid, AS400 rootSystem) 
                   throws AS400SecurityException, IOException, ConnectionPoolException
     {
         PoolItem poolItem = null;
@@ -273,7 +272,7 @@ final class ConnectionList
                 if (((item.getLocale() == null && locale == null) 
                         || (locale != null && (item.getLocale() != null) && item.getLocale().equals(locale))))
                 {
-                    if (!pretestConnections || (pretestConnections && !isConnectionAlive(item)))
+                    if (!pretestConnections || (pretestConnections && isConnectionAlive(item)))
                     {
                         if (Trace.traceOn_) log(Trace.INFORMATION, "Using already connected connection");
                         
@@ -326,7 +325,7 @@ final class ConnectionList
         if (poolItem == null)
             poolItem = createNewConnection((service != null) ? service : 0, 
                                            (service != null), 
-                                           secure, poolListeners, locale, poolAuth, socketProperties, ccsid);
+                                           secure, poolListeners, locale, poolAuth, socketProperties, ccsid, rootSystem);
 
         return poolItem;
     }

@@ -50,11 +50,18 @@ class PoolItem
      *
      **/
     PoolItem(String systemName, String userID, AS400ConnectionPoolAuthentication poolAuth, boolean secure, Locale locale,
-           int service, boolean connect, boolean threadUse, SocketProperties socketProperties, int ccsid) throws AS400SecurityException, IOException
+           int service, boolean connect, boolean threadUse, SocketProperties socketProperties, int ccsid, AS400 rootSystem) throws AS400SecurityException, IOException
     {
         char[] password = null;
         
-        if (poolAuth.getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN)
+        if (rootSystem != null)
+        {
+            // Ensure authenticatino information if set and valid in AS400 to be cloned.
+            rootSystem.authenticate();
+            
+            AS400object_ = AS400.newInstance(secure, rootSystem);
+        }
+        else if (poolAuth.getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN)
         {
             ProfileTokenCredential profileToken = poolAuth.getProfileToken();
             AS400object_ = AS400.newInstance(secure, systemName, profileToken);
@@ -82,7 +89,7 @@ class PoolItem
             if (locale != null)
                 AS400object_.setLocale(locale);
             
-            if ((poolAuth.getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PASSWORD) && (password != null))
+            if ((rootSystem == null) && (poolAuth.getAuthenticationScheme() == AS400.AUTHENTICATION_SCHEME_PASSWORD) && (password != null))
                 AS400object_.setGuiAvailable(false);
 
             if (!threadUse)                  
