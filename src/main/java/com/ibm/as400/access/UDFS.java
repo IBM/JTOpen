@@ -75,7 +75,7 @@ public class UDFS
     public void create() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating UDFS.");
-        StringBuffer cmd = new StringBuffer("CRTUDFS UDFS('" + path_ + "')");
+        StringBuilder cmd = new StringBuilder("CRTUDFS UDFS('" + path_ + "')");
         if (storageUnit_ != null && !storageUnit_.equalsIgnoreCase("*ANY"))
         {
           if (system_.getVRM() >= 0x00070100) {
@@ -198,7 +198,7 @@ public class UDFS
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating UDFS.");
         int vrm = system_.getVRM();
 
-        StringBuffer cmd = new StringBuffer("CRTUDFS UDFS('" + path_ + "')");
+        StringBuilder cmd = new StringBuilder("CRTUDFS UDFS('" + path_ + "')");
         cmd.append(" DTAAUT(").append(publicDataAuthority).append(")");
         cmd.append(" OBJAUT(").append(setArrayToString(publicObjectAuthority)).append(")");
         cmd.append(" CRTOBJAUD(").append(auditingValue).append(")");
@@ -315,7 +315,7 @@ public class UDFS
         int arrayLength = array.length;
         if (arrayLength == 0) return "*INDIR";
         if (arrayLength == 1) return array[0];
-        StringBuffer buf = new StringBuffer(array[0]);
+        StringBuilder buf = new StringBuilder(array[0]);
         for (int i = 1; i < arrayLength; ++i)
         {
             buf.append(" ");

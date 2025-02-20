@@ -444,7 +444,7 @@ public class CommandHelpRetriever
   **/
   private static final String encode(String source)
   {
-    StringBuffer dest = new StringBuffer();
+    StringBuilder dest = new StringBuilder();
     char[] buf = source.toCharArray();
     for (int i=0; i<buf.length; ++i)
     {
@@ -476,7 +476,7 @@ public class CommandHelpRetriever
   **/
   private static final String encodeAmp(String source)
   {
-    StringBuffer dest = new StringBuffer();
+    StringBuilder dest = new StringBuilder();
     char[] buf = source.toCharArray();
     for (int i=0; i<buf.length; ++i)
     {

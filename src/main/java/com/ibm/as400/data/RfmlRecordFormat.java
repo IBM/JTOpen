@@ -433,7 +433,7 @@ class RfmlRecordFormat extends PcmlDocNode
 
         // Try appending digits to the end.
         String suffix = Integer.toString(0);
-        StringBuffer newName = new StringBuffer(baseName);
+        StringBuilder newName = new StringBuilder(baseName);
         for (int i=0; suffix.length()<MAX_DDS_NAME_LENGTH;) {
           newName.replace(0,baseLength,baseName); // Reset to the base name.
                            // Note: StringBuffer.replace() is new in Java2.

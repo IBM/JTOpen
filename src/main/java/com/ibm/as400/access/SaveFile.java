@@ -214,7 +214,7 @@ implements Serializable
 
     // Note: We tolerate null args.  They are interpreted to indicate "Use the default value".
 
-    StringBuffer cmdBuf = new StringBuffer("QSYS/CRTSAVF FILE("+library_+"/"+name_+") ");
+    StringBuilder cmdBuf = new StringBuilder("QSYS/CRTSAVF FILE("+library_+"/"+name_+") ");
 
     if (maxRecords == DEFAULT) {
       // Ignore; the user wants the default.
@@ -1022,12 +1022,12 @@ implements Serializable
     checkExistence();
 
     // Build the object list for the OBJ parameter.
-    StringBuffer objects = new StringBuffer();
+    StringBuilder objects = new StringBuilder();
     for (int i=0; i<objectList.length; i++) {
       objects.append(objectList[i]).append(" ");
     }
 
-    StringBuffer cmdBuf = new StringBuffer("QSYS/RSTOBJ OBJ("+objects.toString()+") " +
+    StringBuilder cmdBuf = new StringBuilder("QSYS/RSTOBJ OBJ("+objects.toString()+") " +
       "SAVLIB("+libraryName+") " +
       "DEV(*SAVF) SAVF("+library_+"/"+name_+") " +
       "OUTPUT("+saveOutput_+") ");
@@ -1086,8 +1086,8 @@ implements Serializable
     if (product == null) throw new NullPointerException("product");
     checkExistence();
 
-    StringBuffer cmdBuf =
-      new StringBuffer("QSYS/RSTLICPGM " +
+    StringBuilder cmdBuf =
+      new StringBuilder("QSYS/RSTLICPGM " +
                        "LICPGM("+product.getProductID()+") " +
                        "DEV(*SAVF) SAVF("+library_+"/"+name_+") " +
                        "OPTION("+getProductOption(product)+") " +
@@ -1170,7 +1170,7 @@ implements Serializable
     checkExistence();
 
     // Build the object list for the OBJ parameter.
-    StringBuffer objects = new StringBuffer();
+    StringBuilder objects = new StringBuilder();
     for (int i=0; i<objectList.length; i++) {
       objects.append(objectList[i]).append(" ");
     }
@@ -1212,7 +1212,7 @@ implements Serializable
     checkExistence();
 
     // Build the path list for the OBJ parameter.
-    StringBuffer paths = new StringBuffer();
+    StringBuilder paths = new StringBuilder();
     for (int i=0; i<pathList.length; i++) {
       paths.append("('").append(pathList[i]).append("') ");
     }
@@ -1253,8 +1253,8 @@ implements Serializable
     if (product == null) throw new NullPointerException("product");
     checkExistence();
 
-    StringBuffer cmdBuf =
-      new StringBuffer("QSYS/SAVLICPGM " +
+    StringBuilder cmdBuf =
+      new StringBuilder("QSYS/SAVLICPGM " +
                        "LICPGM("+product.getProductID()+") " +
                        "DEV(*SAVF) SAVF("+library_+"/"+name_+") " +
                        "OPTION("+getProductOption(product)+") " +
@@ -1455,7 +1455,7 @@ implements Serializable
   {
     if (savefileNameAndLib_ == null)
     {
-      StringBuffer buff = new StringBuffer("                    ");  // initialize to 20 blanks
+      StringBuilder buff = new StringBuilder("                    ");  // initialize to 20 blanks
       buff.replace(0,  name_.length(), name_);
       buff.replace(10, 10+library_.length(), library_);
       savefileNameAndLib_ = buff.toString();

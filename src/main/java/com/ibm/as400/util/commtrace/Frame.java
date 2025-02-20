@@ -144,7 +144,7 @@ public class Frame {
      * @return Returns a string representation of this Frame.
      */
 	public String toString(FormatProperties filter) {
-		StringBuffer ret= new StringBuffer(); // The return string
+		StringBuilder ret= new StringBuilder(); // The return string
 		String time;
 		if (tcp) { // If its not TCP just return
 			// Create our Time object with the timestamp

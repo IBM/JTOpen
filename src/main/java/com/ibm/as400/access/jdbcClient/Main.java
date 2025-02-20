@@ -367,7 +367,7 @@ public class Main implements Runnable {
       if (result != null) {
         if (result.indexOf("\\u") >= 0) {
           int resultLen = result.length();
-          StringBuffer sb = new StringBuffer();
+          StringBuilder sb = new StringBuilder();
           int startIndex = 0;
           int escapeIndex = result.indexOf("\\u", startIndex);
           while (escapeIndex >= 0) {

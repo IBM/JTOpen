@@ -129,7 +129,7 @@ class IPAddressConversion {
 	 */
 	private String ntopIPv4(String seg[]) {
 		// String that will be returned.
-		StringBuffer ret= new StringBuffer(32);
+		StringBuilder ret= new StringBuilder(32);
 		for (int i= 0; i < seg.length; i++) {
 			// Convert to decimal if the segement is in hex
 			if (type == IPv4Hex || type == IPvMixedHex) {
@@ -151,7 +151,7 @@ class IPAddressConversion {
 		boolean zero= false, compressed= false;
 		int start= 0, end= 0;
 		// String that will be returned.
-		StringBuffer ret= new StringBuffer(64);
+		StringBuilder ret= new StringBuilder(64);
 		// Cycle through the segments check for segments with 0s.
 		for (int i= 0; i < seg.length; i++) {
 			// If the character is 0 and we have not yet hit a zero. 
@@ -207,7 +207,7 @@ class IPAddressConversion {
 	 * @return String[] containing the IP address.
 	 */
 	private String[] trim(String[] seg) {
-		StringBuffer ret= new StringBuffer(64);
+		StringBuilder ret= new StringBuilder(64);
 		// Cycle through the segments changing if needed
 		for (int i= 0; i < seg.length; i++) {
 			// If we have gotten to our first number or not.     
@@ -314,7 +314,7 @@ class IPAddressConversion {
 	 */
 	private String ptonIPv4(String seg[]) {
 		// String that will be returned.
-		StringBuffer ret= new StringBuffer(32);
+		StringBuilder ret= new StringBuilder(32);
 		// Cycle through the segments chaging if needed.
 		for (int i= 0; i < seg.length; i++) {
 			int length= seg[i].length();
@@ -339,7 +339,7 @@ class IPAddressConversion {
 	 */
 	private String ptonIPv6(String seg[]) {
 		// String that will be returned.
-		StringBuffer ret= new StringBuffer(64);
+		StringBuilder ret= new StringBuilder(64);
 
 		// If the IPaddr is compressed uncompress it.
 		if (seg.length < 8) {

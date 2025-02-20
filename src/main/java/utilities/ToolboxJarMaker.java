@@ -629,7 +629,7 @@ public class ToolboxJarMaker extends JarMaker
     int insertionPosition = entryName.lastIndexOf('.');
     // If no '.' found, then simply append suffix to end.
     if (insertionPosition == -1) insertionPosition = entryName.length();
-    StringBuffer buf = new StringBuffer(entryName);
+    StringBuilder buf = new StringBuilder(entryName);
     buf.insert(insertionPosition, "_"+languageSuffix);
     return buf.toString();
   }
@@ -2013,7 +2013,7 @@ public class ToolboxJarMaker extends JarMaker
     else if (id.indexOf("_") == 2)
       languageID = id;
     else {
-      StringBuffer buf = new StringBuffer(id);
+      StringBuilder buf = new StringBuilder(id);
       buf.insert(2, '_');
       languageID = buf.toString();
     }

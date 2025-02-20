@@ -164,7 +164,7 @@ public UserObjectsOwnedList(AS400 system, String userName, int selectionFileSyst
     parms[0] = new ProgramParameter(conv.stringToByteArray(USERSPACE_NAME)); //Qualified user space name
     parms[1] = new ProgramParameter(conv.stringToByteArray(selectionFileSystem_));     // Format Name "OBJA0300" or "OBJA0310"
 
-    StringBuffer userNameBuff = new StringBuffer("          ");  // initialize to 10 blanks
+    StringBuilder userNameBuff = new StringBuilder("          ");  // initialize to 10 blanks
     userNameBuff.replace(0,  userName_.length(), userName_);
     parms[2] = new ProgramParameter(conv.stringToByteArray(userNameBuff.toString()));   // User profile name
     parms[3] = new ProgramParameter(conv.stringToByteArray(SELECTION_OBJECT_TYPE_ALL_PRIV));   // Object type filter

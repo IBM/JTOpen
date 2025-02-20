@@ -1994,7 +1994,7 @@ public class Product
   **/
   public String toString()
   {
-    StringBuffer buf = new StringBuffer(productID_);
+    StringBuilder buf = new StringBuilder(productID_);
     buf.append('/');
     buf.append(productOption_);
     buf.append('/');

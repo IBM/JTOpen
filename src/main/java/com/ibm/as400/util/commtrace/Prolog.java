@@ -310,7 +310,7 @@ public class Prolog {
      * @return	    Returns a string representation of this Prolog.
      */
     public String toString() {
-	    StringBuffer formattedData = new StringBuffer(256000); // The formatted data
+	    StringBuilder formattedData = new StringBuilder(256000); // The formatted data
 		String ctsfpros = ctsfpro.toString(); // The line protocol
 		String ctsfprofs;
 		if(ctsfpros.equals("E") || ctsfpros.equals("C")) { // Tokenring or Ethernet? 

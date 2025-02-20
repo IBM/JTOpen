@@ -116,7 +116,7 @@ class ListUtilities
 
       default:  // any other status
 
-        StringBuffer msg = new StringBuffer("Unable to synchronously build object list on server.");
+        StringBuilder msg = new StringBuilder("Unable to synchronously build object list on server.");
 
         try {
           msg.append("\n  List status indicator: ").append(listStatusIndicator);
@@ -129,6 +129,7 @@ class ListUtilities
           Trace.log(Trace.ERROR, msg.toString());
         }
         throw new ErrorCompletingRequestException(ErrorCompletingRequestException.AS400_ERROR);
+
     }
 
     if (infoCompleteIndicator == INFORMATION_INTERRUPTED)

@@ -240,10 +240,9 @@ Returns a localized description of an object type.
 
         // First let's get the string for the type, then tack on the attribute
         // if needed.
-        StringBuffer localized = new StringBuffer();
-
+        StringBuilder localized = new StringBuilder();
         // Concoct the MRI key.
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("TYPE_");
 
         // Add the type.  Uppercase it and remove a * if included in the first character.

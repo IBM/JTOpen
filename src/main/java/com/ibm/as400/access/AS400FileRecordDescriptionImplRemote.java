@@ -780,7 +780,7 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
       // Concatenate the 3 "column heading" fields into a single string.
       // Delimit each part by single-quotes.
       // For example: "'FIRST PART' 'SECOND PART' 'THIRD PART'"
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
 
       if (colHdg1.length() == 0) sb.append("''");
       else sb.append("'").append(colHdg1).append("'");

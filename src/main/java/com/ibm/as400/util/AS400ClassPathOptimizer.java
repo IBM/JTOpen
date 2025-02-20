@@ -243,7 +243,7 @@ public class AS400ClassPathOptimizer {
 
 	private String getOptimizationCommand( IFSFile file ) throws Exception {
 
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 
 		sb.append( "CRTJVAPGM " );
 		sb.append("CLSF(").append(file.getAbsolutePath()).append(") ");

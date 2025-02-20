@@ -244,7 +244,7 @@ Logs an information trace message.
   {
     if (isTraceOn())
     {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       buffer.append("as400: ");
       buffer.append(objectToString(object));
       buffer.append(": ");
@@ -259,7 +259,7 @@ Logs an information trace message.
   {
     if (isTraceOn())
     {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       buffer.append("as400: ");
       buffer.append(objectToString(object));
       buffer.append(": ");
@@ -290,7 +290,7 @@ Logs a property trace message.
   {
     if (isTraceOn())
     {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       buffer.append("as400@");
       buffer.append(callingMethod);
       buffer.append(": ");
@@ -351,7 +351,7 @@ Logs an open trace message.
   {
     if (isTraceOn())
     {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       buffer.append("as400: ");
       buffer.append(objectToString(object));
       buffer.append(" open.");                    
@@ -406,7 +406,7 @@ Logs a close trace message.
   {
     if (isTraceOn())
     {
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
       buffer.append("as400: ");
       buffer.append(objectToString(object));
       buffer.append(" closed.");
@@ -438,7 +438,7 @@ Maps an object to a string.
     else
         className = "Unknown";
     
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     buffer.append(className);
     buffer.append(" ");
     buffer.append(object.toString());

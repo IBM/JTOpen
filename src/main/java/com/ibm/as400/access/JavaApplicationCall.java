@@ -925,7 +925,7 @@ public class JavaApplicationCall implements Serializable
         // 12. OPTION
 
         // 1.CLASS
-        StringBuffer commandString = new StringBuffer("JAVA CLASS(" + getJavaApplication() + ") ");
+        StringBuilder commandString = new StringBuilder("JAVA CLASS(" + getJavaApplication() + ") ");
         // 2.PARM
         String[] parm = getParameters();
         if (parm.length > 0)

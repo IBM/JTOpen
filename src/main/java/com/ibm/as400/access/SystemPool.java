@@ -364,7 +364,7 @@ public class SystemPool
       if (poolIdentifier == 0 || changesTable_.get("poolSizeLong")!=null) //@S4C As QUSCHGPA api only support pool size with bin4, we set long type with command here
       {
         // We need to use CHGSHRPOOL, since QUSCHGPA requires a unique system pool identifier.
-        StringBuffer cmdBuf = new StringBuffer("QSYS/CHGSHRPOOL POOL("+getName()+")");//@S4C
+        StringBuilder cmdBuf = new StringBuilder("QSYS/CHGSHRPOOL POOL("+getName()+")");//@S4C
         Object obj;  // attribute value
         //@S4A START
         obj = changesTable_.get("poolSizeLong");
@@ -1508,7 +1508,7 @@ public class SystemPool
       // Note: The typeOfPool field simply indicates _how_ we are identifying the pool in this API: Either by shared-pool name, or by system pool identifier.
       String typeOfPool = (indicatedSharedPool_ ? "*SHARED   " : "*SYSTEM   ");
 
-      StringBuffer sharedPoolName = new StringBuffer(indicatedSharedPool_ ? poolName_ : "");
+      StringBuilder sharedPoolName = new StringBuilder(indicatedSharedPool_ ? poolName_ : "");
       if (sharedPoolName.length() < 10) {
         int numPadBytes = 10 - sharedPoolName.length();
         sharedPoolName.append(TEN_BLANKS.substring(10-numPadBytes));  // pad field to a length of 10 chars
@@ -2566,7 +2566,7 @@ public class SystemPool
       **/
      public String toString()
      {
-       StringBuffer buf = new StringBuffer(super.toString());
+       StringBuilder buf = new StringBuilder(super.toString());
        if (poolName_ != null || subsystemName_ != null || poolIdentifier_ != null)
        {
          if (subsystemName_ != null) {

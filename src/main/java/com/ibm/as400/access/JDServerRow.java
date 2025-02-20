@@ -510,7 +510,7 @@ implements JDRow
 
         if (JDTrace.isTraceOn()) {
             JDTrace.logInformation (this, "Did not find column " + name);
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             for (int i = 1; i <= sqlData_.length; i++)
             {
                sb.append("[").append(i).append("]=").append(getFieldName(i)).append(" ");

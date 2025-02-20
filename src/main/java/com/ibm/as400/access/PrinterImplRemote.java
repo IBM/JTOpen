@@ -212,7 +212,7 @@ implements PrinterImpl
        {
          // Call CHGWTR change the specified printer attributes.  Note that this command is not designated to be threadsafe.
 
-         StringBuffer cmdBuf = new StringBuffer("CHGWTR WTR(" + printerName + ")");
+         StringBuilder cmdBuf = new StringBuilder("CHGWTR WTR(" + printerName + ")");
 
          if (changes != null) {  // When to change writer.
              cmdBuf.append(" OPTION(").append(changes).append(")");
@@ -314,7 +314,7 @@ implements PrinterImpl
        if (text.indexOf('\'') == -1) return text;  // text contains no single-quotes
 
        // 1. Collapse each sequence of multiple single-quotes to a single single-quote.
-       StringBuffer buf = new StringBuffer(text.trim());
+       StringBuilder buf = new StringBuilder(text.trim());
        if (buf.indexOf("''") != -1)
        {
          boolean followedByQuote = false;

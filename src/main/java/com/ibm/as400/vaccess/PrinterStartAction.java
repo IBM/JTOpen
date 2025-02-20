@@ -480,7 +480,7 @@ Performs the action.
             fireStartWorking();
 
             // Create a string that contains the command, printer name, and all parameters
-            StringBuffer cmdString_ = new StringBuffer("STRPRTWTR DEV(" + printer_.getName().trim() + ") OUTQ(");
+            StringBuilder cmdString_ = new StringBuilder("STRPRTWTR DEV(" + printer_.getName().trim() + ") OUTQ(");
 
             // Get the outq
             selectedItem = (String)outqBox_.getModel().getSelectedItem();

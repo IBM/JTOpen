@@ -565,7 +565,7 @@ public class GenerateConverterTable {
           .println("Create file using " + fileCcsid + " since MIXED CCSID ");
     }
     // Write out the ccsid table
-    StringBuffer surrogateInitStringBuffer = new StringBuffer();
+    StringBuilder surrogateInitStringBuffer = new StringBuilder();
 
     try {
       String fName = "ConvTable" + fileCcsid + ".java";
@@ -1418,7 +1418,7 @@ public class GenerateConverterTable {
     // This uses the "correct" compression scheme from my invention disclosure
     // It also employs high-byte compression, something that I did not include
     // in my disclosure.
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
 
     for (int i = 0; i < arr.length; ++i) {
       int repNum = repeatCheck(arr, i);
@@ -1511,7 +1511,7 @@ public class GenerateConverterTable {
 
   static char[] decompressBetter(char[] arr) {
     // let's try decompressing for testing purposes
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     for (int i = 0; i < arr.length; ++i) {
       if (arr[i] == repSig) {
         if (arr[i + 1] == pad) {
@@ -1586,7 +1586,7 @@ public class GenerateConverterTable {
 
     if (arr.length < 3)
       return arr;
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     char oldold = arr[0];
     char old = arr[1];
     int count = 0;
@@ -1726,7 +1726,7 @@ public class GenerateConverterTable {
     f.write("//\n");
     f.write("// Generated " + currentDate + " from " + system + "\n");
 
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     if (compress_ == false)
       sb.append(" -nocompress");
     if (ascii_ == true)
@@ -2157,7 +2157,7 @@ public class GenerateConverterTable {
       offset = 1;
     }
 
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     int cp;
     for (int i = 0; i < OUTERLOOP; i++) {
       for (int j = 0; j < BLOCKSIZE; j++) {
@@ -2210,7 +2210,7 @@ public class GenerateConverterTable {
   } /* jdbcToUnicodeDBCS */
 
   private static String dumpUnicodeString(String pad, String data) {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     char[] charArray = data.toCharArray();
     for (int i = 0; i < charArray.length; i++) {
       sb.append(pad);
@@ -2229,7 +2229,7 @@ public class GenerateConverterTable {
   }
 
   private static String dumpBytes(String pad, byte[] block) {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for (int i = 0; i < block.length; i++) {
       sb.append(pad);
       int value = 0xff & block[i];

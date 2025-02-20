@@ -199,7 +199,7 @@ public class UpdateACSJar    {
         String line = reader.readLine(); 
         boolean skipNextLine = false; 
         
-        StringBuffer sb = new StringBuffer(); 
+        StringBuilder sb = new StringBuilder(); 
         while (line != null) { 
           if (!skipNextLine) {
             if (line.indexOf("jt400.jar")>=0) {

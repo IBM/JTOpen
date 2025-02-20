@@ -236,7 +236,7 @@ Creates and adds a ResourceMetaData object to the list.
         if (possibleValues != null && presentationLoader_ != null) {
             possibleValuePresentations = new Presentation[possibleValues.length];
             for(int i = 0; i < possibleValues.length; ++i) {
-                StringBuffer buffer = new StringBuffer();
+                StringBuilder buffer = new StringBuilder();
                 buffer.append(id);
                 buffer.append('_');
 

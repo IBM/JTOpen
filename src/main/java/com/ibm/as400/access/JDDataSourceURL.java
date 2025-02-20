@@ -77,7 +77,7 @@ public class JDDataSourceURL implements Serializable {
           secondaryUrl_ = (String) properties_.get(JDProperties.SECONDARY_URL_);
         // Collapse any "\;" into ";", by backing through the URL.
         if (secondaryUrl_.indexOf("\\;") != -1) {
-          StringBuffer buf = new StringBuffer(secondaryUrl_.length());
+          StringBuilder buf = new StringBuilder(secondaryUrl_.length());
           char subsequentChar = ' ';
           for (int i = secondaryUrl_.length() - 1; i > -1; i--) {
             char thisChar = secondaryUrl_.charAt(i);
@@ -127,7 +127,7 @@ public class JDDataSourceURL implements Serializable {
    * regenerate the URL field base on the current properties. 
    */
   void regenerateUrl() {
-    StringBuffer sb = new StringBuffer(); 
+    StringBuilder sb = new StringBuilder(); 
     sb.append("jdbc:as400:");
     sb.append(serverName_);
     if (portSpecified_) {
@@ -154,7 +154,7 @@ public class JDDataSourceURL implements Serializable {
 
   // @B1A
   String getNativeURL() {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     buffer.append(PROTOCOL_);
     buffer.append(':');
     buffer.append(NATIVE_SUB_PROTOCOL_);

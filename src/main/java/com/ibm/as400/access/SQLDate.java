@@ -204,7 +204,7 @@ extends SQLDataBase
                                       SQLConversionSettings dataFormat,
                                       Calendar calendar)
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         String separator = dataFormat.getDateSeparator();
         if(calendar == null) { calendar = AS400Calendar.getGregorianInstance(); //@P0A
 
@@ -386,7 +386,7 @@ extends SQLDataBase
     throws SQLException
     {
         // Always use ISO format here.
-        StringBuffer buffer = new StringBuffer(10);
+        StringBuilder buffer = new StringBuilder(10);
         buffer.append(JDUtilities.padZeros(year_, 4));
         buffer.append('-');
         buffer.append(JDUtilities.padZeros(month_ + 1, 2));

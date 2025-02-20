@@ -66,7 +66,7 @@ implements JDFieldMap
         Object serverData = super.getValue (row);    // gets it from correct column
         // using fromIndex
 
-        StringBuffer privileges = new StringBuffer ("");
+        StringBuilder privileges = new StringBuilder ("");
 
         byte[] privilegeBytes = (byte[]) serverData;
 

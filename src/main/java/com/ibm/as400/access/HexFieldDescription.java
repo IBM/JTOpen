@@ -88,7 +88,7 @@ public class HexFieldDescription extends FieldDescription implements VariableLen
   {
     Vector v = new Vector();
     // Name columns (10)
-    StringBuffer desc = new StringBuffer(ddsName_);
+    StringBuilder desc = new StringBuilder(ddsName_);
     // Blank pad the ddsName to 10 characters.
     while(desc.length() < 10)
     {

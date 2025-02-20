@@ -1103,7 +1103,7 @@ public class Format {
 	 * @return	String containing the banner.
 	 */
 	public String addBanner() {
-	    StringBuffer banner = new StringBuffer();
+	    StringBuilder banner = new StringBuilder();
 		String record= ResourceBundleLoader_ct.getText("Record");
 		String mac= ResourceBundleLoader_ct.getText("MACAddress");
 

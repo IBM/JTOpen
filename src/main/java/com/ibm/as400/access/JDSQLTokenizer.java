@@ -324,7 +324,7 @@ class JDSQLTokenizer implements Enumeration
   **/
   public String toString()
   {
-    StringBuffer contents = new StringBuffer();
+    StringBuilder contents = new StringBuilder();
     for (int i=0; i<tokens_.length; ++i)
     {
       contents.append(tokens_[i].getToken());

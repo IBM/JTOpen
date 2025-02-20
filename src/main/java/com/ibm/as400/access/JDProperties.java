@@ -2395,7 +2395,7 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     //
     public String toString ()
     {
-      StringBuffer sb = new StringBuffer(); 
+      StringBuilder sb = new StringBuilder(); 
       
       for (int i = 0; i < values_.length; i++) { 
         String value = values_[i]; 

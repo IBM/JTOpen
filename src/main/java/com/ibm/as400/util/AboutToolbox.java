@@ -58,7 +58,7 @@ public class AboutToolbox
   
   public static String getReleaseName() 
   {
-    StringBuffer sbuf = new StringBuffer(200);
+    StringBuilder sbuf = new StringBuilder(200);
 
     try 
     {
@@ -87,7 +87,7 @@ public class AboutToolbox
    **/
   public static String getVersionDescription() 
   {
-    StringBuffer sbuf = new StringBuffer(200);
+    StringBuilder sbuf = new StringBuilder(200);
     sbuf.append("\nIBM Toolbox for Java:\n");
 
     try 

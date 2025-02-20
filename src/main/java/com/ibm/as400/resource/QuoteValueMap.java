@@ -93,7 +93,7 @@ Maps from a logical value to a physical value.
                 return asString;
 
         // Otherwise...
-        StringBuffer buffer = new StringBuffer();        
+        StringBuilder buffer = new StringBuilder();        
         buffer.append(SINGLE_QUOTE_);
         buffer.append(asString);
         buffer.append(SINGLE_QUOTE_);

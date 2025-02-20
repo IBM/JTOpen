@@ -220,7 +220,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
 
         // Put the second parm (the extended attribute) into the parm
         // area.  It is a 10 character field
-        StringBuffer EAName = new StringBuffer("          ");
+        StringBuilder EAName = new StringBuilder("          ");
         if (extendedAttribute != null)
             EAName.insert(0, extendedAttribute);
         EAName.setLength(10);
@@ -238,7 +238,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
 
         // Put the fifth parm (the authority) into the parm
         // area.  It is a 10 character field
-        StringBuffer authorityValue = new StringBuffer("          ");
+        StringBuilder authorityValue = new StringBuilder("          ");
         if (authority != null)
             authorityValue.insert(0, authority);
         authorityValue.setLength(10);
@@ -248,7 +248,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
 
         // Put the sixth parm (the description) into the parm
         // area.  It is a 50 character field
-        StringBuffer descriptionValue = new StringBuffer("                                                  ");
+        StringBuilder descriptionValue = new StringBuilder("                                                  ");
         if (textDescription != null)
             descriptionValue.insert(0, textDescription);
         descriptionValue.setLength(50);
@@ -258,7 +258,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
 
         // Put the seventh parm (replace) into the parm
         // area.  It is a 10 character field
-        StringBuffer replaceValue = new StringBuffer("          ");
+        StringBuilder replaceValue = new StringBuilder("          ");
         replaceValue.insert(0, replaceString);
         replaceValue.setLength(10);
         String replaceString2 = replaceValue.toString();
@@ -275,7 +275,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
 
         // Put the ninth parm (the domain) into the parm
         // area.  It is a 10 character field
-        StringBuffer domainValue = new StringBuffer("          ");
+        StringBuilder domainValue = new StringBuilder("          ");
         if (domain != null)
             domainValue.insert(0, domain);
         domainValue.setLength(10);
@@ -334,7 +334,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
         //    10 characters - the library that contains the program
         //     4 bytes      - the number of parameters
 
-        StringBuffer programName = new StringBuffer("                    ");
+        StringBuilder programName = new StringBuilder("                    ");
         programName.insert(0, command);
         programName.insert(10,"QSYS");
         programName.setLength(20);
@@ -371,7 +371,7 @@ class UserSpaceImplNative extends UserSpaceImplRemote
 
         // Create the 20 character user space name.  The first 10
         // characters are the name, the second 10 are the library
-        StringBuffer pathName = new StringBuffer("                    ");
+        StringBuilder pathName = new StringBuilder("                    ");
         pathName.insert(0, name);
         pathName.insert(10, library);
         pathName.setLength(20);
