@@ -30,9 +30,6 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
 	    removeFromSystem();
 	    super.destroy();
     }
-
-
-
       
     private byte[] generateRawToken(String uid, int pwdSpecialValue, 
             int authenticationIndicator, int type, int timeoutInterval, ProfileTokenEnhancedInfo enhancedInfo) throws RetrieveFailedException
@@ -155,7 +152,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
             parmlist[18] = new ProgramParameter(BinaryConverter.intToByteArray(enhancedInfo.getLocalPort()));
         }
 
-        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenImpleRemote generating profile token w/special value: user=" + uid + ", " + enhancedInfo);
+        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenImpleRemote generating raw profile token w/special value: user=" + uid);
 
         ProgramCall programCall = new ProgramCall(sys);
 
@@ -174,11 +171,11 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         catch (Exception e) {
             throw new RetrieveFailedException();
         }
-        if (useEPT) {
-        	enhancedInfo.setEnhancedTokenCreated(true); 
-        } else { 
-        	enhancedInfo.setEnhancedTokenCreated(false); 
-        }
+        
+        enhancedInfo.setEnhancedTokenCreated(useEPT); 
+
+        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "Raw profile token generated: " + enhancedInfo);
+
         return parmlist[0].getOutputData();
     }
     
@@ -194,12 +191,13 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
                 profileTokenCred.getTimeoutInterval(),
                 enhancedInfo);
         
-        try {
-        	if (enhancedInfo.wasEnhancedTokenCreated()) {
+        try
+        {
+        	if (enhancedInfo.wasEnhancedTokenCreated())
         		profileTokenCred.setToken(token,enhancedInfo); 
-        	} else { 
+        	else
         		profileTokenCred.setToken(token);
-        	}
+        	
             profileTokenCred.setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
         } 
         catch (PropertyVetoException e)
