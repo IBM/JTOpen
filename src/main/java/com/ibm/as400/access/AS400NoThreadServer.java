@@ -37,6 +37,8 @@ class AS400NoThreadServer extends AS400Server
     private final Lock lock_ = new ReentrantLock();
 
     private boolean closed_ = false;
+    private IOException readWriteException_ = null;
+
 
     AS400NoThreadServer(AS400ImplRemote system, int service, SocketContainer socket, String jobString) throws IOException
     {
@@ -82,6 +84,7 @@ class AS400NoThreadServer extends AS400Server
             outStream_ = socket.getOutputStream();
             
             closed_ = false;
+            readWriteException_ = null;
         }
         finally {
             lock_.unlock();
@@ -90,7 +93,7 @@ class AS400NoThreadServer extends AS400Server
 
     @Override
     boolean isConnected() {
-        return closed_ == false;
+        return (closed_ == false && readWriteException_ == null);
     }
 
     @Override
@@ -166,6 +169,10 @@ class AS400NoThreadServer extends AS400Server
             requestStream.write(outStream_);
             return correlationID;
         }
+        catch (IOException e) {
+            readWriteException_= e;
+            throw e;
+        }
         finally {
             lock_.unlock();
         }
@@ -190,7 +197,11 @@ class AS400NoThreadServer extends AS400Server
 
             requestStream.setCorrelation(correlationId);
             requestStream.write(outStream_);
-        } 
+        }
+        catch (IOException e) {
+            readWriteException_= e;
+            throw e;
+        }
         finally {
             lock_.unlock();
         }
@@ -257,6 +268,10 @@ class AS400NoThreadServer extends AS400Server
             
             return reply;
         }
+        catch (IOException e) {
+            readWriteException_= e;
+            throw e;
+        }
         finally {
             lock_.unlock();
         }
@@ -288,12 +303,17 @@ class AS400NoThreadServer extends AS400Server
             if (service_ == AS400.DATABASE || service_ == AS400.COMMAND 
                     || service_ == AS400.CENTRAL || service_ == AS400.SIGNON || service_ == AS400.HOSTCNN)
             {
-                AS400EndJobDS endjob = new AS400EndJobDS(AS400Server.getServerId(service_));
-                try {
-                    endjob.write(outStream_);
-                }
-                catch(Exception e) {
-                    Trace.log(Trace.ERROR, "Send end job data stream failed.", e);
+                if (readWriteException_ == null)
+                {
+                    AS400EndJobDS endjob = new AS400EndJobDS(AS400Server.getServerId(service_));
+                    if (Trace.traceOn_) endjob.setConnectionID(connectionID_);
+
+                    try {
+                        endjob.write(outStream_);
+                    }
+                    catch(Exception e) {
+                        Trace.log(Trace.ERROR, "Send end job data stream failed.", e);
+                    }
                 }
             }
     

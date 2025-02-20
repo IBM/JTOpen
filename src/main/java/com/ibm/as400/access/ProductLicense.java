@@ -221,6 +221,7 @@ public class ProductLicense implements java.io.Serializable
 
         // get a new AS400 object to make sure we get a separate connection
         sys_ = new AS400(system);
+        sys_.setStayAlive(system.getStayAlive());
         if(sys_ == null)
         {
             throw new NullPointerException("system");

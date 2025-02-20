@@ -546,7 +546,10 @@ endif JAVA9 */
 		if (system == null)
 			throw new NullPointerException("system");
 
-		return initializeConnection(AS400.newInstance(system.isSecure(), system));
+        AS400 newAs400 = AS400.newInstance(system.isSecure(), system);
+        newAs400.setStayAlive(system.getStayAlive());
+        
+		return initializeConnection(newAs400);
 
 		// Initialize the connection.
 		//@B7D Connection connection = null;                                        
@@ -753,7 +756,11 @@ endif JAVA9 */
                 if(!clone)  //Do not clone the AS400 object, use the one passed in
                     return initializeConnection(schema, info, system);
                 else        //clone the AS400 object
-                    return initializeConnection(schema, info, AS400.newInstance(system.isSecure(), system));
+                {
+                    AS400 newAs400 = AS400.newInstance(system.isSecure(), system);
+                    newAs400.setStayAlive(system.getStayAlive());
+                    return initializeConnection(schema, info, newAs400);
+                }
 	}
 
 	//@B5A
@@ -938,7 +945,9 @@ endif JAVA9 */
 
 		//@PDD not used JDProperties jdProperties = new JDProperties (null, info);
 
-        return initializeConnection(schema, info, AS400.newInstance(system.isSecure(), system));
+        AS400 newAs400 = AS400.newInstance(system.isSecure(), system);
+        newAs400.setStayAlive(system.getStayAlive());
+        return initializeConnection(schema, info, newAs400);
 
 		// Initialize the connection if the URL is valid.
 		//@B7D Connection connection = null;                                        
