@@ -14,14 +14,14 @@ Several coordinates are published to Maven. See [Download Information](#download
 
 ## Download Information
 
-JTOpen [releases](https://github.com/IBM/JTOpen/releases) for versions 20 and newer include
+JTOpen [releases](https://github.com/IBM/JTOpen/releases) for versions 21 and newer include
 the following files:
 
 |Jar file                  | Maven Coordinate (v20)  | Contents  |
 | -----------------------  | ----------------------  | --------  |
-| jtopen-x.y.z.jar         | &lt;default&gt;  | This is the main JTOpen jar file. It contains almost all open source code (except for the few Toolbox classes that could  not be open-sourced), including the utilities package and the JDBC driver (JDBC 3.0). This is analagous to the jar file classically named `jt400.jar`.|
-| jtopen-x.y.z-native.jar  | `native`   | This is the main JTOpen jar file with support for "Native Optimizations" when running on IBM i. This is analagous to the file classically named `jt400Native.jar`.|
-| jtopen-x.y.z-java8.jar   | `java8`    | This is the main JTOpen jar file but built for Java 8 (or newer). Some components (most notably the JDBC driver) may have extra capabilities available in Java 8. |
-| jtopen-x.y.z-java11.jar  | `java11`   | This is the main JTOpen jar file but built for Java 8 (or newer). Some components (most notably the JDBC driver) may have extra capabilities available in Java 11. |
+| jtopen-x.y.z.jar         | &lt;default&gt;  | This is the main JTOpen jar file, currently built using Java 8. It contains almost all open source code (except for the few Toolbox classes that could  not be open-sourced), including the utilities package and the JDBC driver (JDBC 4.2). This is analogous to the jar file classically named `jt400.jar`.|
+| jtopen-x.y.z-native.jar  | `native`   | This is the main JTOpen jar file with support for "Native Optimizations" when running on IBM i. This is analogous to the file classically named `jt400Native.jar`.|
+| jtopen-x.y.z-java11.jar  | `java11`   | This is the main JTOpen jar file but built for Java 11 (or newer). Some components (most notably the JDBC driver) may have extra capabilities available in Java 11. |
+| jtopen-x.y.z-native-java11.jar  | `native-java11`   | This is the main JTOpen jar file with support for "Native Optimizations" when running on IBM i, but built for Java 11 (or newer). Some components (most notably the JDBC driver) may have extra capabilities available in Java 11. |
 | jtopen-x.y.z-sources.zip | N/A        | This is a zip file of all the source files in the repository. It is not a Java jar file. |
-| jtopen-x.y.z-javadoc.zip | N/A        | This is a zip file of the javadoc (in HTML format) for the JTOpen source files. It is not a Java jar file. |
+| jtopen-x.y.z-javadoc.jar | N/A        | This is a zip file of the javadoc (in HTML format) for the JTOpen source files. It is not a Java jar file. |
