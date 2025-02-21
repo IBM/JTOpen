@@ -128,12 +128,14 @@ public final class ProfileTokenEnhancedInfo implements Serializable
     public String toString() 
     {
         StringBuilder sb = new StringBuilder();
+        sb.append("ProfileTokenEnhancedInfo {");
         sb.append("enhancedTokenCreated: ").append(enhancedTokenCreated_);
         if (enhancedTokenCreated_)
         {
             sb.append(",").append("verificationID=").append(verificationID_);
             sb.append(",").append("remoteIPAddress=").append(remoteIPAddress_);
         }
+        sb.append("}");
         
         return sb.toString();
     }

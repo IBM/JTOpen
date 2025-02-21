@@ -142,29 +142,38 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
                 throw new ExtendedIllegalArgumentException("password special value", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         
-        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenImplNative generating profile token w/special value: user=" + uid + ", " + enhancedInfo);
+        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "ProfileTokenImplNative generating raw profile token w/special value: user=" + uid);
 
 
         // Call native method and return token bytes, we rely on the fact this class is only called if running on AS400.
+        
+        byte[] token = null;
         if ((! enhancedInfo.getCreateEnhancedIfPossible() )|| 
         		(!ProfileTokenCredential.useEnhancedProfileTokens()) || 
-        		(AS400.nativeVRM.getVersionReleaseModification() <= 0x00070500)) {
+        		(AS400.nativeVRM.getVersionReleaseModification() <= 0x00070500))
+        {
         	enhancedInfo.setCreateEnhancedIfPossible(false); 
-            return nativeCreateTokenChar(uid.toUpperCase(), pwdSpecialVal.toCharArray(), type, timeoutInterval);
-        } else {
-            byte[] token =  EnhancedProfileTokenImplNative.nativeCreateTokenSpecialPassword(uid.toUpperCase(), pwdSpecialVal.toCharArray(), 
+        	token =  nativeCreateTokenChar(uid.toUpperCase(), pwdSpecialVal.toCharArray(), type, timeoutInterval);
+        } 
+        else 
+        {
+            token =  EnhancedProfileTokenImplNative.nativeCreateTokenSpecialPassword(uid.toUpperCase(), pwdSpecialVal.toCharArray(), 
                 null, authenticationIndicator, enhancedInfo.getVerificationID(), enhancedInfo.getRemoteIPAddress(), enhancedInfo.getRemotePort(), 
                 enhancedInfo.getLocalIPAddress(), enhancedInfo.getLocalPort(), 
                 type, timeoutInterval);
             enhancedInfo.setEnhancedTokenCreated(true); 
-            return token; 
         }
+        
+        if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "Raw profile token generated: " + enhancedInfo);
+
+        return token; 
     }
 
     public ProfileTokenCredential generateProfileToken(String uid, int pwdSpecialValue, ProfileTokenCredential profileTokenCred)
             throws RetrieveFailedException, PropertyVetoException 
     {
-    	ProfileTokenEnhancedInfo enhancedInfo = new ProfileTokenEnhancedInfo(); 
+        ProfileTokenEnhancedInfo enhancedInfo = new ProfileTokenEnhancedInfo(profileTokenCred.getEnhancedInfo());
+        enhancedInfo.setCreateEnhancedIfPossible(true); 
         byte[] token = generateRawToken(uid, pwdSpecialValue, 
                 profileTokenCred.getAuthenticationIndicator(),
                 profileTokenCred.getTokenType(), 
@@ -172,7 +181,11 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
                 enhancedInfo);
         
         try {
-            profileTokenCred.setToken(token, enhancedInfo);
+            if (enhancedInfo.wasEnhancedTokenCreated())
+                profileTokenCred.setToken(token,enhancedInfo); 
+            else
+                profileTokenCred.setToken(token);
+            
             profileTokenCred.setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
         } 
         catch (PropertyVetoException e)
@@ -334,6 +347,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
             throw new RetrieveFailedException();
         }
+        
         byte[] profileToken = parmlist[0].getOutputData();
         if (Trace.isTraceOn()) {
         	Trace.log(Trace.INFORMATION, this, "generateTokenExtended returned ",profileToken);
