@@ -7,7 +7,7 @@
   <groupId>net.sf.jt400</groupId>
   <artifactId>jt400</artifactId>
   <packaging>jar</packaging>
-  <version>21.0.0-dev</version>
+  <version>21.0.1-dev</version>
   <name>JT400</name>
   <description>The Open Source version of the IBM Toolbox for Java</description>
   <url>http://github.com/IBM/JTOpen</url>
@@ -27,7 +27,7 @@
     <maven.compiler.target>7</maven.compiler.target>
     <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
     <prod.build>false</prod.build>
-    <jtopen.specversion>7.5.0.5</jtopen.specversion>
+    <jtopen.specversion>7.5.0.6</jtopen.specversion>
   </properties>
   <developers>
     <developer>

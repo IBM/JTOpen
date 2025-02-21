@@ -347,8 +347,8 @@ public interface Copyright
 
     // Constants for reference by AS400JDBCDriver.
     static final int    MAJOR_VERSION = 13; // ex: "13" indicates V7R5 
-    static final int    MINOR_VERSION = 5; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
-                                           //Note: JTOpen 21.0.0 is synching with ptf 13.5
-    static final String DRIVER_LEVEL  = "07050005"; //(ex: 07050005 -> V7R5M0 PTF#5) (needed for hidden clientInfo) (each # is 2 digits in length)
+    static final int    MINOR_VERSION = 6; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
+                                           //Note: JTOpen 21.0.1 is synching with ptf 13.6
+    static final String DRIVER_LEVEL  = "07050006"; //(ex: 07050005 -> V7R5M0 PTF#5) (needed for hidden clientInfo) (each # is 2 digits in length)
 
 }
