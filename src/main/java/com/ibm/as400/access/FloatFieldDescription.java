@@ -196,7 +196,7 @@ public class FloatFieldDescription extends FieldDescription implements Serializa
   {
     Vector v = new Vector();
     // Name columns (10)
-    StringBuffer desc = new StringBuffer(ddsName_);
+    StringBuilder desc = new StringBuilder(ddsName_);
     // Blank pad the ddsName to 10 characters.
     while(desc.length() < 10)
     {
@@ -230,7 +230,7 @@ public class FloatFieldDescription extends FieldDescription implements Serializa
     // Type column (1)
     desc.append("F");
     // Decimal positions columns (2)
-    StringBuffer decPos = new StringBuffer(Integer.toString(decimalPositions_));
+    StringBuilder decPos = new StringBuilder(Integer.toString(decimalPositions_));
     if (decPos.length() == 1)
     {
       decPos.insert(0, " ");

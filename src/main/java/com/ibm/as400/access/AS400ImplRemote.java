@@ -1368,11 +1368,11 @@ public class AS400ImplRemote implements AS400Impl
       if (line == null || line.length() == 0)
           throw new IOException();
       String code = line.substring(0, 3);
-      StringBuffer fullMessage = new StringBuffer(line);
+      StringBuilder fullMessage = new StringBuilder(line);
       while ((line != null) && !(line.length() > 3 && line.substring(0, 3).equals(code) && line.charAt(3) == ' '))
       {
           line = reader.readLine();
-          fullMessage.append("\n" + line);
+          fullMessage.append("\n").append(line);
       }
       return fullMessage.toString();
   }

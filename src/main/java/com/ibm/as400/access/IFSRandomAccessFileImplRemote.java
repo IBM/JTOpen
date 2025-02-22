@@ -547,7 +547,7 @@ implements IFSRandomAccessFileImpl
   public final synchronized String readLine()
     throws IOException
   {
-    StringBuffer line = new StringBuffer();
+    StringBuilder line = new StringBuilder();
 
     // Initialize the cache.
     readCacheLength_ = 0;
@@ -657,7 +657,7 @@ implements IFSRandomAccessFileImpl
       // _____________________________________________________________________
       // | 1 | 1 | 1 | 0 | bits 12-15 | 1 | 0 | bits 6-11 | 1 | 0 | bits 0-5 |
       //
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       for (int i = 0; i < length;)
       {
         // Determine if the next character is in 1, 2, or 3 byte format.

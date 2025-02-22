@@ -1549,7 +1549,7 @@ public String getOwnerName() throws IOException, AS400SecurityException
           else
           {
               // Do a wildcard search.
-              StringBuffer wildCardPatternBuf = new StringBuffer(fd_.path_);
+              StringBuilder wildCardPatternBuf = new StringBuilder(fd_.path_);
               wildCardPatternBuf.setCharAt(pathLen-1, '*');
               String wildCardPattern = wildCardPatternBuf.toString();
               String dirPath = wildCardPattern.substring(0,1+wildCardPattern.lastIndexOf('/'));

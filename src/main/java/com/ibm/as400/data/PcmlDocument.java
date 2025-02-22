@@ -2896,7 +2896,7 @@ class PcmlDocument extends PcmlDocRoot
      return true;                                                                       //If here, all elements matched
   }
   public static String escapeSpecialCharaceters(String input){
-    StringBuffer output = new StringBuffer();
+    StringBuilder output = new StringBuilder();
     if(null==input || input.length()==0) return input;
     char[] data = input.toCharArray();
     for(int i=0; i<data.length; i++) {

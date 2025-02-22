@@ -299,9 +299,9 @@ public class RecordFormatDocument implements Serializable, Cloneable
           }
           else {
             // Construct a String that lists out each separate byte value, e.g. "7 8 9 10".
-            StringBuffer valList = new StringBuffer();
+            StringBuilder valList = new StringBuilder();
             for (int i=0; i<dftBytes.length; i++) {
-              valList.append(Byte.toString(dftBytes[i]) + " ");
+              valList.append(Byte.toString(dftBytes[i])).append(" ");
             }
             valList.deleteCharAt(valList.length()-1); // Strip final " ".
                       // Note: StringBuffer.deleteCharAt() is new in Java2.

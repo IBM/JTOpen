@@ -341,7 +341,7 @@ public class LineDataRecordWriter extends Object
 
     private String pad( int slen)
     {
-       StringBuffer buf = new StringBuffer(slen);
+       StringBuilder buf = new StringBuilder(slen);
        for (int i=0; i < slen; i++) {
           buf.append(" ");
 

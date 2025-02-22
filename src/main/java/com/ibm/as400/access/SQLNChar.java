@@ -204,7 +204,7 @@ extends SQLDataBase
         int exactLength = getDisplaySize();                        
         if(valueLength < exactLength)                                
         {
-            StringBuffer buffer = new StringBuffer(value_);
+            StringBuilder buffer = new StringBuilder(value_);
             char c = '\u0020';                                     
             for(int i = valueLength; i < exactLength; ++i)           
                 buffer.append(c);                                   

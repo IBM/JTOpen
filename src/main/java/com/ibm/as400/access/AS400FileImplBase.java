@@ -412,7 +412,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   IOException
   {
     // Create the ADDPFM command string
-    StringBuffer cmd = new StringBuffer("QSYS/ADDPFM FILE(");
+    StringBuilder cmd = new StringBuilder("QSYS/ADDPFM FILE(");
     cmd.append(library_);
     cmd.append("/");
     cmd.append(file_);
@@ -511,7 +511,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
         if (searchKeyLength < recordKeyLength)
         {
           // pad the search key with trailing blanks
-          StringBuffer buf = new StringBuffer(searchKey);
+          StringBuilder buf = new StringBuilder(searchKey);
           for (int i=searchKeyLength; i<recordKeyLength; ++i)
             buf.append(" ");
           searchKey = buf.toString();
@@ -1375,7 +1375,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
       setConverter();
 
       // Build the command to start commitment control.
-      StringBuffer cmd = new StringBuffer("QSYS/STRCMTCTL LCKLVL(*");
+      StringBuilder cmd = new StringBuilder("QSYS/STRCMTCTL LCKLVL(*");
       switch (commitLockLevel)
       {
         case AS400File.COMMIT_LOCK_LEVEL_CHANGE:
@@ -1454,7 +1454,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     if (explicitLocksObtained_.size() > 0)
     {
       // Build the command to release the explicit locks.
-      StringBuffer cmd = new StringBuffer("QSYS/DLCOBJ OBJ(");
+      StringBuilder cmd = new StringBuilder("QSYS/DLCOBJ OBJ(");
       for (Enumeration e = explicitLocksObtained_.elements();
           e.hasMoreElements();)
       {
@@ -1625,7 +1625,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
   IOException
   {
     // Create the CRTPF command string
-    StringBuffer cmd = new StringBuffer("QSYS/CRTPF FILE(");
+    StringBuilder cmd = new StringBuilder("QSYS/CRTPF FILE(");
     cmd.append(library_);
     cmd.append("/");
     cmd.append(file_);
@@ -1705,7 +1705,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     }
 
     // Create the CRTPF command string
-    StringBuffer cmd = new StringBuffer("QSYS/CRTPF FILE(");
+    StringBuilder cmd = new StringBuilder("QSYS/CRTPF FILE(");
     cmd.append(library_);
     cmd.append("/");
     cmd.append(file_);
@@ -1882,7 +1882,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     if (!explicitLocksObtained_.contains(l))
     {
       // Lock the file using the ALCOBJ command.
-      StringBuffer cmd = new StringBuffer("QSYS/ALCOBJ OBJ((");
+      StringBuilder cmd = new StringBuilder("QSYS/ALCOBJ OBJ((");
       cmd.append(library_);
       cmd.append("/");
       cmd.append(file_);
@@ -1992,7 +1992,7 @@ abstract class AS400FileImplBase implements AS400FileImpl, Cloneable //@B5C
     if (!recordFormatName_.equals(recordFormat_.getName()))
     {
       recordFormatName_ = recordFormat_.getName();
-      StringBuffer recordName = new StringBuffer(recordFormat_.getName());
+      StringBuilder recordName = new StringBuilder(recordFormat_.getName());
       while (recordName.length() < 10) recordName.append(' ');
       ConverterImplRemote c = ConverterImplRemote.getConverter(system_.getCcsid(), system_); //@B5C
       recordFormatCTLLName_ = c.stringToByteArray(recordName.toString());

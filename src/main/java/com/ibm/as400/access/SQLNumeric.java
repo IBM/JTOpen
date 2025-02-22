@@ -211,7 +211,7 @@ extends SQLDataBase
 
     public String getCreateParameters()
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(AS400JDBCDriver.getResource("PRECISION",null));
         buffer.append(",");
         buffer.append(AS400JDBCDriver.getResource("SCALE",null));

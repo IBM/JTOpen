@@ -50,7 +50,7 @@ abstract class Formatter {
 	 * @return		String
 	 */
 	public static String jsnprintf(int maxlen, String fmt, Object[] args) {
-		StringBuffer out= new StringBuffer(maxlen);
+		StringBuilder out= new StringBuilder(maxlen);
 		StringTokenizer t= new StringTokenizer(fmt, "{}", true);
 
 		int s= 0;
@@ -66,7 +66,7 @@ abstract class Formatter {
 					if (token.equals("{")) {
 						out.append(token);
 					} else {
-						StringBuffer varspec= new StringBuffer(20);
+						StringBuilder varspec= new StringBuilder(20);
 						while (!token.equals("}")) {
 							varspec.append(token);
 							token= t.nextToken();
@@ -148,7 +148,7 @@ abstract class Formatter {
 		if (n <= 0) {
 			return "";
 		}
-		StringBuffer out= new StringBuffer(s.length() * n);
+		StringBuilder out= new StringBuilder(s.length() * n);
 		while (n-- > 0) {
 			out.append(s);
 		}

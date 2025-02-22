@@ -501,7 +501,7 @@ implements Serializable
                 // string
                 InputStream stream = null;
                 BufferedReader reader = null;
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 try
                 {
                     if (lobType == SQLData.BLOB)
@@ -583,6 +583,7 @@ implements Serializable
                 s = sb.toString();
 
                 break; // end of BLOB case
+ // end of BLOB case
 /* ifdef JDBC40 */
             case DOM_DOCUMENT:
 

@@ -850,7 +850,7 @@ public class AS400Message implements Serializable
     // returns the original 'toString' value.  In mod 3 toString was changed to return its current value.  This method is added for those parts of the Toolbox that still need the value in in the old format.
     String toStringM2()
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         String id = getID();
         String text = getText();
         if (id != null)

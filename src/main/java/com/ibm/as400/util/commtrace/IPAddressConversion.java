@@ -129,7 +129,7 @@ class IPAddressConversion {
 	 */
 	private String ntopIPv4(String seg[]) {
 		// String that will be returned.
-		StringBuffer ret= new StringBuffer(32);
+		StringBuilder ret= new StringBuilder(32);
 		for (int i= 0; i < seg.length; i++) {
 			// Convert to decimal if the segement is in hex
 			if (type == IPv4Hex || type == IPvMixedHex) {
@@ -137,7 +137,7 @@ class IPAddressConversion {
 			} else {
 				seg[i]= (Integer.valueOf(Integer.parseInt(seg[i]))).toString();
 			}
-			ret.append(seg[i] + ".");
+			ret.append(seg[i]).append(".");
 		}
 		// Remove the last delimiter and return the array
 		return ret.substring(0, (ret.length() - 1));
@@ -151,7 +151,7 @@ class IPAddressConversion {
 		boolean zero= false, compressed= false;
 		int start= 0, end= 0;
 		// String that will be returned.
-		StringBuffer ret= new StringBuffer(64);
+		StringBuilder ret= new StringBuilder(64);
 		// Cycle through the segments check for segments with 0s.
 		for (int i= 0; i < seg.length; i++) {
 			// If the character is 0 and we have not yet hit a zero. 
@@ -177,13 +177,13 @@ class IPAddressConversion {
 			// If we don't have any 0s just append the segments to the 
 			// return string.
 			if (!zero) {
-				ret.append(seg[i] + ":");
+				ret.append(seg[i]).append(":");
 			} else {
 				if (!compressed) {
 
 					// If this segment isn't a 0 append it to the return string.
 					if (seg[i].charAt(0) != '0') {
-						ret.append(seg[i] + ":");
+						ret.append(seg[i]).append(":");
 						// If the space between 0s is not equal we need to compress.
 					} else if (start != end) {
 						// Add another : so we get the compression
@@ -193,7 +193,7 @@ class IPAddressConversion {
 						compressed= true;
 					}
 				} else {
-					ret.append(seg[i] + ":");
+					ret.append(seg[i]).append(":");
 				}
 			}
 		}
@@ -207,7 +207,7 @@ class IPAddressConversion {
 	 * @return String[] containing the IP address.
 	 */
 	private String[] trim(String[] seg) {
-		StringBuffer ret= new StringBuffer(64);
+		StringBuilder ret= new StringBuilder(64);
 		// Cycle through the segments changing if needed
 		for (int i= 0; i < seg.length; i++) {
 			// If we have gotten to our first number or not.     
@@ -314,19 +314,19 @@ class IPAddressConversion {
 	 */
 	private String ptonIPv4(String seg[]) {
 		// String that will be returned.
-		StringBuffer ret= new StringBuffer(32);
+		StringBuilder ret= new StringBuilder(32);
 		// Cycle through the segments chaging if needed.
 		for (int i= 0; i < seg.length; i++) {
 			int length= seg[i].length();
 			// If we have a full address just add the delimiter.
 			if (length == 3) {
-				ret.append(seg[i] + ".");
+				ret.append(seg[i]).append(".");
 				// Otherwise add one 0 and a delimiter
 			} else if (length == 2) {
-				ret.append("0".concat(seg[i]) + ".");
+				ret.append("0".concat(seg[i])).append(".");
 				// Add two 0s and a delimiter
 			} else if (length == 1) {
-				ret.append("00".concat(seg[i]) + ".");
+				ret.append("00".concat(seg[i])).append(".");
 			}
 		}
 		// Remove the last delimiter and return the array 
@@ -339,7 +339,7 @@ class IPAddressConversion {
 	 */
 	private String ptonIPv6(String seg[]) {
 		// String that will be returned.
-		StringBuffer ret= new StringBuffer(64);
+		StringBuilder ret= new StringBuilder(64);
 
 		// If the IPaddr is compressed uncompress it.
 		if (seg.length < 8) {
@@ -382,16 +382,16 @@ class IPAddressConversion {
 			int length= seg[i].length();
 			// If we have a full address just add the delimiter.
 			if (length == 4) {
-				ret.append(seg[i] + ":");
+				ret.append(seg[i]).append(":");
 				// Add one 0 and a delimiter 
 			} else if (length == 3) {
-				ret.append("0".concat(seg[i]) + ":");
+				ret.append("0".concat(seg[i])).append(":");
 				// Otherwise add two 0 and a delimiter
 			} else if (length == 2) {
-				ret.append("00".concat(seg[i]) + ":");
+				ret.append("00".concat(seg[i])).append(":");
 				// Add three 0s and a delimiter
 			} else if (length == 1) {
-				ret.append("000".concat(seg[i]) + ":");
+				ret.append("000".concat(seg[i])).append(":");
 			}
 		}
 		// Remove the last delimiter and return the array 

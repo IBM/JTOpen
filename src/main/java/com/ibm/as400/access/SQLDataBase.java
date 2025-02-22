@@ -840,7 +840,7 @@ public abstract class SQLDataBase implements SQLData
          {
              int blockSize = length < AS400JDBCPreparedStatement.LOB_BLOCK_SIZE ? length : AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
             
-             StringBuffer buf = new StringBuffer();
+             StringBuilder buf = new StringBuilder();
              char[] charBuffer = new char[blockSize];
              int totalCharsRead = 0;
              int charsRead = stream.read(charBuffer, 0, blockSize);
@@ -873,7 +873,7 @@ public abstract class SQLDataBase implements SQLData
          try
          {
              int blockSize = AS400JDBCPreparedStatement.LOB_BLOCK_SIZE;
-             StringBuffer buf = new StringBuffer();
+             StringBuilder buf = new StringBuilder();
              char[] charBuffer = new char[blockSize];
              // int totalCharsRead = 0;
              int charsRead = stream.read(charBuffer, 0, blockSize);

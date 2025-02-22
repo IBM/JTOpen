@@ -3559,7 +3559,7 @@ public class Job implements Serializable
             Trace.log(Trace.ERROR, "Value of parameter 'delay' is not valid:", delay);
             throw new ExtendedIllegalArgumentException("delay (" + delay + ")", ExtendedIllegalArgumentException.RANGE_NOT_VALID);
         }
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("QSYS/ENDJOB JOB(");  // conditionally threadsafe
         buf.append(number_);
         buf.append('/');
@@ -5343,7 +5343,7 @@ public class Job implements Serializable
      **/
     public void hold(boolean holdSpooledFiles) throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("QSYS/HLDJOB JOB(");  // not threadsafe
         buf.append(number_);
         buf.append('/');
@@ -5909,7 +5909,7 @@ public class Job implements Serializable
      **/
     public void release() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append("QSYS/RLSJOB JOB(");  // not threadsafe
         buf.append(number_);
         buf.append('/');
@@ -6015,7 +6015,7 @@ public class Job implements Serializable
         Calendar dateTime = AS400Calendar.getGregorianInstance();
         dateTime.setTime(val);
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         switch (setterKeys_.get(key))
         {
             case 7:
@@ -6857,7 +6857,7 @@ public class Job implements Serializable
         if (!outputQueue.startsWith("*"))
         {
             QSYSObjectPathName path = new QSYSObjectPathName(outputQueue, "OUTQ");
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             String name = path.getObjectName();
             buf.append(name);
             for (int i = name.length(); i < 10; ++i)
@@ -7016,7 +7016,7 @@ public class Job implements Serializable
         if (!jobQueue.startsWith("*"))
         {
             QSYSObjectPathName path = new QSYSObjectPathName(jobQueue, "JOBQ");
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             String name = path.getObjectName();
             buf.append(name);
             for (int i = name.length(); i < 10; ++i)
@@ -7236,7 +7236,7 @@ public class Job implements Serializable
         if (!sortSequenceTable.startsWith("*"))
         {
             QSYSObjectPathName path = new QSYSObjectPathName(sortSequenceTable, "FILE");
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             String name = path.getObjectName();
             buf.append(name);
             for (int i = name.length(); i < 10; ++i)
@@ -7489,7 +7489,7 @@ public class Job implements Serializable
         {
             return "";
         }
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         buf.append(number_);
         buf.append('/');
         buf.append(user_);

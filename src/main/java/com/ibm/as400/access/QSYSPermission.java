@@ -91,7 +91,7 @@ public class QSYSPermission extends UserPermission
       if (sLength == desiredLength) return s;
       else if (sLength < desiredLength)
       {
-        StringBuffer buffer = new StringBuffer(s);
+        StringBuilder buffer = new StringBuilder(s);
         for(int i = sLength; i < desiredLength; i++)
           buffer.append(' ');
         return buffer.toString();
@@ -247,7 +247,7 @@ public class QSYSPermission extends UserPermission
       String attribute = "*" + adjustLength(qsysObjPath.getObjectType(), 9);
       String qualObj   = adjustLength(qsysObjPath.getObjectName(), 10) + adjustLength(qsysObjPath.getLibraryName(), 10);
 
-      StringBuffer authorities = new StringBuffer();
+      StringBuilder authorities = new StringBuilder();
       for (int i=0; i< authorityList.length; i++)
         authorities.append(adjustLength(authorityList[i], 10));
 

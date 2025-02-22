@@ -223,7 +223,7 @@ private void fillClause()
     {
       if (tables_.length > 0)
       {
-        StringBuffer temp = new StringBuffer(tables_[0]);
+        StringBuilder temp = new StringBuilder(tables_[0]);
         for (int i = 1; i<tables_.length; ++i)
         {
           temp.append(", ");

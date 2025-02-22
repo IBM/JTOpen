@@ -142,7 +142,7 @@ class NPAttrString extends NPAttribute implements Cloneable,
            {
              // only uppercase characters which are lower case alphabetic characters
              String sAlphabet = "abcdefghijklmnopqrstuvwxyz";
-             StringBuffer sbOutput = new StringBuffer();
+             StringBuilder sbOutput = new StringBuilder();
              
              for(int i = 0;i<value.length();i++)
              {

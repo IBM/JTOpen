@@ -124,7 +124,7 @@ Pads a String to an exact length.
 **/
     private static String pad(String value, int length)
     {
-        StringBuffer buffer = new StringBuffer(value);
+        StringBuilder buffer = new StringBuilder(value);
         for(int i = value.length(); i < length; ++i)
             buffer.append(' ');
         return buffer.toString();
@@ -202,7 +202,7 @@ Sets the attribute values.  The system must be set before this is called.
                 }
 
                 // Set the number of keys.
-                StringBuffer buffer = new StringBuffer();
+                StringBuilder buffer = new StringBuilder();
                 buffer.append(programName_);
                 buffer.append('.');
                 buffer.append(keysDataName_);

@@ -136,7 +136,7 @@ public class ISeriesNetServerPrintShare extends ISeriesNetServerShare
     }
 
     // Set the queue name in the first 10 chars of qualified queue name.
-    StringBuffer buff = new StringBuffer(outputQueue_);
+    StringBuilder buff = new StringBuilder(outputQueue_);
     buff.replace(0,10,"          ");
     buff.replace(0,name.length(),name);
 
@@ -156,7 +156,7 @@ public class ISeriesNetServerPrintShare extends ISeriesNetServerShare
     }
 
     // Set the queue library in the second 10 chars of qualified queue name.
-    StringBuffer buff = new StringBuffer(outputQueue_);
+    StringBuilder buff = new StringBuilder(outputQueue_);
     buff.replace(10,20,"          ");
     buff.replace(10,10+name.length(),name);
 
@@ -222,7 +222,7 @@ public class ISeriesNetServerPrintShare extends ISeriesNetServerShare
     }
 
     // Set the printer file name in the first 10 chars of qualified printer file name.
-    StringBuffer buff = new StringBuffer(printerFile_);
+    StringBuilder buff = new StringBuilder(printerFile_);
     buff.replace(0,10,"          ");
     buff.replace(0,name.length(),name);
 
@@ -244,7 +244,7 @@ public class ISeriesNetServerPrintShare extends ISeriesNetServerShare
     }
 
     // Set the printer file library in the second 10 chars of qualified printer file name.
-    StringBuffer buff = new StringBuffer(printerFile_);
+    StringBuilder buff = new StringBuilder(printerFile_);
     buff.replace(10,20,"          ");
     buff.replace(10,10+name.length(),name);
 

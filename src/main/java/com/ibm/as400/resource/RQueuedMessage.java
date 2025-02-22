@@ -425,7 +425,7 @@ Computes the resource key.
 **/
     static Object computeResourceKey(AS400 system, String containerName, byte[] messageKey)
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(RQueuedMessage.class);
         buffer.append(':');
         buffer.append(system.getSystemName());

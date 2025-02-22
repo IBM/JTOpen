@@ -4,7 +4,7 @@ public class StringFormatUtil {
   public static String stringArrayContents(String[] arg) {
     if (arg == null)
       return "null";
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     sb.append("[");
     int size = arg.length;
     for (int i = 0; i < size; i++) {
@@ -63,7 +63,7 @@ public class StringFormatUtil {
 
   
   public static String dumpBytes(byte[] bytes) {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     for (int i = 0; i < bytes.length; i++) {
     int unsignedInt = 0xFF & bytes[i];
     if (unsignedInt < 0x10) {

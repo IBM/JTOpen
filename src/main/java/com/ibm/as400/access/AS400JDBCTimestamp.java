@@ -94,7 +94,7 @@ public class AS400JDBCTimestamp extends Timestamp {
    */
   public String toString() {
     String nonFractional=super.toString();
-    StringBuffer sb = new StringBuffer(); 
+    StringBuilder sb = new StringBuilder(); 
     int dotIndex = nonFractional.indexOf('.'); 
     /* Note:   the current Timestamp.toString() always returns a dot */ 
     if (dotIndex > 0) { 

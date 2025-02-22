@@ -286,7 +286,7 @@ class JDUtilities {
     if (name.indexOf('\"') == -1) {
       return name; // name has no embedded double-quotes, so nothing more to do
     } else {
-      StringBuffer buf = new StringBuffer(name);
+      StringBuilder buf = new StringBuilder(name);
       for (int i = name.length() - 1; i >= 0; i--) // examine char-by-char, from
                                                    // end
       {
@@ -322,7 +322,7 @@ class JDUtilities {
     if (name.indexOf('\"') == -1 && name.indexOf('\'') == -1) {
       return name; // name has no embedded double-quotes, so nothing more to do
     } else {
-      StringBuffer buf = new StringBuffer(name);
+      StringBuilder buf = new StringBuilder(name);
       for (int i = name.length() - 1; i >= 0; i--) // examine char-by-char, from
                                                    // end
       {
@@ -356,7 +356,7 @@ class JDUtilities {
     if (name.indexOf('\"') == -1) {
       return name; // name has no embedded double-quotes, so nothing more to do
     } else {
-      StringBuffer buf = new StringBuffer(name);
+      StringBuilder buf = new StringBuilder(name);
       for (int i = name.length() - 1; i >= 0; i--) // examine char-by-char, from
                                                    // end
       {
@@ -385,7 +385,7 @@ class JDUtilities {
    **/
   static final String readerToString(Reader input, int length)
       throws SQLException {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     try {
       char[] rawChars = new char[(length == 0) ? 1 : length];
       int actualLength = 0;
@@ -422,7 +422,7 @@ class JDUtilities {
    * @return The string.
    **/
   static final String readerToString(Reader input) throws SQLException {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     try {
 
       char[] rawChars = new char[32000];
@@ -611,7 +611,7 @@ class JDUtilities {
    **/
   static final String streamToString(InputStream input, int length,
       String encoding) throws SQLException {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     try {
       byte[] rawBytes = new byte[(length == 0) ? 1 : length];
       int actualLength = 0;

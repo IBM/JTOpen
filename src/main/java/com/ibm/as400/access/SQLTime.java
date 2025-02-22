@@ -186,7 +186,7 @@ extends SQLDataBase
                                        Calendar calendar,
                                        int hourIn)
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         String separator = dataFormat.getTimeSeparator();
         if(calendar == null) calendar = AS400Calendar.getGregorianInstance(); //@P0A
         else {
@@ -332,7 +332,7 @@ extends SQLDataBase
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-        StringBuffer buffer = new StringBuffer(8);
+        StringBuilder buffer = new StringBuilder(8);
 
         // Always use ISO format here.
         buffer.append(JDUtilities.padZeros(hour_, 2));

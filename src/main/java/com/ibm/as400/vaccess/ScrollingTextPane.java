@@ -56,7 +56,7 @@ extends JComponent
 
     public void appendText(String text)
     {
-        StringBuffer buffer = new StringBuffer(textPane_.getText());
+        StringBuilder buffer = new StringBuilder(textPane_.getText());
         buffer.append(text);
         textPane_.setText(buffer.toString());
     }

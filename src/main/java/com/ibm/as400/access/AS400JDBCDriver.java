@@ -1080,7 +1080,7 @@ endif JAVA9 */
           String variable = "&" + i;
           int j = result.indexOf (variable);
           if (j >= 0) {
-              StringBuffer buffer = new StringBuffer();
+              StringBuilder buffer = new StringBuilder();
               buffer.append(result.substring(0, j));
               buffer.append(values[i].toString ());
               buffer.append(result.substring(j + variable.length ()));

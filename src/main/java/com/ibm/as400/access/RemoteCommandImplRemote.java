@@ -83,7 +83,7 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
         String jobInfo = server_.getJobString();
         if(null != jobInfo && jobInfo.split("/").length==3){
           String[] info = server_.getJobString().split("/");
-          StringBuffer buf = new StringBuffer();
+          StringBuilder buf = new StringBuilder();
           
           buf.append(info[2].trim()); //job name
           while(buf.length()<10) 

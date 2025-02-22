@@ -336,8 +336,8 @@ public class PcmlMessageLog
 
         int arrayLength = ba.length;
         int offset = 0;
-        StringBuffer cp37Str = new StringBuffer();
-        StringBuffer byteString = new StringBuffer();
+        StringBuilder cp37Str = new StringBuilder();
+        StringBuilder byteString = new StringBuilder();
 
         while (offset < arrayLength)
         {
@@ -409,7 +409,7 @@ public class PcmlMessageLog
         else
             endIndex = arrayLength - 1;
 
-        StringBuffer cp37String = new StringBuffer(endIndex-index+1);
+        StringBuilder cp37String = new StringBuilder(endIndex-index+1);
         for (int b = index; b <= endIndex; b++)
         {
             if (ba[b] < 0)
@@ -444,7 +444,7 @@ public class PcmlMessageLog
         else
             endIndex = arrayLength - 1;
 
-        StringBuffer hexString = new StringBuffer((endIndex-index+1)*2);
+        StringBuilder hexString = new StringBuilder((endIndex-index+1)*2);
         for (int b = index; b <= endIndex; b++)
         {
             hexString.append(Trace.toHexString(ba[b]));

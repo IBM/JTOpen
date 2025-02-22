@@ -541,7 +541,7 @@ public class  VJavaApplicationCall extends JComponent
             appendOutput(javaAppCall_.getOptimization()+"\n");
             appendOutput(ResourceLoader.getText("REMOTE_D_LINE10"));
             // get the value of Options
-            StringBuffer optionStr = new StringBuffer();
+            StringBuilder optionStr = new StringBuilder();
             for(int i=0;i< optionArray_.length;i++)
             {
                 optionStr.append(optionArray_[i]);

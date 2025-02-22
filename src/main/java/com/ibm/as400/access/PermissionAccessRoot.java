@@ -97,7 +97,7 @@ class PermissionAccessRoot extends PermissionAccess
     **/
     static String expandQuotes0(String objName)
     {  // @B4c
-      StringBuffer buf = new StringBuffer(objName);
+      StringBuilder buf = new StringBuilder(objName);
       // See if the name contains any single- or double-quotes.
       if (objName.indexOf('\'') != -1 ||
           objName.indexOf('\"') != -1) {

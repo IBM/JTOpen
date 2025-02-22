@@ -697,7 +697,7 @@ public class SQLResultSetTablePane
             {
               if(e.getSource() == table_)
               {
-                StringBuffer textToCopy = new StringBuffer();
+                StringBuilder textToCopy = new StringBuilder();
                 int[] rows = table_.getSelectedRows();
                 int[] columns = table_.getSelectedColumns();
                 for (int i=0; i<rows.length; ++i)

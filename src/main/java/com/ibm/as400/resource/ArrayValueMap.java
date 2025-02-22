@@ -76,7 +76,7 @@ Maps from a logical value to a physical value.
             throw new ExtendedIllegalArgumentException("logicalValue", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         Object[] asArray = (Object[])logicalValue;
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
 
         if ((asArray.length == 0) && (noneString_ != null))
             buffer.append(noneString_);

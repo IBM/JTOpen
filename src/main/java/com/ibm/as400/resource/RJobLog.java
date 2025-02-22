@@ -568,7 +568,7 @@ characteristics change.
         Presentation presentation = getPresentation();
         presentation.setName(name_);
 
-        StringBuffer fullName = new StringBuffer();
+        StringBuilder fullName = new StringBuilder();
         fullName.append(number_);
         fullName.append('/');
         fullName.append(user_);
@@ -814,13 +814,13 @@ Writes a program message to the job log for the job in which the program is runn
         // Set the presentation information.
         // The name is in the format: MessageId(MessageKey)
         // The full name is in the format: JobNumber/UserName/JobName-MessageId(MessageKey)
-        StringBuffer name = new StringBuffer();
+        StringBuilder name = new StringBuilder();
         name.append((String)rQueuedMessage.getAttributeValue(RQueuedMessage.MESSAGE_ID));
         name.append('(');
         name.append(Presentation.bytesToHex((byte[])rQueuedMessage.getAttributeValue(RQueuedMessage.MESSAGE_KEY)));
         name.append(')');
 
-        StringBuffer fullName = new StringBuffer();
+        StringBuilder fullName = new StringBuilder();
         fullName.append(jobLogName);
         fullName.append('-');
         fullName.append(name.toString());

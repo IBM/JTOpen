@@ -4206,7 +4206,7 @@ void postWarningSQLState(String sqlState)  {
             // we need it.
             if(deleteStatement_ == null)
             {                                             // @D3C
-                StringBuffer buffer = new StringBuffer();                               // @D3A
+                StringBuilder buffer = new StringBuilder();                               // @D3A
                 buffer.append("DELETE FROM ");                                          // @D3A
                 buffer.append(selectTable_);                                            // @D3A
                 buffer.append(" WHERE CURRENT OF \"");                                  // @D3A
@@ -4265,7 +4265,7 @@ void postWarningSQLState(String sqlState)  {
             buffer.append ("INSERT INTO ");       
             buffer.append (selectTable_);
             buffer.append (" (");
-            StringBuffer values = new StringBuffer ();
+            StringBuilder values = new StringBuilder ();
             int columnsSet = 0;
             for(int i = 0; i < columnCount_; ++i)
             {
