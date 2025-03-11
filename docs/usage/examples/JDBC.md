@@ -1,6 +1,7 @@
 # JDBC Driver Usage
 
 ## Downloading the driver
+
 The jt400.jar driver is included in the [JTOpen package on Maven Central](https://mvnrepository.com/artifact/net.sf.jt400/jt400). 
 
 The driver must be placed in the directory that is specified by the application.
@@ -9,201 +10,59 @@ The driver must be placed in the directory that is specified by the application.
 
 JDBC URL:  jdbc:as400://hostname/default-schema
 
-replace hostname and default-schema with the database details from the iSeries server.
+replace hostname and default-schema with the database details from the IBMi server.
 
 e.g. `jdbc:as400://pub400.com/qgpl`
+
+## Usage 
+
+Javadoc can be found at [https://javadoc.io/doc/net.sf.jt400/jt400/latest/index.html](https://javadoc.io/doc/net.sf.jt400/jt400/latest/index.html)
+
+```java
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Properties;
+
+public class AS400JDBCExample {
+    public static void main(String[] args) {
+        String url = "jdbc:as400://pub400.com";
+        
+        Properties props = new Properties();
+        props.put("user", "user");
+        props.put("password", "password");
+        props.put("prompt", "true"); // login form if needed
+        // add more properties here
+
+        try (Connection conn = DriverManager.getConnection(url, props)) {
+            System.out.println("Connected to IBM i database successfully!");
+
+            String sql = "SELECT SERVICE_NAME, EXAMPLE FROM QSYS2.SERVICES_INFO where SERVICE_CATEGORY = 'PRODUCT'";
+            try (PreparedStatement stmt = conn.prepareStatement(sql);
+                 ResultSet rs = stmt.executeQuery()) {
+
+                while (rs.next()) {
+                    System.out.println("Service: " + rs.getString("SERVICE_NAME"));
+                    System.out.println("Example SQL: ");
+                    System.out.println(rs.getString("EXAMPLE"));
+                    System.out.println();
+                    System.out.println();
+                }
+            }
+
+            System.out.println("Connection closed.");
+        } catch (SQLException e) {
+            System.err.println("SQL Exception: " + e.getMessage());
+        }
+    }
+}
+
+```
 
 ## IBM Toolbox for Java JDBC properties
 
 Many properties can be specified when connecting to DB2 for IBM i using JDBC. All properties are optional and can be specified either as part of the URL or in a java.util.Properties object. If a property is set in both the URL and a Properties object, the value in the URL will be used.
 
-**Note:** The following list does not include DataSource properties.
-
-The following tables list the different connection properties that are recognized by this driver. Some of these properties affect performance and others are server job attributes. The tables organize the properties into the following categories:
-
-*   [General properties](#general)
-*   [System properties](#system)
-*   [Format properties](#format)
-*   [Performance properties](#performance)
-*   [Sort properties](#sort)
-*   [Alternate server properties](#alternate)
-*   [Network properties](#network)
-*   [Other properties](#other)
-
-### General properties
-
-General properties are system attributes that specify the user, password, and whether a prompt is necessary to connect to the system.
-
-| General property | Description | Required | Choices | Default |
-| --- | --- | --- | --- | --- |
-| "additionalAuthenticationFactor" | Specifies the additional authentication factor for connecting to the system. | no  | Authentication factor | Unset |
-| "password" | Specifies the password for connecting to the system. If none is specified, then the user will be prompted, unless the "prompt" property is set to "false", in which case an attempt to connect will fail. | no  | system password | (user will be prompted) |
-| "portNumber" | Specifies the port number to use for connecting to the server. When this value is set, the driver will no longer attempt to connect to the portmapper or the signon server. Setting this value is usually used if a firewall proxy is needed to connect to the server. The default value is 0, meaning that the driver will connect to the portmapper to determine the port to use. | no  |     | 0   |
-| "prompt" | Specifies whether the user should be prompted if a user name or password is needed to connect to the system. If a connection cannot be made without prompting the user, and this property is set to "false", then an attempt to connect will fail. | no  | "true"  <br>"false" | "true" |
-| "user" | Specifies the user name for connecting to the system. If none is specified, then the user will be prompted, unless the "prompt" property is set to "false", in which case an attempt to connect will fail. | no  | system user | (user will be prompted) |
-
-### System properties
-
-System properties specify attributes that govern transactions, libraries, and databases.
-
-| System property | Description | Required | Choices | Default |
-| --- | --- | --- | --- | --- |
-| "auto commit" | Specifies whether auto-commit mode is the default connection mode for new connections. Calling AS400JDBCConnection.setAutoCommit(boolean) will override this property on a per-connection basis. Note that, in order to use transaction isolation levels other than \*NONE when using auto-commit mode, the property "true autocommit" needs to be set to true. | no  | "true"  <br>"false" | "true" |
-| "concurrent access resolution" | Specifies whether "currently committed" access is used on the connection. A value of 1 indicates that "currently committed" will be used. A value of 2 indicates that "wait for outcome" will be used. A value of 3 indicates that "skip locks" will be used. | no  | "1"  <br>"2"  <br>"3" | (system default) |
-| "cursor hold" | Specifies whether to hold the cursor across transactions. If this property is set to "true", cursors are not closed when a transaction is committed. All resources acquired during the unit of work are held, but locks on specific rows and objects implicitly acquired during the unit of work are released. | no  | "true"  <br>"false" | "true" |
-| "cursor sensitivity" | Specifies the cursor sensitivity to request from the database. The behavior depends on the resultSetType:<br><br>*   ResultSet.TYPE\_FORWARD\_ONLY or ResultSet.TYPE\_SCROLL\_SENSITIVE means that the value of this property controls what cursor sensitivity the Java program requests from the database.<br>*   ResultSet.TYPE\_SCROLL\_INSENSITIVE causes this property to be ignored. | no  | "asensitive"  <br>"sensitive"  <br>"insensitive" | "asensitive" |
-| "database name" | Specifies the database to use for a connection to an independent auxiliary storage pool (ASP). When you specify a database name, the name must exist in the relational database directory on the system and correspond to either an independent ASP or the system default database. The following criteria determine which database is accessed:<br><br>*   When this property is used to specify a database which corresponds to an independent ASP, the connection is made to the independent ASP. When the specified database does not exist, the connection fails.<br>*   When this property is used to specify \*SYSBAS as the database name, the system default database is used.<br>*   When this property is omitted, the initial ASP group specified in the job description for the user profile is used. When the job description does not specify an initial ASP group, the system default database is used. | no  | Database name "\*SYSBAS" | The initial ASP group specified in the job description for the user profile. When the job description does not specify an initial ASP group, the system default database is used. |
-| "decfloat rounding mode" | Specifies the rounding mode to use when working with decfloat data type. Note, this property is ignored when connecting to systems running IBM i V5R4 and earlier. | no  | "half even"  <br>"half up"  <br>"down"  <br>"ceiling"  <br>"floor"  <br>"half down"  <br>"up" | "half even" |
-| "libraries" | Specifies one or more libraries that you want to add to or replace the library list of the server job, and optionally sets the default SQL schema (default library). Note that libraries cannot be longer than 10 characters in length. You must use SET PATH sql if you have libraries longer than 10 characters.<br><br>**Library list**  <br>The system uses specified libraries to resolve unqualified stored procedure names, and stored procedures use them to resolve unqualified names. To specify multiple libraries, use commas or spaces to separate individual entries. You can use \*LIBL as a placeholder for the current library list of the server job:<br><br>When the first entry is \*LIBL, the specified libraries are added to the current library list of the server job When you do not use \*LIBL, the specified libraries replace the current library list of the server job<br><br>**Default SQL schema**  <br>The system uses the default SQL schema to resolve unqualified names in SQL statements. For example, in the statement "SELECT \* FROM MYTABLE", the system looks only in the default SQL schema for MYTABLE. You can specify the default SQL schema on the connection URL. When you do not specify the default SQL schema on the connection URL, the following conditions apply, depending on whether you use SQL Naming or System Naming.<br><br>*   SQL Naming  <br>    When you do not specify the default SQL schema on the connection URL:<br>    *   The first entry (unless it is \*LIBL) becomes the default SQL schema<br>    *   When the first entry is \*LIBL, the second entry becomes the default SQL schema<br>    *   When you do not set this property or when it contains only \*LIBL, the user profile becomes the default SQL schema<br>*   System Naming  <br>    When you do not specify the default SQL schema on the connection URL:<br>    *   No default SQL schema is set, and the system uses the specified libraries to search for unqualified names<br>    *   When you do not set this property or when it contains only \*LIBL, the system uses the current library list of the server job to search for unqualified names | no  | List of system libraries, separated by commas or spaces | "\*LIBL" |
-| "maximum precision" | Specifies the maximum decimal precision the database should use. | no  | "31"  <br>"63" | "31" |
-| "maximum scale" | Specifies the maximum scale the database should use. | no  | "0"-"63" | "31" |
-| "minimum divide scale" | Specifies the minimum scale value for the result of decimal division. | no  | "0"  <br>"1"  <br>"2"  <br>"3"  <br>"4"  <br>"5"  <br>"6"  <br>"7"  <br>"8"  <br>"9" | "0" |
-| "package ccsid" | Specifies the character encoding to use for the SQL package and any statements sent to the system. | no  | "1200" (UTF-16)  <br>"13488" (UCS-2)  <br>"system" (host CCSID) | "13488" |
-| "transaction isolation" | Specifies the default transaction isolation. | no  | "none"  <br>"read uncommitted"  <br>"read committed"  <br>"repeatable read"  <br>"serializable" | "read uncommitted" |
-| "translate hex" | Specifies how hexadecimal literals are interpreted. | no  | "character" (Interpret hexadecimal literals as character data)  <br>"binary" (Interpret hexadecimal literals as binary data) | "character" |
-| "true autocommit" | Specifies whether the connection should use true auto commit support. True autocommit means that autocommit is on and is running under an isolation level other than \*NONE. By default, the driver handles autocommit by running under the system isolation level of \*NONE. | no  | "true" (Use true autocommit.)  <br>"false" (Do not use true autocommit.) | "false" |
-| "XA loosely coupled support" | Specifies whether lock sharing is allowed for loosely coupled transaction branches. Note, this property is ignored when connecting to systems running to IBM i V5R3 and earlier. This option can be set to 0 to indicate to not share locks or 1 to share locks. | no  | "0" (Do not share locks.)  <br>"1" (Share locks.) | "0" |
-
-### Format properties
-
-Format properties specify date and time formats, date and decimal separators, and table naming conventions used within SQL statements.
-
-| Format property | Description | Required | Choices | Default |
-| --- | --- | --- | --- | --- |
-| "date format" | Specifies the date format used in date literals within SQL statements. | no  | "mdy"  <br>"dmy"  <br>"ymd"  <br>"usa"  <br>"iso"  <br>"eur"  <br>"jis"  <br>"julian" | (server job) |
-| "date separator" | Specifies the date separator used in date literals within SQL statements. This property has no effect unless the "date format" property is set to "julian", "mdy", "dmy" or "ymd". | no  | "/" (slash)  <br>"-" (dash)  <br>"." (period)  <br>"," (comma)  <br>"b" (space) | (server job) |
-| "decimal separator" | Specifies the decimal separator used in numeric literals within SQL statements. | no  | "." (period)  <br>"," (comma) | Set by host server: "." (period) |
-| "naming" | Specifies the naming convention used when referring to tables. | no  | "sql" (as in `schema.table`)  <br>"system" (as in `schema/table`) | "sql" |
-| "time format" | Specifies the time format used in time literals within SQL statements. | no  | "hms"  <br>"usa"  <br>"iso"  <br>"eur"  <br>"jis" | (server job) |
-| "time separator" | Specifies the time separator used in time literals within SQL statements. This property has no effect unless the "time format" property is set to "hms". | no  | ":" (colon)  <br>"." (period)  <br>"," (comma)  <br>"b" (space) | (server job) |
-
-### Performance properties
-
-Performance properties are attributes that include caching, data conversion, data compression, and prefetching that affect performance.
-
-| Performance property | Description | Required | Choices | Default |
-| --- | --- | --- | --- | --- |
-| "big decimal" | Specifies whether an intermediate java.math.BigDecimal object is used for packed and zoned decimal conversions. If this property is set to "true", an intermediate java.math.BigDecimal object is used for packed and zoned decimal conversions as described by the JDBC specification. If this property is set to "false", no intermediate objects are used for packed and zoned decimal conversions. Instead, such values are converted directly to and from Java double values. Such conversions will be faster but may not follow all conversion and data truncation rules documented by the JDBC specification. | no  | "true"  <br>"false" | "true" |
-| "block criteria" | Specifies the criteria for retrieving data from the system in blocks of records. Specifying a non-zero value for this property will reduce the frequency of communication to the system, and therefore increase performance.<br><br>Ensure that record blocking is off if the cursor is going to be used for subsequent UPDATEs, or else the row that is updated will not necessarily be the current row. | no  | "0" (no record blocking)  <br>"1" (block if FOR FETCH ONLY is specified)  <br>"2" (block unless FOR UPDATE is specified) | "2" |
-| "block size" | Specifies the block size (in kilobytes) to retrieve from the system and cache on the client. This property has no effect unless the "block criteria" property is non-zero. Larger block sizes reduce the frequency of communication to the system, and therefore may increase performance. | no  | "0"  <br>"8"  <br>"16"  <br>"32"  <br>"64"  <br>"128"  <br>"256"  <br>"512" | "32" |
-| "data compression" | Specifies whether result set data is compressed. If this property is set to "true", then result set data is compressed. If this property is set to "false", then result set data is not compressed. Data compression may improve performance when retrieving large result sets. | no  | "true"  <br>"false" | "true" |
-| "extended dynamic" | Specifies whether to use extended dynamic support. Extended dynamic support provides a mechanism for caching dynamic SQL statements on the system. The first time a particular SQL statement is prepared, it is stored in a SQL package on the system. If the package does not exist, it is automatically created. On subsequent prepares of the same SQL statement, the system can skip a significant part of the processing by using information stored in the SQL package. If this is set to "true", then a package name must be set using the "package" property. | no  | "true"  <br>"false" | "false" |
-| "lazy close" | Specifies whether to delay closing cursors until subsequent requests. This will increase overall performance by reducing the total number of requests. | no  | "true"  <br>"false" | "false" |
-| "lob threshold" | Specifies the maximum LOB (large object) size (in bytes) that can be retrieved as part of a result set. LOBs that are larger than this threshold will be retrieved in pieces using extra communication to the system. Larger LOB thresholds will reduce the frequency of communication to the system, but will download more LOB data, even if it is not used. Smaller LOB thresholds may increase frequency of communication to the system, but will only download LOB data as it is needed. | no  | "0" - "16777216" | "32768" |
-| "maximum blocked input rows" | Specifies the maximum number of rows to be sent to the database engine when using a blocked insert or update operation. The database engine has a limit of 32000 rows with a total of 16MB of data. This property may be used to reduce the size of buffers in the JVM when using batched insert operations. | no  | "1" - "32000" | "32000" |
-| "package" | Specifies the base name of the SQL package. Note that only the first six characters are used to generate the name of the SQL package on the system. This property has no effect unless the "extended dynamic" property is set to "true". In addition, this property must be set if the "extended dynamic" property is set to "true". | no  | SQL package | ""  |
-| "package add" | Specifies whether to add newly prepared statements to the SQL package specified on the "package" property. This property has no effect unless the "extended dynamic" property is set to "true". | no  | "true"  <br>"false" | "true" |
-| "package cache" | Specifies whether to cache a subset of the SQL package information in client memory. Caching SQL packages locally reduces the amount of communication to the system for prepares and describes. This property has no effect unless the "extended dynamic" property is set to "true". | no  | "true"  <br>"false" | "false" |
-| "package criteria" | Specifies the type of SQL statements to be stored in the SQL package. This can be useful to improve the performance of complex join conditions. This property has no effect unless the "extended dynamic" property is set to "true". | no  | "default" (only store SQL statements with parameter markers in the package)  <br>"select" (store all SQL SELECT statements in the package) | "default" |
-| "package error" | Specifies the action to take when SQL package errors occur. When a SQL package error occurs, the driver will optionally throw a SQLException or post a warning to the Connection, based on the value of this property. This property has no effect unless the "extended dynamic" property is set to "true". | no  | "exception"  <br>"warning"  <br>"none" | "warning" |
-| "package library" | Specifies the library for the SQL package. This property has no effect unless the "extended dynamic" property is set to "true". | no  | Library for SQL package | "QGPL" |
-| "prefetch" | Specifies whether to prefetch data upon executing a SELECT statement. This will increase performance when accessing the initial rows in the ResultSet. | no  | "true"  <br>"false" | "true" |
-| "qaqqinilib" | Specifies a QAQQINI library name. Used to specify the library that contains the qaqqini file to use. A qaqqini file contains all of the attributes that can potentially impact the performance of the DB2 for IBM i database engine. You must have \*JOBCTL special authority to use qaqqinilib. | no  | "QAQQINI library name" | (system default) |
-| "query optimize goal" | Specifies the goal the system should use with optimization of queries. This setting corresponds with the system's QAQQINI option called OPTIMIZATION\_GOAL. Note, this property is ignored when connecting to systems running to IBM i V5R3 and earlier. | no  | "0" = Optimize query for entire result set (\*ALLIO) when extended dynamic packages are used; Optimize query for first block of data (\*FIRSTIO) when packages are not used  <br>"1" = Optimize query for first block of data (\*FIRSTIO)  <br>"2" = Optimize query for entire result set (\*ALLIO) | "0" |
-| "query timeout mechanism" | Specifies the mechanism to implement the queryTimeout feature. | no  | "qqrytimlmt" = The queryTimeout feature uses the "QQRYTIMLMT"feature of the database engine.  <br>"cancel" = The queryTimeout feature uses a database CANCEL request to cancel a running SQL statement after the specified timeout expires | "qqrytimlmt" |
-| "query storage limit" | Specifies the query storage limit to be used when statements in a connection are executed. Valid values are -1 to 2147352578 megabytes. Note, this property is ignored when connecting to systems running IBM i V5R4 and earlier.  <br>You must have \*JOBCTL special authority to use query storage limit with Version 6 Release 1 of IBM i. | no  | "-1 (no limit)" - "2147352578" | "-1" |
-| "use block update" | This property allows the toolbox JDBC driver to use a block update mode when inserting or updating blocks of data into the database. This is an optimized version of the batch insert or batch update. | no  | "true"  <br>"false" | "false" |
-| "variable field compression" | Specifies whether variable-length fields should be compressed. | no  | "true" -- compression will be used for result set data  <br>"false" -- no compression will be used  <br>"insert" -- compression will only be used for batched insert data  <br>"all" -- compression will be used for result set data and for batched insert data | "all" when connected to a server that supports compression of batched insert data  <br>"true" when the server does not support compression of batched insert date |
-
-### Sort properties
-
-Sort properties specify how the system performs stores and performs sorts.
-
-| Sort property | Description | Required | Choices | Default |
-| --- | --- | --- | --- | --- |
-| "sort" | Specifies how the system sorts records before sending them to the client. | no  | "hex" (base the sort on hexadecimal values)  <br>"language" (base the sort on the language set in the "sort language" property)  <br>"table" (base the sort on the sort sequence table set in the "sort table" property) | "hex" |
-| "sort language" | Specifies a 3-character language id to use for selection of a sort sequence. This property has no effect unless the "sort" property is set to "language". | no  | Language id | ENU |
-| "sort table" | Specifies the library and file name of a sort sequence table stored on the system. This property has no effect unless the "sort" property is set to "table". | no  | Qualified sort table name | ""  |
-| "sort weight" | Specifies how the system treats case while sorting records. This property has no effect unless the "sort" property is set to "language". | no  | "shared" (uppercase and lowercase characters sort as the same character)  <br>"unique" (uppercase and lowercase characters sort as different characters) | "shared" |
-
-### Alternate server properties
-
-These properties are used to enable the JDBC driver to connect to an alternate server if the connection to the current server is lost or if the current DB2 Mirror for i system is blocked.
-
-In the case of a dropped connection, the JDBC Connection object will automatically reconnect to a system. The systems are tried in order, and the order of the systems are first, the original system specified in the original connection, followed by the servers specified in the clientRouteServerName property.
-
-When an error occurs, the JDBC driver throws an SQLException with SQLCode=-4498 that indicates that the current operation failed because the connection was dropped. Existing JDBC statement objects have been changed to reference the new connection, so these statement objects can be used to retry the operation that failed.
-
-When using this support, JDBC applications must be aware a connection may be redirected to another server at any time. Therefore, applications must be aware that the following items are scoped to a connection and are not available after the connection is redirected to a different server.
-
-*   Opened ResultSets. This includes ResultSets associated with COMMIT HOLD. If a ResultSet operation detects a failed connection and causes the connection to switch to an alternate server, a SQLException with SQLCode=-4498 will be reported. At the point that a connection switches to an alternate server, all ResultSets associated with the connection are closed. Any subsequent attempt to use existing ResultSets will fail with a "ResultSet closed" exception.
-*   Anything defined in QTEMP.
-*   The value of an SQL global variable.
-
-When reconnecting to a system, the following special registers, as set by JDBC properties or by SET SQL statements, are preserved in the new connection.
-
-*   CURRENT SCHEMA
-*   CURRENT CLIENT\_ACCTNG
-*   CURRENT CLIENT\_APPLNAME
-*   CURRENT CLIENT\_PROGRAMID
-*   CURRENT CLIENT\_USERID
-*   CURRENT CLIENT\_WRKSTNNAME
-*   CURRENT DEBUG MODE
-*   CURRENT DECFLOAT ROUNDING MODE
-*   CURRENT DEGREE
-*   CURRENT IMPLICIT XMLPARSE OPTION
-*   CURRENT PATH
-
-The JDBC driver is only be able to preserve those settings that are specified when establishing the connection or that are changed using SET statements executed by the JDBC driver. The JDBC driver will not preserve those setting that are changed using other methods, including a stored procedure call.
-
-| Property | Description | Required | Choices | Default |
-| --- | --- | --- | --- | --- |
-| "enableClientAffinitiesList" | Specifies whether the JTOpen JDBC driver enables client affinities for failover support.<br><br>A setting of 1 enables client affinities for failover support. The server specified in the original connection string, and the servers specified in the clientRerouteAlternateServerName and clientRerouteAlternatePortNumber properties are retried, in order, when the current server is unavailable.<br><br>A setting of 0 disables client affinities for failover support. | no  | 1(Yes)  <br>0(No) | 0   |
-| "affinityFailbackInterval" | Specifies the length of the interval, in seconds, that the JTOpen JDBC Driver waits between attempts to fail back an existing connection to the primary server. A value that is less than or equal to 0 means that the connection does not fail back.<br><br>Attempts to fail back connections to the primary server are made at commit boundaries, after the specified interval elapses.<br><br>This property is used only if the values of properties enableSeamlessFailover and enableClientAffinitiesList are 1. | no  | 0-2147352578 | 0   |
-| "clientRerouteAlternateServerName" | Defines a comma separated list of servers to use if the server specified in the connection string is not accessible. The systems are always retried in the order specified, starting with the server specified in the JDBC connection string.<br><br>If the JDBC driver connects to system with Db2 Mirror for i (5770-DBM) and this property is not set, the value of this property will be set by the server to contain the server names that could be used by the mirrored systems.<br><br>This property is only used if the "enableClientAffinitiesList" property is set to 1. | no  | \-  | See description |
-| "clientRerouteAlternatePortNumber" | Defines a comma separated list of port numbers to be used in conjunction with the servers specified by the clientRerouteAlternateServerName property. The order of the port numbers must match the order of the servers in the clientRerouteAlternateServername property.<br><br>When this is specified, the JTOpen JDBC driver will not contact the port map server or the central server when connecting to the system. If this is not specified, the standard host server ports will be used. | no  | \-  | \-  |
-| "maxRetriesForClientReroute" | The maximum number of connection retries for automatic client reroute.<br><br>If maxRetriesForClientReroute or retryIntervalForClientReroute is not set, the default behavior is that the connection is retried for 10 minutes, with a wait time between retries that increases as the length of time from the first retry increases.<br><br>If retryIntervalForClientReroute is set, the default for maxRetriesForClientReroute is 3. | no  | \-  | \-  |
-| "retryIntervalForClientReroute" | The number of seconds between consecutive connection retries.<br><br>If retryIntervalForClientReroute or maxRetriesForClientReroute is not set, the default behavior is that the connection is retried for 10 minutes, with a wait time between retries that increases as the length of time from the first retry increases.<br><br>If maxRetriesForClientReroute is set, the default for retryIntervalForClientReroute is 0 (no wait). | no  |     |     |
-| "enableSeamlessFailover" | Specifies whether the JTOpen JDBC driver uses seamless failover for client reroute. This setting is only used if the "enableClientAffinitiesList" property is set to 1.<br><br>Possible values of enableSeamlessFailover are the following:<br><br>1<br><br>The JTOpen JDBC driver uses seamless failover. This means that the driver does not throw an SQLException with SQL error code -4498 after a failed connection has been successfully re-established if the following conditions are true:<br><br>*   The connection was not being used for a transaction at the time the failure occurred.<br>*   There are no outstanding global resources, such as global temporary tables or open, held cursors, or connection states that prevent a seamless failover to another server.<br><br>When seamless failover occurs, after the connection to a new server has been established, the driver re-issues the SQL statement that was being processed when the original connection failed.<br><br>2<br><br>The JTOpen JDBC driver does not use seamless failover.<br><br>When this setting is in effect, if a server goes down, the driver tries to fail back or fail over to an alternate server. If failover or failback is successful, the driver throws an SQLException with SQL error code -4498 on the current operation on the connection. This indicates that the operation and connection failed, but the connection was successfully reestablished. An SQLException with SQL error code -4498 informs the application that it should retry the transaction during which the connection failure occurred. If the driver cannot reestablish a connection, it throws an SQLException indicating the first error seen using the connection. | no  | \-  | 2   |
-
-### Network properties
-
-Network properties control the behavior of the TCP/IP connection to the server
-
-| Network property | Description | Required | Choices | Default |
-| --- | --- | --- | --- | --- |
-| "login timeout" | The login timeout specifies the number of milliseconds that the JDBC driver will wait for a new socket to the database host server to be established. A value of zero indicates that JDBC driver will wait indefinitely for the socket to be established. | no  | "0" (no timeout) | "0" |
-| "receive buffer size" | Specifies the buffer size used to receive data through the socket connection between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the actual receive buffer size. It is only used as a hint by the underlying socket code. | no  | "1" (max size) | (platform dependent) |
-| "send buffer size" | Specifies the buffer size used to send data through the socket connection between the front-end driver and the IBM i system.  <br>NOTE: This does not specify the actual send buffer size. It is only used as a hint by the underlying socket code. | no  | "1" (max size) | (platform dependent) |
-| "socket timeout" | Sets the millisecond timeout used by the network socket. This determines the maximum number of milliseconds a JDBC connection will block on a read operation while waiting for a server response.  <br>NOTE1: If the timeout occurs, then the connection becomes unusable.  <br>NOTE2: If this property is used, it must be set to be shorter than the time used by a database request. If not, a long running database operation will cause the timeout to occur.  <br>NOTE3: The socket timeout should only be used if the "thread used" property is set to false. By default, the JDBC driver will create a thread that is always blocked on a socket read waiting for a server response, and a connection idle longer than the socket timeout will drop the connection. | no  | "0" (no timeout) | "0" |
-| "tcp no delay" | Sets the TCP no delay used by the network socket. To minimize response time, this should be set to true on Windows systems that use Nagle's algorithm to reduce network load. | no  | "true  <br>false" (no timeout) | "false" |
-| "tls truststore" | Specifies the file to be used as the truststore to validate TLS connections. Using \*ANY with the tls truststore password=\*ANY will allow TLS to be used without validating the server certificate. | no  | filename  <br>"\*ANY" | "default JVM truststore is used" |
-| "tls truststore password" | Password used to validate the file specified by the "tls truststore" property. Using \*ANY with the tls truststore=\*ANY will allow TLS to be used without validating the server certificate. | no  | password  <br>"\*ANY" | unset |
-
-### Other properties
-
-Other properties are those properties not easily categorized. These properties determine which JDBC driver is used, and specify options related to level of database access, bidirectional string type, data truncation and so on.
-
-| Other property | Description | Required | Choices | Default |
-| --- | --- | --- | --- | --- |
-| "access" | Specifies the level of database access for the connection. | no  | "all" (all SQL statements allowed)  <br>"read call" (SELECT and CALL statements allowed)  <br>"read only" (SELECT statements only) | "all" |
-| "autocommit exception" | Specifies whether to throw an SQLException when Connection.commit() or Connection.rollback() is called if autocommit is enabled. | no  | "true"  <br>"false" | "false" |
-| "bidi string type" | Specifies the output string type of bidirectional data. See [BidiStringType](../BidiStringType.html#navbar_top) for more information. | no  | "4"  <br>"5"  <br>"6"  <br>"7"  <br>"8"  <br>"9"  <br>"10"  <br>"11" | "5" |
-| "bidi implicit reordering" | Specifies if bidi implicit LTR-RTL reordering should be used. | no  | "true"  <br>"false" | "true" |
-| "bidi numeric ordering" | Specifies if the numeric ordering round trip feature should be used. | no  | "true"  <br>"false" | "false" |
-| "data truncation" | Specifies whether truncation of **character data** generates warnings and exceptions. When this property is "true", the following apply:<br><br>*   Writing truncated character data to the database throws an exception<br>*   Using truncated character data in a query posts a warning.<br><br>When this property is "false", writing truncated data to the database or using such data in a query generates no exception or warning.<br><br>The default value is "true".<br><br>This property does not affect **numeric data**. An error occurs if a conversion error occurs when setting a numeric parameter. | no  | "true"  <br>"false" | "true" |
-| "character truncation" | Specifies whether truncation of **character data** generates warnings and exceptions. When this property is "default", then the behavior specified by the "data truncation" property is used.<br><br>When this property is "warning", writing truncated data to the database or using such data in a query always generates a warning. The data is truncated by removing bytes from the end of the string<br><br>When this property is "none", writing truncated data to the database or using such data in a query generates no exception or warning. The data is truncated by removing bytes from the end of the string. The data may also be modified so that the truncated data is still valid for the character encoding. This means that a SI (shift-in) character may be added for mixed CCSID encodings or partial UTF-8 characters may be removed.<br><br>The default value is "default".<br><br>This property does not affect **numeric data**. Writing truncated numeric data to the database always throws an error and using truncated numeric data in a query always posts a warning, unless specified otherwise by the use of the "numeric range error" property. | no  | "default"  <br>"warning"  <br>"none" | "default" |
-| "driver" | Specifies the JDBC driver implementation. The IBM Toolbox for Java JDBC driver can use different JDBC driver implementations based on the environment. If the environment is an IBM i JVM on the same system as the database to which the program is connecting, the native IBM Developer Kit for Java JDBC driver can be used. In any other environment, the IBM Toolbox for Java JDBC driver is used. This property has no effect if the "secondary URL" property is set. | no  | "toolbox" (use only the IBM Toolbox for Java JDBC driver).  <br>"native" (use the IBM Developer Kit for Java JDBC driver if running on the system, otherwise use the Toolbox for Java JDBC driver). | "toolbox" |
-| "errors" | Specifies the amount of detail to be returned in the message for errors that occur on the system. | no  | "basic"  <br>"full" | "basic" |
-| "extended metadata" | Specifies whether the driver should request extended metadata from the system. Setting this property to true increases the accuracy of the information returned from the following ResultSetMetaData methods:<br><br>*   getColumnLabel(int)<br>*   isReadOnly(int)<br>*   isSearchable(int)<br>*   isWriteable(int)<br><br>Additionally, setting this property to true enables support for the ResultSetMetaData.getSchemaName(int) and ResultSetMetaData.isAutoIncrement(int) methods. Setting this property to true may slow performance because it requires retrieving more information from the system. Leave the property as the default (false) unless you need more specific information from the listed methods. For example, when this property is off (false), ResultSetMetaData.isSearchable(int) always returns "true" because the driver does not have enough information from the system to make a judgment. Turning on this property (true) forces the driver to get the correct data from the system. | no  | "true"  <br>"false" | "false" |
-| "full open" | Specifies whether the system fully opens a file for each query. By default the system optimizes open requests. This optimization improves performance but may fail if a database monitor is active when a query is run more than once. Set the property to true only when identical queries are issued when monitors are active. | no  | "true"  <br>"false" | "false" |
-| "hold input locators" | Specifies whether input locators should be allocated as type hold locators or not hold locators. If the locators are of type hold, they will not be released when a commit is done. | no  | "true" (type hold)  <br>"false" | "true" |
-| "hold statements" | Specifies if statements should remain open until a transaction boundary when autocommit is off and they are associated with a LOB locator. By default, all the resources associated with a statement are released when the statement is closed. Set this property to true only when access to a LOB locator is needed after a statement has been closed. | no  | "true"  <br>"false" | "false" |
-| "ignore warnings" | Specifies a list of SQL states for which the driver should not create warning objects. By default, the Toolbox JDBC driver will internally create a java.sql.SQLWarning object for each warning returned by the database. The special value **all** may be used to ignore all warnings. For example, a warning with the SQLSTATE 0100C is created every time a result set is returned from a stored procedure. This warning can be safely ignored to improve the performance of applications that call stored procedures. | no  | **all** or a comma separated list of SQL states that should be ignored | ""  |
-| "keep alive" | Specifies whether socket connection is to be periodically checked for operational status. | no  | "true"  <br>"false" | (platform dependent) |
-| "key ring name" | Specifies the key ring class name used for SSL connections with the system. This property has no effect unless "secure" is set to true and a key ring password is set using the "key ring password" property. | no  | "key ring name" | ""  |
-| "key ring password" | Specifies the password for the key ring class used for SSL communications with the system. This property has no effect unless "secure" is set to true and a key ring name is set using the "key ring name" property. | no  | "key ring password" | ""  |
-| "metadata source" | Specifies how to retrieve DatabaseMetaData. If set to "0", database metadata will be retrieved through the ROI (Retrieve Object Information) data flow. If set to "1", database metadata will be retrieved by calling system stored procedures. | no  | "0" (ROI access)  <br>"1" (SQL stored procedures) | "0" (V6R1 and earlier) "1" (post V6R1) |
-| "numeric range error" | Specifies how numeric range errors are handled. Possible values are the following.<br><br>*   default -- A numeric range error that occurs when writing to the database always throws an error. A numeric range error that occurs when processing a query always posts a warning. When a warning occurs, the maximum possible numeric value is sent for overflow and the minimum possible numeric value is sent for underflow.<br>*   warning -- A numeric range error always posts a warning. When a warning occurs, the maximum possible numeric value is sent for overflow and the minimum possible numeric value is sent for underflow.<br>*   none -- No warnings or errors are reported for numeric range error. The maximum possible numeric value is sent for overflow and the minimum possible numeric value is sent for underflow. | no  | "true"  <br>"false" | "true" |
-| "proxy server" | Specifies the host name and port of the middle-tier machine where the proxy server is running. The format for this is hostname\[:port\], where the port is optional. If this is not set, then the hostname and port are retrieved from the _com.ibm.as400.access.AS400.proxyServer_ property. The default port is _3470_ (if the connection uses SSL, the default port is _3471_). The ProxyServer must be running on the middle-tier machine.<br><br>The name of the middle-tier machine is ignored in a two-tier environment. | no  | Proxy server host name and port | (value of the proxyServer property, or none if not set) |
-| "query replace truncated parameter" | Specifies the value that should be used in place of a truncated parameter of an SQL query. By default, the parameter is silently truncated to the length for the parameter. Consider the following scenario.<br><br>*   Table T1 has a CHAR(3) column with the name of C1, and a row where C1='ABC'.<br>*   An application prepares a statement using SELECT \* FROM TABLE\_X where C1=?<br>*   If the parameter is set to 'ABCD', it will be silently truncated to 'ABC' and a row will be returned by the query.<br><br>This property avoids this problem by allowing the application to set the string to something that doesn't exist in the application - i.e. @@@@@@@. A blank value means that the property will be ignored | no  | Value to use for truncated parameters | ""  |
-| "remarks" | Specifies the source of the text for REMARKS columns in ResultSets returned by DatabaseMetaData methods when "metadata source=0". | no  | "sql" (SQL object comment)  <br>"system" (IBM i object description) | "system" |
-| "secondary URL" | Specifies the URL to be used for a connection on the middle-tier's DriverManager in a multiple tier environment, if it is different than already specified. This property allows you to use this driver to connect to databases other than DB2 for IBM i. Use a backslash as an escape character before backslashes and semicolons in the URL. | no  | JDBC URL | (current JDBC URL) |
-| "secure" | Specifies whether a Secure Sockets Layer (SSL) connection is used to communicate with the system. | no  | "true" (encrypt all client/server communication)  <br>"false" (encrypt only the password) | "false" |
-| "server trace" | Specifies the level of tracing of the JDBC server job. When tracing is enabled, tracing starts when the client connects to the system and ends when the connection is disconnected. You must start tracing before connecting to the system, because the client enables system tracing only at connect time. | no  | "0" (trace is not active)  <br>"2" (start the database monitor on the JDBC server job)  <br>"4" (start debug on the JDBC server job)  <br>"8" (save the job log when the JDBC server job ends)  <br>"16" (start job trace on the JDBC server job)  <br>"32" (save SQL information)  <br>"64" (start the database host server trace)<br><br>Multiple types of trace can be started by adding these values together. For example, "6" starts the database monitor and starts debug. | "0" |
-| "stay alive" | If greater than 0, specifies the number of milliseconds between requests to the database host server to keep the connection alive. | no  | "0  <br>Positive millisecond value"  <br>"false" | 0   |
-| "thread used" | Specifies whether threads should be used in communication with the host servers. | no  | "true"  <br>"false" | "true" |
-| "toolbox trace" | Specifies what category of a toolbox trace to log. Trace messages are useful for debugging programs that call JDBC. However, there is a performance penalty associated with logging trace messages, so this property should only be set for debugging. Trace messages are logged to System.out. | no  | ""  <br>"none"  <br>"datastream" (log data flow between the local host and the remote system)  <br>"diagnostic" (log object state information)  <br>"error" (log errors that cause an exception)  <br>"information" (used to track the flow of control through the code)  <br>"warning" (log errors that are recoverable)  <br>"conversion" (log character set conversions between Unicode and native code pages)  <br>"proxy" (log data flow between the client and the proxy server)  <br>"pcml" (used to determine how PCML interprets the data that is sent to and from the system)  <br>"jdbc" (log jdbc information)  <br>"all" (log all categories)  <br>"thread" (log thread information) | ""  |
-| "trace" | Specifies whether trace messages should be logged. Trace messages are useful for debugging programs that call JDBC. However, there is a performance penalty associated with logging trace messages, so this property should only be set to "true" for debugging. Trace messages are logged to System.out. | no  | "true"  <br>"false" | "false" |
-| "translate binary" | Specifies whether binary data is translated. If this property is set to "true", then CHAR FOR BIT DATA, VARCHAR FOR BIT DATA, CHAR CCSID(65535), and VARCHAR CCSID(65535)fields are treated as CHAR and VARCHAR fields using the current CCSID of the server job. | no  | "true"  <br>"false" | "false" |
-| "translate boolean" | Specifies how Boolean objects are interpreted when setting the value for a character field/parameter using the PreparedStatement.setObject(), CallableStatement.setObject() or ResultSet.updateObject() methods. Setting the property to "true", would store the Boolean object in the character field as either "true" or "false". Setting the property to "false", would store the Boolean object in the character field as either "1" or "0". | no  | "true"  <br>"false" | "true" |
+Driver properties can be found at [https://javadoc.io/doc/net.sf.jt400/jt400/latest/com/ibm/as400/access/AS400JDBCDriver.html](https://javadoc.io/doc/net.sf.jt400/jt400/latest/com/ibm/as400/access/AS400JDBCDriver.html)
