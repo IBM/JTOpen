@@ -75,11 +75,11 @@ public class UDFS
     public void create() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating UDFS.");
-        StringBuffer cmd = new StringBuffer("CRTUDFS UDFS('" + path_ + "')");
+        StringBuilder cmd = new StringBuilder("CRTUDFS UDFS('" + path_ + "')");
         if (storageUnit_ != null && !storageUnit_.equalsIgnoreCase("*ANY"))
         {
           if (system_.getVRM() >= 0x00070100) {
-            cmd.append(" UNIT("+storageUnit_+")");
+            cmd.append(" UNIT(").append(storageUnit_).append(")");
           }
           else {
             if (Trace.traceOn_) {
@@ -198,26 +198,26 @@ public class UDFS
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Creating UDFS.");
         int vrm = system_.getVRM();
 
-        StringBuffer cmd = new StringBuffer("CRTUDFS UDFS('" + path_ + "')");
-        cmd.append(" DTAAUT(" + publicDataAuthority + ")");
-        cmd.append(" OBJAUT(" + setArrayToString(publicObjectAuthority) + ")");
-        cmd.append(" CRTOBJAUD(" + auditingValue + ")");
+        StringBuilder cmd = new StringBuilder("CRTUDFS UDFS('" + path_ + "')");
+        cmd.append(" DTAAUT(").append(publicDataAuthority).append(")");
+        cmd.append(" OBJAUT(").append(setArrayToString(publicObjectAuthority)).append(")");
+        cmd.append(" CRTOBJAUD(").append(auditingValue).append(")");
         if (vrm >= 0x00050300) {
-          cmd.append(" CRTOBJSCAN(" + scanningOption + ")");
-          cmd.append(" RSTDRNMUNL(" + (specialRestrictions ? "*YES" : "*NO") + ")");
+          cmd.append(" CRTOBJSCAN(").append(scanningOption).append(")");
+          cmd.append(" RSTDRNMUNL(").append(specialRestrictions ? "*YES" : "*NO").append(")");
         }
         if (vrm >= 0x00060100) {
-          cmd.append(" DFTDISKSTG(" + defaultDiskStorageOption + ")");
-          cmd.append(" DFTMAINSTG(" + defaultMainStorageOption + ")");
+          cmd.append(" DFTDISKSTG(").append(defaultDiskStorageOption).append(")");
+          cmd.append(" DFTMAINSTG(").append(defaultMainStorageOption).append(")");
         }
-        cmd.append(" CASE(" + caseSensitivity + ")");
-        cmd.append(" DFTFILEFMT(" + defaultFileFormat + ")");
-        cmd.append(" TEXT('" + description + "')");
+        cmd.append(" CASE(").append(caseSensitivity).append(")");
+        cmd.append(" DFTFILEFMT(").append(defaultFileFormat).append(")");
+        cmd.append(" TEXT('").append(description).append("')");
 
         if (storageUnit_ != null && !storageUnit_.equalsIgnoreCase("*ANY"))
         {
           if (vrm >= 0x00070100) {
-            cmd.append(" UNIT("+storageUnit_+")");
+            cmd.append(" UNIT(").append(storageUnit_).append(")");
           }
           else {
             if (Trace.traceOn_) {
@@ -315,7 +315,7 @@ public class UDFS
         int arrayLength = array.length;
         if (arrayLength == 0) return "*INDIR";
         if (arrayLength == 1) return array[0];
-        StringBuffer buf = new StringBuffer(array[0]);
+        StringBuilder buf = new StringBuilder(array[0]);
         for (int i = 1; i < arrayLength; ++i)
         {
             buf.append(" ");

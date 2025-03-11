@@ -701,7 +701,7 @@ Computes the resource key.
 **/
     static Object computeResourceKey(AS400 system, String productID, String releaseLevel, String productOption, String loadID)
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(RSoftwareResource.class);
         buffer.append(':');
         buffer.append(system.getSystemName());
@@ -775,7 +775,7 @@ when the properties need to be frozen.
         // Update the presentation.
         Presentation presentation = getPresentation();
         presentation.setName(productID_);
-        StringBuffer buffer = new StringBuffer(productID_);
+        StringBuilder buffer = new StringBuilder(productID_);
         buffer.append('-');
         buffer.append(releaseLevel_);
         buffer.append('-');

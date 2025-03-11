@@ -194,7 +194,7 @@ Converts the VRM to a level.
 **/
     public static String vrmToLevel(int vrm)
     {
-        StringBuffer buffer = new StringBuffer("V");
+        StringBuilder buffer = new StringBuilder("V");
         buffer.append((int)((vrm & 0xFFFF0000) >> 16));
         buffer.append("R");
         buffer.append((int)((vrm & 0x0000FF00) >> 8));
@@ -212,7 +212,7 @@ Returns a String representation of the level.
 **/
     public String toString()
     {
-        StringBuffer buffer = new StringBuffer("[");
+        StringBuilder buffer = new StringBuilder("[");
         if (minLevel_ != null)
             buffer.append(minLevel_);
         buffer.append(',');

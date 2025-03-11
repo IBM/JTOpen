@@ -122,9 +122,9 @@ static int getReturnCode(AS400Message[] list) {
  *
  */
 public String toString() {
-	StringBuffer sb = new StringBuffer(super.toString());
+	StringBuilder sb = new StringBuilder(super.toString());
 	if (getReturnCode()==UNKNOWN && getAS400Message()!=null)
-		sb.append(" >> " + getAS400Message().toString());
+		sb.append(" >> ").append(getAS400Message().toString());
 	return sb.toString();
 }
 }

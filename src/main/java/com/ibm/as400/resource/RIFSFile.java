@@ -510,7 +510,7 @@ Computes a resource key.
 **/
     static Object computeResourceKey(AS400 system, String path)
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(RIFSFile.class);
         buffer.append(':');
         buffer.append(system.getSystemName());

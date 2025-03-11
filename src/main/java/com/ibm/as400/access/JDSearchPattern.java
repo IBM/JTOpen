@@ -132,7 +132,7 @@ final class JDSearchPattern
 **/
     final String getSQLWhereClause (String columnName)
     {
-        StringBuffer clause = new StringBuffer ();
+        StringBuilder clause = new StringBuilder ();
         if (isSpecified())
         {
             clause.append (columnName);  // ie SCHEMA_NAME

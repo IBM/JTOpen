@@ -1391,7 +1391,7 @@ public class ObjectDescription
         else
         {
           String prodID = lpp.substring(0,7);
-          StringBuffer release = new StringBuffer(6);
+          StringBuilder release = new StringBuilder(6);
           release.append('V');
           release.append(Integer.parseInt(lpp.substring(8,10)));
           release.append('R');
@@ -1505,7 +1505,7 @@ public class ObjectDescription
    String objectNameBuff = path_.toQualifiedObjectName();  // [10-char objectName] + [10-char libraryName]
    parms[2] = new ProgramParameter(conv.stringToByteArray(objectNameBuff));   // Qualified Object Name (10-ObjectName 10- Library)
 
-   StringBuffer objTypeBuff = new StringBuffer("*         ");  // initialize to 10 blanks (with preceding asterisk)
+   StringBuilder objTypeBuff = new StringBuilder("*         ");  // initialize to 10 blanks (with preceding asterisk)
    objTypeBuff.replace(1,  getType().length(), getType());
    parms[3] = new ProgramParameter(conv.stringToByteArray(objTypeBuff.toString()));   // Object type
  
@@ -1516,7 +1516,7 @@ public class ObjectDescription
    {
      parms[6] = new ProgramParameter(conv.stringToByteArray(""));        // Optional parm - pathName  (Leave blank, so ignored)
      parms[7] = new ProgramParameter(BinaryConverter.intToByteArray(0)); // Optional parm - pathNameLength
-     StringBuffer aspDeviceNameBuff = new StringBuffer("          ");    // ASP name - initialize to 10 blanks
+     StringBuilder aspDeviceNameBuff = new StringBuilder("          ");    // ASP name - initialize to 10 blanks
      aspDeviceNameBuff.replace(0,  aspDeviceName.length(), aspDeviceName);
      parms[8] = new ProgramParameter(conv.stringToByteArray(aspDeviceNameBuff.toString()));    // Optional parm - Qualified ASP Name
    }

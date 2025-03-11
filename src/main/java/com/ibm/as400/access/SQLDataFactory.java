@@ -830,7 +830,7 @@ class SQLDataFactory
     public static BigDecimal truncatePrecision(BigDecimal bd, int precision)
     {
         boolean positive = bd.longValue() > 0;
-        StringBuffer buffer = new StringBuffer(positive ? "" : "-");
+        StringBuilder buffer = new StringBuilder(positive ? "" : "-");
         buffer.append(bd.toString().substring(positive ? precision : precision + 1));
         return new BigDecimal(buffer.toString());
     }
@@ -847,7 +847,7 @@ class SQLDataFactory
         int point = value.indexOf('.');
         if(point >= 0)
         {
-            StringBuffer buffer = new StringBuffer(value);
+            StringBuilder buffer = new StringBuilder(value);
             for(int i = 1; i <= scale; ++i)
                 buffer.append('0');
             return buffer.toString().substring(0, point + scale + 1);
@@ -866,7 +866,7 @@ class SQLDataFactory
     }
     
   public static String getMaximumString(boolean positive, int precision,int scale) {
-    StringBuffer sb = new StringBuffer();
+    StringBuilder sb = new StringBuilder();
     if (!positive)
       sb.append("-");
     int leftDigits = precision - scale;

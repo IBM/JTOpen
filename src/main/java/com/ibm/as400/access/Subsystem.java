@@ -944,8 +944,8 @@ public class Subsystem
     throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException
   {
     String endOption = (immediate ? "*IMMED" : "*CNTRLD");
-    StringBuffer cmdBuf = new StringBuffer("QSYS/ENDSBS SBS("+subsystemName+") OPTION("+endOption+")"); // not a threadsafe API
-    if (!immediate) cmdBuf.append(" DELAY("+timeLimit+")");
+    StringBuilder cmdBuf = new StringBuilder("QSYS/ENDSBS SBS("+subsystemName+") OPTION("+endOption+")"); // not a threadsafe API
+    if (!immediate) cmdBuf.append(" DELAY(").append(timeLimit).append(")");
     CommandCall cmd = new CommandCall(system, cmdBuf.toString());
     if (!cmd.run())
     {

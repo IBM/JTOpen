@@ -1219,7 +1219,7 @@ Returns a property value.
 
         else if (propertyIdentifier == FUNCTION_PROPERTY) {
             try {
-                StringBuffer buffer = new StringBuffer();
+                StringBuilder buffer = new StringBuilder();
                 buffer.append(job_.getAttributeValue(RJob.FUNCTION_TYPE));
                 buffer.append('-');
                 buffer.append(job_.getAttributeValue(RJob.FUNCTION_NAME));

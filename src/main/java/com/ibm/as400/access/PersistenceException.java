@@ -92,7 +92,7 @@ private void setMessageList(AS400Message[] messageList) {
  *		java.lang.String
  */
 public String toString() {
-	StringBuffer sb = new StringBuffer(super.toString());
+	StringBuilder sb = new StringBuilder(super.toString());
 	AS400Message[] list = getMessageList();
 
 	if (list != null)

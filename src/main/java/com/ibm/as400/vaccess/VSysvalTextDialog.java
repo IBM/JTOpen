@@ -271,7 +271,7 @@ import java.awt.LayoutManager;
             int length1 = systemValue_.getDescription().length();
             if(length1 < 29 )
             {
-                StringBuffer sb = new StringBuffer(systemValue_.getDescription());
+                StringBuilder sb = new StringBuilder(systemValue_.getDescription());
                 for(int i=0;i <29- length1 ;i++)
                     sb.append(" ");
                 VUtilities.constrain(valueDescription_+": ",

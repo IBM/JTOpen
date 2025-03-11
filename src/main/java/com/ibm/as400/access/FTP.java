@@ -1900,7 +1900,7 @@ public class FTP implements java.io.Serializable
            throw new IOException();
 
         String code = currentLine.substring(0, 3);
-        StringBuffer buf = new StringBuffer(currentLine);
+        StringBuilder buf = new StringBuilder(currentLine);
 
         boolean Continue = true;
 
@@ -1913,7 +1913,7 @@ public class FTP implements java.io.Serializable
           else
           {
              currentLine = reader_.readLine();
-             buf.append("\n" + currentLine);
+             buf.append("\n").append(currentLine);
           }
         }
 
@@ -2402,7 +2402,7 @@ public class FTP implements java.io.Serializable
           && (toName.indexOf('*', indexA + 1) > 0))
         throw new IllegalArgumentException("toName");
 
-      StringBuffer nameBuff = new StringBuffer();
+      StringBuilder nameBuff = new StringBuilder();
 
       // LHS of asterisk
       if (indexA > 0)

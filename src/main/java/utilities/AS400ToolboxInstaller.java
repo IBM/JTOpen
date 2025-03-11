@@ -634,13 +634,13 @@ public static boolean install(String packageName,
     targetPath = addTrailingSeparator(targetPath);
 
     // Get contents of source package change list
-    StringBuffer sourcePackageURL = new StringBuffer(source.toExternalForm());
+    StringBuilder sourcePackageURL = new StringBuilder(source.toExternalForm());
     sourcePackageURL.append(packageName);
     sourcePackageURL.append(".LVL");
     String sourcePackageFile = readFile(new URL(sourcePackageURL.toString()));
 
     // Get contents of target package change list
-    StringBuffer targetPackageFileName = new StringBuffer(targetPath);
+    StringBuilder targetPackageFileName = new StringBuilder(targetPath);
     targetPackageFileName.append(packageName);
     targetPackageFileName.append(".LVL");
     String targetPackageFile = "";
@@ -1023,7 +1023,7 @@ public static boolean isInstalled(String packageName,
 
     // Look for the <package>.LVL file in the target directory.
     // If it is there, return true, if not, return false.
-    StringBuffer filename = new StringBuffer(targetPath);
+    StringBuilder filename = new StringBuilder(targetPath);
     filename.append(packageName);
     filename.append(".LVL");
     File file = new File(filename.toString());
@@ -1090,13 +1090,13 @@ public static boolean isUpdateNeeded(String packageName,
     // Make sure the target path has a trailing separator.
     targetPath = addTrailingSeparator(targetPath);
     // Get contents of source package change list
-    StringBuffer sourcePackageURL = new StringBuffer(source.toExternalForm());
+    StringBuilder sourcePackageURL = new StringBuilder(source.toExternalForm());
     sourcePackageURL.append(packageName);
     sourcePackageURL.append(".LVL");
     String sourcePackageFile = readFile(new URL(sourcePackageURL.toString()));
 
     // Get contents of target package change list
-    StringBuffer targetPackageFileName = new StringBuffer(targetPath);
+    StringBuilder targetPackageFileName = new StringBuilder(targetPath);
     targetPackageFileName.append(packageName);
     targetPackageFileName.append(".LVL");
     String targetPackageFile = "";
@@ -1306,7 +1306,7 @@ public static void main(String[] args)
 
             if(!unExpandFileV.isEmpty())
             {
-                StringBuffer unExpandFileStr= new StringBuffer();
+                StringBuilder unExpandFileStr= new StringBuilder();
                 for(Enumeration e=unExpandFileV.elements(); e.hasMoreElements();)
                 {
                     unExpandFileStr.append("    "); 
@@ -1323,7 +1323,7 @@ public static void main(String[] args)
 
             if(!classpathAddV.isEmpty())
             {
-                StringBuffer classpathAddStr= new StringBuffer();
+                StringBuilder classpathAddStr= new StringBuilder();
                 for(Enumeration e=classpathAddV.elements(); e.hasMoreElements();)
                 {
                     classpathAddStr.append("    "); 
@@ -1495,7 +1495,7 @@ private static void printUsage (PrintStream output)
       String blankSpace = "  ";
       String help02 = getMRIResource().getString("HELP02");
       help02 = help02.trim();
-      StringBuffer temp = new StringBuffer();
+      StringBuilder temp = new StringBuilder();
       for(int i=0; i<(help02.length()+1); i++)
          temp.append(" ");
       String longBlank = temp.toString();
@@ -1863,7 +1863,7 @@ static String substitute(String text, String value)
     int j = result.indexOf (variable);
     if (j >= 0)
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(result.substring(0, j));
         buffer.append(value);
         buffer.append(result.substring(j + variable.length ()));
@@ -1884,7 +1884,7 @@ Returns the contents of the file.
 private static String readFile(FileInputStream file)
     throws IOException
 {
-    StringBuffer s = new StringBuffer();
+    StringBuilder s = new StringBuilder();
     int n = file.read(data_);
     while (n != -1)
     {
@@ -1909,7 +1909,7 @@ private static String readFile(URL url)
     throws IOException
 {
     InputStream in = url.openStream();
-    StringBuffer s = new StringBuffer();
+    StringBuilder s = new StringBuilder();
     int n = in.read(data_);
     while ( n!= -1)
     {
@@ -2027,7 +2027,7 @@ public static Vector unInstall(String packageName,
 
     // Get contents of package file list file.  An exception will
     // be thrown if the file does not exist.
-    StringBuffer listFileName = new StringBuffer(targetPath);
+    StringBuilder listFileName = new StringBuilder(targetPath);
     listFileName.append(packageName);
     listFileName.append(".LST");
     String listFile = "";

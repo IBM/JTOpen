@@ -68,7 +68,7 @@ Performs the action.
         if (context.getConfirm ()) {
 
             // Create the full message text.
-            StringBuffer buffer = new StringBuffer ();
+            StringBuilder buffer = new StringBuilder ();
             if (object_ != null) {
                 buffer.append (object_.toString ());
                 buffer.append ("\n\n");

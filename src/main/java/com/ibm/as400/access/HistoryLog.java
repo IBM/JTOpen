@@ -696,7 +696,7 @@ public class HistoryLog
      * @return the date represented in the format CYYMMDD
      */
     private String dateToString(Date date){
-    	StringBuffer buffer = new StringBuffer(13);
+    	StringBuilder buffer = new StringBuilder(13);
     	Calendar calendar = AS400Calendar.getGregorianInstance();
     	calendar.setTime(date);
     	int year = calendar.get(Calendar.YEAR);
@@ -793,7 +793,7 @@ public class HistoryLog
     		}
     		else if(idLength < 7)
     		{
-    			StringBuffer buffer = new StringBuffer(ids[i]);
+    			StringBuilder buffer = new StringBuilder(ids[i]);
     			// append zeros to the end, zeros indicating to match everything before the zeros
     			for(int j=idLength; j < 7; j++)
     				buffer.append("0");

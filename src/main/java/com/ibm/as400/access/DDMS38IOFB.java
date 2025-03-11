@@ -87,7 +87,7 @@ class DDMS38IOFB
   **/
   public String toString()
   {
-    StringBuffer str = new StringBuffer();
+    StringBuilder str = new StringBuilder();
     str.append("Number of records returned: ");
     str.append((Integer.toString(getNumberOfRecordsReturned())));
     str.append("\n");

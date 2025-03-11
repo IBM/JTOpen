@@ -79,7 +79,7 @@ implements java.io.Serializable
   static final char[] readerToChars (Reader input)
   throws SQLException
   {
-      StringBuffer buffer = new StringBuffer ();
+      StringBuilder buffer = new StringBuilder ();
       int actualLength = 0;
       try {
           

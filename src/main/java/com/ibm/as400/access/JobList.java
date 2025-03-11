@@ -751,7 +751,7 @@ public class JobList implements Serializable
             case SELECTION_JOB_QUEUE:
                 String queue = (String)selectionValue;
                 QSYSObjectPathName path = new QSYSObjectPathName(queue);
-                StringBuffer buf = new StringBuffer();
+                StringBuilder buf = new StringBuilder();
                 String name = path.getObjectName();
                 buf.append(name);
                 for (int i = name.length(); i < 10; ++i)
@@ -769,6 +769,7 @@ public class JobList implements Serializable
                 }
                 jobQueues_[currentJobQueue_++] = buf.toString();
                 break;
+
             case SELECTION_INITIAL_USER:
                 String profile = ((String)selectionValue).toUpperCase();
                 if (currentInitialUser_ >= initialUsers_.length)        //JTOpen Bug 1728765

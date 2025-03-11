@@ -212,7 +212,7 @@ extends SQLDataBase
         int exactLength = getDisplaySize();                         // @C1A
         if(valueLength < exactLength)                               // @C1C
         {
-            StringBuffer buffer = new StringBuffer(value_);
+            StringBuilder buffer = new StringBuilder(value_);
             char c = '\u0020';                                      // @F66c - Pad with single byte space for now
             for(int i = valueLength; i < exactLength; ++i)          // @C1C
                 buffer.append(c);                                   //@F6C

@@ -773,8 +773,8 @@ public class BidiFlagSet
                                     String str) throws IllegalArgumentException
     {
         int capacity = str.length();
-        StringBuffer sb1 = new StringBuffer(capacity);
-        StringBuffer sb2 = new StringBuffer(capacity);
+        StringBuilder sb1 = new StringBuilder(capacity);
+        StringBuilder sb2 = new StringBuilder(capacity);
         StringTokenizer stok = new StringTokenizer(str, "\t ,=:", true);
         String token;
         int sb2Length = 0;

@@ -108,7 +108,7 @@ public class JobQueue implements Serializable {
 	    AS400Text text20 = new AS400Text(20, ccsid);
 	    
 	    // concat jobq name + library for program parameter[3]
-	    StringBuffer qualifiedJobQName = new StringBuffer(20);
+	    StringBuilder qualifiedJobQName = new StringBuilder(20);
 	    qualifiedJobQName.append(name_);
 	    for (int i = 0; i < (10 - name_.length()); i++) {
 	      qualifiedJobQName.append(" ");

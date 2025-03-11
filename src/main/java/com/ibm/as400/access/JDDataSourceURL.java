@@ -77,7 +77,7 @@ public class JDDataSourceURL implements Serializable {
           secondaryUrl_ = (String) properties_.get(JDProperties.SECONDARY_URL_);
         // Collapse any "\;" into ";", by backing through the URL.
         if (secondaryUrl_.indexOf("\\;") != -1) {
-          StringBuffer buf = new StringBuffer(secondaryUrl_.length());
+          StringBuilder buf = new StringBuilder(secondaryUrl_.length());
           char subsequentChar = ' ';
           for (int i = secondaryUrl_.length() - 1; i > -1; i--) {
             char thisChar = secondaryUrl_.charAt(i);
@@ -127,7 +127,7 @@ public class JDDataSourceURL implements Serializable {
    * regenerate the URL field base on the current properties. 
    */
   void regenerateUrl() {
-    StringBuffer sb = new StringBuffer(); 
+    StringBuilder sb = new StringBuilder(); 
     sb.append("jdbc:as400:");
     sb.append(serverName_);
     if (portSpecified_) {
@@ -154,7 +154,7 @@ public class JDDataSourceURL implements Serializable {
 
   // @B1A
   String getNativeURL() {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     buffer.append(PROTOCOL_);
     buffer.append(':');
     buffer.append(NATIVE_SUB_PROTOCOL_);
@@ -165,15 +165,15 @@ public class JDDataSourceURL implements Serializable {
     String user = (String) properties_.getProperty(JDProperties.USER_); // @native
     String pass = (String) properties_.getProperty(JDProperties.PASSWORD_); // @native
     if (user != null) // @native
-      buffer.append(";user=" + user); // @native
+      buffer.append(";user=").append(user); // @native
     if (pass != null) // @native
-      buffer.append(";password=" + pass); // @native
+      buffer.append(";password=").append(pass); // @native
 
     Enumeration en = properties_.keys(); // @natprops
     while (en.hasMoreElements()) // @natprops
     { // @natprops
       String key = (String) en.nextElement(); // @natprops
-      buffer.append(";" + key + "=" + (String) properties_.getProperty(key)); // @natprops
+      buffer.append(";").append(key).append("=").append((String) properties_.getProperty(key)); // @natprops
     } // @natprops
 
     return buffer.toString();
