@@ -32,7 +32,7 @@ import java.util.List;
   *
   **/
 public abstract class PrintObjectList<T extends PrintObject>
-implements java.io.Serializable
+implements java.io.Serializable, AutoCloseable
 {
     static final long serialVersionUID = 4L;
 
@@ -188,6 +188,7 @@ implements java.io.Serializable
     /**
       *Closes the list so that objects in the list can be garbage collected.
       **/
+    @Override
     public void close()
     {
         synchronized(this)
