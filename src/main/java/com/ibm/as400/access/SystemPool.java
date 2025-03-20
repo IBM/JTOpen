@@ -364,17 +364,17 @@ public class SystemPool
       if (poolIdentifier == 0 || changesTable_.get("poolSizeLong")!=null) //@S4C As QUSCHGPA api only support pool size with bin4, we set long type with command here
       {
         // We need to use CHGSHRPOOL, since QUSCHGPA requires a unique system pool identifier.
-        StringBuffer cmdBuf = new StringBuffer("QSYS/CHGSHRPOOL POOL("+getName()+")");//@S4C
+        StringBuilder cmdBuf = new StringBuilder("QSYS/CHGSHRPOOL POOL("+getName()+")");//@S4C
         Object obj;  // attribute value
         //@S4A START
         obj = changesTable_.get("poolSizeLong");
         if (obj != null) {
-          cmdBuf.append(" SIZE("+obj.toString()+")");
+          cmdBuf.append(" SIZE(").append(obj.toString()).append(")");
         }
         else{//@S4A END
           obj = changesTable_.get("poolSize");
           if (obj != null) {
-            cmdBuf.append(" SIZE("+obj.toString()+")");
+            cmdBuf.append(" SIZE(").append(obj.toString()).append(")");
           }
         }//@S4A 
        
@@ -387,12 +387,12 @@ public class SystemPool
               Trace.log(Trace.WARNING, "Setting activityLevel to SAME.");
             }
           }
-          cmdBuf.append(" ACTLVL("+obj.toString()+")");
+          cmdBuf.append(" ACTLVL(").append(obj.toString()).append(")");
         }
 
         obj = changesTable_.get("pagingOption");
         if (obj != null) {
-          cmdBuf.append(" PAGING("+obj.toString()+")");
+          cmdBuf.append(" PAGING(").append(obj.toString()).append(")");
         }
 
         obj = changesTable_.get("priority");
@@ -403,7 +403,7 @@ public class SystemPool
               Trace.log(Trace.WARNING, "Setting priority to DEFAULT.");
             }
           }
-          cmdBuf.append(" PTY("+obj.toString()+")");
+          cmdBuf.append(" PTY(").append(obj.toString()).append(")");
         }
 
         obj = changesTable_.get("minimumPoolSize");
@@ -414,7 +414,7 @@ public class SystemPool
               Trace.log(Trace.WARNING, "Setting minimumPoolSize to DEFAULT.");
             }
           }
-          cmdBuf.append(" MINPCT("+obj.toString()+")");
+          cmdBuf.append(" MINPCT(").append(obj.toString()).append(")");
         }
 
         obj = changesTable_.get("maximumPoolSize");
@@ -425,7 +425,7 @@ public class SystemPool
               Trace.log(Trace.WARNING, "Setting maximumPoolSize to DEFAULT.");
             }
           }
-          cmdBuf.append(" MAXPCT("+obj.toString()+")");
+          cmdBuf.append(" MAXPCT(").append(obj.toString()).append(")");
         }
 
         obj = changesTable_.get("minimumFaults");
@@ -436,7 +436,7 @@ public class SystemPool
               Trace.log(Trace.WARNING, "Setting minimumFaults to DEFAULT.");
             }
           }
-          cmdBuf.append(" MINFAULT("+obj.toString()+")");
+          cmdBuf.append(" MINFAULT(").append(obj.toString()).append(")");
         }
 
         obj = changesTable_.get("perThreadFaults");
@@ -447,7 +447,7 @@ public class SystemPool
               Trace.log(Trace.WARNING, "Setting perThreadFaults to DEFAULT.");
             }
           }
-          cmdBuf.append(" JOBFAULT("+obj.toString()+")");
+          cmdBuf.append(" JOBFAULT(").append(obj.toString()).append(")");
         }
 
         obj = changesTable_.get("maximumFaults");
@@ -458,7 +458,7 @@ public class SystemPool
               Trace.log(Trace.WARNING, "Setting maximumFaults to DEFAULT.");
             }
           }
-          cmdBuf.append(" MAXFAULT("+obj.toString()+")");
+          cmdBuf.append(" MAXFAULT(").append(obj.toString()).append(")");
         }
 
         if (DEBUG) System.out.println("Running command: " + cmdBuf.toString());
@@ -1508,7 +1508,7 @@ public class SystemPool
       // Note: The typeOfPool field simply indicates _how_ we are identifying the pool in this API: Either by shared-pool name, or by system pool identifier.
       String typeOfPool = (indicatedSharedPool_ ? "*SHARED   " : "*SYSTEM   ");
 
-      StringBuffer sharedPoolName = new StringBuffer(indicatedSharedPool_ ? poolName_ : "");
+      StringBuilder sharedPoolName = new StringBuilder(indicatedSharedPool_ ? poolName_ : "");
       if (sharedPoolName.length() < 10) {
         int numPadBytes = 10 - sharedPoolName.length();
         sharedPoolName.append(TEN_BLANKS.substring(10-numPadBytes));  // pad field to a length of 10 chars
@@ -2566,17 +2566,17 @@ public class SystemPool
       **/
      public String toString()
      {
-       StringBuffer buf = new StringBuffer(super.toString());
+       StringBuilder buf = new StringBuilder(super.toString());
        if (poolName_ != null || subsystemName_ != null || poolIdentifier_ != null)
        {
          if (subsystemName_ != null) {
-           buf.append("["+subsystemLibrary_+"/"+subsystemName_+"/"+poolSequenceNumber_+"]");
+           buf.append("[").append(subsystemLibrary_).append("/").append(subsystemName_).append("/").append(poolSequenceNumber_).append("]");
          }
          else if (poolName_ != null) {
-           buf.append("["+poolName_+"]");
+           buf.append("[").append(poolName_).append("]");
          }
          else if (poolIdentifier_ != null) {
-           buf.append("[poolID="+poolIdentifier_.toString()+"]");
+           buf.append("[poolID=").append(poolIdentifier_.toString()).append("]");
          }
        }
        return buf.toString();

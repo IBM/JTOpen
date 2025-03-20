@@ -35,6 +35,7 @@ class SSLOptions implements Serializable
         keyRingData_ = sslOptions.keyRingData_;
         proxyEncryptionMode_ = sslOptions.proxyEncryptionMode_;
         useSslight_ = sslOptions.useSslight_;
+        sslSocketFactory_ = sslOptions.sslSocketFactory_;
     }
     
 

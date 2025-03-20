@@ -4415,7 +4415,7 @@ class ConvTable2001377 extends ConvTableDoubleMap
 
   static {
     toUnicodeArray_ = toUnicode_.toCharArray();
-    StringBuffer sb = new StringBuffer(); 
+    StringBuilder sb = new StringBuilder(); 
     sb.append(fromUnicode0_); 
     sb.append(fromUnicode1_); 
     sb.append(fromUnicode2_); 

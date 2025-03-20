@@ -720,7 +720,7 @@ public class MessageFile implements Serializable
             else
             {
                 // Copy from beginning of String to location of oldPhrase.
-                StringBuffer b = new StringBuffer(s.substring(0, index));
+                StringBuilder b = new StringBuilder(s.substring(0, index));
                 b.append(newPhrase);
                 // Start at the 2nd position after where oldPhrase occurred.
                 b.append(s.substring(index + 2));

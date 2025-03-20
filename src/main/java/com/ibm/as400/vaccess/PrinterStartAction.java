@@ -480,7 +480,7 @@ Performs the action.
             fireStartWorking();
 
             // Create a string that contains the command, printer name, and all parameters
-            StringBuffer cmdString_ = new StringBuffer("STRPRTWTR DEV(" + printer_.getName().trim() + ") OUTQ(");
+            StringBuilder cmdString_ = new StringBuilder("STRPRTWTR DEV(" + printer_.getName().trim() + ") OUTQ(");
 
             // Get the outq
             selectedItem = (String)outqBox_.getModel().getSelectedItem();
@@ -500,10 +500,10 @@ Performs the action.
                 else if(selectedItem2.equals(""))
                     cmdString_.append("*LIBL/");
                 else
-                    cmdString_.append(selectedItem2 + "/");
+                    cmdString_.append(selectedItem2).append("/");
 
                 // Now add the outq name
-                cmdString_.append(selectedItem + ") MSGQ(");
+                cmdString_.append(selectedItem).append(") MSGQ(");
             }
 
             // Get the message queue
@@ -526,10 +526,10 @@ Performs the action.
                 else if(selectedItem2.equals(""))
                     cmdString_.append("*LIBL/");
                 else
-                    cmdString_.append(selectedItem2 + "/");
+                    cmdString_.append(selectedItem2).append("/");
 
                 // Now add the msgq name
-                cmdString_.append(selectedItem + ") FORMTYPE(");
+                cmdString_.append(selectedItem).append(") FORMTYPE(");
             }
 
             // Get the form type
@@ -542,7 +542,7 @@ Performs the action.
             else if(selectedItem.equals(formTypeAGBTText_))
                 cmdString_.append("*FORMS ");
             else
-                cmdString_.append(selectedItem + " ");
+                cmdString_.append(selectedItem).append(" ");
 
             // Get the form message type
             selectedItem = (String)formNotifyBox_.getModel().getSelectedItem();
@@ -562,7 +562,7 @@ Performs the action.
             if((selectedItem == null) || (selectedItem.equals(fileDefText_)))
                 cmdString_.append("*FILE) SEPDRAWER(");
             else
-                cmdString_.append(selectedItem + ") SEPDRAWER(");
+                cmdString_.append(selectedItem).append(") SEPDRAWER(");
 
             // Get the separator source drawer
             selectedItem = (String)sepDrawerBox_.getModel().getSelectedItem();
@@ -572,14 +572,14 @@ Performs the action.
             else if(selectedItem.equals(fileDefText_))
                 cmdString_.append("*FILE)");
             else
-                cmdString_.append(selectedItem + ")");
+                cmdString_.append(selectedItem).append(")");
 
             // Get the advanced options
             // Writer name
             selectedItem = (String)writerNameBox_.getModel().getSelectedItem();
 
             if((selectedItem != null) && (!selectedItem.equals(prtrDefText_)))
-                cmdString_.append(" WTR(" + selectedItem + ")");
+                cmdString_.append(" WTR(").append(selectedItem).append(")");
 
             // Auto End
             selectedItem = (String)autoEndBox_.getModel().getSelectedItem();
@@ -623,10 +623,10 @@ Performs the action.
                 else
                 {
                     // The user specified a file so get all the parms
-                    cmdString_.append(" FILE(" + selectedItem + ") JOB(");
-                    cmdString_.append(jobNumberField_.getText() + "/");
-                    cmdString_.append(jobUserField_.getText() + "/");
-                    cmdString_.append(jobNameField_.getText() + ") SPLNBR(");
+                    cmdString_.append(" FILE(").append(selectedItem).append(") JOB(");
+                    cmdString_.append(jobNumberField_.getText()).append("/");
+                    cmdString_.append(jobUserField_.getText()).append("/");
+                    cmdString_.append(jobNameField_.getText()).append(") SPLNBR(");
                     selectedItem = (String)fileNumberBox_.getModel().getSelectedItem();
 
                     if(selectedItem.equals(onlyText_))
@@ -634,7 +634,7 @@ Performs the action.
                     else if(selectedItem.equals(fileLastAvailText_))
                         cmdString_.append("*LAST)");
                     else
-                        cmdString_.append(selectedItem + ")"); // @A2C
+                        cmdString_.append(selectedItem).append(")"); // @A2C
                 }
             }
 
@@ -642,7 +642,7 @@ Performs the action.
             selectedItem = (String)startingPageBox_.getModel().getSelectedItem();
 
             if((selectedItem != null) && (!selectedItem.equals(defStartPageText_)))  //@A1C
-                cmdString_.append(" PAGE(" + selectedItem + ")");
+                cmdString_.append(" PAGE(").append(selectedItem).append(")");
 
 
             // send the command to start the writer

@@ -258,7 +258,7 @@ public class Swapper
         // Note: Since we _always_ submit our JDBC requests via the Database Server, we don't really have a "Toolbox
         // native" mode when using a JDBC connection. So the swap should behave the same, whether the Java app is
         // running remotely or natively on IBM i.
-        StringBuffer sql = new StringBuffer(80);
+        StringBuilder sql = new StringBuilder(80);
         sql.append("CALL QSYS");
         sql.append(connection.getMetaData().getCatalogSeparator());
         sql.append("QSYSETPT (X'");
@@ -276,7 +276,8 @@ public class Swapper
 
         sql.append("', X'0000'");
         if (enhancedProfileToken) {
-        	sql.append(", CAST('"+enhancedProfileToken+"' AS CHAR(30)),'"+remoteIpAddress+"',"+remoteIpAddress.length());
+        	sql.append(", CAST('").append(enhancedProfileToken).append("' AS CHAR(30)),'")
+                    .append(remoteIpAddress).append("',").append(remoteIpAddress.length());
         }
         sql.append(")");
 

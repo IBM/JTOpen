@@ -69,7 +69,7 @@ of <i>data</i>.
 **/
 String getHexDigits(byte[] data)
 {
-    StringBuffer result = new StringBuffer();
+    StringBuilder result = new StringBuilder();
     for (int i = 0; i < data.length; i++)
     {
         int leftDigitValue = (data[i] >>> 4) & 0xf;

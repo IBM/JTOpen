@@ -541,7 +541,7 @@ public class AS400Timestamp extends AS400AbstractTime
       String withoutNanos = source.substring(0,19); // up to the '.' (exclusive)
       if (source.length() > 20)
       {
-        StringBuffer fractionalSeconds = new StringBuffer(source.substring(20));
+        StringBuilder fractionalSeconds = new StringBuilder(source.substring(20));
         // Pad with trailing zeros, to 9 digits, so as to specify "number of nanoseconds".
         int numZerosToAdd = 9 - fractionalSeconds.length();
         for (int i=0; i<numZerosToAdd; i++) fractionalSeconds.append('0');
@@ -591,7 +591,7 @@ public class AS400Timestamp extends AS400AbstractTime
       throw e;
     }
 
-    StringBuffer timestampString = new StringBuffer(getTimestampFormatterXSD(timeZone).format(timestampObj));
+    StringBuilder timestampString = new StringBuilder(getTimestampFormatterXSD(timeZone).format(timestampObj));
 
     // Append nanoseconds.
     timestampString.append('.');
@@ -671,7 +671,7 @@ public class AS400Timestamp extends AS400AbstractTime
     if (value < 0 || value > 999999) {
       throw new InternalErrorException(InternalErrorException.UNKNOWN, "to6Digits("+value+")",null);
     }
-    StringBuffer buf = new StringBuffer(Integer.toString(value));
+    StringBuilder buf = new StringBuilder(Integer.toString(value));
     int zerosToPrepend = 6 - buf.length();
     for (int i=0; i<zerosToPrepend; i++) {
       buf.insert(0, '0');
@@ -687,7 +687,7 @@ public class AS400Timestamp extends AS400AbstractTime
     if (value < 0 || value > 999999999) {
       throw new InternalErrorException(InternalErrorException.UNKNOWN, "to9Digits("+value+")",null);
     }
-    StringBuffer buf = new StringBuffer(Integer.toString(value));
+    StringBuilder buf = new StringBuilder(Integer.toString(value));
     int zerosToPrepend = 9 - buf.length();
     for (int i=0; i<zerosToPrepend; i++) {
       buf.insert(0, '0');

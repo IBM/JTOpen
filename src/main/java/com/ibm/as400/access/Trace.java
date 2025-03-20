@@ -666,7 +666,7 @@ public class Trace implements Runnable
   {
     if (component != null)
       if (component.toString() != null)
-        buf.append("[" + component.toString() + "]  ");
+        buf.append("[").append(component.toString()).append("]  ");
 
     if (traceThread_)
     {
@@ -1490,7 +1490,7 @@ private static final void log(int category, Object source, String message, byte[
   public static final String toHexString(byte[] bytes)
   {
     if (bytes == null) throw new NullPointerException("bytes");
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     for (int i=0; i<bytes.length; i++) {
       buf.append(HEX_BYTE_ARRAY[0x00FF & bytes[i]]);
     }
@@ -1884,7 +1884,7 @@ private static final void log(int category, Object source, String message, byte[
    * @B1A
    */
   private static String getJvmInfo() { 
-	 StringBuffer sb = new StringBuffer();
+	 StringBuilder sb = new StringBuilder();
 	 sb.append("java.home="); 
 	 sb.append(System.getProperty("java.home")); 
    sb.append(" java.vm.vendor="); 

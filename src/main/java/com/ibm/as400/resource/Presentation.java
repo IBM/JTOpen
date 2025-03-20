@@ -147,7 +147,7 @@ using 2 characters for each byte.
     //
     static String bytesToHex(byte[] bytes)
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append("0x");
         for(int i = 0; i < bytes.length; ++i) {
             int b = 0x000000ff & bytes[i];

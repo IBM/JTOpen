@@ -2653,7 +2653,7 @@ public class User implements Serializable
         int arrayLength = array.length;
         if (arrayLength == 0) return NONE;
         if (arrayLength == 1) return array[0];
-        StringBuffer string = new StringBuffer(array[0]);
+        StringBuilder string = new StringBuilder(array[0]);
         for (int i = 1; i < arrayLength; ++i)
         {
             string.append(" ");

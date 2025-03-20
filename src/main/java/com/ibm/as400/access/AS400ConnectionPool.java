@@ -24,7 +24,13 @@ import java.util.Enumeration;
 import java.io.Serializable;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.Objects;
 
+import javax.naming.NamingException;
+import javax.naming.RefAddr;
+import javax.naming.Reference;
+import javax.naming.Referenceable;
+import javax.naming.StringRefAddr;
 
 /**
  *  Manages a pool of AS400 objects.  A connection pool is used to 
@@ -84,9 +90,20 @@ import java.io.ObjectInputStream;
  *    <li>PropertyChangeEvent</li>
  *  </ul>
  **/
-public class AS400ConnectionPool extends ConnectionPool implements Serializable
+public class AS400ConnectionPool extends ConnectionPool implements Serializable, Referenceable
 {
     static final long serialVersionUID = 4L;
+    
+    private static final String CCSID_PROPERTY = "ccsid";
+    private static final String CLEANUP_INTERVAL_PROPERTY = "cleanupInterval";
+    private static final String MAX_CONNECTIONS_PROPERTY = "maxConnections";
+    private static final String MAX_INACTIVITY_PROPERTY = "maxInactivity";
+    private static final String MAX_LIFETIME_PROPERTY = "maxLifetime";
+    private static final String MAX_USE_COUNT_PROPERTY = "maxUseCount";
+    private static final String MAX_USE_TIME_PROPERTY = "maxUseTime";
+    private static final String PRETEST_CONNECTIONS_PROPERTY = "pretestConnections";
+    private static final String RUN_MAINTENANCE_PROPERTY = "runMaintenance";
+    private static final String THREAD_USED_PROPERTY = "threadUsed";
 
     /**
        Indicates that the CCSID used for new connections is the same as the system default CCSID.
@@ -110,12 +127,104 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     }
 
     /**
+     * Constructs an AS400ConnectionPool from the specified Reference object.
+     *
+     * @param reference to retrieve the ConnectionPool properties from
+     */
+    AS400ConnectionPool(Reference reference) {
+        super();
+        initializeTransient();
+
+        Objects.requireNonNull(reference, "reference");
+        Enumeration<RefAddr> list = reference.getAll();
+        while (list.hasMoreElements()) {
+            RefAddr refAddr = list.nextElement();
+            String property = refAddr.getType();
+            String value = (String) refAddr.getContent();
+            switch (property) {
+                case CCSID_PROPERTY:
+                    setCCSID(Integer.parseInt(value));
+                    break;
+                case CLEANUP_INTERVAL_PROPERTY:
+                    setCleanupInterval(Long.parseLong(value));
+                    break;
+                case MAX_CONNECTIONS_PROPERTY:
+                    setMaxConnections(Integer.parseInt(value));
+                    break;
+                case MAX_INACTIVITY_PROPERTY:
+                    setMaxInactivity(Long.parseLong(value));
+                    break;
+                case MAX_LIFETIME_PROPERTY:
+                    setMaxLifetime(Long.parseLong(value));
+                    break;
+                case MAX_USE_COUNT_PROPERTY:
+                    setMaxUseCount(Integer.parseInt(value));
+                    break;
+                case MAX_USE_TIME_PROPERTY:
+                    setMaxUseTime(Long.parseLong(value));
+                    break;
+                case PRETEST_CONNECTIONS_PROPERTY:
+                    setPretestConnections(Boolean.parseBoolean(value));
+                    break;
+                case RUN_MAINTENANCE_PROPERTY:
+                    setRunMaintenance(Boolean.parseBoolean(value));
+                    break;
+                case THREAD_USED_PROPERTY:
+                    setThreadUsed(Boolean.parseBoolean(value));
+                    break;
+                default:
+                    if (SocketProperties.isSocketProperty(property)) {
+                        socketProperties_.restore(property, value);
+                    }
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Returns the Reference object for the pool object. This is used by
+     * JNDI when bound in a JNDI naming service. Contains the information
+     * necessary to reconstruct the pool object when it is later
+     * retrieved from JNDI via an object factory.
+     *
+     * @return A Reference object of the pool object.
+     * @exception NamingException If a naming error occurs in resolving the
+     * object.
+     *
+     */
+    @Override
+    public Reference getReference() throws NamingException {
+        Trace.log(Trace.INFORMATION, "AS400ConnectionPool.getReference"); 
+
+        Reference ref = new Reference(this.getClass().getName(),
+                                     AS400ObjectFactory.class.getName(),
+                                      null);
+
+        ref.add(new StringRefAddr(CCSID_PROPERTY, Integer.toString(getCCSID())));
+        ref.add(new StringRefAddr(CLEANUP_INTERVAL_PROPERTY, Long.toString(getCleanupInterval())));
+        ref.add(new StringRefAddr(MAX_CONNECTIONS_PROPERTY, Integer.toString(getMaxConnections())));
+        ref.add(new StringRefAddr(MAX_INACTIVITY_PROPERTY, Long.toString(getMaxInactivity())));
+        ref.add(new StringRefAddr(MAX_LIFETIME_PROPERTY, Long.toString(getMaxLifetime())));
+        ref.add(new StringRefAddr(MAX_USE_COUNT_PROPERTY, Integer.toString(getMaxUseCount())));
+        ref.add(new StringRefAddr(MAX_USE_TIME_PROPERTY, Long.toString(getMaxUseTime())));
+        ref.add(new StringRefAddr(PRETEST_CONNECTIONS_PROPERTY, Boolean.toString(isPretestConnections())));
+        ref.add(new StringRefAddr(RUN_MAINTENANCE_PROPERTY, Boolean.toString(isRunMaintenance())));
+        ref.add(new StringRefAddr(THREAD_USED_PROPERTY, Boolean.toString(isThreadUsed())));
+
+        // Add the Socket options
+        socketProperties_.save(ref);
+
+        return ref;
+    }
+
+    /**
      * Remove any connections that have exceeded maximum inactivity time, replace any 
      * that have aged past maximum usage or maximum lifetime, and remove any that have 
      * been in use too long.
      *
      * @see ConnectionPoolProperties
      **/
+    @Override
     void cleanupConnections()
     {
         synchronized (as400ConnectionPool_)
@@ -148,6 +257,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable
     /**
      * Close and cleanup the connection pool.
      **/
+    @Override
     public void close()
     {
         log(ResourceBundleLoader.getText("AS400CP_SHUTDOWN"));

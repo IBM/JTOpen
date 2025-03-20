@@ -2680,7 +2680,7 @@ class ConvTable1376 extends ConvTableDoubleMap
 
   static {
 	  
-	  StringBuffer sb = new StringBuffer(); 
+	  StringBuilder sb = new StringBuilder(); 
     sb.append(toUnicode1_); 
     sb.append(toUnicode2_); 
     toUnicodeArray_ = (sb.toString()).toCharArray();

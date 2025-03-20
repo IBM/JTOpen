@@ -15,6 +15,9 @@ package com.ibm.as400.access;
 
 import java.io.Serializable;
 
+import javax.naming.Reference;
+import javax.naming.StringRefAddr;
+
 /**
  The SocketProperties class represents a set of socket options the IBM Toolbox for Java will set on its client side sockets.  Setting the values on this object will not change any existing connection to the system.  The values retrieved from this object reflect only the values set into this object, not the properties of any actual connection to the system.
 <p>Socket properties are described in the javadoc for the JDK's <tt>java.net.Socket</tt> class. See the JDK documentation for further details.
@@ -22,6 +25,25 @@ import java.io.Serializable;
 public class SocketProperties implements Serializable
 {
   static final long serialVersionUID = 6818790247993750518L;
+  
+    // socket options to store away in JNDI
+    static final String SOCKET_KEEP_ALIVE = "soKeepAlive"; // @F1A
+    static final String SOCKET_RECEIVE_BUFFER_SIZE = "soReceiveBufferSize"; // @F1A
+    static final String SOCKET_SEND_BUFFER_SIZE = "soSendBufferSize"; // @F1A
+    static final String SOCKET_LINGER = "soLinger"; // @F1A
+    static final String SOCKET_TIMEOUT = "soTimeout"; // @F1A
+    static final String SOCKET_TCP_NO_DELAY = "soTCPNoDelay"; // @F1A
+    static final String SOCKET_LOGIN_TIMEOUT = "loginTimeout"; // @st3
+
+    static final boolean isSocketProperty(String property) {
+        return property.equals(SOCKET_KEEP_ALIVE)
+                || property.equals(SOCKET_RECEIVE_BUFFER_SIZE)
+                || property.equals(SOCKET_SEND_BUFFER_SIZE)
+                || property.equals(SOCKET_LINGER)
+                || property.equals(SOCKET_TIMEOUT)
+                || property.equals(SOCKET_TCP_NO_DELAY)
+                || property.equals(SOCKET_LOGIN_TIMEOUT);
+    }
 
     boolean keepAliveSet_ = false;
     boolean keepAlive_ = false;
@@ -62,9 +84,10 @@ public class SocketProperties implements Serializable
      SocketProperties objects are considered equal if all of their property values match.
      @return  <tt>true</tt> if this object is equals the obj argument; false otherwise.
      **/
+    @Override
     public boolean equals(Object other)
     {
-    	if (other == null) return false; 
+    	if (other == null || !(other instanceof SocketProperties)) return false; 
        try {
          SocketProperties props = (SocketProperties)other;
          if (keepAliveSet_         == props.keepAliveSet_ &&
@@ -77,6 +100,8 @@ public class SocketProperties implements Serializable
              soLinger_             == props.soLinger_ &&
              soTimeoutSet_         == props.soTimeoutSet_ &&
              soTimeout_            == props.soTimeout_ &&
+             loginTimeoutSet_      == props.loginTimeoutSet_ &&
+             loginTimeout_         == props.loginTimeout_ &&
              tcpNoDelaySet_        == props.tcpNoDelaySet_ &&
              tcpNoDelay_           == props.tcpNoDelay_)
            return true;
@@ -89,12 +114,65 @@ public class SocketProperties implements Serializable
    Returns a hash code value for the object.
    @return A hash code value for this object.
    **/
+  @Override
   public int hashCode()
   {
     // We must conform to the invariant that equal objects must have equal hashcodes.
     // Since we don't anticipate that instances of this class will ever get added into a HashMap/HashTable, we will simply return an arbitrary constant.
     return 99;
   }
+  
+    void save(Reference ref) {
+        if (keepAliveSet_) {
+            ref.add(new StringRefAddr(SOCKET_KEEP_ALIVE, Boolean.toString(keepAlive_)));
+        }
+        if (receiveBufferSizeSet_) {
+            ref.add(new StringRefAddr(SOCKET_RECEIVE_BUFFER_SIZE, Integer.toString(receiveBufferSize_)));
+        }
+        if (sendBufferSizeSet_) {
+            ref.add(new StringRefAddr(SOCKET_SEND_BUFFER_SIZE, Integer.toString(sendBufferSize_)));
+        }
+        if (soLingerSet_) {
+            ref.add(new StringRefAddr(SOCKET_LINGER, Integer.toString(soLinger_)));
+        }
+        if (soTimeoutSet_) {
+            ref.add(new StringRefAddr(SOCKET_TIMEOUT, Integer.toString(soTimeout_)));
+        }
+        if (loginTimeoutSet_) {
+            ref.add(new StringRefAddr(SOCKET_LOGIN_TIMEOUT, Integer.toString(loginTimeout_))); //@st3
+        }
+        if (tcpNoDelaySet_) {
+            ref.add(new StringRefAddr(SOCKET_TCP_NO_DELAY, Boolean.toString(tcpNoDelay_)));
+        }
+    }
+
+    void restore(String property, String value) {
+        switch (property) {
+            case SOCKET_KEEP_ALIVE:
+                setKeepAlive(Boolean.parseBoolean(value));
+                break;
+            case SOCKET_RECEIVE_BUFFER_SIZE:
+                setReceiveBufferSize(Integer.parseInt(value));
+                break;
+            case SOCKET_SEND_BUFFER_SIZE:
+                setSendBufferSize(Integer.parseInt(value));
+                break;
+            case SOCKET_LINGER:
+                setSoLinger(Integer.parseInt(value));
+                break;
+            case SOCKET_TIMEOUT:
+                setSoTimeout(Integer.parseInt(value));
+                break;
+            case SOCKET_LOGIN_TIMEOUT:
+                setLoginTimeout(Integer.parseInt(value));
+                break;
+            case SOCKET_TCP_NO_DELAY:
+                setTcpNoDelay(Boolean.parseBoolean(value));
+                break;
+            default:
+                break;
+        }
+    }
 
     /**
      Indicates the value to which the SO_RCVBUF socket option is set.
@@ -166,7 +244,7 @@ public class SocketProperties implements Serializable
     {
         boolean result =
             keepAliveSet_ || receiveBufferSizeSet_ || sendBufferSizeSet_ ||
-            soLingerSet_ || soTimeoutSet_ || tcpNoDelaySet_;
+            soLingerSet_ || soTimeoutSet_ || tcpNoDelaySet_ || loginTimeoutSet_;
           
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if any option is set:", result);
         return result;

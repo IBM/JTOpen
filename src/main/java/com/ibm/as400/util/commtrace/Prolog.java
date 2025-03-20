@@ -310,11 +310,11 @@ public class Prolog {
      * @return	    Returns a string representation of this Prolog.
      */
     public String toString() {
-	    StringBuffer formattedData = new StringBuffer(256000); // The formatted data
+	    StringBuilder formattedData = new StringBuilder(256000); // The formatted data
 		String ctsfpros = ctsfpro.toString(); // The line protocol
 		String ctsfprofs;
 		if(ctsfpros.equals("E") || ctsfpros.equals("C")) { // Tokenring or Ethernet? 
-		    formattedData.append(PTITLE + "\n");
+            formattedData.append(PTITLE).append("\n");
 	
 		    Calendar cal = new GregorianCalendar(); // Get the current time
 		    cal.setTime((new Date(System.currentTimeMillis())));
@@ -342,12 +342,12 @@ public class Prolog {
 		    formattedData.append(PSTRTIME);
 
 		    Time start = new Time(Long.parseLong((ctsfsttm.toString()))); // Convert the timestamp into a readable date
-		    formattedData.append("    " + start.toString() + "\n");
+		    formattedData.append("    ").append(start.toString()).append("\n");
 
 		    formattedData.append(PENDTIME);
 
 		    Time end = new Time(Long.parseLong((ctsfsptm.toString())));
-		    formattedData.append("    " + end.toString() + "\n");
+		    formattedData.append("    ").append(end.toString()).append("\n");
 	  
 		    String ctsfstrbs = ctsfstrb.toString(),
 				   ctsfendbs = ctsfendb.toString();

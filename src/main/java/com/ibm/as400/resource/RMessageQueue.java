@@ -1441,13 +1441,13 @@ if this object has already established a connection to the system.
         // Set the presentation information.
         // The name is in the format: MessageId(MessageKey)
         // The full name is in the format: MessageQueueName-MessageId(MessageKey)
-        StringBuffer name = new StringBuffer();
+        StringBuilder name = new StringBuilder();
         name.append((String)rQueuedMessage.getAttributeValue(RQueuedMessage.MESSAGE_ID));
         name.append('(');
         name.append(Presentation.bytesToHex((byte[])rQueuedMessage.getAttributeValue(RQueuedMessage.MESSAGE_KEY)));
         name.append(')');
 
-        StringBuffer fullName = new StringBuffer();
+        StringBuilder fullName = new StringBuilder();
         fullName.append(path_);
         fullName.append('-');
         fullName.append(name.toString());

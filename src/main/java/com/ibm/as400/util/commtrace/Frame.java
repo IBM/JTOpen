@@ -144,7 +144,7 @@ public class Frame {
      * @return Returns a string representation of this Frame.
      */
 	public String toString(FormatProperties filter) {
-		StringBuffer ret= new StringBuffer(); // The return string
+		StringBuilder ret= new StringBuilder(); // The return string
 		String time;
 		if (tcp) { // If its not TCP just return
 			// Create our Time object with the timestamp
@@ -226,11 +226,9 @@ public class Frame {
 			// end of the Frame
 			int notTraced= Integer.parseInt(IFSPDULN.toString()) - data.getByteSize() + 22;
 			if (notTraced > 0) {
-				ret.append(
-					"\t\t\t * * * * * * * * * * * * * *     "
-						+ notTraced
-						+ "  BYTES OF DATA NOT TRACED  "
-						+ "* * * * * * * * * * * * * *\n");
+				ret.append("\t\t\t * * * * * * * * * * * * * *     ")
+                        .append(notTraced)
+                        .append("  BYTES OF DATA NOT TRACED  * * * * * * * * * * * * * *\n");
 			}
 			return ret.toString();
 		} else {

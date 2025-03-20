@@ -396,7 +396,7 @@ implements java.io.Serializable
 
     if (lastModifiedProfile != null && lastModifiedProfile.length() < 10)
     {
-      StringBuffer buf = new StringBuffer(lastModifiedProfile);
+      StringBuilder buf = new StringBuilder(lastModifiedProfile);
       for (int i = lastModifiedProfile.length(); i < 10; ++i) {
         buf.append(" ");
       }
@@ -438,7 +438,7 @@ implements java.io.Serializable
     try
     {
       // input -- Qualified userspace name
-      StringBuffer tempName = new StringBuffer(20);
+      StringBuilder tempName = new StringBuilder(20);
       tempName.append(usrSpc.getName());
       for (int i = usrSpc.getName().length(); i < 10; ++i)  // pad to 10 characters
         tempName.append(' ');

@@ -277,7 +277,7 @@ extends Resource
    **/
   static Object computeResourceKey(AS400 system, int id)
   {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
     buffer.append(NetServerConnection.class);
     buffer.append(':');
     buffer.append(system.getSystemName());

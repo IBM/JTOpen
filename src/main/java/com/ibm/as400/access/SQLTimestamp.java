@@ -353,7 +353,7 @@ extends SQLDataBase
         int minute, int second, long picos, int length,
         SQLConversionSettings settings) {
 
-      StringBuffer buffer = new StringBuffer();
+      StringBuilder buffer = new StringBuilder();
 
       // @KE3
       // Support the settings.timestampFormat
@@ -439,7 +439,7 @@ extends SQLDataBase
     public void convertToRawBytes(byte[] rawBytes, int offset, ConvTable ccsidConverter) //@P0C
     throws SQLException
     {
-        StringBuffer buffer = new StringBuffer(getString().replace(':', '.'));
+        StringBuilder buffer = new StringBuilder(getString().replace(':', '.'));
         buffer.setCharAt(10, '-');
         if (buffer.length() > length_) { 
           buffer.setLength(length_);

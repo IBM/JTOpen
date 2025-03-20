@@ -168,7 +168,7 @@ Returns the message text for the last operation on the IBM i system.
       DBReplySQLCA sqlca = reply.getSQLCA();                                                  // @E2A
 
       // Build up the error description.
-      StringBuffer errorDescription = new StringBuffer ();
+      StringBuilder errorDescription = new StringBuilder ();
       errorDescription.append ("[");
       errorDescription.append (reply.getMessageId());
       errorDescription.append ("] ");
@@ -518,7 +518,7 @@ trace for debugging purposes.
   throws SQLException
   {
     String reason = getReason(sqlState, null);
-    StringBuffer buffer = new StringBuffer(reason);
+    StringBuilder buffer = new StringBuilder(reason);
     if (message != null)
     {
       buffer.append(" (");
@@ -588,7 +588,7 @@ trace for debugging purposes.
     // @J3d }                                                               // @D0A
 
     String reason = getReason(sqlState, replacementVariables);
-    StringBuffer buffer = new StringBuffer(reason); // @E3A
+    StringBuilder buffer = new StringBuilder(reason); // @E3A
     if (e != null) {
       buffer.append(" ("); // @E3A
       String message = e.getMessage(); // @E3A
@@ -646,7 +646,7 @@ trace for debugging purposes.
   {
 
     String reason = getReason(sqlState, null);
-    StringBuffer buffer = new StringBuffer(reason);
+    StringBuilder buffer = new StringBuilder(reason);
     buffer.append(" (");
     String message = e.getMessage();
     if (message != null)
@@ -798,7 +798,7 @@ retrieved from the system.
   throws SQLClientInfoException
   {
       String reason = getReason(sqlState, null);
-      StringBuffer buffer = new StringBuffer(reason);
+      StringBuilder buffer = new StringBuilder(reason);
       buffer.append(" (");
       String message = e.getMessage();
       if (message != null)

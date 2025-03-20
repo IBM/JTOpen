@@ -664,7 +664,7 @@ public class ConvTableReader extends InputStreamReader
         if (length == 0) return "";
         synchronized (lock)
         {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             if (fillCache())
             {
                 while (fillCache() && buf.length() < length)

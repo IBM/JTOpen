@@ -1968,7 +1968,7 @@ implements DatabaseMetaData
             return null;
         }
 
-        StringBuffer buffer = new StringBuffer ();
+        StringBuilder buffer = new StringBuilder ();
         buffer.append (JDUtilities.padZeros (v, 2));
         buffer.append (".");
         buffer.append (JDUtilities.padZeros (r, 2));
@@ -2006,7 +2006,7 @@ implements DatabaseMetaData
         r = (vrm & 0x0000ff00) >>>  8;                   // @D1C
         m = (vrm & 0x000000ff);                          // @D1C
 
-        StringBuffer buffer = new StringBuffer ();
+        StringBuilder buffer = new StringBuilder ();
         buffer.append("QSQ"); 
         if (v < 10)  buffer.append("0");
         buffer.append(v);
@@ -3632,11 +3632,11 @@ implements DatabaseMetaData
             else
 
             {  // Parameters are valid, build request and send
-                StringBuffer selectStmt = new StringBuffer();
+                StringBuilder selectStmt = new StringBuilder();
                 selectStmt.append ("SELECT SPECIFIC_SCHEMA, SPECIFIC_NAME, PARAMETER_NAME, PARAMETER_MODE, ");
                 selectStmt.append ("DATA_TYPE, NUMERIC_PRECISION, CHARACTER_MAXIMUM_LENGTH, NUMERIC_SCALE, ");
                 selectStmt.append ("NUMERIC_PRECISION_RADIX, IS_NULLABLE, LONG_COMMENT ");
-                selectStmt.append ("FROM QSYS2" + getCatalogSeparator() + "SYSPARMS "); // use . or /
+                selectStmt.append("FROM QSYS2").append(getCatalogSeparator()).append ("SYSPARMS "); // use . or /
 
 
 
@@ -3645,7 +3645,7 @@ implements DatabaseMetaData
                 {
                     JDSearchPattern schema = new JDSearchPattern (normalize(schemaPattern)); //@pdc normalize
                     String schemaWhereClause = schema.getSQLWhereClause("SPECIFIC_SCHEMA");
-                    selectStmt.append("WHERE " + schemaWhereClause);
+                    selectStmt.append("WHERE ").append(schemaWhereClause);
                 }
 
 
@@ -3880,14 +3880,14 @@ implements DatabaseMetaData
 
             else
             {  // Parameters are valid, build request and send
-                StringBuffer selectStmt = new StringBuffer();
+                StringBuilder selectStmt = new StringBuilder();
 /* ifdef JDBC40 */
                 selectStmt.append ("SELECT ROUTINE_SCHEMA, ROUTINE_NAME, REMARKS, RESULTS, SPECIFIC_NAME ");//@PROC //@JDBC40
 /* endif */ 
 /* ifndef JDBC40 
                 selectStmt.append ("SELECT ROUTINE_SCHEMA, ROUTINE_NAME, REMARKS, RESULTS ");//@PROC
  endif */ 
-                selectStmt.append ("FROM QSYS2" + getCatalogSeparator() + "SYSPROCS "); // use . or /
+                selectStmt.append("FROM QSYS2").append(getCatalogSeparator()).append ("SYSPROCS "); // use . or /
 
 
 
@@ -3895,7 +3895,7 @@ implements DatabaseMetaData
                 {
                     JDSearchPattern schema = new JDSearchPattern (schemaPattern);
                     String schemaWhereClause = schema.getSQLWhereClause("ROUTINE_SCHEMA");//@PROC
-                    selectStmt.append("WHERE " + schemaWhereClause);
+                    selectStmt.append("WHERE ").append(schemaWhereClause);
                 }
 
 
@@ -5529,7 +5529,7 @@ implements DatabaseMetaData
             cs.setString(1, normalize(catalog));
             cs.setString(2, normalize(schemaPattern));
             cs.setString(3, normalize(typeNamePattern));
-            StringBuffer typesStringBuffer = new StringBuffer();
+            StringBuilder typesStringBuffer = new StringBuilder();
             int stringsInList = 0;
 
             if (types != null) {
@@ -5629,7 +5629,7 @@ implements DatabaseMetaData
         {
 
             // Build up the query,
-            StringBuffer select = new StringBuffer ();
+            StringBuilder select = new StringBuilder ();
             select.append ("SELECT USER_DEFINED_TYPE_SCHEMA, "      // @B2C
                            + "USER_DEFINED_TYPE_NAME, "             // @B2C
                            + "SOURCE_TYPE, REMARKS");
@@ -5654,7 +5654,7 @@ implements DatabaseMetaData
             select.append (getCatalogSeparator ());
             select.append ("SYSTYPES " );
 
-            StringBuffer where = new StringBuffer ();
+            StringBuilder where = new StringBuilder ();
             if (schemaPattern != null)
             {
                 JDSearchPattern searchPattern = new JDSearchPattern (schemaPattern);

@@ -249,7 +249,7 @@ class VSystemValue implements VObject
                 systemValue_.getType() == SystemValueList.TYPE_ARRAY)
             {
               String[] valStrs = (String[]) value;
-              StringBuffer strBuf = new StringBuffer();
+              StringBuilder strBuf = new StringBuilder();
               for (int i=0; i<valStrs.length; i++)
               {
                 String temp = valStrs[i].trim();

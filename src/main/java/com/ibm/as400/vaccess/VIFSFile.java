@@ -567,7 +567,7 @@ Loads information about the object from the system.
             errorEventSupport_.fireError (e);
         }
 
-        StringBuffer buffer = new StringBuffer ();
+        StringBuilder buffer = new StringBuilder ();
         if (readable_)
             buffer.append (readAbbreviationText_);
         if (writable_)

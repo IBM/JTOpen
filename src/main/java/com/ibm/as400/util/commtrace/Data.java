@@ -38,7 +38,7 @@ public class Data {
 			return "";
 	    }
 
-	    StringBuffer fmtdata = new StringBuffer(data.getByteSize()*3); // The return data 
+	    StringBuilder fmtdata = new StringBuilder(data.getByteSize()*3); // The return data 
 	    StringBuffer hexdata = new StringBuffer(32); // The output hexadecimal data
 	    StringBuffer chardata= new StringBuffer(32); // The output character representation
 	    boolean first = true; // Set to true until the first line of data is printed.

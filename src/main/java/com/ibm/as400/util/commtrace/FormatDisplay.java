@@ -324,7 +324,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
     	String record = ResourceBundleLoader_ct.getText("Record");
 		String mac = ResourceBundleLoader_ct.getText("MACAddress");
 		
-		StringBuffer Banner1 = new StringBuffer();
+		StringBuilder Banner1 = new StringBuilder();
 		Banner1.append(record);
 		Banner1.append("       ");
 		Banner1.append(ResourceBundleLoader_ct.getText("Data"));
@@ -336,7 +336,7 @@ class FormatDisplay extends WindowAdapter implements Runnable {
 		Banner1.append(ResourceBundleLoader_ct.getText("Source"));
 		Banner1.append("           ");
 		Banner1.append(ResourceBundleLoader_ct.getText("Frame"));
-		StringBuffer Banner2 = new StringBuffer();
+		StringBuilder Banner2 = new StringBuilder();
 		Banner2.append(ResourceBundleLoader_ct.getText("Number"));
 		Banner2.append("  ");
 		Banner2.append(ResourceBundleLoader_ct.getText("S/R"));

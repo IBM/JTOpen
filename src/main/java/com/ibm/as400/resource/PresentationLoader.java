@@ -318,7 +318,7 @@ Creates and returns a new key base name in the form:
 **/
     private static String newKeyBaseName(String keyBaseName, String keySuffix)
     {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append(keyBaseName);
         buffer.append('_');
         buffer.append(keySuffix);

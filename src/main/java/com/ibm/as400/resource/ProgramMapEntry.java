@@ -275,7 +275,7 @@ Sets the logical value directly in the PCML document.
         // here AND in the constructor, then something is not working as intended.  
         if ((programName != null) && (programName_ != null))
             throw new ExtendedIllegalArgumentException("programName", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         buffer.append((programName == null) ? programName_ : programName);
         buffer.append('.');
         buffer.append(dataName_);

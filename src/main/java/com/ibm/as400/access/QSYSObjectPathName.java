@@ -329,7 +329,7 @@ public class QSYSObjectPathName implements Serializable
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "QSYSObjectPathName buildPathName(asp): aspName: "  + aspName + " libraryName: " + libraryName + " objectName: " + objectName + " memberName: " + memberName + " objectType: " + objectType);
       // First build the path (without the ASP name), then prepend the asp name
       String result1 = buildPathName(libraryName, objectName, memberName, objectType);
-      StringBuffer result2 = new StringBuffer(75);
+      StringBuilder result2 = new StringBuilder(75);
 
       if (!result1.equals(""))
       {
@@ -355,7 +355,7 @@ public class QSYSObjectPathName implements Serializable
       if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "QSYSObjectPathName buildPathName(): libraryName: " + libraryName + " objectName: " + objectName + " memberName: " + memberName + " objectType: " + objectType);
         if (!libraryName.equals("") && !objectType.equals("") && (!memberName.equals("") || !objectType.equals("MBR"))) //@A1C
         {
-          StringBuffer result = new StringBuffer(64);
+          StringBuilder result = new StringBuilder(64);
           result.append("/QSYS.LIB");
           if (!libraryName.equals("QSYS"))
           {
@@ -1175,7 +1175,7 @@ public class QSYSObjectPathName implements Serializable
         return name.toUpperCase();
       }
       else {  // selectively uppercase unquoted characters
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         int length = name.length();
         boolean inQuotes = false;
         for (int i=0; i<length; i++) {
@@ -1203,7 +1203,7 @@ public class QSYSObjectPathName implements Serializable
     public String toQualifiedObjectName()
     {
       // Start with 20 blanks.
-      StringBuffer buffer = new StringBuffer("                    ");
+      StringBuilder buffer = new StringBuilder("                    ");
 
       // Set the object name into the first 10 characters.
       if (objectName_.length() > 10) {
