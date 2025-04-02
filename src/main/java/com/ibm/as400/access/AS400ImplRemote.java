@@ -267,8 +267,9 @@ public class AS400ImplRemote implements AS400Impl
           md.update(userIdBytes);
           md.update(bytes);
           byte[] token = md.digest();
-
-          byte[] empty = new byte[bytes.length];
+          md.reset();
+          
+          byte[] empty = new byte[userIdBytes.length+bytes.length];
           Arrays.fill(empty, (byte) 0);
           md.update(empty);
 
@@ -296,7 +297,9 @@ public class AS400ImplRemote implements AS400Impl
           md.update(userIdBytes);
           md.update(sequence);
           byte[] substitutePassword = md.digest();
+          md.reset(); 
 
+          
           if (PASSWORD_TRACE)
               Trace.log(Trace.DIAGNOSTIC, "SHA-1 substitute:", substitutePassword);
 
@@ -1910,6 +1913,7 @@ public class AS400ImplRemote implements AS400Impl
               CredentialVault.clearArray(password);
               if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "  password in ebcdic: ", passwordEbcdic);
               encryptedPassword = encryptPassword(userIdEbcdic, passwordEbcdic, clientSeed, serverSeed);
+              CredentialVault.clearArray(passwordEbcdic);
           }
           else if (passwordLevel_< 4)
           {
@@ -1930,9 +1934,9 @@ public class AS400ImplRemote implements AS400Impl
               
               // trimUnicodeSpace may return the same pointer if no spaces
               char[] trimmedPassword = trimUnicodeSpace(password);
+              CredentialVault.clearArray(password);
               byte[] passwordBytes = BinaryConverter.charArrayToByteArray(trimmedPassword);
               CredentialVault.clearArray(trimmedPassword);
-              CredentialVault.clearArray(password);
         
               byte[] sequence = { 0, 0, 0, 0, 0, 0, 0, 1 };
 
@@ -1988,6 +1992,7 @@ public class AS400ImplRemote implements AS400Impl
                *    Initialization vector (salt) = value generated in Step #4.
                */
               byte[] token = generatePwdTokenForPasswordLevel4(userId_, password);
+              CredentialVault.clearArray(password);
               encryptedPassword = generateSha512Substitute(userId_, token, serverSeed, clientSeed, sequence);
           }
       }
@@ -5180,18 +5185,23 @@ public class AS400ImplRemote implements AS400Impl
   private byte[] generatePwdTokenForPasswordLevel4(final String userProfile, final char[] passwd)
   {
       final byte[] salt = generateSaltForPasswordLevel4(userProfile, passwd);
-      final KeySpec spec = new PBEKeySpec(passwd, salt, 10022, 64 * 8); // takes a bit length so *8
+      final PBEKeySpec spec = new PBEKeySpec(passwd, salt, 10022, 64 * 8); // takes a bit length so *8
       
       SecretKeyFactory factory;
       try {
           factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
-          return factory.generateSecret(spec).getEncoded();
+          SecretKey secret = factory.generateSecret(spec);
+          byte[] pwdToken = secret.getEncoded();
+          return pwdToken; 
       } catch (NoSuchAlgorithmException e) {
           Trace.log(Trace.ERROR, "Error getting instance of PBKDF2WithHmacSHA512 algorithm:", e);
           throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
       } catch (InvalidKeySpecException e) {
           Trace.log(Trace.ERROR, "Invalid Key Spec Exception:", e);
           throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
+      } finally {
+       
+          spec.clearPassword();
       }
   }
   
@@ -5206,7 +5216,11 @@ public class AS400ImplRemote implements AS400Impl
             messageDigest.update(clientSeed);
             messageDigest.update((userProfile + "          ").substring(0, 10).getBytes("utf-16be"));
             messageDigest.update(sequence);
-            return messageDigest.digest();
+            
+            byte[] answer = messageDigest.digest();
+            messageDigest.reset(); 
+            
+            return answer; 
         } catch (NoSuchAlgorithmException e) {
             Trace.log(Trace.ERROR, "Error getting instance of SHA-512 algorithm:", e);
             throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);

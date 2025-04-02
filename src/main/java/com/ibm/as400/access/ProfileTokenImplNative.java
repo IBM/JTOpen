@@ -236,21 +236,6 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             throw new RetrieveFailedException();
         }
         
-        // The API QSYGENPT requires all parameters to be non-null. 
-        boolean isAAFNull = (additionalAuthenticationFactor == null || additionalAuthenticationFactor.length == 0);
-        if (isAAFNull) additionalAuthenticationFactor = new char[] { ' ' };
-        String verificationId = enhancedInfo.getVerificationID(); 
-        boolean isVfyIDNull = (verificationId == null || verificationId.length() == 0);
-        if (isVfyIDNull) verificationId = " ";
-
-        String remoteIpAddress = enhancedInfo.getRemoteIPAddress();
-        boolean isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
-        if (isRemoteIPNull) remoteIpAddress = " ";
-
-        String localIpAddress = enhancedInfo.getLocalIPAddress(); 
-        boolean isLocalIPNull =  (localIpAddress == null || localIpAddress.length() == 0);
-        if (isLocalIPNull) localIpAddress = " ";
-
         // Setup parameters
         ProgramParameter[] parmlist = new ProgramParameter[useEPT ? 19 : 8];
       
@@ -286,6 +271,39 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         // If enhanced profile tokens supported then set parameters
         if (useEPT)
         {   
+
+          // The API QSYGENPT requires all parameters to be non-null. 
+          boolean isAAFNull = (additionalAuthenticationFactor == null || additionalAuthenticationFactor.length == 0);
+          if (isAAFNull) additionalAuthenticationFactor = new char[] { ' ' };
+          
+          String verificationId = enhancedInfo.getVerificationID(); 
+          boolean isVfyIDNull = (verificationId == null || verificationId.length() == 0);
+          if (isVfyIDNull) { 
+              verificationId = "                              ";
+              enhancedInfo.setVerificationID(verificationId);
+          } else {
+            // VerificationId must be 30 characters 
+            if (verificationId.length() < 30) { 
+              verificationId = (verificationId + "                              ").substring(0, 30);
+              enhancedInfo.setVerificationID(verificationId);
+            }
+          }
+
+          String remoteIpAddress = enhancedInfo.getRemoteIPAddress();
+          boolean isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
+          if (isRemoteIPNull) {
+            remoteIpAddress = "";
+            enhancedInfo.setRemoteIPAddress(remoteIpAddress);
+          }
+
+          String localIpAddress = enhancedInfo.getLocalIPAddress(); 
+          boolean isLocalIPNull =  (localIpAddress == null || localIpAddress.length() == 0);
+          if (isLocalIPNull) {
+            localIpAddress = "";
+            enhancedInfo.setLocalIPAddress(localIpAddress);
+          }
+
+
             // Input: Additional authentication factor (unicode)
             parmlist[8] = new ProgramParameter(BinaryConverter.charArrayToByteArray(additionalAuthenticationFactor));
             
@@ -299,7 +317,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             parmlist[11] = new ProgramParameter(BinaryConverter.intToByteArray(0));
 
             // Input: Verification ID - must be 30 in length, blank padded
-            parmlist[12] = new ProgramParameter(CharConverter.stringToByteArray(sys, (verificationId + "                              ").substring(0, 30)));
+            parmlist[12] = new ProgramParameter(CharConverter.stringToByteArray(sys, verificationId));
 
             // Input: Remote IP address
             parmlist[13] = new ProgramParameter(CharConverter.stringToByteArray(sys, remoteIpAddress));

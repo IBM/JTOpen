@@ -1213,8 +1213,10 @@ endif JAVA9 */
         {                                      
           JDError.throwSQLException (as400, JDError.EXC_CONNECTION_UNABLE, e);
         }
+		finally {
 		if (clearPassword != null) { 
 		  CredentialVault.clearArray(clearPassword);
+		}
 		}
 		// Determine when the signon GUI can be presented..
 		try

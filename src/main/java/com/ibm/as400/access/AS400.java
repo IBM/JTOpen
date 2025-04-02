@@ -566,7 +566,7 @@ public class AS400 implements Serializable, AutoCloseable
     public AS400(String systemName, String userId, String password)
     {
         super();
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with password, system name: '" + systemName + "' user ID: '" + userId + "'");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with password(String), system name: '" + systemName + "' user ID: '" + userId + "'");
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + password + "'");
         if (systemName == null)
             throw new NullPointerException("systemName");
@@ -636,7 +636,7 @@ public class AS400 implements Serializable, AutoCloseable
     public AS400(String systemName, String userId, char[] password)
     {
         super();
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with password, system name: '" + systemName + "' user ID: '" + userId + "'");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object with password[], system name: '" + systemName + "' user ID: '" + userId + "'");
         if (PASSWORD_TRACE) Trace.log(Trace.DIAGNOSTIC, "password: '" + new String(password) + "'");
         if (systemName == null)
             throw new NullPointerException("systemName");
