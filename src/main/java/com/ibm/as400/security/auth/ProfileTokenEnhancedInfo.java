@@ -14,6 +14,8 @@
 package com.ibm.as400.security.auth;
 
 import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 /**
  * The ProfileTokenEnhandeInfo class represents the additional information used
@@ -62,7 +64,7 @@ public final class ProfileTokenEnhancedInfo implements Serializable
     private boolean enhancedTokenCreated_ = false;
     private boolean createEnhancedIfPossible_ = true;
 
-    private String verificationID_ = null;
+    private String verificationID_ = ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
     private String remoteIPAddress_ = null;
     private int remotePort_ = 0;
     private String localIPAddress_ = null;
@@ -87,7 +89,7 @@ public final class ProfileTokenEnhancedInfo implements Serializable
     }
 
     public String getVerificationID() {
-        return (verificationID_ != null) ? verificationID_ : ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
+        return verificationID_ ;
     }
     public String getRemoteIPAddress() { return remoteIPAddress_; } 
     public int    getRemotePort() { return remotePort_; }
@@ -95,32 +97,79 @@ public final class ProfileTokenEnhancedInfo implements Serializable
     public int    getLocalPort() { return localPort_; }
     public boolean getCreateEnhancedIfPossible() { return createEnhancedIfPossible_;} 
     
-    public void setVerificationID(String verificationID ) { verificationID_ = verificationID; }
+    public void setVerificationID(String verificationID ) { 
+        verificationID_ = (verificationID_ == null) ? ProfileTokenCredential.DEFAULT_VERIFICATION_ID :verificationID;
+    }
     public void setRemoteIPAddress(String remoteIPAddress) { remoteIPAddress_ = remoteIPAddress; } 
     public void setRemotePort(int remotePort ) { remotePort_ = remotePort; }
     public void setLocalIPAddress(String localIPAddress ) { localIPAddress_ = localIPAddress; } 
     public void setLocalPort(int localPort ) {  localPort_ = localPort; }
     public void setCreateEnhancedIfPossible(boolean ifPossible) { createEnhancedIfPossible_ = ifPossible;}
     public boolean wasEnhancedTokenCreated() { return enhancedTokenCreated_; }
-    public void setEnhancedTokenCreated(boolean enhancedTokenCreated) { enhancedTokenCreated_ = enhancedTokenCreated; }
+    public void setEnhancedTokenCreated(boolean enhancedTokenCreated) { 
+      if (enhancedTokenCreated) {
+        checkEnhancedTokenForValidity(verificationID_, remoteIPAddress_); 
+      }
+      enhancedTokenCreated_ = enhancedTokenCreated; 
+    }
 
     public void reset() {
         enhancedTokenCreated_ = false;
-        verificationID_ = null;
+        verificationID_ = ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
         localIPAddress_ = null;
         remoteIPAddress_ = null;
         localPort_ = 0;
         remotePort_ = 0;
     }
 
+    void checkEnhancedTokenForValidity(String verificationID, String remoteIPAddress) {
+      String errorString = "";
+      boolean hasError = false;
+      if (verificationID == null) {
+        hasError = true;
+        errorString = "verificationID must be set for enhanced token";
+      } 
+      
+      if (remoteIPAddress == null) {
+        if (hasError)
+          errorString += " and ";
+        hasError = true;
+        errorString += " remoteIPAddress must be set for enhanced token";
+      }
+      if (hasError) {
+        throw new NullPointerException(errorString);
+      }
+    }
+
     public void initialize(boolean enhancedTokenCreated, String verificationID, String remoteIPAddress, int remotePort,
             String localIPAddress, int localPort) {
+        if (enhancedTokenCreated) { 
+          checkEnhancedTokenForValidity(verificationID,remoteIPAddress);
+          // Make sure the required values are set to non blank
+          if (verificationID.trim().length() == 0) {
+            verificationID = ProfileTokenCredential.DEFAULT_VERIFICATION_ID; 
+          }
+          if (remoteIPAddress.trim().length() == 0) {
+            
+            InetAddress inetAddress;
+            try {
+              inetAddress = InetAddress.getLocalHost();
+              remoteIPAddress = inetAddress.getHostAddress(); 
+            } catch (UnknownHostException e) {
+              remoteIPAddress = "127.0.0.1"; 
+            } 
+          }
+          
+        }
+        
         enhancedTokenCreated_ = enhancedTokenCreated;
         verificationID_ = verificationID;
         remoteIPAddress_ = remoteIPAddress;
         remotePort_ = remotePort;
         localIPAddress_ = localIPAddress;
         localPort_ = localPort;
+
+      
         
     }
     

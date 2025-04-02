@@ -360,7 +360,8 @@ abstract class CredentialVault implements Cloneable, Serializable
      *
      * @param adder Used for encoding
      * @param mask Used for encoding
-     * @param credential The credential to encode, represented as an array of bytes
+     * @param credential The credential to encode, represented as an array of bytes.
+     * The caller is responsible for clearing the credential from member after this method returns. 
      *
      * @return A newly allocated array of bytes representing the decoded credential
      */
