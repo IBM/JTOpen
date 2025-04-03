@@ -36,7 +36,6 @@ import java.security.KeyPair;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.security.spec.KeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.GregorianCalendar;
@@ -75,7 +74,7 @@ public class AS400ImplRemote implements AS400Impl
   // The following are not in the pool since these are singleton objects.
   //   -- AS400.SIGNON (7) is special, only one signon server is used. 
   //   -- AS400.HOSTCNN (8) is special, only one hostcnn server is used.
-  private Vector[] serverPool_ = { 
+  private Vector[] serverPool_ = {  
       new Vector<AS400Server>(), // AS400.FILE (0)
       new Vector<AS400Server>(), // AS400.PRINT (1)
       new Vector<AS400Server>(), // AS400.COMMAND (2)
@@ -811,7 +810,7 @@ public class AS400ImplRemote implements AS400Impl
               } catch (Exception e) {  }
           }
           
-          Vector serverList = serverPool_[service];
+          Vector<?> serverList = serverPool_[service];
           synchronized (serverList)
           {
               while (!serverList.isEmpty()) {
@@ -1463,13 +1462,13 @@ public class AS400ImplRemote implements AS400Impl
       // -------
       
       AS400Server server = null;
-      Vector serverList = serverPool_[service];
+      Vector<AS400Server> serverList = (Vector<AS400Server>) serverPool_[service];
 
       synchronized (serverList)
       {
           if (!forceNewConnection && !serverList.isEmpty())
           {
-              server = (AS400Server) serverList.firstElement();
+              server = serverList.firstElement();
 
               if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Reusing previous server object...");
 
@@ -1934,7 +1933,9 @@ public class AS400ImplRemote implements AS400Impl
               
               // trimUnicodeSpace may return the same pointer if no spaces
               char[] trimmedPassword = trimUnicodeSpace(password);
-              CredentialVault.clearArray(password);
+              if (trimmedPassword != password) {
+                CredentialVault.clearArray(password);
+              }
               byte[] passwordBytes = BinaryConverter.charArrayToByteArray(trimmedPassword);
               CredentialVault.clearArray(trimmedPassword);
         
@@ -5329,10 +5330,10 @@ public class AS400ImplRemote implements AS400Impl
               {
                   // Note that not setting client IP address will result in sign-on host server setting the client IP
                   // address.
-                  if (creatingToken && signonServer_ != null)
+                  if (creatingToken && ( signonServer_ != null  || hostcnnServer_ != null))
                   {
                       // We are creating token, try to set client IP address using sign-on server.
-                      clientIPAddress_s = signonServer_.getLocalAddress();
+                      clientIPAddress_s = (signonServer_ != null) ? signonServer_.getLocalAddress() : hostcnnServer_.getLocalAddress();
                       if (clientIPAddress_s != null && !clientIPAddress_s.isEmpty())
                       {
                           authdata[2] = clientIPAddress_s.getBytes(StandardCharsets.UTF_8);
