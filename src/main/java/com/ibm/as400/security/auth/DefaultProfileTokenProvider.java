@@ -298,9 +298,9 @@ public class DefaultProfileTokenProvider implements ProfileTokenProvider
 
 
     /**
-     * Set the remote IP address be associated with the profile token. 
+     * Set the remote IP address to be associated with the profile token. 
      * 
-     * @param verificationID The verification ID.
+     * @param remoteIPAddress The remote IP address. 
      */
     public void setRemoteIPAddress(String remoteIPAddress) 
     {
