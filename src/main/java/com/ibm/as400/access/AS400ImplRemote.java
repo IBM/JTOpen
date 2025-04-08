@@ -183,6 +183,8 @@ public class AS400ImplRemote implements AS400Impl
   private String swapToPHUserID_ = null;
   private AtomicInteger swapToPHRefCount_ = null;
   
+  private String localIPAddress_ = "127.0.0.1";   /* The IP address from the last opened socket */ 
+  
   private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
 
   static {
@@ -924,7 +926,7 @@ public class AS400ImplRemote implements AS400Impl
           byte[] encryptedPassword = getPassword(clientSeed_, serverSeed_);
           if (PASSWORD_TRACE)
           {
-              Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
+              Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request for generateProfileToken to signon server...");
               Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
               Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
               Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed_);
@@ -1503,7 +1505,7 @@ public class AS400ImplRemote implements AS400Impl
               connectionID = socketContainer.hashCode();
               inStream = socketContainer.getInputStream();
               outStream = socketContainer.getOutputStream();
-
+              localIPAddress_ = socketContainer.getLocalAddress();
               int authScheme = credVault_.getType();
 
               if (service == AS400.RECORDACCESS)
@@ -1622,7 +1624,7 @@ public class AS400ImplRemote implements AS400Impl
                   byte[] encryptedPassword = getPassword(clientSeed, serverSeed);
                   if (PASSWORD_TRACE)
                   {
-                      Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
+                      Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request for getConnection, service="+service);
                       Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
                       Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
                       Trace.log(Trace.DIAGNOSTIC, "  Client seed:", clientSeed);
@@ -3827,7 +3829,7 @@ public class AS400ImplRemote implements AS400Impl
                 
               if (PASSWORD_TRACE)
               {
-                  Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request...");
+                  Trace.log(Trace.DIAGNOSTIC, "Sending Start Server Request for hostcnnConnect ...");
                   Trace.log(Trace.DIAGNOSTIC, "  User ID:", userId_);
                   Trace.log(Trace.DIAGNOSTIC, "  User ID bytes:", userIDbytes);
                   Trace.log(Trace.DIAGNOSTIC, "  Client seed:", hostcnn_clientSeed_);
@@ -5301,20 +5303,25 @@ public class AS400ImplRemote implements AS400Impl
           if (profileToken != null)
           {
               String verificationID_s = profileToken.getVerificationID();
-              if (verificationID_s == null || verificationID_s.isEmpty() )
+              /* Note:  We must use the verificationID that was used when the */
+              /*        profile was created. This could be blanks.            */
+              /*        It is it null then use the default one.               */
+              if (verificationID_s == null  )
               {
-                    /* Make sure a default value is set */ 
                     verificationID_s = ProfileTokenCredential.DEFAULT_VERIFICATION_ID; 
+                    try { 
+                       profileToken.setVerificationID(verificationID_s);
+                    } catch (Exception e) {} 
               }
               
               authdata[1] = verificationID_s.getBytes(StandardCharsets.UTF_8);
               authdata[3] = verificationID_s;
 
-              String clientIPAddress_s = profileToken.getRemoteIPAddress();
-              if (clientIPAddress_s != null && !clientIPAddress_s.isEmpty())
+              String remoteIPAddress_s = profileToken.getRemoteIPAddress();
+              if (remoteIPAddress_s != null )
               {
-                  authdata[2] = clientIPAddress_s.getBytes(StandardCharsets.UTF_8);
-                  authdata[4] = clientIPAddress_s;
+                  authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
+                  authdata[4] = remoteIPAddress_s;
               } 
               else
               {
@@ -5333,11 +5340,17 @@ public class AS400ImplRemote implements AS400Impl
                   if (creatingToken && ( signonServer_ != null  || hostcnnServer_ != null))
                   {
                       // We are creating token, try to set client IP address using sign-on server.
-                      clientIPAddress_s = (signonServer_ != null) ? signonServer_.getLocalAddress() : hostcnnServer_.getLocalAddress();
-                      if (clientIPAddress_s != null && !clientIPAddress_s.isEmpty())
+                      remoteIPAddress_s = (signonServer_ != null) ? signonServer_.getLocalAddress() : hostcnnServer_.getLocalAddress();
+                      // If the IP address was set to a string, even an empty string, it will be used. 
+                      if (remoteIPAddress_s != null )
                       {
-                          authdata[2] = clientIPAddress_s.getBytes(StandardCharsets.UTF_8);
-                          authdata[4] = clientIPAddress_s;
+                          authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
+                          authdata[4] = remoteIPAddress_s;
+                          try { 
+                          profileToken.setRemoteIPAddress(remoteIPAddress_s);
+                          } catch (Exception e) { 
+                            
+                          }
                       }
                       else {
                           authdata[2] = null;
@@ -5345,7 +5358,7 @@ public class AS400ImplRemote implements AS400Impl
                       }
 
                       try {
-                          profileToken.setRemoteIPAddress(clientIPAddress_s);
+                          profileToken.setRemoteIPAddress(remoteIPAddress_s);
                       } catch (PropertyVetoException e) {
                           throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
                       }
@@ -5361,10 +5374,16 @@ public class AS400ImplRemote implements AS400Impl
       
       if (Trace.traceOn_)
       {
-          Trace.log(Trace.DIAGNOSTIC, "Verification ID: " + (authdata[1] != null ? new String((byte[])authdata[1]) : null));
-          Trace.log(Trace.DIAGNOSTIC, "Client IP address: " + (authdata[2] != null ? new String((byte[])authdata[2]) : null));
+       
+          Trace.log(Trace.DIAGNOSTIC, this, "getAdditionalAuthInfo() Verification ID: " + (authdata[1] != null ? new String((byte[])authdata[1]) : null));
+          Trace.log(Trace.DIAGNOSTIC, this, "getAdditionalAuthInfo() Remote IP address: " + (authdata[2] != null ? new String((byte[])authdata[2]) : null));
       }
       
       return authdata;
+  }
+
+  /* Get the local ip address from a connected socket */ 
+  public String getLocalIPAddress() {
+    return localIPAddress_; 
   }
 }

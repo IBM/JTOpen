@@ -293,9 +293,33 @@ public class DefaultProfileTokenProvider implements ProfileTokenProvider
      */
     public String getVerificationID()
     {
-        return (verificationID_ != null) ? verificationID_ : ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
+        return  verificationID_ ;
     }
 
+
+    /**
+     * Set the remote IP address be associated with the profile token. 
+     * 
+     * @param verificationID The verification ID.
+     */
+    public void setRemoteIPAddress(String remoteIPAddress) 
+    {
+      remoteIPAddress_ = remoteIPAddress;
+    }
+
+    /**
+     * Returns the remote IP address associated with the profile token.
+     *
+     * @return The remote IP address. The value can be null if it has not been set.
+     */
+    public String getRemoteIPAddress()
+    {
+        return  remoteIPAddress_ ;
+    }
+
+
+    
+    
     /**
      * Creates and returns a new profile token credential.
      * Before calling this method, the following properties must be set: system, timeout interval, user ID, token type, and extended info.
