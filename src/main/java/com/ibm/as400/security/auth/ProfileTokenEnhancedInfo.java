@@ -65,11 +65,12 @@ public final class ProfileTokenEnhancedInfo implements Serializable
     private boolean createEnhancedIfPossible_ = true;
 
     private String verificationID_ = ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
-    private String remoteIPAddress_ = null;
+    private String remoteIPAddress_ = "";
     private int remotePort_ = 0;
     private String localIPAddress_ = null;
     private int localPort_ = 0;
 
+    /* Create the default profile token info. The creates a profile token with the TOOLBOX default verification ID */ 
     public ProfileTokenEnhancedInfo() {
     }
 
@@ -98,7 +99,7 @@ public final class ProfileTokenEnhancedInfo implements Serializable
     public boolean getCreateEnhancedIfPossible() { return createEnhancedIfPossible_;} 
     
     public void setVerificationID(String verificationID ) { 
-        verificationID_ = (verificationID_ == null) ? ProfileTokenCredential.DEFAULT_VERIFICATION_ID :verificationID;
+        verificationID_ = (verificationID == null) ? ProfileTokenCredential.DEFAULT_VERIFICATION_ID :verificationID;
     }
     public void setRemoteIPAddress(String remoteIPAddress) { remoteIPAddress_ = remoteIPAddress; } 
     public void setRemotePort(int remotePort ) { remotePort_ = remotePort; }
@@ -108,7 +109,7 @@ public final class ProfileTokenEnhancedInfo implements Serializable
     public boolean wasEnhancedTokenCreated() { return enhancedTokenCreated_; }
     public void setEnhancedTokenCreated(boolean enhancedTokenCreated) { 
       if (enhancedTokenCreated) {
-        checkEnhancedTokenForValidity(verificationID_, remoteIPAddress_); 
+        checkEnhancedTokenForValidity(); 
       }
       enhancedTokenCreated_ = enhancedTokenCreated; 
     }
@@ -117,54 +118,30 @@ public final class ProfileTokenEnhancedInfo implements Serializable
         enhancedTokenCreated_ = false;
         verificationID_ = ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
         localIPAddress_ = null;
-        remoteIPAddress_ = null;
+        remoteIPAddress_ = "";
         localPort_ = 0;
         remotePort_ = 0;
     }
 
-    void checkEnhancedTokenForValidity(String verificationID, String remoteIPAddress) {
-      String errorString = "";
-      boolean hasError = false;
-      if (verificationID == null) {
-        hasError = true;
-        errorString = "verificationID must be set for enhanced token";
+    void checkEnhancedTokenForValidity() {
+      if (verificationID_ == null) {
+        /* Set to blanks */ 
+        verificationID_ = ""; 
       } 
       
-      if (remoteIPAddress == null) {
-        if (hasError)
-          errorString += " and ";
-        hasError = true;
-        errorString += " remoteIPAddress must be set for enhanced token";
-      }
-      if (hasError) {
-        throw new NullPointerException(errorString);
+      if (remoteIPAddress_ == null) {
+        remoteIPAddress_=""; 
       }
     }
 
     public void initialize(boolean enhancedTokenCreated, String verificationID, String remoteIPAddress, int remotePort,
-            String localIPAddress, int localPort) {
-        if (enhancedTokenCreated) { 
-          checkEnhancedTokenForValidity(verificationID,remoteIPAddress);
-          // Make sure the required values are set to non blank
-          if (verificationID.trim().length() == 0) {
-            verificationID = ProfileTokenCredential.DEFAULT_VERIFICATION_ID; 
-          }
-          if (remoteIPAddress.trim().length() == 0) {
-            
-            InetAddress inetAddress;
-            try {
-              inetAddress = InetAddress.getLocalHost();
-              remoteIPAddress = inetAddress.getHostAddress(); 
-            } catch (UnknownHostException e) {
-              remoteIPAddress = "127.0.0.1"; 
-            } 
-          }
-          
-        }
-        
+        String localIPAddress, int localPort) {
+      verificationID_ = verificationID;
+      remoteIPAddress_ = remoteIPAddress;
+      if (enhancedTokenCreated) {
+        checkEnhancedTokenForValidity();
+      }
         enhancedTokenCreated_ = enhancedTokenCreated;
-        verificationID_ = verificationID;
-        remoteIPAddress_ = remoteIPAddress;
         remotePort_ = remotePort;
         localIPAddress_ = localIPAddress;
         localPort_ = localPort;
@@ -187,5 +164,17 @@ public final class ProfileTokenEnhancedInfo implements Serializable
         sb.append("}");
         
         return sb.toString();
+    }
+
+    /* Update the enhanced information for an MFA user */
+    /* The system requires that the verificationId and remoteIPAddress be set to some values */ 
+    /* This must be called before calling QSYGENPT */ 
+    public void updateForMfaUser(String defaultRemoteIpAddress) {
+        if (verificationID_ == null || verificationID_.length() == 0) {
+          verificationID_ = ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
+        }
+        if (remoteIPAddress_ == null || remoteIPAddress_.length() == 0) {
+            remoteIPAddress_ = defaultRemoteIpAddress; 
+        }
     }
 }

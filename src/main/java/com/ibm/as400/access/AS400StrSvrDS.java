@@ -88,7 +88,7 @@ class AS400StrSvrDS extends ClientAccessDataStream
               : 44 + authenticationBytes.length) +
                      ((authScheme == AS400.AUTHENTICATION_SCHEME_PASSWORD && addAuthFactor != null && addAuthFactor.length > 0) ? (addAuthFactor.length + 10) : 0) + 
                      ((authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN && verificationID != null) ? (verificationID.length + 10) : 0) +
-                     ((authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN && clientIPAddr != null) ? (clientIPAddr.length + 10) : 0)
+                     ((authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN && (clientIPAddr != null && clientIPAddr.length > 0)) ? (clientIPAddr.length + 10) : 0)
               ]);
 
         setLength(data_.length);
@@ -184,7 +184,7 @@ class AS400StrSvrDS extends ClientAccessDataStream
                 offset += 10 + verificationID.length;
             }
             
-            if (clientIPAddr != null)
+            if (clientIPAddr != null && clientIPAddr.length > 0)
             {
                 // Set client IP address
                 //   LL
@@ -203,7 +203,7 @@ class AS400StrSvrDS extends ClientAccessDataStream
 
     void write(OutputStream out) throws IOException
     {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending start server request...");
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Sending start server request for AS400StrSvrDS ...");
         super.write(out);
     }
 }

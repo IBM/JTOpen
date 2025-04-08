@@ -6118,4 +6118,14 @@ public class AS400 implements Serializable, AutoCloseable
 
         useSSLConnection_.sslSocketFactory_ = sslSocketFactory;
     }
+
+    public String getLocalIPAddress() {
+      if (impl_ instanceof AS400ImplRemote) {
+        AS400ImplRemote implRemote = (AS400ImplRemote) impl_; 
+        return implRemote.getLocalIPAddress(); 
+      } else {
+        return "127.0.0.1"; 
+      }
+      
+    }
 }
