@@ -3976,7 +3976,8 @@ public class AS400ImplRemote implements AS400Impl
           isPasswordTypeSet_ = true;
           serverSeed_ = attrRep.getServerSeed();
           aafIndicator_ = attrRep.getAAFIndicator();
-
+          localIPAddress_ = signonConnection.getLocalAddress();
+          localIPAddressSet_ = true; 
           if (Trace.traceOn_)
           {
               if (PASSWORD_TRACE)
@@ -5324,14 +5325,14 @@ public class AS400ImplRemote implements AS400Impl
               String remoteIPAddress_s = profileToken.getRemoteIPAddress();
               /* Note:  If the remoteIP address is not set to a length > 0 , then the AS400GenAuthTkn */
               /*        request will fail.   We will set it to the local IP address that we obtained */
-              /*        from a socket.  If it was not set, then we use *UNSET */ 
+              /*        from a socket.  If it was not set, then we use an empty string*/ 
               
               if (remoteIPAddress_s == null || remoteIPAddress_s.length() == 0) { 
                 
                   if (localIPAddressSet_) {   
                      remoteIPAddress_s = localIPAddress_; 
                   } else {
-                     remoteIPAddress_s = "*UNSET"; 
+                     remoteIPAddress_s = ""; 
                   }
                   
                   try {
