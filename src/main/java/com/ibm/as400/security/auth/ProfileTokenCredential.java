@@ -1821,7 +1821,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         validatePropertyChange("remotePort");
 
         if (remotePort < 0 || remotePort > 65535)
-            throw new ExtendedIllegalArgumentException("remotePort", ExtendedIllegalArgumentException.PATH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("remotePort", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         int old = enhancedInfo_.getRemotePort();
         fireVetoableChange("remotePort", old, remotePort);
@@ -1850,7 +1850,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         validatePropertyChange("localPort");
 
         if (localPort < 0 || localPort > 65535)
-            throw new ExtendedIllegalArgumentException("localPort", ExtendedIllegalArgumentException.PATH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("localPort", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         int old = enhancedInfo_.getLocalPort();
         fireVetoableChange("localPort", old, localPort);
@@ -1880,7 +1880,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         validatePropertyChange("authenticationIndicator");
 
         if (authenticationIndicator < 1 || authenticationIndicator > 5)
-            throw new ExtendedIllegalArgumentException("authenticationIndicator", ExtendedIllegalArgumentException.PATH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("authenticationIndicator", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         int old = authenticationIndicator;
         fireVetoableChange("authenticationIndicator", old, authenticationIndicator);

@@ -184,6 +184,7 @@ public class AS400ImplRemote implements AS400Impl
   private AtomicInteger swapToPHRefCount_ = null;
   
   private String localIPAddress_ = "127.0.0.1";   /* The IP address from the last opened socket */ 
+  private boolean localIPAddressSet_ = false; 
   
   private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
 
@@ -1506,6 +1507,7 @@ public class AS400ImplRemote implements AS400Impl
               inStream = socketContainer.getInputStream();
               outStream = socketContainer.getOutputStream();
               localIPAddress_ = socketContainer.getLocalAddress();
+              localIPAddressSet_ = true; 
               int authScheme = credVault_.getType();
 
               if (service == AS400.RECORDACCESS)
@@ -5311,23 +5313,36 @@ public class AS400ImplRemote implements AS400Impl
                     verificationID_s = ProfileTokenCredential.DEFAULT_VERIFICATION_ID; 
                     try { 
                        profileToken.setVerificationID(verificationID_s);
-                    } catch (Exception e) {} 
+                    } catch (Exception e) {
+                      verificationID_s=""; 
+                    } 
               }
               
               authdata[1] = verificationID_s.getBytes(StandardCharsets.UTF_8);
               authdata[3] = verificationID_s;
 
               String remoteIPAddress_s = profileToken.getRemoteIPAddress();
-              if (remoteIPAddress_s != null )
-              {
-                  authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
-                  authdata[4] = remoteIPAddress_s;
-              } 
-              else
-              {
-                  authdata[2] = null;
-                  authdata[4] = null;
+              /* Note:  If the remoteIP address is not set to a length > 0 , then the AS400GenAuthTkn */
+              /*        request will fail.   We will set it to the local IP address that we obtained */
+              /*        from a socket.  If it was not set, then we use *UNSET */ 
+              
+              if (remoteIPAddress_s == null || remoteIPAddress_s.length() == 0) { 
+                
+                  if (localIPAddressSet_) {   
+                     remoteIPAddress_s = localIPAddress_; 
+                  } else {
+                     remoteIPAddress_s = "*UNSET"; 
+                  }
+                  
+                  try {
+                    profileToken.setRemoteIPAddress(remoteIPAddress_s);
+                  } catch (PropertyVetoException e) {
+                    remoteIPAddress_s=""; 
+                  }
               }
+              
+              authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
+              authdata[4] = remoteIPAddress_s;
 
               // Verification ID will always be set to something. However, depending on where
               // token was created, the client IP address
