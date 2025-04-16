@@ -230,13 +230,19 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         ProfileTokenCredential ptTemp = null;
         try {
         	AS400 system = getCredential().getSystem();
-        	
+        	if (additionalAuthenticationFactor != null) {
+        	  /* system rquired the enhancedInfo to be set when an MFA user is given. */ 
+        	  String defaultIpAddress =   system.getLocalIPAddress();
+        	  enhancedInfo.updateForMfaUser(defaultIpAddress); 
+        	}
             ptTemp = system.getProfileToken(uid, password, additionalAuthenticationFactor,
                                                                  type, timeoutInterval, 
                                                                  enhancedInfo);
         }
         catch (AS400SecurityException se) {
-            throw new RetrieveFailedException(se.getReturnCode());
+           RetrieveFailedException rfe = new RetrieveFailedException(se.getReturnCode());
+           rfe.initCause(se);
+           throw rfe;
         }
         catch (Exception e) {
             AuthenticationSystem.handleUnexpectedException(e);

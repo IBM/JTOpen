@@ -274,7 +274,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     public final static int PW_NOPWDCHK = 2;
 
     /** Default verification ID that is used when generating a profile token is "QIBM_OS400_JT400". */
-    public final static String DEFAULT_VERIFICATION_ID = "QIBM_OS400_JT400";
+    public final static String DEFAULT_VERIFICATION_ID = "QIBM_OS400_JT400              ";
     
     /**
      * Constructs a ProfileTokenCredential object.
@@ -416,9 +416,8 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         try {
             setSystem(system);
             
-            if (verificationID != null && 
-            		remoteIPAddress != null &&
-            		localIPAddress != null  ) {
+            if (verificationID != null || 
+            		remoteIPAddress != null  ) {
             	enhancedInfo_.initialize(true, verificationID, remoteIPAddress, remotePort, localIPAddress, localPort);
             	setToken(token, enhancedInfo_);
                 
@@ -510,8 +509,10 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         byte[] rawBytes = decode(addr_, mask_, token_);
         if (Trace.isTraceOn())
         {
-            // Note: Calling this.hashCode causes recursion
+            Trace.log(Trace.INFORMATION, this,  " token enhancedInfo="+enhancedInfo_.toString()); 
             Trace.log(Trace.INFORMATION, this,  " getPrimitiveToken returned", rawBytes);
+            // Exception ex = new Exception("Caller info"); 
+            // Trace.log(Trace.INFORMATION, this, "Caller info", ex);
         }
 
         // Return the raw bytes for the token represented by the credential, decoding
@@ -577,6 +578,8 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
 
         return hash;
     }
+    
+ 
 
     @Override
     String implClassNameNative() {
@@ -1097,15 +1100,18 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         // Generate and set the token value
         char[] passwordChars = password.toCharArray(); 
         byte[] newToken; 
-        ProfileTokenEnhancedInfo enhancedInfo = new  ProfileTokenEnhancedInfo(); 
-        newToken = impl.generateRawTokenExtended(name, passwordChars, null, getTokenType(), getTimeoutInterval(), enhancedInfo);
-        primitiveSetToken(newToken,enhancedInfo.wasEnhancedTokenCreated());
+        if (enhancedInfo_ == null) { 
+            enhancedInfo_ = new  ProfileTokenEnhancedInfo(); 
+        }
+        
+        newToken = impl.generateRawTokenExtended(name, passwordChars, null, getTokenType(), getTimeoutInterval(), enhancedInfo_);
+        primitiveSetToken(newToken,enhancedInfo_.wasEnhancedTokenCreated());
         Arrays.fill(passwordChars,'\0');
 
         // If successful, all defining attributes are now set.
         // Set the impl for subsequent references.
         setImpl(impl);
-
+        
         // Indicate that a new token was created.
         fireCreated();
     }
@@ -1672,8 +1678,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      */
     public synchronized void preventRefresh() throws InterruptedException {
         if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION,
-                    "ProfileTokenCredential@" + Integer.toHexString(this.hashCode()) + " preventRefresh");
+            Trace.log(Trace.INFORMATION, this, "preventRefresh");
 
         noRefresh_ = true;
     }
@@ -1684,8 +1689,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     public synchronized void allowRefresh()
     {
         if (Trace.isTraceOn())
-            Trace.log(Trace.INFORMATION,
-                    "ProfileTokenCredential@" + Integer.toHexString(this.hashCode()) + " allowRefresh");
+            Trace.log(Trace.INFORMATION, this, "allowRefresh");
 
         noRefresh_ = false;
         notify();
@@ -1726,19 +1730,22 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     }
 
     /**
-     * Returns the verification ID associated with an enhanced profile token.
+     * Returns the verification ID currently associated with an enhanced profile token.
      *
      * @return The verification ID. If this is not an enhanced profile token then "*NOUSE" is returned. 
-     * If the value is not set to a value, the default verification ID of 
-     *         "QIBM_OS400_JT400" will be returned.
      */
     public String getVerificationID()
     {
-        if (!useEnhancedProfileTokens_) 
-            return "*NOUSE";
-        String verificationID = enhancedInfo_.getVerificationID();
-        return (verificationID != null || !isEnhancedProfileToken()) ? verificationID : DEFAULT_VERIFICATION_ID;
-        
+      String verificationID;
+      if (!useEnhancedProfileTokens_) {
+        return "*NOUSE";
+      } else {
+        verificationID = enhancedInfo_.getVerificationID();
+      }
+      if (Trace.isTraceOn())
+        Trace.log(Trace.INFORMATION, this, "verificationId="+verificationID);
+     
+      return verificationID;
     }
 
     /**
@@ -1795,7 +1802,11 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * @return The remote IP address. The value can be null if it has not been set.
      */
     public String getRemoteIPAddress() {
-        return useEnhancedProfileTokens_ ? enhancedInfo_.getRemoteIPAddress() : "*NOUSE";
+        String remoteIPAddress = useEnhancedProfileTokens_ ? enhancedInfo_.getRemoteIPAddress() : "*NOUSE";
+        if (Trace.isTraceOn())
+          Trace.log(Trace.INFORMATION,this,  " getRemoteIPAddress="+remoteIPAddress);
+
+        return remoteIPAddress; 
     }
     
     /**
@@ -1810,7 +1821,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         validatePropertyChange("remotePort");
 
         if (remotePort < 0 || remotePort > 65535)
-            throw new ExtendedIllegalArgumentException("remotePort", ExtendedIllegalArgumentException.PATH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("remotePort", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         int old = enhancedInfo_.getRemotePort();
         fireVetoableChange("remotePort", old, remotePort);
@@ -1839,7 +1850,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         validatePropertyChange("localPort");
 
         if (localPort < 0 || localPort > 65535)
-            throw new ExtendedIllegalArgumentException("localPort", ExtendedIllegalArgumentException.PATH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("localPort", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         int old = enhancedInfo_.getLocalPort();
         fireVetoableChange("localPort", old, localPort);
@@ -1869,7 +1880,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         validatePropertyChange("authenticationIndicator");
 
         if (authenticationIndicator < 1 || authenticationIndicator > 5)
-            throw new ExtendedIllegalArgumentException("authenticationIndicator", ExtendedIllegalArgumentException.PATH_NOT_VALID);
+            throw new ExtendedIllegalArgumentException("authenticationIndicator", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
 
         int old = authenticationIndicator;
         fireVetoableChange("authenticationIndicator", old, authenticationIndicator);

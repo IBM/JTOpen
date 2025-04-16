@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 // The AS400GenAuthTknDS class represents the data stream for the 'Generate authentication token' request.
+// If the server supports enhanced profile tokens, then to create a token, then verificationId and clientIPAddr must be set to  
+// something other than a zero length string
 class AS400GenAuthTknDS extends ClientAccessDataStream
 {
     AS400GenAuthTknDS(byte[] userIDbytes, byte[] authenticationBytes, int authScheme, int profileTokenType, int profileTokenTimeout, int serverLevel,
@@ -27,7 +29,7 @@ class AS400GenAuthTknDS extends ClientAccessDataStream
     	               + (serverLevel < 5 ? 0 : 7)
                        + ((serverLevel >= 18 && null != addAuthFactor && 0 < addAuthFactor.length) ? addAuthFactor.length + 10: 0)
                        + ((serverLevel >= 18 && null != verificationID) ? verificationID.length + 10: 0)
-                       + ((serverLevel >= 18 && null != clientIPAddr) ? clientIPAddr.length + 10: 0)
+                       + ((serverLevel >= 18 && null != clientIPAddr) ?  clientIPAddr.length + 10: 0)
     	               ]);
 
         setLength(data_.length);
@@ -154,6 +156,7 @@ class AS400GenAuthTknDS extends ClientAccessDataStream
                 
                 offset += 10 + clientIPAddr.length;
             }
+            
         }
     }
 

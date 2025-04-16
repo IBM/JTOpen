@@ -217,10 +217,16 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     {
     	if (Trace.isTraceOn()) {
     		String pwdInfo ="null"; 
-    		if (pwd != null) pwdInfo = "char["+pwd.length+"]"; 
+    		if (pwd != null) {
+    		  if (pwd.length > 0 && (pwd[0]==' ' || pwd[0]=='\0' )) {
+    		    pwdInfo =  "char["+pwd.length+"]='0x"+Integer.toHexString(0xFF & pwd[0])+"....'";
+    		  } else { 
+            pwdInfo = "char["+pwd.length+"]"; 
+    		  }
+    		}
     		String aafInfo = "null"; 
     		if (additionalAuthenticationFactor != null) aafInfo="char["+additionalAuthenticationFactor.length+"]"; 
-    		Trace.log(Trace.INFORMATION, this, "generateTokenExtended("+uid+","+pwdInfo+","+
+    		Trace.log(Trace.INFORMATION, this, "generateRawTokenExtended("+uid+","+pwdInfo+","+
     				aafInfo+","+enhancedInfo.getVerificationID()+","+enhancedInfo.getRemoteIPAddress()+","+
     				enhancedInfo.getRemotePort()+","+enhancedInfo.getLocalIPAddress()+","+enhancedInfo.getLocalPort()+","+type+","+timeoutInterval+")"); 
     	}
@@ -235,7 +241,9 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
             throw new RetrieveFailedException();
         }
-        
+        if (additionalAuthenticationFactor != null && additionalAuthenticationFactor.length > 0) {
+          enhancedInfo.updateForMfaUser("127.0.0.1");
+        }
         // Setup parameters
         ProgramParameter[] parmlist = new ProgramParameter[useEPT ? 19 : 8];
       
@@ -291,8 +299,15 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
 
           String remoteIpAddress = enhancedInfo.getRemoteIPAddress();
           boolean isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
+          
           if (isRemoteIPNull) {
-            remoteIpAddress = "";
+            if (sys.onAS400) {
+               /* For the local case, set to the loopback address */ 
+              remoteIpAddress = "127.0.0.1";
+              isRemoteIPNull = false; 
+            } else { 
+              remoteIpAddress = "";
+            }
             enhancedInfo.setRemoteIPAddress(remoteIpAddress);
           }
 
@@ -337,8 +352,12 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             // Input: Local port
             parmlist[18] = new ProgramParameter(BinaryConverter.intToByteArray(enhancedInfo.getRemotePort()));
             
+            Trace.log(Trace.INFORMATION, this, "generateRawTokenExtended creating EnhancedToken with verificationId='"+verificationId+"' remoteIp='"+remoteIpAddress+"'"); 
+            
+
             enhancedInfo.setEnhancedTokenCreated(true);  
         } else { 
+          Trace.log(Trace.INFORMATION, this, "generateRawTokenExtended not creating EnhancedToken"); 
         	enhancedInfo.setEnhancedTokenCreated(false);  
         }
 
@@ -368,7 +387,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         
         byte[] profileToken = parmlist[0].getOutputData();
         if (Trace.isTraceOn()) {
-        	Trace.log(Trace.INFORMATION, this, "generateTokenExtended returned ",profileToken);
+        	Trace.log(Trace.INFORMATION, this, "generateRawTokenExtended returned ",profileToken);
         }
         return profileToken; 
     }
@@ -382,9 +401,9 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     public ProfileTokenCredential generateProfileTokenExtended(String uid, char[] password, char[] additionalAuthenticationFactor, 
             ProfileTokenCredential profileTokenCred) throws RetrieveFailedException, PropertyVetoException
     {
-    	ProfileTokenEnhancedInfo enhancedInfo = new ProfileTokenEnhancedInfo(profileTokenCred.getEnhancedInfo()); 
+    	ProfileTokenEnhancedInfo enhancedInfo = profileTokenCred.getEnhancedInfo(); 
         byte[] token = generateRawTokenExtended(uid, 
-        		password, 
+        		    password, 
                 additionalAuthenticationFactor,
                 profileTokenCred.getTokenType(), 
                 profileTokenCred.getTimeoutInterval(),
@@ -423,7 +442,11 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     	if (Trace.isTraceOn()) {
     		Trace.log(Trace.INFORMATION, this, "getTimeToExpiration token=", token);
     	}
-        return nativeGetTimeToExpiration(token);
+        int expirationTime =  nativeGetTimeToExpiration(token);
+        if (Trace.isTraceOn()) {
+          Trace.log(Trace.INFORMATION, this, "getTimeToExpiration expirationTime="+expirationTime);
+        }
+        return expirationTime; 
     }
 
     @Override
