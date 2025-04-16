@@ -416,7 +416,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         try {
             setSystem(system);
             
-            if (verificationID != null && 
+            if (verificationID != null || 
             		remoteIPAddress != null  ) {
             	enhancedInfo_.initialize(true, verificationID, remoteIPAddress, remotePort, localIPAddress, localPort);
             	setToken(token, enhancedInfo_);
