@@ -6,7 +6,7 @@
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
-// Copyright (C) 1997-2001 International Business Machines Corporation and     
+// Copyright (C) 1997-2025 International Business Machines Corporation and     
 // others. All rights reserved.                                                
 //                                                                             
 ///////////////////////////////////////////////////////////////////////////////
@@ -731,6 +731,33 @@ class AS400FileRecordDescriptionImplRemote implements AS400FileRecordDescription
           // it was.
         }
         break;
+        
+      case '8': // Boolean 
+          fd = new BooleanFieldDescription(new AS400Boolean(),
+                                          fieldName);
+          // Set the DFT keyword value if specified
+          if(((BigDecimal)record.getField("WHDFTL")).intValue() > 0)
+          {
+            String dft = ((String)record.getField("WHDFT")).trim();
+            if(dft.charAt(0) == '+')
+            {
+              dft = dft.substring(1);
+            }
+            // @B0C
+            // Check for any special values that could be specified as the default.
+            // Handle *NULL
+            if(dft.indexOf("*NULL") != -1)
+            {
+              ((BooleanFieldDescription)fd).setDFTNull();
+            }
+            // Handle value
+            else
+            {
+              ((BooleanFieldDescription)fd).setDFT(Boolean.valueOf(dft));
+            }
+          }
+        break;
+
       default:
         Trace.log(Trace.ERROR, "Unrecognized field type: " + fieldType);
         throw new InternalErrorException(InternalErrorException.UNKNOWN);
