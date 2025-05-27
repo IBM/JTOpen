@@ -342,13 +342,13 @@ public interface Copyright
     // Name of current release to be picked up by Java doc build. 
     public static String JTOpenName = "JTOpen "+BuildInfo.getVersion();
     //                                                                                                 
-    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R5M0.00 built="+BuildInfo.getTimestampString();  
+    public static String version   = "Open Source Software, "+JTOpenName+" codebase 5770-SS1 V7R6M0.00 built="+BuildInfo.getTimestampString();  
 
 
     // Constants for reference by AS400JDBCDriver.
-    static final int    MAJOR_VERSION = 13; // ex: "13" indicates V7R5 
-    static final int    MINOR_VERSION = 6; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
-                                           //Note: JTOpen 21.0.1 is synching with ptf 13.6
-    static final String DRIVER_LEVEL  = "07050006"; //(ex: 07050005 -> V7R5M0 PTF#5) (needed for hidden clientInfo) (each # is 2 digits in length)
+    static final int    MAJOR_VERSION = 14; // ex: "14" indicates V7R6 
+    static final int    MINOR_VERSION = 1; // ex: "1" indicates PTF #1 (1 is first PTF in a release)
+                                           //Note: JTOpen 21.0.4 is syncing with ptf 14.1
+    static final String DRIVER_LEVEL  = "07060001"; //(ex: 07060001 -> V7R6M0 PTF#1) (needed for hidden clientInfo) (each # is 2 digits in length)
 
 }

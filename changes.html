@@ -9,7 +9,9 @@ Copyright (C) 1997-2017 International Business Machines Corporation and
 others. All rights reserved.
 
 File: CHANGES
-Last updated: March 21, 2017
+Last updated: May 27, 2025
+</PRE>
+
 The term "JTOpen" refers to the open source software product
 "IBM Toolbox for Java" plus any additional enhancements provided by
 the open source community. JTOpen, which is supported by IBM and
@@ -20,8 +22,7 @@ is contained in the open source repository located off of:
 The terms "Toolbox" and "Toolbox LPP" refer to the IBM Licensed Program Product
 "IBM Toolbox for Java" which is supported by IBM and can be obtained from the
 IBM Toolbox for Java web site:
-<A HREF="http://www.ibm.com/systems/i/software/toolbox/">http://www.ibm.com/systems/i/software/toolbox/</A>.
-</PRE>
+<A HREF="https://www.ibm.com/support/pages/node/1118781">https://www.ibm.com/support/pages/node/1118781</A>.
 <!-- On 2015-03-11: cvs log -rJTOpen_9_2:JTOpen_9_1 -N '-d>2016-07-05' -->
 
 <H4>Known deficiencies</H4>
@@ -31,23 +32,15 @@ Calendar, or GregorianCalendar. Some of these methods assume that the client
 Java application is running in the same time zone as the IBM i server.
 This behavior is long-standing, and will be corrected in a future Toolbox release.
 
-The constructor for the RFML component's primary class (RecordFormatDocument)
-fails on Sun's 1.4.2 JVM and on IBM's "Classic" i5/OS 1.4.2 JVM,
-with the following error:
-    org.xml.sax.SAXNotRecognizedException
-    Feature: http://apache.org/xml/features/continue-after-fatal-error
-
-Several classes in deprecated package com.ibm.as400.vaccess are known to
-fail to serialize when running in Java 6 JVMs.  These classes include:
-    AS400DetailsPane
-    AS400ExplorerPane
-    AS400ListPane
-    VActionAdapter
 </PRE>
 
 
 <HR>
-<H3>Contents</H3>
+<H3>Recent change history</H3>
+<A HREF="https://github.com/IBM/JTOpen/releases">Latest change history available at https://github.com/IBM/JTOpen/releases</A>
+
+<H3>Historical change history</H3>
+
 <A HREF="#112">Fixes and enhancements in JTOpen 11.2</A><br>
 <A HREF="#111">Fixes and enhancements in JTOpen 11.1</A><br>
 <A HREF="#110">Fixes and enhancements in JTOpen 11.0</A><br>
