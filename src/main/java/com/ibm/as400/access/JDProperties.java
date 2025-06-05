@@ -349,7 +349,8 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String         BLOCK_SIZE_128                  = "128";
     static final String         BLOCK_SIZE_256                  = "256";
     static final String         BLOCK_SIZE_512                  = "512";
-
+    static final int            BLOCK_SIZE_512_INT              = 512; 
+    static final int            BLOCK_SIZE_MAX_INT              = 16000; 
     static final String         CURSOR_SENSITIVITY_ASENSITIVE   = "asensitive";   //@F6A
     static final String         CURSOR_SENSITIVITY_INSENSITIVE  = "insensitive";   //@F6A
     static final String         CURSOR_SENSITIVITY_SENSITIVE    = "sensitive";   //@F6A
@@ -2364,10 +2365,21 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
                 }
             }
 
+            
+            // For block size allow values > 512 and value < BLOCK_SIZE_MAX_INT
+            if(! valid && index == BLOCK_SIZE) { 
+              int blockSize = Integer.parseInt(values_[index]); 
+              if (blockSize > BLOCK_SIZE_512_INT && blockSize <= BLOCK_SIZE_MAX_INT) {
+                valid = true; 
+              }
+            }
+            
             // If not valid, then set the current choice to
             // the default.
-            if(! valid)
-                values_[index] = defaults_[index];
+            if (!valid) { 
+              values_[index] = defaults_[index];
+            }
+            
         }
 
         if(JDTrace.isTraceOn()) { 
