@@ -511,6 +511,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *    <li> 128
     *    <li> 256
     *    <li> 512
+    *    <li> 513-16000
     *  </ul>
     **/
     public int getBlockSize()
@@ -2434,6 +2435,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     *    <li> 128
     *    <li> 256
     *    <li> 512
+    *    <li> 513-16000
     *  </ul>
     **/
     public void setBlockSize(int blockSize)
@@ -5456,6 +5458,14 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             	}
             }                 
             //Bidi-HCG end
+            
+            // Exception for block size
+            if (index == JDProperties.BLOCK_SIZE) {
+              int blockSize = Integer.parseInt(value);
+              if (blockSize > JDProperties.BLOCK_SIZE_512_INT && blockSize <= JDProperties.BLOCK_SIZE_MAX_INT)
+                  return; 
+            }
+            
             
             boolean notValid = true;
             int current = 0;

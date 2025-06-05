@@ -657,6 +657,7 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
    *         <li>128
    *         <li>256
    *         <li>512
+   *         <li>513-16000
    *         </ul>
    **/
   public int getBlockSize() {
@@ -2798,6 +2799,7 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
    *                  <li>128
    *                  <li>256
    *                  <li>512
+   *                  <li>513-16000
    *                  </ul>
    **/
   public void setBlockSize(int blockSize) {
@@ -5165,6 +5167,13 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
               ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
       }
+      
+      if (index == JDProperties.BLOCK_SIZE) {
+        int blockSize = Integer.parseInt(value);
+        if (blockSize > JDProperties.BLOCK_SIZE_512_INT && blockSize <= JDProperties.BLOCK_SIZE_MAX_INT)
+            return; 
+      }
+
       // Bidi-HCG end
 
       boolean notValid = true;
