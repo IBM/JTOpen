@@ -712,7 +712,8 @@ implements JDRow
                         //For an array elements, a null value is just a null array element.
                         for(int i = 0; i < arrayCount; i++)                                                       //@array
                         {                                                                                         //@array
-                            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, outputIndex0, i) == -1))   //@array //@arrayout
+                            int indicator = serverData_.getIndicator(rowIndex_, outputIndex0, i);
+                            if((serverData_ != null) && ( (indicator == -1) || (indicator== -2)))   //@array //@arrayout
                                 ((SQLArray)sqlData_[index0]).setElementNull(i);                                        //@array //@nullelem
                         }                                                                                         //@array
                     }                                                                                             //@array
@@ -816,11 +817,12 @@ implements JDRow
     {
         try
         {
-            int outputIndex = index;                                  //@arrayout
-            if(serverData_ instanceof DBVariableData)                 //@arrayout
+            int outputIndex = index;                                  
+            if(serverData_ instanceof DBVariableData)                
                 outputIndex = getVariableOutputIndex(index-1) + 1;    //@arrayout (arrays in DBVariableData only contain output parms here, so need to skip any input parms in other JDServer arrays)
-
-            if((serverData_ != null) && (serverData_.getIndicator(rowIndex_, outputIndex - 1) == -1)) //@arrayout
+            int indicator = serverData_.getIndicator(rowIndex_, outputIndex - 1); 
+            /* Also check for indicator = -2, meaning a mapping error occurred */ 
+            if((serverData_ != null) && ( (indicator == -1) || (indicator == -2) )) //@arrayout
                 return true;
             else
                 return false;
