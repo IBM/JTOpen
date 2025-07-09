@@ -174,6 +174,9 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable,
                     break;
                 default:
                     if (SocketProperties.isSocketProperty(property)) {
+                        if (socketProperties_ == null) {
+                            socketProperties_ = new SocketProperties();
+                        }
                         socketProperties_.restore(property, value);
                     }
                     break;
