@@ -57,6 +57,9 @@ jobs:
         MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
         MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
 
+    - name: Initialize Maven settings
+      run: mkdir -p ./.m2 && mv settings.xml ./.m2
+    
     - name: Publish package
       run: mvn --batch-mode "-Dprod.build=true" -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} clean deploy --file pom-dist.xml
       env:
