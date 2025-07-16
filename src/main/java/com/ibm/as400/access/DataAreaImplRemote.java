@@ -1135,7 +1135,7 @@ class DataAreaImplRemote implements DataAreaImpl
                 // Single-quote pairs are treated as a single-quote for 
                 // the "Substring length" parameter of the CHGDTAARA command.
                 // For example, the following is valid:
-                // QSYS/CHGDTAARA DTAARA(DPRIGGE/CHAR1 (1 5)) VALUE('AB''''E') 
+                // QSYS/CHGDTAARA DTAARA(XXXXX/CHAR1 (1 5)) VALUE('AB''''E') 
                 // Notice that we need to specify (1 5) rather than (1 7)
 
                 int searchIndex = 0, foundIndex;

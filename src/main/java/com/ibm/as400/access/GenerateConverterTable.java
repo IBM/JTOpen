@@ -52,7 +52,11 @@ public class GenerateConverterTable {
     if (args.length < 4) {
       System.out.println(
           "Usage: java com.ibm.as400.access.GenerateConverterTable system uid pwd [-nocompress] [-ascii] [-bidi] [-showOffsets] [-codePointPerLine] [-useJdbc] ccsid [ccsid2] [ccsid3] [ccsid4] ...");
-      System.exit(0);
+      if ((System.getProperty("com.ibm.as400.access.DisableExit") == null)  &&
+          (System.getenv("com.ibm.as400.access.DisableExit") == null))
+        System.exit(0);
+      else
+          return; 
     }
 
     try {
@@ -60,7 +64,11 @@ public class GenerateConverterTable {
       sys.connectService(AS400.CENTRAL);
     } catch (Exception e) {
       e.printStackTrace();
-      System.exit(0);
+      if ((System.getProperty("com.ibm.as400.access.DisableExit") == null)  &&
+          (System.getenv("com.ibm.as400.access.DisableExit") == null))
+        System.exit(0);
+      else
+          return; 
     }
 
     int start = 3;
@@ -97,7 +105,11 @@ public class GenerateConverterTable {
 
       } catch (Exception e) {
         e.printStackTrace();
-        System.exit(0);
+        if ((System.getProperty("com.ibm.as400.access.DisableExit") == null)  &&
+            (System.getenv("com.ibm.as400.access.DisableExit") == null))
+          System.exit(0);
+        else
+            return; 
       }
 
       ++start;
@@ -171,7 +183,11 @@ public class GenerateConverterTable {
           } catch (Exception e) {
             System.out.println("Error downloading table using JDBC ");
             e.printStackTrace(System.out);
-            System.exit(1);
+            if ((System.getProperty("com.ibm.as400.access.DisableExit") == null)  &&
+                (System.getenv("com.ibm.as400.access.DisableExit") == null))
+              System.exit(1);
+            else
+                return; 
           }
 
         }

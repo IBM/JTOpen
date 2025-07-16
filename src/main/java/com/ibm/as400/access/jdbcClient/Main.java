@@ -227,7 +227,7 @@ public class Main implements Runnable {
   private String conLabel_;
   private CallableStatement cstmt_;
   private String   cstmtSql_; 
-  private Vector threads_ = new Vector();
+  private Vector<Thread> threads_ = new Vector<Thread>();
 
   boolean html_ = false;
   boolean xml_ = false;
@@ -242,12 +242,12 @@ public class Main implements Runnable {
   private String poolUserId = null;
   private String poolPassword = null;
   private String poolUrl = null;
-  private Hashtable connectionPool = new Hashtable();
-  private Hashtable variables = new Hashtable();
+  private Hashtable<String, Connection> connectionPool = new Hashtable<String, Connection>();
+  private Hashtable<String, Object> variables = new Hashtable<String, Object>();
   private int conCount;
   private String conName="CON";
 
-  private Vector history = new Vector();
+  private Vector<String> history = new Vector<String>();
 
   void initializeDefaults() {
 
@@ -2011,8 +2011,8 @@ public class Main implements Runnable {
 
         if (ok) {
           try {
-            Class traceClass = Class.forName("com.ibm.db2.jdbc.app.T");
-            Class[] argClasses = new Class[1];
+            Class<?> traceClass = Class.forName("com.ibm.db2.jdbc.app.T");
+            Class<?>[] argClasses = new Class[1];
             argClasses[0] = Boolean.TYPE;
             java.lang.reflect.Method method = traceClass.getMethod(
                 "setCliTrace", argClasses);
@@ -2038,8 +2038,8 @@ public class Main implements Runnable {
         try {
           String setting = command1.substring(11).trim();
 
-          Class traceClass = Class.forName("com.ibm.db2.jdbc.app.T");
-          Class[] argClasses = new Class[1];
+          Class<?> traceClass = Class.forName("com.ibm.db2.jdbc.app.T");
+          Class<?>[] argClasses = new Class[1];
           argClasses[0] = Integer.TYPE;
           java.lang.reflect.Method method = traceClass.getMethod("setDb2Trace",
               argClasses);
@@ -2065,15 +2065,15 @@ public class Main implements Runnable {
         try {
           
 
-          Class utilClass = Class.forName("com.ibm.iseries.debug.util.Util");
-          Class[] argClasses = new Class[0];
+          Class<?> utilClass = Class.forName("com.ibm.iseries.debug.util.Util");
+          Class<?>[] argClasses = new Class[0];
           java.lang.reflect.Method method = utilClass.getMethod("registerApp",
               argClasses);
           Object[] args = new Object[0];
           method.invoke(null,  args); 
 
-          Class debugClass = Class.forName("utilities.Debug");
-          Class[] mainArgsClasses = new Class[1];
+          Class<?> debugClass = Class.forName("utilities.Debug");
+          Class<?>[] mainArgsClasses = new Class[1];
           args = new Object[1]; 
 
           String mainArg[] = new String[6];
@@ -2227,7 +2227,7 @@ public class Main implements Runnable {
                 if (typePattern.equals("null")) {
                   typePattern = null;
                 } else {
-                  Vector vectorList = new Vector();
+                  Vector<String> vectorList = new Vector<String>();
                   int barIndex = typePattern.indexOf('|');
                   while (barIndex > 0) {
                     String thisType = typePattern.substring(0, barIndex);
@@ -2345,7 +2345,7 @@ public class Main implements Runnable {
       } else if (upcaseCommand.startsWith("HISTORY.CLEAR")) {
         history.clear();
       } else if (upcaseCommand.startsWith("HISTORY.SHOW")) {
-        Enumeration enumeration = history.elements();
+        Enumeration<String> enumeration = history.elements();
         while (enumeration.hasMoreElements()) {
           String info = (String) enumeration.nextElement();
           printStreamForExecuteCommand.println(info);
@@ -2582,6 +2582,7 @@ public class Main implements Runnable {
             printStreamForExecuteCommand.print(" " + Integer.toHexString(val));
             val = is.read();
           }
+          is.close(); 
           printStreamForExecuteCommand.println("]");
         }
         if ((obj != null) && (obj.getClass().isArray())) {
@@ -2773,7 +2774,7 @@ public class Main implements Runnable {
         if (dotIndex > 0) {
           String callVariable = left.substring(0, dotIndex).trim();
           Object callObject = variables.get(callVariable);
-          Class callClass = null;
+          Class<?> callClass = null;
           left = left.substring(dotIndex + 1).trim();
           paramIndex = left.indexOf("(");
           String methodName = left.substring(0, paramIndex).trim();
@@ -2812,7 +2813,7 @@ public class Main implements Runnable {
                 
                 if (methods[m].getName().equals(methodName)) {
                 	methods[m].setAccessible(true); 
-                  Class[] parameterTypes = methods[m].getParameterTypes();
+                  Class<?>[] parameterTypes = methods[m].getParameterTypes();
                   String argsLeft = left;
                   Object[] parameters = new Object[parameterTypes.length];
                   methodFound = true;
@@ -3106,7 +3107,7 @@ public class Main implements Runnable {
   }
 
   /* Use both getMethods and getDeclared methods to return all methods for the object  */ 
-  private Method[] getAllMethods(Class class1) {
+  private Method[] getAllMethods(Class<?> class1) {
     Method[] declaredMethods = class1.getDeclaredMethods();
     Method[] allMethods = class1.getMethods(); 
     	
@@ -3167,7 +3168,7 @@ private String getXACodeInfo(XAException e) {
       int paramIndex = left.indexOf("(");
       if (paramIndex > 0) {
         String newClassName = left.substring(0, paramIndex).trim();
-        Class newClass = null;
+        Class<?> newClass = null;
         left = left.substring(paramIndex + 1);
         // Try to find the variable as a class
         try {
@@ -3176,13 +3177,13 @@ private String getXACodeInfo(XAException e) {
         }
 
         if (newClass != null) {
-            Constructor[] constructors;
+            Constructor<?>[] constructors;
             constructors = newClass.getConstructors();
             
             for (int m = 0; !methodFound && (m < constructors.length)
                 && (variable == null); m++) {
 
-              Class[] parameterTypes = constructors[m].getParameterTypes();
+              Class<?>[] parameterTypes = constructors[m].getParameterTypes();
               String argsLeft = left;
               Object[] parameters = new Object[parameterTypes.length];
               methodFound = true;
@@ -3409,7 +3410,7 @@ private String getXACodeInfo(XAException e) {
 
   private void showValidVariables(PrintStream out1) {
     out1.println("Valid variables are the following");
-    Enumeration keys = variables.keys();
+    Enumeration<String> keys = variables.keys();
     while (keys.hasMoreElements()) {
       out1.println(keys.nextElement());
     }
@@ -3418,7 +3419,7 @@ private String getXACodeInfo(XAException e) {
   private void showMethods(String left, PrintStream out1) {
     String callVariable = left.trim();
     Object callObject = variables.get(callVariable);
-    Class callClass = null;
+    Class<?> callClass = null;
     if (callObject == null) {
       try {
         callClass = Class.forName(callVariable);
@@ -3441,14 +3442,14 @@ private String getXACodeInfo(XAException e) {
       for (int m = 0; (m < methods.length); m++) {
         String methodInfo;
         String returnClause;
-        Class returnType = methods[m].getReturnType();
+        Class<?> returnType = methods[m].getReturnType();
         methodInfo = methods[m].getName();
         if (returnType != null) {
            returnClause =  " @RETURNS "+returnType.getName() ;
         } else {
            returnClause =  " @RETURNS void";
         }
-        Class[] parameterTypes = methods[m].getParameterTypes();
+        Class<?>[] parameterTypes = methods[m].getParameterTypes();
         methodInfo += "(";
         for (int p = 0; p < parameterTypes.length; p++) {
           String parameterTypeName = parameterTypes[p].getName();
@@ -3461,7 +3462,7 @@ private String getXACodeInfo(XAException e) {
       }
       Vector<String> methodVector = new Vector<String>(hashSet); 
       Collections.sort(methodVector); 
-      Enumeration vectorEnum = methodVector.elements(); 
+      Enumeration<String> vectorEnum = methodVector.elements(); 
       while (vectorEnum.hasMoreElements()) {
         String methodInfo = (String) vectorEnum.nextElement();
         int returnsIndex = methodInfo.indexOf(" @RETURNS ");
@@ -4148,7 +4149,7 @@ private String getXACodeInfo(XAException e) {
         stuff = new char[length];
         BufferedReader reader = new BufferedReader(new FileReader(filename));
         reader.read(stuff, 0, length);
-
+        reader.close(); 
         clob = new ClientClob(new String(stuff));
 
       } catch (Exception e) {
@@ -4515,7 +4516,7 @@ private String getXACodeInfo(XAException e) {
 
   public Array makeArray(Object parameter, String arrayType) throws Exception {
     Object[] objectArray = new Object[0];
-    Class argTypes[] = new Class[2];
+    Class<?> argTypes[] = new Class[2];
     argTypes[0] = "".getClass();
     argTypes[1] = objectArray.getClass();
     Array arrayParameter = (Array) ReflectionUtil.callMethod_O(connection_,
@@ -4546,7 +4547,7 @@ private String getXACodeInfo(XAException e) {
           left = left.substring(colonIndex + 1);
         }
         // Put the string parameters into a vecto
-        Vector parameterVector = new Vector();
+        Vector<String> parameterVector = new Vector<String>();
         String arraySep = ":";
         if (typename.equals("Time")) {
           arraySep = " ";
@@ -4890,7 +4891,12 @@ private String getXACodeInfo(XAException e) {
   public static void main(String[] args) {
     if (args.length < 1) {
       System.out.println(usage);
-      System.exit(1);
+      if ((System.getProperty("com.ibm.as400.access.jdbcClient.DisableExit") == null)  &&
+          (System.getenv("com.ibm.as400.access.jdbcClient.DisableExit") == null))
+        System.exit(1);
+      else
+          return; 
+
     } else {
       try {
 
@@ -4904,7 +4910,11 @@ private String getXACodeInfo(XAException e) {
         }
 
         int rc = main.go(System.in, System.out);
-        System.exit(rc);
+        if ((System.getProperty("com.ibm.as400.access.jdbcClient.DisableExit") == null)  &&
+            (System.getenv("com.ibm.as400.access.jdbcClient.DisableExit") == null))
+          System.exit(rc);
+        else
+            return; 
       } catch (Exception e) {
         e.printStackTrace();
       }

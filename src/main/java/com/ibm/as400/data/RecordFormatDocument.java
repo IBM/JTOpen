@@ -878,7 +878,11 @@ public class RecordFormatDocument implements Serializable, Cloneable
         if (!args[0].equalsIgnoreCase("-SERIALIZE"))
         {
           System.out.println(errMsg);
-          System.exit(-1);
+          if ((System.getProperty("com.ibm.as400.data.DisableExit") == null)  &&
+              (System.getenv("com.ibm.as400.data.DisableExit") == null))
+            System.exit(-1);
+          else
+              return; 
         }
 
         // Load the document from source (previously serialized documents are ignored)
@@ -895,7 +899,11 @@ public class RecordFormatDocument implements Serializable, Cloneable
         catch (Exception e)
         {
           System.out.println(e.getLocalizedMessage());
+          if ((System.getProperty("com.ibm.as400.data.DisableExit") == null)  &&
+              (System.getenv("com.ibm.as400.data.DisableExit") == null))
           System.exit(-1);
+          else
+             return ;
         }
         finally
         {
@@ -906,7 +914,11 @@ public class RecordFormatDocument implements Serializable, Cloneable
       else
       {
         System.out.println(errMsg);
-        System.exit(-1);
+        if ((System.getProperty("com.ibm.as400.data.DisableExit") == null)  &&
+            (System.getenv("com.ibm.as400.data.DisableExit") == null))
+          System.exit(-1);
+        else
+            return; 
       }
 
     }

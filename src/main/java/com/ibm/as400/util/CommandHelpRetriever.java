@@ -357,7 +357,7 @@ public class CommandHelpRetriever
       CommandHelpRetriever utility = new CommandHelpRetriever();
 
       AS400 system = parseParms(args, utility);
-      CommandList list = new CommandList(system, utility.library_, utility.command_);
+      CommandList list = new CommandList(system, library_, command_);
       Command[] cmds = list.generateList();
 
       File outDir = new File(utility.outputDirectory_);
@@ -990,7 +990,7 @@ public class CommandHelpRetriever
   {
     String s,u,p,l,c,pv,o,d,uim,html;
 
-    Vector v = new Vector();
+    Vector<String> v = new Vector<String>();
     v.addElement("-system");
     v.addElement("-userid");
     v.addElement("-password");                  
@@ -1002,7 +1002,7 @@ public class CommandHelpRetriever
     v.addElement("-uim");
     v.addElement("-html");
 
-    Hashtable shortcuts = new Hashtable();
+    Hashtable<String, String> shortcuts = new Hashtable<String, String>();
     shortcuts.put("-help", "-h");
     shortcuts.put("-?", "-h");
     shortcuts.put("-s", "-system");
@@ -1037,7 +1037,7 @@ public class CommandHelpRetriever
 
     p = arguments.getOptionValue("-password");
     if (p != null)
-      system.setPassword(p);
+      system.setPassword(p.toCharArray());
 
     l = arguments.getOptionValue("-library");
     if (l != null)
@@ -1226,7 +1226,9 @@ public class CommandHelpRetriever
     System.out.println ("  [ -o outputLocation ]");
     System.out.println ("  [ -d [true | false] ]");
 
-    System.exit(0);
+    if ((System.getProperty("com.ibm.as400.util.DisableExit") == null)  &&
+        (System.getenv("com.ibm.as400.util.DisableExit") == null))
+      System.exit(0);
   }
 
 }

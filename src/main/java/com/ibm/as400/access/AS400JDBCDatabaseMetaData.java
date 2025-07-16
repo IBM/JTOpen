@@ -126,7 +126,11 @@ implements DatabaseMetaData
     AS400JDBCConnection   connection_;
     private int                     id_;
     private SQLConversionSettings   settings_;
-    private boolean                 useDRDAversion_; 
+    private boolean                 useDRDAversion_;
+
+
+    private int databaseMajorVersion_ = 0;
+    private int databaseMinorVersion_ = 0; 
 
     //@mdsp misc constants for sysibm stored procedures
     final static int SQL_NO_NULLS            = 0;   //@mdsp
@@ -674,7 +678,7 @@ implements DatabaseMetaData
         {                                                                                // @F1a
             try
             {                                                                          // @F1a                                                                            // @F1a
-                Vector RDBEntries = new Vector();                                        // @F1a
+                Vector<String> RDBEntries = new Vector<String>();                                        // @F1a
 
                 Statement statement = null; //@scan1
                 ResultSet rs = null;        //@scan1
@@ -1850,19 +1854,11 @@ implements DatabaseMetaData
     **/
     public int getDatabaseMajorVersion ()
     {
-        //return 5;   //@610
-
-        //@610 get this dynamically since we can now have version 5 or 6
         int defaultVersion = 0; //since we do not want to change signature to throw exception, have default as 0
         try
         {
-            String v = getDatabaseProductVersion();
-            int dotIndex = v.indexOf('.');
-            if (dotIndex > 0)
-            {
-                v = v.substring(0,dotIndex);
-                defaultVersion = Integer.parseInt(v);
-            }
+            getDatabaseProductVersion();
+            return databaseMajorVersion_; 
         }catch(Exception e)
         {
             //should not happen
@@ -1880,26 +1876,11 @@ implements DatabaseMetaData
     **/
     public int getDatabaseMinorVersion ()
     {
-        //return 0;   //@610
-
-        //@610 get this dynamically since we can now as Native driver does
         int defaultVersion = 0;
         try
         {
-            String v = getDatabaseProductVersion();
-            int dotIndex = v.indexOf('.');
-            if (dotIndex > 0)
-            {
-                v = v.substring(dotIndex+1);
-                dotIndex = v.indexOf('.');
-                if (dotIndex > 0)
-                {
-                    v = v.substring(0,dotIndex);
-                }
-
-                defaultVersion = Integer.parseInt(v);
-
-            }
+            getDatabaseProductVersion();
+            return databaseMinorVersion_; 
         }catch(Exception e)
         {
             //should not happen
@@ -1954,12 +1935,12 @@ implements DatabaseMetaData
         // its a nit anyway.
         connection_.checkOpen();
         AS400ImplRemote as400_ = (AS400ImplRemote) connection_.getAS400 ();
-        int v, r, m;
+        int  m;
         try
         {
             int vrm = as400_.getVRM ();
-            v = (vrm & 0xffff0000) >>> 16;                   // @D1C
-            r = (vrm & 0x0000ff00) >>>  8;                   // @D1C
+            databaseMajorVersion_ = (vrm & 0xffff0000) >>> 16;                   
+            databaseMinorVersion_ = (vrm & 0x0000ff00) >>>  8;                   
             m = (vrm & 0x000000ff);                          // @D1C
         }
         catch (Exception e)
@@ -1969,15 +1950,15 @@ implements DatabaseMetaData
         }
 
         StringBuilder buffer = new StringBuilder ();
-        buffer.append (JDUtilities.padZeros (v, 2));
+        buffer.append (JDUtilities.padZeros (databaseMajorVersion_, 2));
         buffer.append (".");
-        buffer.append (JDUtilities.padZeros (r, 2));
+        buffer.append (JDUtilities.padZeros (databaseMinorVersion_, 2));
         buffer.append (".");
         buffer.append (JDUtilities.padZeros (m, 4));
         buffer.append (" V");
-        buffer.append (v);
+        buffer.append (databaseMajorVersion_);
         buffer.append ("R");
-        buffer.append (r);
+        buffer.append (databaseMinorVersion_);
         buffer.append ("m");
         buffer.append (m);
         return buffer.toString ();
@@ -2000,18 +1981,18 @@ implements DatabaseMetaData
       // 
       connection_.checkOpen();
       AS400ImplRemote as400_ = (AS400ImplRemote) connection_.getAS400 ();
-        int v, r, m;
+        int  m;
         int vrm = as400_.getVRM ();
-        v = (vrm & 0xffff0000) >>> 16;                   // @D1C
-        r = (vrm & 0x0000ff00) >>>  8;                   // @D1C
-        m = (vrm & 0x000000ff);                          // @D1C
+        databaseMajorVersion_ = (vrm & 0xffff0000) >>> 16;                   
+        databaseMinorVersion_ = (vrm & 0x0000ff00) >>>  8;                   
+        m = (vrm & 0x000000ff);                          
 
         StringBuilder buffer = new StringBuilder ();
         buffer.append("QSQ"); 
-        if (v < 10)  buffer.append("0");
-        buffer.append(v);
-        if (r < 10)  buffer.append("0");
-        buffer.append(r);
+        if (databaseMajorVersion_ < 10)  buffer.append("0");
+        buffer.append(databaseMajorVersion_);
+        if (databaseMinorVersion_ < 10)  buffer.append("0");
+        buffer.append(databaseMinorVersion_);
         buffer.append(m);
         return buffer.toString ();
     }
@@ -5325,7 +5306,7 @@ implements DatabaseMetaData
         // of the result set.
         // I changed this from an array to a Vector in order to make it            // @D0C
         // easier to conditionally add types based on the release.                 // @D0C
-        Vector typeSamples = new Vector();                                         // @D0C
+        Vector<SQLData> typeSamples = new Vector<SQLData>();                                         // @D0C
 
         typeSamples.addElement(new SQLChar(32765, settings_));              // @D0C
         if((connection_.getVRM() < JDUtilities.vrm530) || (translateHexAsChar && (connection_.getVRM() >= JDUtilities.vrm530))) //@5WXVJX

@@ -16,94 +16,23 @@ package com.ibm.as400.util;
 
 //import java.io.IOException;
 //import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.Base64;
+import java.util.Base64.Decoder;
 
-import com.ibm.as400.access.Trace;
 
 /* Replacement for sun.misc.BASE64Decoder.  If that is available, it will be used
  * 
  */
 public class BASE64Decoder {
-  Object  decoder ; 
-  boolean sunMisc = false;
-  boolean javaUtil = false;
-  private Method decodeStringMethod; 
+  private Decoder decoder;
   static byte[] dummyBytes = new byte[0]; 
   public BASE64Decoder() { 
-    try {
-      String sunClass = "sun.misc.BASE64Decoder"; 
-     Class decoderClass = Class.forName(sunClass);
-     decoder = decoderClass.newInstance(); 
-     Class[] parameterTypes = new Class[1]; 
-     parameterTypes[0] = Class.forName("java.lang.String");  
-     decodeStringMethod = decoderClass.getMethod("decodeBuffer", parameterTypes);
-     
-     sunMisc = true; 
-   } catch (ClassNotFoundException e) {
-     Trace.log(Trace.ERROR, e); 
-   } catch (InstantiationException e) {
-     Trace.log(Trace.ERROR, e); 
-   } catch (IllegalAccessException e) {
-     Trace.log(Trace.ERROR, e); 
-   } catch (SecurityException e) {
-     Trace.log(Trace.ERROR, e); 
-   } catch (NoSuchMethodException e) {
-     Trace.log(Trace.ERROR, e); 
-   } 
-   
-   if (!sunMisc) {
-	     // Try the new method
-	     Class decoderClass;
-	     try {
-	       Class baseClass = Class.forName("java.util.Base64");
-	       Class [] zeroArgs = new Class[0]; 
-	       Method getDecoderMethod = baseClass.getMethod("getDecoder", zeroArgs); 
-	       decoder = getDecoderMethod.invoke(null, null) ; 
-	       decoderClass = decoder.getClass(); 
-	     Class[] parameterTypes = new Class[1]; 
-	     parameterTypes[0] = Class.forName("java.lang.String"); //@AF3A
-	     decodeStringMethod = decoderClass.getMethod("decode", parameterTypes); //@Af3C
-	     javaUtil = true;  
-	     } catch (ClassNotFoundException e) {
-	       Trace.log(Trace.ERROR, e); 
-	     } catch (IllegalAccessException e) {
-	       Trace.log(Trace.ERROR, e); 
-	     } catch (SecurityException e) {
-	       Trace.log(Trace.ERROR, e); 
-	     } catch (NoSuchMethodException e) {
-	       Trace.log(Trace.ERROR, e); 
-	     } catch (IllegalArgumentException e) {
-	       Trace.log(Trace.ERROR, e); 
-	     } catch (InvocationTargetException e) {
-	       Trace.log(Trace.ERROR, e); 
-	     }
-	   }
+	       decoder = Base64.getDecoder(); 
   }
 
-   public byte[] decodeBuffer(String inString) {
-     if (sunMisc | javaUtil) { 
-       Object[] args = new Object[1];
-       args[0] = inString;
-       try {
-         return (byte[]) decodeStringMethod.invoke(decoder, args);
-       } catch (Exception e) {
-         if (e instanceof InvocationTargetException) {
-           InvocationTargetException ite = (InvocationTargetException) e;
-           Throwable cause = ite.getCause();
-           if (cause instanceof Error) {
-             throw (Error) cause;
-           } else {
-             throw new Error("UNEXPECTED EXCEPTION", e);
-           }
-         } else {
-           throw new Error("UNEXPECTED EXCEPTION", e);
-         }
-       }
-     } else {
-       throw new Error("UNIMPLEMENTED");
-     }
-   }
+  public byte[] decodeBuffer(String inString) {
+    return decoder.decode(inString);
+  }
   
    
 /*   

@@ -148,7 +148,9 @@ public class JPing
       finally
       {
         try { 
-         System.exit(0); // this is necessary in case a signon dialog popped up
+         if ((System.getProperty("com.ibm.as400.util.DisableExit") == null)  &&
+             (System.getenv("com.ibm.as400.util.DisableExit") == null))
+           System.exit(0); // this is necessary in case a signon dialog popped up
         } catch (Exception e) { 
           // Ignore any errors from exit (for example, a security manager could cause
           // a security exception when exit is called. 
@@ -164,13 +166,13 @@ public class JPing
    {
       if (args.length == 0) return false;
 
-      Vector options = new Vector();
+      Vector<String> options = new Vector<String>();
       options.addElement("-service");
       options.addElement("-ssl");
       options.addElement("-timeout");
       options.addElement("-verbose");
 
-      Hashtable shortcuts = new Hashtable();
+      Hashtable<String, String> shortcuts = new Hashtable<String, String>();
       shortcuts.put("-h", "-help");
       shortcuts.put("-?", "-help");
       shortcuts.put("-s", "-service");

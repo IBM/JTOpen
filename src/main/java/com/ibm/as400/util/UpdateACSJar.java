@@ -82,9 +82,10 @@ public class UpdateACSJar    {
 
     
     
+  @SuppressWarnings("unused")
   private static File locateCurrentJt400JarFile() throws Exception {
-    if ((AS400JDBCDriver.JDBC_MAJOR_VERSION_ == 4
-        && AS400JDBCDriver.JDBC_MINOR_VERSION_ == 2)) {
+    if ((AS400JDBCDriver.JDBC_MAJOR_VERSION_ >= 4
+        && AS400JDBCDriver.JDBC_MINOR_VERSION_>= 2)) {
       String loadPath = "unknown";
       ClassLoader loader = UpdateACSJar.class.getClassLoader();
       if (loader != null) {
