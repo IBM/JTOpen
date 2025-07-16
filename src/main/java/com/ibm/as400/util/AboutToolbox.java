@@ -62,7 +62,7 @@ public class AboutToolbox
 
     try 
     {
-      Class copyright = Class.forName("com.ibm.as400.access.Copyright");
+      Class<?> copyright = Class.forName("com.ibm.as400.access.Copyright");
       Field version = copyright.getDeclaredField("JTOpenName");
 
       sbuf.append(version.get(null));
@@ -92,7 +92,7 @@ public class AboutToolbox
 
     try 
     {
-      Class copyright = Class.forName("com.ibm.as400.access.Copyright");
+      Class<?> copyright = Class.forName("com.ibm.as400.access.Copyright");
       Field version = copyright.getDeclaredField("version");
 
       // Running with mod2 (with 2nd PTF) or later.
@@ -101,7 +101,7 @@ public class AboutToolbox
       // JDBC version designators were added after JTOpen 6.1.
       try
       {
-        Class driver = Class.forName("com.ibm.as400.access.AS400JDBCDriver");
+        Class<?> driver = Class.forName("com.ibm.as400.access.AS400JDBCDriver");
         Field majorVersion = driver.getDeclaredField("JDBC_MAJOR_VERSION_");
         Field minorVersion = driver.getDeclaredField("JDBC_MINOR_VERSION_");
         sbuf.append("\nSupports JDBC version ").append(majorVersion.getInt(null)).append(".").append(minorVersion.getInt(null));

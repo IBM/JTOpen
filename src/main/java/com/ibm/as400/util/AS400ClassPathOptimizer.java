@@ -5,8 +5,6 @@ import com.ibm.as400.access.*;
 import com.ibm.as400.resource.*;
 import java.io.PrintStream;
 import java.util.StringTokenizer;
-import java.util.Enumeration;
-import java.util.*;
 
 
 
@@ -282,7 +280,8 @@ public class AS400ClassPathOptimizer {
 	}
 
 
-	int retrieveOptimizationLevel( IFSFile file ) throws Exception {
+	@SuppressWarnings("deprecation")
+  int retrieveOptimizationLevel( IFSFile file ) throws Exception {
 
 		RJavaProgram javaProgram = new RJavaProgram( as400_, file.getAbsolutePath() );
 

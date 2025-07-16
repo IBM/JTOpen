@@ -2367,13 +2367,18 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
 
             
             // For block size allow values > 512 and value < BLOCK_SIZE_MAX_INT
-            if(! valid && index == BLOCK_SIZE) { 
-              int blockSize = Integer.parseInt(values_[index]); 
-              if (blockSize > BLOCK_SIZE_512_INT && blockSize <= BLOCK_SIZE_MAX_INT) {
-                valid = true; 
+            // Ignore the property if it is not valid
+            if (!valid && index == BLOCK_SIZE) {
+              try {
+                int blockSize = Integer.parseInt(values_[index]);
+                if (blockSize > BLOCK_SIZE_512_INT && blockSize <= BLOCK_SIZE_MAX_INT) {
+                  valid = true;
+                }
+              } catch (java.lang.NumberFormatException nfe) {
+                valid = false;
               }
             }
-            
+
             // If not valid, then set the current choice to
             // the default.
             if (!valid) { 
