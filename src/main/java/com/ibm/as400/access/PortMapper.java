@@ -200,7 +200,12 @@ class PortMapper
             }
             catch (ServerStartupException e)
             {
-                Trace.log(Trace.ERROR, "Failed to map a port for " + fullServiceName, e);
+                // If the service is the host connection server, log as informational instead of error
+                if (service != AS400.HOSTCNN) {
+                  Trace.log(Trace.ERROR, "Failed to map a port for " + fullServiceName, e);
+                } else {
+                  Trace.log(Trace.INFORMATION, "Failed to map a port for " + fullServiceName, e);
+                }
                 throw e;
             }
 

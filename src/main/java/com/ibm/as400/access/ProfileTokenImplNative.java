@@ -646,7 +646,8 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             }
         }
     	ProfileTokenCredential cred = (ProfileTokenCredential) getCredential();
-        if (!cred.isEnhancedProfileToken()) { 
+        if (!cred.isEnhancedProfileToken() || 
+            (AS400.nativeVRM.getVersionReleaseModification() <= 0x00070500)) { 
              nativeSwap(cred.getToken());
         } else {
         	EnhancedProfileTokenImplNative.nativeSwap(cred.getToken(),

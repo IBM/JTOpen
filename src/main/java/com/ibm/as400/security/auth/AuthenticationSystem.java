@@ -43,7 +43,9 @@ class AuthenticationSystem
         {
             String osName = System.getProperty("os.name");
             Trace.log(Trace.DIAGNOSTIC, "Detected os.name: " + osName);
-            onAS400_ = (osName != null && osName.equalsIgnoreCase("OS/400"));
+            onAS400_ = (osName != null && (
+                osName.equalsIgnoreCase("OS/400") || 
+                osName.equalsIgnoreCase("OS400")));   /* OS400 is used by OpenJDK */ 
         }
         catch (SecurityException e)
         {
