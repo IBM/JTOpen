@@ -181,16 +181,22 @@ public class AS400 implements Serializable, AutoCloseable
         {
             String s = System.getProperty("os.name");
             if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Detected os.name:", s);
-            if (s != null && s.equalsIgnoreCase("OS/400"))
+            if (s != null && ( s.equalsIgnoreCase("OS/400") ||  
+                               s.equalsIgnoreCase("OS400")    /*Name used by open JDK */ ))
             {
                 String version = System.getProperty("os.version");
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Detected os.version:", version);
                 if (version != null)
                 {
+                  
                     char[] versionChars = version.toCharArray();
                     if (versionChars.length == 6)
                     {
                         int vrm = ((versionChars[1] & 0x000F) << 16) + ((versionChars[3] & 0x000F) <<  8) + (versionChars[5] & 0x000F);
+                        AS400.nativeVRM = new ServerVersion(vrm);
+                    } else if (versionChars.length == 3) {
+                        /* format is like 7.6  -- open JDK */ 
+                        int vrm = ((versionChars[0] & 0x000F) << 16) + ((versionChars[2] & 0x000F) <<  8);
                         AS400.nativeVRM = new ServerVersion(vrm);
                     }
                 }

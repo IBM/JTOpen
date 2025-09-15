@@ -29,18 +29,18 @@ public class NativeMethods
         {                                                                   //@pase1
             try{                                                            //@pase1
                 //we are in j9 jvm
-                if (System.getProperty("java.home").indexOf("64bit") > 0)       //@pase1
+                if (System.getProperty("java.home").indexOf("32bit") > 0)       //@pase1
+                {                                                               //@pase1
+                  //load 32 bit version
+                  if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native PASE methods for 32bit libs if available");//@pase1
+                  System.load("/QIBM/ProdData/OS400/jt400/lib/qyjspase32.so");
+                  paseLibLoaded = true;
+
+                } else                                                          //@pase1
                 {                                                               //@pase1
                     //load 64 bit version
                     if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native PASE methods for 64bit libs if available");//@pase1
                     System.load("/QIBM/ProdData/OS400/jt400/lib/qyjspase64.so");  //@pase1
-                    paseLibLoaded = true;
-
-                } else                                                          //@pase1
-                {                                                               //@pase1
-                    //load 32 bit version
-                    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native PASE methods for 32bit libs if available");//@pase1
-                    System.load("/QIBM/ProdData/OS400/jt400/lib/qyjspase32.so");
                     paseLibLoaded = true;
                 }                                                               //@pase1
             }catch(Throwable t)                                                 //@pase1
