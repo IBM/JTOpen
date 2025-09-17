@@ -188,6 +188,9 @@ public class AS400ImplRemote implements AS400Impl
   
   private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
 
+  // GSS Token, for Kerberos.
+  private byte[] gssToken_;
+
   static {
       if (Trace.traceOn_)
           Trace.logLoadPath(CLASSNAME);
@@ -1838,6 +1841,8 @@ public class AS400ImplRemote implements AS400Impl
       if (credType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
       {
           try {
+            if (gssToken_ != null)
+                return gssToken_;
               return (gssCredential_ == null) 
                     ? TokenManager.getGSSToken(systemName_, gssName_)
                     : TokenManager2.getGSSToken(systemName_, gssCredential_);
@@ -5402,4 +5407,14 @@ public class AS400ImplRemote implements AS400Impl
   public String getLocalIPAddress() {
     return localIPAddress_; 
   }
+
+    @Override
+    public void setGSSToken(byte[] token) {
+        this.gssToken_ = token;
+    }
+
+    private byte[] getGSSToken() {
+        return this.gssToken_;
+    }
+  
 }
