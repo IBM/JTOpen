@@ -668,10 +668,14 @@ public class AS400ImplRemote implements AS400Impl
           {
               try
               {
-                  byte[] authenticationBytes = (gssCredential_ == null) 
+                byte[] authenticationBytes;
+                if (this.gssToken_ != null){
+                    authenticationBytes = this.gssToken_;
+                } else {
+                    authenticationBytes = (gssCredential_ == null) 
                           ? TokenManager.getGSSToken(systemName_, gssName_)
                           : TokenManager2.getGSSToken(systemName_, gssCredential_);
-                  
+                }
                   IFSUserHandle2Req req = new IFSUserHandle2Req(authenticationBytes, aafIndicator_ ? additionalAuthFactor_ : null);
                   ds = (ClientAccessDataStream) connectedServer.sendAndReceive(req);
               }
@@ -1019,9 +1023,13 @@ public class AS400ImplRemote implements AS400Impl
               case AS400.AUTHENTICATION_SCHEME_GSS_TOKEN:
                   try
                   {
-                      authenticationBytes = (gssCredential_ == null) 
-                              ? TokenManager.getGSSToken(systemName_, gssName) 
-                              : TokenManager2.getGSSToken(systemName_, gssCredential_);
+                    if (this.gssToken_ != null){
+                        authenticationBytes = this.gssToken_;
+                    } else {
+                        authenticationBytes = (gssCredential_ == null) 
+                            ? TokenManager.getGSSToken(systemName_, gssName) 
+                            : TokenManager2.getGSSToken(systemName_, gssCredential_);
+                }
                   }
                   catch (Exception e)
                   {
@@ -2221,6 +2229,8 @@ public class AS400ImplRemote implements AS400Impl
       if (credType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
       {
           try {
+            if (gssToken_ != null)
+                return gssToken_;
               return (gssCredential_ == null) 
                 ? TokenManager.getGSSToken(systemName_, gssName_)
                 : TokenManager2.getGSSToken(systemName_, gssCredential_);
