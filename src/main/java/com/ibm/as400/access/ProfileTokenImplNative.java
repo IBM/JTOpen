@@ -157,8 +157,16 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         } 
         else 
         {
+            String remoteIPAddress = enhancedInfo.getRemoteIPAddress();
+            boolean isRemoteIPNull =  (remoteIPAddress == null || remoteIPAddress.length() == 0);
+            if (isRemoteIPNull) {
+              // This is local, so use the loopback address
+              remoteIPAddress = "127.0.0.1"; 
+              enhancedInfo.setRemoteIPAddress(remoteIPAddress);
+            }
+    
             token =  EnhancedProfileTokenImplNative.nativeCreateTokenSpecialPassword(uid.toUpperCase(), pwdSpecialVal.toCharArray(), 
-                null, authenticationIndicator, enhancedInfo.getVerificationID(), enhancedInfo.getRemoteIPAddress(), enhancedInfo.getRemotePort(), 
+                null, authenticationIndicator, enhancedInfo.getVerificationID(), remoteIPAddress , enhancedInfo.getRemotePort(), 
                 enhancedInfo.getLocalIPAddress(), enhancedInfo.getLocalPort(), 
                 type, timeoutInterval);
             enhancedInfo.setEnhancedTokenCreated(true); 
@@ -306,8 +314,10 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
               remoteIpAddress = "127.0.0.1";
               isRemoteIPNull = false; 
             } else { 
-              remoteIpAddress = "";
-            }
+              // Set the remote address if possible, as this is what will be used with the profile token
+              remoteIpAddress = sys.getLocalIPAddress(); 
+              isRemoteIPNull = false; 
+             }
             enhancedInfo.setRemoteIPAddress(remoteIpAddress);
           }
 

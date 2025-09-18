@@ -73,7 +73,12 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
 
         String remoteIpAddress = enhancedInfo.getRemoteIPAddress();
         boolean isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
-        if (isRemoteIPNull) remoteIpAddress = " ";
+        if (isRemoteIPNull) {
+          // Set the remote address if possible, as this is what will be used with the profile token
+          remoteIpAddress = sys.getLocalIPAddress(); 
+          enhancedInfo.setRemoteIPAddress(remoteIpAddress);
+          isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
+        }
 
         String localIpAddress = enhancedInfo.getLocalIPAddress(); 
         boolean isLocalIPNull =  (localIpAddress == null || localIpAddress.length() == 0);
@@ -231,9 +236,9 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         try {
         	AS400 system = getCredential().getSystem();
         	if (additionalAuthenticationFactor != null) {
-        	  /* system rquired the enhancedInfo to be set when an MFA user is given. */ 
+        	  /* system requires the enhancedInfo to be set when an MFA user is given. */ 
         	  String defaultIpAddress =   system.getLocalIPAddress();
-        	  enhancedInfo.updateForMfaUser(defaultIpAddress); 
+        	  enhancedInfo.updateForMfaUser(defaultIpAddress);   /* This will update only if not set */ 
         	}
             ptTemp = system.getProfileToken(uid, password, additionalAuthenticationFactor,
                                                                  type, timeoutInterval, 
