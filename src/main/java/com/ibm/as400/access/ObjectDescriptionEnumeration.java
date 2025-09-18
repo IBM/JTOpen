@@ -19,7 +19,7 @@ import java.util.*;
  * Helper class. Used to wrap the ObjectDescription[] with an Enumeration.
  * This class is used by ObjectList.
 **/
-class ObjectDescriptionEnumeration implements Enumeration
+class ObjectDescriptionEnumeration implements Enumeration<ObjectDescription>
 {
   private ObjectDescription[] objectCache_;
   private ObjectList list_;
@@ -34,12 +34,14 @@ class ObjectDescriptionEnumeration implements Enumeration
     numObjects_ = length;
   }
 
+  @Override
   public final boolean hasMoreElements()
   {
     return counter_ < numObjects_;
   }
 
-  public final Object nextElement()
+  @Override
+  public final ObjectDescription nextElement()
   {
     if (counter_ >= numObjects_)
     {
