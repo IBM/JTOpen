@@ -24,7 +24,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -183,7 +185,7 @@ public class AS400ImplRemote implements AS400Impl
   private String swapToPHUserID_ = null;
   private AtomicInteger swapToPHRefCount_ = null;
   
-  private String localIPAddress_ = "127.0.0.1";   /* The IP address from the last opened socket */ 
+  private String localIPAddress_ = null;   /* The IP address from the last opened socket */ 
   private boolean localIPAddressSet_ = false; 
   
   private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
@@ -4092,7 +4094,7 @@ public class AS400ImplRemote implements AS400Impl
           char [] tempAAF = additionalAuthFactor_ == null ? null : new String(additionalAuthFactor_, StandardCharsets.UTF_8).toCharArray();
 
           AS400ImplNative.createProfileHandle2Native(swapToPH_temp,  userId_, temp, tempAAF,
-                  ProfileTokenCredential.DEFAULT_VERIFICATION_ID, "127.0.0.1", 0, "", 0 );
+                  ProfileTokenCredential.DEFAULT_VERIFICATION_ID, AS400.DEFAULT_LOCAL_IP_ADDRESS, 0, "", 0 );
           
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Created swap profile handle for userID:" + userId_);
 
@@ -5283,111 +5285,109 @@ public class AS400ImplRemote implements AS400Impl
    *  object[3] = String verificationId
    *  object[4] = String remoteIpAddress 
    */
-  private Object[] getAdditionalAuthInfo(ProfileTokenCredential profileToken, Boolean aafIndicator, Object additionalAuthFactor)
-  {
-      Object[] authdata = new Object[] { null, null, null, null, null };
-      
-      int vrm = (version_ != null) ? version_.getVersionReleaseModification() : getVRM();
-      if (vrm > 0x00070500 || (aafIndicator != null && aafIndicator))
-      {
-          // If additional authentication factor passed in and not already byte[], convert it and stash in array. 
-          if (additionalAuthFactor != null)
-          {
-              authdata[0]  =  (additionalAuthFactor instanceof char[])
-                  ? (new String((char[])additionalAuthFactor)).getBytes(StandardCharsets.UTF_8)
-                  :  (byte[])additionalAuthFactor;
-          }
-          
-          // If profile token is null,  means we are not generating a profile token, so profile token should be in credential.
-          boolean creatingToken = (profileToken != null);
-          if (profileToken == null && (credVault_ instanceof ProfileTokenVault))
-              profileToken = ((ProfileTokenVault)credVault_).getProfileTokenCredential();
-          
-          if (profileToken != null)
-          {
-              String verificationID_s = profileToken.getVerificationID();
-              /* Note:  We must use the verificationID that was used when the */
-              /*        profile was created. This could be blanks.            */
-              /*        It is it null then use the default one.               */
-              if (verificationID_s == null  )
-              {
-                    verificationID_s = ProfileTokenCredential.DEFAULT_VERIFICATION_ID; 
-                    try { 
-                       profileToken.setVerificationID(verificationID_s);
-                    } catch (Exception e) {
-                      verificationID_s=""; 
-                    } 
-              }
-              
-              authdata[1] = verificationID_s.getBytes(StandardCharsets.UTF_8);
-              authdata[3] = verificationID_s;
+  private Object[] getAdditionalAuthInfo(ProfileTokenCredential profileToken, Boolean aafIndicator,
+      Object additionalAuthFactor) {
+    Object[] authdata = new Object[] { null, null, null, null, null };
 
-              String remoteIPAddress_s = profileToken.getRemoteIPAddress();
-              /* Note:  If the remoteIP address is not set to a length > 0 , then the AS400GenAuthTkn */
-              /*        request will fail.   We will set it to the local IP address that we obtained */
-              /*        from a socket.  If it was not set, then we use an empty string*/ 
-              
-              if (remoteIPAddress_s == null || remoteIPAddress_s.length() == 0) { 
-                
-                  if (localIPAddressSet_) {   
-                     remoteIPAddress_s = localIPAddress_; 
-                  } else {
-                     remoteIPAddress_s = ""; 
-                  }
-                  
-                  try {
-                    profileToken.setRemoteIPAddress(remoteIPAddress_s);
-                  } catch (PropertyVetoException e) {
-                    remoteIPAddress_s=""; 
-                  }
+    int vrm = (version_ != null) ? version_.getVersionReleaseModification() : getVRM();
+    if (vrm > 0x00070500 || (aafIndicator != null && aafIndicator)) {
+      // If additional authentication factor passed in and not already byte[], convert
+      // it and stash in array.
+      if (additionalAuthFactor != null) {
+        authdata[0] = (additionalAuthFactor instanceof char[])
+            ? (new String((char[]) additionalAuthFactor)).getBytes(StandardCharsets.UTF_8)
+            : (byte[]) additionalAuthFactor;
+      }
+
+      // If profile token is null, means we are not generating a profile token, so
+      // profile token should be in credential.
+      boolean creatingToken = (profileToken != null);
+      if (profileToken == null && (credVault_ instanceof ProfileTokenVault))
+        profileToken = ((ProfileTokenVault) credVault_).getProfileTokenCredential();
+
+      if ((profileToken != null)) {
+        if (profileToken.createEnhancedIfPossible()) {
+          String verificationID_s = profileToken.getVerificationID();
+          /* Note: We must use the verificationID that was used when the */
+          /* profile was created. This could be blanks. */
+          /* It is it null then use the default one. */
+          if (verificationID_s == null) {
+            verificationID_s = ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
+            try {
+              profileToken.setVerificationID(verificationID_s);
+            } catch (Exception e) {
+              verificationID_s = "";
+            }
+          }
+
+          authdata[1] = verificationID_s.getBytes(StandardCharsets.UTF_8);
+          authdata[3] = verificationID_s;
+
+          String remoteIPAddress_s = profileToken.getRemoteIPAddress();
+          /*
+           * Note: If the remoteIP address is not set to a length > 0 , then the
+           * AS400GenAuthTkn
+           */
+          /* request will fail. We will set it to the local IP address that we obtained */
+          /* from a socket. If it was not set, then we use an empty string */
+
+          if (remoteIPAddress_s == null || remoteIPAddress_s.length() == 0 || remoteIPAddress_s.equals(AS400.DEFAULT_LOCAL_IP_ADDRESS)) {
+
+            if (localIPAddressSet_) {
+              remoteIPAddress_s = localIPAddress_;
+              try {
+                profileToken.setRemoteIPAddress(remoteIPAddress_s);
+              } catch (Exception e) {
+                Trace.log(Trace.DIAGNOSTIC, e);
+                remoteIPAddress_s = "";
               }
-              
               authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
               authdata[4] = remoteIPAddress_s;
-
-              // Verification ID will always be set to something. However, depending on where
-              // token was created, the client IP address
-              // may or may not be set. If creating the token and it is not set, use the IP address of the sign-on
-              // server. Thus, all tokens that signon server creates should have client IP address.
-              if (authdata[2] == null)
-              {
-                  // Note that not setting client IP address will result in sign-on host server setting the client IP
-                  // address.
-                  if (creatingToken && ( signonServer_ != null  || hostcnnServer_ != null))
-                  {
-                      // We are creating token, try to set client IP address using sign-on server.
-                      remoteIPAddress_s = (signonServer_ != null) ? signonServer_.getLocalAddress() : hostcnnServer_.getLocalAddress();
-                      // If the IP address was set to a string, even an empty string, it will be used. 
-                      if (remoteIPAddress_s != null )
-                      {
-                          authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
-                          authdata[4] = remoteIPAddress_s;
-                          try { 
-                          profileToken.setRemoteIPAddress(remoteIPAddress_s);
-                          } catch (Exception e) { 
-                            
-                          }
-                      }
-                      else {
-                          authdata[2] = null;
-                          authdata[4] = null;
-                      }
-
-                      try {
-                          profileToken.setRemoteIPAddress(remoteIPAddress_s);
-                      } catch (PropertyVetoException e) {
-                          throw new InternalErrorException(InternalErrorException.UNEXPECTED_EXCEPTION, e);
-                      }
-                  }
-                  else if (profileToken.getTokenCreator() != ProfileTokenCredential.CREATOR_SIGNON_SERVER)
-                  {
-                      authdata[2] = "*NOUSE".getBytes(StandardCharsets.UTF_8);
-                      authdata[4] = "*NOUSE";
-                  }
-              }
+            }
+          } else {
+            authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
+            authdata[4] = remoteIPAddress_s;
           }
+
+          // Verification ID will always be set to something. However, depending on where
+          // token was created, the client IP address
+          // may or may not be set. If creating the token and it is not set, use the IP
+          // address of the sign-on
+          // server. Thus, all tokens that signon server creates should have client IP
+          // address.
+          if (authdata[2] == null) {
+            // Note that not setting client IP address will result in sign-on host server
+            // setting the client IP
+            // address.
+            if (creatingToken ) {
+              // We are creating token, try to set client IP address .
+              remoteIPAddress_s = getLocalIPAddress();
+              // If we get back null, make sure a blank string is passed.
+              if (remoteIPAddress_s == null) {
+                remoteIPAddress_s = "";
+              }
+              // If the IP address was set to a string, even an empty string, it will be used.
+              authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
+              authdata[4] = remoteIPAddress_s;
+              try {
+                profileToken.setRemoteIPAddress(remoteIPAddress_s);
+              } catch (Exception e) {
+                Trace.log(Trace.DIAGNOSTIC, e);
+              }
+            } else if (profileToken.getTokenCreator() != ProfileTokenCredential.CREATOR_SIGNON_SERVER) {
+              authdata[2] = "*NOUSE".getBytes(StandardCharsets.UTF_8);
+              authdata[4] = "*NOUSE";
+            }
+          }
+        } else {
+          authdata[1] = "*NOUSE".getBytes(StandardCharsets.UTF_8);
+          authdata[3] = "*NOUSE";
+          authdata[2] = "*NOUSE".getBytes(StandardCharsets.UTF_8);
+          authdata[4] = "*NOUSE";
+        }
       }
-      
+    }
+
       if (Trace.traceOn_)
       {
        
@@ -5400,6 +5400,16 @@ public class AS400ImplRemote implements AS400Impl
 
   /* Get the local ip address from a connected socket */ 
   public String getLocalIPAddress() {
+    if (!localIPAddressSet_) { 
+       /* If the local IP address is not set, look it up */ 
+       try {
+        InetAddress localHost = InetAddress.getLocalHost();
+        localIPAddress_ = localHost.getHostAddress();
+        localIPAddressSet_ = true; 
+      } catch (UnknownHostException e) {
+        localIPAddress_ = AS400.DEFAULT_LOCAL_IP_ADDRESS; 
+      } 
+    }
     return localIPAddress_; 
   }
 }

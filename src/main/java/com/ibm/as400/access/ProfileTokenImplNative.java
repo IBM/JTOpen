@@ -157,8 +157,16 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         } 
         else 
         {
+            String remoteIPAddress = enhancedInfo.getRemoteIPAddress();
+            boolean isRemoteIPNull =  (remoteIPAddress == null || remoteIPAddress.length() == 0);
+            if (isRemoteIPNull) {
+              // This is local, so use the loopback address
+              remoteIPAddress = AS400.DEFAULT_LOCAL_IP_ADDRESS;
+              enhancedInfo.setRemoteIPAddress(remoteIPAddress);
+            }
+    
             token =  EnhancedProfileTokenImplNative.nativeCreateTokenSpecialPassword(uid.toUpperCase(), pwdSpecialVal.toCharArray(), 
-                null, authenticationIndicator, enhancedInfo.getVerificationID(), enhancedInfo.getRemoteIPAddress(), enhancedInfo.getRemotePort(), 
+                null, authenticationIndicator, enhancedInfo.getVerificationID(), remoteIPAddress , enhancedInfo.getRemotePort(), 
                 enhancedInfo.getLocalIPAddress(), enhancedInfo.getLocalPort(), 
                 type, timeoutInterval);
             enhancedInfo.setEnhancedTokenCreated(true); 
@@ -242,7 +250,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             throw new RetrieveFailedException();
         }
         if (additionalAuthenticationFactor != null && additionalAuthenticationFactor.length > 0) {
-          enhancedInfo.updateForMfaUser("127.0.0.1");
+          enhancedInfo.ensureValidEnhancedForMfaUser(AS400.DEFAULT_LOCAL_IP_ADDRESS);
         }
         // Setup parameters
         ProgramParameter[] parmlist = new ProgramParameter[useEPT ? 19 : 8];
@@ -303,11 +311,13 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
           if (isRemoteIPNull) {
             if (sys.onAS400) {
                /* For the local case, set to the loopback address */ 
-              remoteIpAddress = "127.0.0.1";
+              remoteIpAddress = AS400.DEFAULT_LOCAL_IP_ADDRESS;
               isRemoteIPNull = false; 
             } else { 
-              remoteIpAddress = "";
-            }
+              // Set the remote address if possible, as this is what will be used with the profile token
+              remoteIpAddress = sys.getLocalIPAddress(); 
+              isRemoteIPNull = false; 
+             }
             enhancedInfo.setRemoteIPAddress(remoteIpAddress);
           }
 

@@ -166,10 +166,10 @@ public final class ProfileTokenEnhancedInfo implements Serializable
         return sb.toString();
     }
 
-    /* Update the enhanced information for an MFA user */
+    /* Make sure the enhanced information is valid for an MFA user */
     /* The system requires that the verificationId and remoteIPAddress be set to some values */ 
     /* This must be called before calling QSYGENPT */ 
-    public void updateForMfaUser(String defaultRemoteIpAddress) {
+    public void ensureValidEnhancedForMfaUser(String defaultRemoteIpAddress) {
         if (verificationID_ == null || verificationID_.length() == 0) {
           verificationID_ = ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
         }

@@ -422,7 +422,10 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
             	setToken(token, enhancedInfo_);
                 
             } else {
+              // verificationId and remoteIPAddress are both null, so do not created as 
+              // enhanced profile token. 
             	setToken(token); 
+            	enhancedInfo_.setCreateEnhancedIfPossible(false); 
             }
             setTokenType(tokenType);
             setTimeoutInterval(timeoutInterval);
@@ -641,7 +644,17 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
             throw new ExtendedIllegalArgumentException("isReusable",
                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
-
+        //
+        // Update the remoteIPAddress if needed 
+        // 
+        if (enhancedInfo_.getCreateEnhancedIfPossible() && (system_ != null) ) {
+          String remoteIPAddress = enhancedInfo.getRemoteIPAddress();
+          if ((remoteIPAddress == null) || (remoteIPAddress.length() == 0)) {
+            remoteIPAddress = system_.getLocalIPAddress(); 
+            enhancedInfo.setRemoteIPAddress(remoteIPAddress);
+          }
+        }
+       
         // Assign to the local host system if on the system. 
         // Otherwise create a new AS400 object to handle the credential
         AS400 sys = AuthenticationSystem.localHost();
@@ -1981,6 +1994,14 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
 	public ProfileTokenEnhancedInfo getEnhancedInfo() {
 		return enhancedInfo_; 
 	}
+
+  public boolean createEnhancedIfPossible() {
+   if (enhancedInfo_ != null) { 
+     return enhancedInfo_.getCreateEnhancedIfPossible();
+   } else {
+     return false; 
+   }
+  }
 
 
 }
