@@ -238,7 +238,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         	if (additionalAuthenticationFactor != null) {
         	  /* system requires the enhancedInfo to be set when an MFA user is given. */ 
         	  String defaultIpAddress =   system.getLocalIPAddress();
-        	  enhancedInfo.updateForMfaUser(defaultIpAddress);   /* This will update only if not set */ 
+        	  enhancedInfo.ensureValidEnhancedForMfaUser(defaultIpAddress);   /* This will update only if not set */ 
         	}
             ptTemp = system.getProfileToken(uid, password, additionalAuthenticationFactor,
                                                                  type, timeoutInterval, 

@@ -66,6 +66,7 @@ import com.ibm.as400.security.auth.ProfileTokenProvider;
 public class AS400 implements Serializable, AutoCloseable
 {
     private static final String CLASSNAME = "com.ibm.as400.access.AS400";
+    final static String DEFAULT_LOCAL_IP_ADDRESS = "127.0.0.1";
     
     static
     {
@@ -6130,7 +6131,8 @@ public class AS400 implements Serializable, AutoCloseable
         AS400ImplRemote implRemote = (AS400ImplRemote) impl_; 
         return implRemote.getLocalIPAddress(); 
       } else {
-        return "127.0.0.1"; 
+        /* Native implementation, so return local address */ 
+        return DEFAULT_LOCAL_IP_ADDRESS; 
       }
       
     }

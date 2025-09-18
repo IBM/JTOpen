@@ -161,7 +161,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             boolean isRemoteIPNull =  (remoteIPAddress == null || remoteIPAddress.length() == 0);
             if (isRemoteIPNull) {
               // This is local, so use the loopback address
-              remoteIPAddress = "127.0.0.1"; 
+              remoteIPAddress = AS400.DEFAULT_LOCAL_IP_ADDRESS;
               enhancedInfo.setRemoteIPAddress(remoteIPAddress);
             }
     
@@ -250,7 +250,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             throw new RetrieveFailedException();
         }
         if (additionalAuthenticationFactor != null && additionalAuthenticationFactor.length > 0) {
-          enhancedInfo.updateForMfaUser("127.0.0.1");
+          enhancedInfo.ensureValidEnhancedForMfaUser(AS400.DEFAULT_LOCAL_IP_ADDRESS);
         }
         // Setup parameters
         ProgramParameter[] parmlist = new ProgramParameter[useEPT ? 19 : 8];
@@ -311,7 +311,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
           if (isRemoteIPNull) {
             if (sys.onAS400) {
                /* For the local case, set to the loopback address */ 
-              remoteIpAddress = "127.0.0.1";
+              remoteIpAddress = AS400.DEFAULT_LOCAL_IP_ADDRESS;
               isRemoteIPNull = false; 
             } else { 
               // Set the remote address if possible, as this is what will be used with the profile token

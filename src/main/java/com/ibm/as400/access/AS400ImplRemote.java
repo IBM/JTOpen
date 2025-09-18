@@ -24,7 +24,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -183,7 +185,7 @@ public class AS400ImplRemote implements AS400Impl
   private String swapToPHUserID_ = null;
   private AtomicInteger swapToPHRefCount_ = null;
   
-  private String localIPAddress_ = "127.0.0.1";   /* The IP address from the last opened socket */ 
+  private String localIPAddress_ = null;   /* The IP address from the last opened socket */ 
   private boolean localIPAddressSet_ = false; 
   
   private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
@@ -4092,7 +4094,7 @@ public class AS400ImplRemote implements AS400Impl
           char [] tempAAF = additionalAuthFactor_ == null ? null : new String(additionalAuthFactor_, StandardCharsets.UTF_8).toCharArray();
 
           AS400ImplNative.createProfileHandle2Native(swapToPH_temp,  userId_, temp, tempAAF,
-                  ProfileTokenCredential.DEFAULT_VERIFICATION_ID, "127.0.0.1", 0, "", 0 );
+                  ProfileTokenCredential.DEFAULT_VERIFICATION_ID, AS400.DEFAULT_LOCAL_IP_ADDRESS, 0, "", 0 );
           
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Created swap profile handle for userID:" + userId_);
 
@@ -5329,7 +5331,7 @@ public class AS400ImplRemote implements AS400Impl
           /* request will fail. We will set it to the local IP address that we obtained */
           /* from a socket. If it was not set, then we use an empty string */
 
-          if (remoteIPAddress_s == null || remoteIPAddress_s.length() == 0) {
+          if (remoteIPAddress_s == null || remoteIPAddress_s.length() == 0 || remoteIPAddress_s.equals(AS400.DEFAULT_LOCAL_IP_ADDRESS)) {
 
             if (localIPAddressSet_) {
               remoteIPAddress_s = localIPAddress_;
@@ -5398,6 +5400,16 @@ public class AS400ImplRemote implements AS400Impl
 
   /* Get the local ip address from a connected socket */ 
   public String getLocalIPAddress() {
+    if (!localIPAddressSet_) { 
+       /* If the local IP address is not set, look it up */ 
+       try {
+        InetAddress localHost = InetAddress.getLocalHost();
+        localIPAddress_ = localHost.getHostAddress();
+        localIPAddressSet_ = true; 
+      } catch (UnknownHostException e) {
+        localIPAddress_ = AS400.DEFAULT_LOCAL_IP_ADDRESS; 
+      } 
+    }
     return localIPAddress_; 
   }
 }
