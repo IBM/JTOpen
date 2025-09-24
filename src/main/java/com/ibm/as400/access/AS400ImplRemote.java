@@ -5334,14 +5334,21 @@ public class AS400ImplRemote implements AS400Impl
           if (remoteIPAddress_s == null || remoteIPAddress_s.length() == 0 || remoteIPAddress_s.equals(AS400.DEFAULT_LOCAL_IP_ADDRESS)) {
 
             if (localIPAddressSet_) {
-              remoteIPAddress_s = localIPAddress_;
-              try {
-                profileToken.setRemoteIPAddress(remoteIPAddress_s);
-              } catch (Exception e) {
-                Trace.log(Trace.DIAGNOSTIC, e);
-                remoteIPAddress_s = "";
+              /* We can only change the address in the token if it is not connected */ 
+              if (!profileToken.isConnected())  {
+                remoteIPAddress_s = localIPAddress_;
+                try {
+                  profileToken.setRemoteIPAddress(remoteIPAddress_s);
+                } catch (Exception e) {
+                  Trace.log(Trace.DIAGNOSTIC, e);
+                  remoteIPAddress_s = "";
+                }
               }
-              authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
+              if (remoteIPAddress_s != null) { 
+                authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
+              } else { 
+                authdata[2] = null; 
+              }
               authdata[4] = remoteIPAddress_s;
             }
           } else {
