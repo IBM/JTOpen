@@ -404,6 +404,11 @@ public class AS400 implements Serializable, AutoCloseable
         return this.gssToken_;
     }
 
+    public void clearGSSToken() {
+        if (this.gssToken_ != null)
+            CredentialVault.clearArray(gssToken_);
+    }
+
     // Determines if the password contains a Kerberos token
     private boolean isGSSToken(char[] auth){
         char[] prefix = KERBEROS_PREFIX_CHARS;
@@ -4201,6 +4206,7 @@ public class AS400 implements Serializable, AutoCloseable
     public synchronized void resetAllServices()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resetting all services.");
+        clearGSSToken();
         setStayAlive(0);
 
         disconnectAllServices();
