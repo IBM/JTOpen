@@ -56,10 +56,11 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      * 
      * @exception RetrieveFailedException   If errors occur while generating the token.
      * @exception PropertyVetoException     If errors occur while setting the profile token credential.
+     * @throws AS400AuthenticationException If enhanced information associated with the token is not correct. 
      *
      */
     ProfileTokenCredential generateProfileToken(String uid, int pwdSpecialValue, ProfileTokenCredential profileTokenCred)
-            throws RetrieveFailedException, PropertyVetoException;
+            throws RetrieveFailedException, PropertyVetoException, AS400AuthenticationException;
 
     
     /**
@@ -114,9 +115,10 @@ public interface ProfileTokenImpl extends AS400CredentialImpl
      * 
      * @exception RetrieveFailedException   If errors occur while generating the token.
      * @exception PropertyVetoException     If errors occur while setting the profile token credential.
+     * @throws AS400AuthenticationException 
      */
     ProfileTokenCredential generateProfileTokenExtended(String uid, char[] password, char[] additionalAuthenticationFactor, ProfileTokenCredential profileTokenCred)
-            throws RetrieveFailedException, PropertyVetoException;
+            throws RetrieveFailedException, PropertyVetoException, AS400AuthenticationException;
     
     /**
      * Updates or extends the validity period for the credential.

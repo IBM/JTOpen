@@ -978,8 +978,7 @@ public class AS400ImplRemote implements AS400Impl
                           profileToken.getLocalIPAddress(),
                           profileToken.getLocalPort());
                   enhancedInfo.setEnhancedTokenCreated(true); 
-                  profileToken.setToken(rep.getProfileTokenBytes(),
-                          enhancedInfo);
+                  profileToken.setToken(rep.getProfileTokenBytes(), enhancedInfo);
               } else {
                   profileToken.setToken(rep.getProfileTokenBytes());
               }
@@ -1173,8 +1172,7 @@ public class AS400ImplRemote implements AS400Impl
                           profileToken.getLocalIPAddress(),
                           profileToken.getLocalPort());
                   enhancedInfo.setEnhancedTokenCreated(true); 
-                  profileToken.setToken(rep.getProfileTokenBytes(),
-                              enhancedInfo                     ); 
+                  profileToken.setToken(rep.getProfileTokenBytes(), enhancedInfo);
               } else { 
                   profileToken.setToken(rep.getProfileTokenBytes());
               }
@@ -5305,31 +5303,48 @@ public class AS400ImplRemote implements AS400Impl
       if (profileToken == null && (credVault_ instanceof ProfileTokenVault))
         profileToken = ((ProfileTokenVault) credVault_).getProfileTokenCredential();
 
-      if ((profileToken != null)) {
-        if (profileToken.createEnhancedIfPossible()) {
-          String verificationID_s = profileToken.getVerificationID();
-          /* Note: We must use the verificationID that was used when the */
-          /* profile was created. This could be blanks. */
-          /* It is it null then use the default one. */
-          if (verificationID_s == null) {
+      if ((profileToken != null))
+      {
+          // Only if we are creating the profile token do we need to do anything with the 
+          // verification ID and remote IP address.  In all other cases, we will take what
+          // is there, and if not set, will set *NOUSE. When not creating profile token, 
+          // we need to also be sensitive to whether the profile token is enhanced or not. If 
+          // not, then the fields will be set to *NOUSE
+          ProfileTokenEnhancedInfo ei = profileToken.getEnhancedInfo();
+          
+          String verificationID_s  = (creatingToken || ei.isEnhancedProfileToken())  
+                                          ?  profileToken.getVerificationID() : "*NOUSE";
+          String remoteIPAddress_s =  (creatingToken || ei.isEnhancedProfileToken()) 
+                                          ? profileToken.getRemoteIPAddress() : "*NOUSE";
+
+          // === Process verification ID
+
+          if (verificationID_s == null) 
+          {
+              if (creatingToken)
+              {
             verificationID_s = ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
             try {
               profileToken.setVerificationID(verificationID_s);
             } catch (Exception e) {
+                     Trace.log(Trace.DIAGNOSTIC, e);
               verificationID_s = "";
             }
+          }
+              else
+                  verificationID_s = "*NOUSE"; // or null string?
           }
 
           authdata[1] = verificationID_s.getBytes(StandardCharsets.UTF_8);
           authdata[3] = verificationID_s;
 
-          String remoteIPAddress_s = profileToken.getRemoteIPAddress();
+          // === Process remote IP address
+
           /*
            * Note: If the remoteIP address is not set to a length > 0 , then the
-           * AS400GenAuthTkn
+           * AS400GenAuthTkn request will fail. We will set it to the local IP address that we obtained 
+           * from a socket. If it was not set, then we use an empty string 
            */
-          /* request will fail. We will set it to the local IP address that we obtained */
-          /* from a socket. If it was not set, then we use an empty string */
 
           if (remoteIPAddress_s == null || remoteIPAddress_s.length() == 0 || remoteIPAddress_s.equals(AS400.DEFAULT_LOCAL_IP_ADDRESS)) {
 
@@ -5393,7 +5408,7 @@ public class AS400ImplRemote implements AS400Impl
           authdata[4] = "*NOUSE";
         }
       }
-    }
+    
 
       if (Trace.traceOn_)
       {
@@ -5406,16 +5421,15 @@ public class AS400ImplRemote implements AS400Impl
   }
 
   /* Get the local ip address from a connected socket */ 
-  public String getLocalIPAddress() {
-    if (!localIPAddressSet_) { 
-       /* If the local IP address is not set, look it up */ 
-       try {
-        InetAddress localHost = InetAddress.getLocalHost();
-        localIPAddress_ = localHost.getHostAddress();
+  public String getLocalIPAddress()
+  {
+      if (!localIPAddressSet_)
+      {
+          localIPAddress_ = AS400.getDefaultLocalIPAddress();
+          
+          // Will not consider it set if IP address is loopback and not running natively.
+          if (AS400.onAS400 || !localIPAddress_.equals(AS400.DEFAULT_LOCAL_IP_ADDRESS))
         localIPAddressSet_ = true; 
-      } catch (UnknownHostException e) {
-        localIPAddress_ = AS400.DEFAULT_LOCAL_IP_ADDRESS; 
-      } 
     }
     return localIPAddress_; 
   }

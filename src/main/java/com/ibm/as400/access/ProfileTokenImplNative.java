@@ -102,7 +102,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         return nativeCreateTokenChar(uid.toUpperCase(), pwd, type, timeoutInterval);
     }
 
-    public byte[] generateRawToken(String uid, int pwdSpecialValue, int type, int timeoutInterval,ProfileTokenEnhancedInfo enhancedInfo) throws RetrieveFailedException {
+    public byte[] generateRawToken(String uid, int pwdSpecialValue, int type, int timeoutInterval,ProfileTokenEnhancedInfo enhancedInfo) throws AS400AuthenticationException {
         return generateRawToken(uid, pwdSpecialValue,  AuthenticationIndicator.APPLICATION_AUTHENTICATION, type, timeoutInterval, enhancedInfo);
     }
 
@@ -121,10 +121,10 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
      * @param timeoutInterval
      * @param enhancedInfo  
      * @return
-     * @throws RetrieveFailedException
+     * @throws AS400AuthenticationException 
      */
     private byte[] generateRawToken(String uid, int pwdSpecialValue,  int authenticationIndicator, 
-            int type, int timeoutInterval, ProfileTokenEnhancedInfo enhancedInfo) throws RetrieveFailedException 
+            int type, int timeoutInterval, ProfileTokenEnhancedInfo enhancedInfo) throws AS400AuthenticationException 
     {
     	
         // Convert password special value from int to string
@@ -148,25 +148,19 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         // Call native method and return token bytes, we rely on the fact this class is only called if running on AS400.
         
         byte[] token = null;
-        if ((! enhancedInfo.getCreateEnhancedIfPossible() )|| 
-        		(!ProfileTokenCredential.useEnhancedProfileTokens()) || 
+        if (    (!ProfileTokenCredential.useEnhancedProfileTokens()) || 
         		(AS400.nativeVRM.getVersionReleaseModification() <= 0x00070500))
         {
-        	enhancedInfo.setCreateEnhancedIfPossible(false); 
         	token =  nativeCreateTokenChar(uid.toUpperCase(), pwdSpecialVal.toCharArray(), type, timeoutInterval);
+            enhancedInfo.setEnhancedTokenCreated(false); 
         } 
         else 
         {
-            String remoteIPAddress = enhancedInfo.getRemoteIPAddress();
-            boolean isRemoteIPNull =  (remoteIPAddress == null || remoteIPAddress.length() == 0);
-            if (isRemoteIPNull) {
-              // This is local, so use the loopback address
-              remoteIPAddress = AS400.DEFAULT_LOCAL_IP_ADDRESS;
-              enhancedInfo.setRemoteIPAddress(remoteIPAddress);
-            }
+            // This will ensure verification ID and remote IP Address are set
+            enhancedInfo.ensureRequiredFieldsSet(AS400.DEFAULT_LOCAL_IP_ADDRESS);
     
             token =  EnhancedProfileTokenImplNative.nativeCreateTokenSpecialPassword(uid.toUpperCase(), pwdSpecialVal.toCharArray(), 
-                null, authenticationIndicator, enhancedInfo.getVerificationID(), remoteIPAddress , enhancedInfo.getRemotePort(), 
+                null, authenticationIndicator, enhancedInfo.getVerificationID(), enhancedInfo.getRemoteIPAddress(), enhancedInfo.getRemotePort(), 
                 enhancedInfo.getLocalIPAddress(), enhancedInfo.getLocalPort(), 
                 type, timeoutInterval);
             enhancedInfo.setEnhancedTokenCreated(true); 
@@ -178,18 +172,17 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     }
 
     public ProfileTokenCredential generateProfileToken(String uid, int pwdSpecialValue, ProfileTokenCredential profileTokenCred)
-            throws RetrieveFailedException, PropertyVetoException 
+            throws PropertyVetoException, AS400AuthenticationException 
     {
         ProfileTokenEnhancedInfo enhancedInfo = new ProfileTokenEnhancedInfo(profileTokenCred.getEnhancedInfo());
-        enhancedInfo.setCreateEnhancedIfPossible(true); 
-        byte[] token = generateRawToken(uid, pwdSpecialValue, 
+       byte[] token = generateRawToken(uid, pwdSpecialValue, 
                 profileTokenCred.getAuthenticationIndicator(),
                 profileTokenCred.getTokenType(), 
                 profileTokenCred.getTimeoutInterval(),
                 enhancedInfo);
         
         try {
-            if (enhancedInfo.wasEnhancedTokenCreated())
+            if (enhancedInfo.isEnhancedProfileToken())
                 profileTokenCred.setToken(token,enhancedInfo); 
             else
                 profileTokenCred.setToken(token);
@@ -243,14 +236,15 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         // Determine if we are using enhanced profile tokens
         boolean useEPT = false;
         try {
-            useEPT = enhancedInfo.getCreateEnhancedIfPossible() && (ProfileTokenCredential.useEnhancedProfileTokens() && sys.getVRM() > 0x00070500);
+            useEPT = (ProfileTokenCredential.useEnhancedProfileTokens() && sys.getVRM() > 0x00070500);
         }
         catch (AS400SecurityException|IOException e) {
             Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
             throw new RetrieveFailedException();
         }
+        // MFA user requires enhanced information to be set
         if (additionalAuthenticationFactor != null && additionalAuthenticationFactor.length > 0) {
-          enhancedInfo.ensureValidEnhancedForMfaUser(AS400.DEFAULT_LOCAL_IP_ADDRESS);
+          enhancedInfo.ensureRequiredFieldsSet(AS400.DEFAULT_LOCAL_IP_ADDRESS);
         }
         // Setup parameters
         ProgramParameter[] parmlist = new ProgramParameter[useEPT ? 19 : 8];
@@ -284,9 +278,12 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         // Input: CCSID of user password. Int to byte[]. Unicode = 13488.
         parmlist[7] = new ProgramParameter(BinaryConverter.intToByteArray(13488));
         
+        boolean enhancedProfileToken;
         // If enhanced profile tokens supported then set parameters
         if (useEPT)
         {   
+          // This will ensure verification ID and remote IP Address are set
+          enhancedInfo.ensureRequiredFieldsSet(sys.getLocalIPAddress());
 
           // The API QSYGENPT requires all parameters to be non-null. 
           boolean isAAFNull = (additionalAuthenticationFactor == null || additionalAuthenticationFactor.length == 0);
@@ -309,7 +306,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
           boolean isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
           
           if (isRemoteIPNull) {
-            if (sys.onAS400) {
+            if (AS400.onAS400) {
                /* For the local case, set to the loopback address */ 
               remoteIpAddress = AS400.DEFAULT_LOCAL_IP_ADDRESS;
               isRemoteIPNull = false; 
@@ -364,11 +361,12 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             
             Trace.log(Trace.INFORMATION, this, "generateRawTokenExtended creating EnhancedToken with verificationId='"+verificationId+"' remoteIp='"+remoteIpAddress+"'"); 
             
-
-            enhancedInfo.setEnhancedTokenCreated(true);  
+            enhancedProfileToken = true; 
+           
         } else { 
           Trace.log(Trace.INFORMATION, this, "generateRawTokenExtended not creating EnhancedToken"); 
-        	enhancedInfo.setEnhancedTokenCreated(false);  
+          enhancedProfileToken = false; 
+        
         }
 
         ProgramCall programCall = new ProgramCall(sys);
@@ -382,6 +380,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
                 Trace.log(Trace.ERROR, "Call to QSYGENPT failed.");
                 throw new RetrieveFailedException(programCall.getMessageList());
             }
+            enhancedInfo.setEnhancedTokenCreated(enhancedProfileToken);
         }
         catch (RetrieveFailedException e) {
             throw e;
@@ -404,12 +403,12 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
     
 
     public ProfileTokenCredential generateProfileTokenExtended(String uid, char[] password,  
-            ProfileTokenCredential profileTokenCred) throws RetrieveFailedException, PropertyVetoException {
+            ProfileTokenCredential profileTokenCred) throws PropertyVetoException, AS400AuthenticationException {
     	return generateProfileTokenExtended(uid, password, null, profileTokenCred);
     }
 
     public ProfileTokenCredential generateProfileTokenExtended(String uid, char[] password, char[] additionalAuthenticationFactor, 
-            ProfileTokenCredential profileTokenCred) throws RetrieveFailedException, PropertyVetoException
+            ProfileTokenCredential profileTokenCred) throws PropertyVetoException, AS400AuthenticationException
     {
     	ProfileTokenEnhancedInfo enhancedInfo = profileTokenCred.getEnhancedInfo(); 
         byte[] token = generateRawTokenExtended(uid, 
@@ -422,7 +421,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
         
         try {
 				profileTokenCred.setToken(token, enhancedInfo);
-			profileTokenCred.setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
+				profileTokenCred.setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
 	       } 
         catch (PropertyVetoException e)
         {

@@ -32,7 +32,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     }
       
     private byte[] generateRawToken(String uid, int pwdSpecialValue, 
-            int authenticationIndicator, int type, int timeoutInterval, ProfileTokenEnhancedInfo enhancedInfo) throws RetrieveFailedException
+            int authenticationIndicator, int type, int timeoutInterval, ProfileTokenEnhancedInfo enhancedInfo) throws AS400AuthenticationException
     {
         // Convert password special value from enumerated int to String
         String pwd;
@@ -57,33 +57,13 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         // Determine if we are using enhanced profile tokens
         boolean useEPT = false;
         try {
-            useEPT = enhancedInfo.getCreateEnhancedIfPossible() && (ProfileTokenCredential.useEnhancedProfileTokens() && sys.getVRM() > 0x00070500);
+            useEPT = (ProfileTokenCredential.useEnhancedProfileTokens() && sys.getVRM() > 0x00070500);
         }
         catch (AS400SecurityException|IOException e) {
             Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
             throw new RetrieveFailedException();
         }
         
-        // The API QSYGENPT requires all parameters to be non-null. 
-        char[] additionalAuthenticationFactor = new char[] { ' ' };
-        
-        String verificationId = enhancedInfo.getVerificationID(); 
-        boolean isVfyIDNull = (verificationId == null || verificationId.length() == 0);
-        if (isVfyIDNull) verificationId = " ";
-
-        String remoteIpAddress = enhancedInfo.getRemoteIPAddress();
-        boolean isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
-        if (isRemoteIPNull) {
-          // Set the remote address if possible, as this is what will be used with the profile token
-          remoteIpAddress = sys.getLocalIPAddress(); 
-          enhancedInfo.setRemoteIPAddress(remoteIpAddress);
-          isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
-        }
-
-        String localIpAddress = enhancedInfo.getLocalIPAddress(); 
-        boolean isLocalIPNull =  (localIpAddress == null || localIpAddress.length() == 0);
-        if (isLocalIPNull) localIpAddress = " ";
-
         ProgramParameter[] parmlist = new ProgramParameter[useEPT ? 19 : 6];
         
         // Output: Profile token   
@@ -113,6 +93,20 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         // If enhanced profile tokens supported then set parameters
         if (useEPT)
         {
+            // This will ensure verification ID and remote IP Address are set
+            enhancedInfo.ensureRequiredFieldsSet(sys.getLocalIPAddress());
+
+            // The API QSYGENPT requires all parameters to be non-null. 
+            char[] additionalAuthenticationFactor = new char[] { ' ' };
+            
+            String verificationId = enhancedInfo.getVerificationID(); 
+
+            String remoteIpAddress = enhancedInfo.getRemoteIPAddress();
+
+            String localIpAddress = enhancedInfo.getLocalIPAddress(); 
+            boolean isLocalIPNull =  (localIpAddress == null || localIpAddress.length() == 0);
+            if (isLocalIPNull) localIpAddress = " ";
+            
             // -- Optional Parameter Group 1
             
             // Input: Length of user password. Int to byte[]. Special value is used, thus must be 10
@@ -142,7 +136,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
             parmlist[13] = new ProgramParameter(CharConverter.stringToByteArray(sys, remoteIpAddress));
 
             // Input: Length of remote IP address
-            parmlist[14] = new ProgramParameter(BinaryConverter.intToByteArray((isRemoteIPNull) ? 0 : parmlist[13].getInputData().length));
+            parmlist[14] = new ProgramParameter(BinaryConverter.intToByteArray(parmlist[13].getInputData().length));
             
             // Input: Remote port
             parmlist[15] = new ProgramParameter(BinaryConverter.intToByteArray(enhancedInfo.getRemotePort()));
@@ -177,7 +171,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
             throw new RetrieveFailedException();
         }
         
-        enhancedInfo.setEnhancedTokenCreated(useEPT); 
+        enhancedInfo.setEnhancedTokenCreated(useEPT);
 
         if (Trace.isTraceOn())  Trace.log(Trace.DIAGNOSTIC, "Raw profile token generated: " + enhancedInfo);
 
@@ -186,10 +180,9 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     
     @Override
     public ProfileTokenCredential generateProfileToken(String uid, int pwdSpecialValue, ProfileTokenCredential profileTokenCred)
-            throws RetrieveFailedException, PropertyVetoException 
+            throws PropertyVetoException, AS400AuthenticationException 
     {
     	ProfileTokenEnhancedInfo enhancedInfo = new ProfileTokenEnhancedInfo(profileTokenCred.getEnhancedInfo());
-    	enhancedInfo.setCreateEnhancedIfPossible(true); 
         byte[] token = generateRawToken(uid, pwdSpecialValue, 
                 profileTokenCred.getAuthenticationIndicator(),
                 profileTokenCred.getTokenType(), 
@@ -198,10 +191,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         
         try
         {
-        	if (enhancedInfo.wasEnhancedTokenCreated())
         		profileTokenCred.setToken(token,enhancedInfo); 
-        	else
-        		profileTokenCred.setToken(token);
         	
             profileTokenCred.setTokenCreator(ProfileTokenCredential.CREATOR_NATIVE_API);
         } 
@@ -238,7 +228,7 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
         	if (additionalAuthenticationFactor != null) {
         	  /* system requires the enhancedInfo to be set when an MFA user is given. */ 
         	  String defaultIpAddress =   system.getLocalIPAddress();
-        	  enhancedInfo.ensureValidEnhancedForMfaUser(defaultIpAddress);   /* This will update only if not set */ 
+        	  enhancedInfo.ensureRequiredFieldsSet(defaultIpAddress);   /* This will update only if not set */ 
         	}
             ptTemp = system.getProfileToken(uid, password, additionalAuthenticationFactor,
                                                                  type, timeoutInterval, 
@@ -257,13 +247,13 @@ class ProfileTokenImplRemote extends AS400CredentialImplRemote implements Profil
     }
 
     public ProfileTokenCredential generateTokenExtended(String uid, char[] password, 
-            ProfileTokenCredential profileTokenCred) throws RetrieveFailedException, PropertyVetoException
+            ProfileTokenCredential profileTokenCred) throws PropertyVetoException, AS400AuthenticationException
     {
        return generateProfileTokenExtended(uid, password, null, profileTokenCred);
     }
     
     public ProfileTokenCredential generateProfileTokenExtended(String uid, char[] password, char[] additionalAuthenticationFactor, 
-            ProfileTokenCredential profileTokenCred) throws RetrieveFailedException, PropertyVetoException
+            ProfileTokenCredential profileTokenCred) throws PropertyVetoException, AS400AuthenticationException
     {
          ProfileTokenCredential ptTemp = generateProfileTokenExtended(uid, password, 
                 additionalAuthenticationFactor, 

@@ -6126,14 +6126,25 @@ public class AS400 implements Serializable, AutoCloseable
         useSSLConnection_.sslSocketFactory_ = sslSocketFactory;
     }
 
-    public String getLocalIPAddress() {
-      if (impl_ instanceof AS400ImplRemote) {
-        AS400ImplRemote implRemote = (AS400ImplRemote) impl_; 
-        return implRemote.getLocalIPAddress(); 
-      } else {
-        /* Native implementation, so return local address */ 
+    public static String getDefaultLocalIPAddress()
+    {
+        if (!AS400.onAS400)
+        {
+            try {
+                return InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException e) {
+                Trace.log(Trace.DIAGNOSTIC, "Error retrieving local host IP address:", e);
+            }
+        }
+
         return DEFAULT_LOCAL_IP_ADDRESS; 
       }
       
+    public String getLocalIPAddress() 
+    {
+        if (impl_ instanceof AS400ImplRemote)
+            return ((AS400ImplRemote)impl_).getLocalIPAddress();
+
+        return getDefaultLocalIPAddress();
     }
 }
