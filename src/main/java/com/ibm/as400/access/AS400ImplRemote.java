@@ -5332,7 +5332,7 @@ public class AS400ImplRemote implements AS400Impl
             }
           }
               else
-                  verificationID_s = "*NOUSE"; // or null string?
+                  verificationID_s = "*NOUSE"; 
           }
 
           authdata[1] = verificationID_s.getBytes(StandardCharsets.UTF_8);
@@ -5350,8 +5350,12 @@ public class AS400ImplRemote implements AS400Impl
 
             if (localIPAddressSet_) {
               /* We can only change the address in the token if it is not connected */ 
+              /* Otherwise, the setRemoteIPAddress will fail */
               if (!profileToken.isConnected())  {
-                remoteIPAddress_s = localIPAddress_;
+                remoteIPAddress_s = localIPAddress_; 
+                if (remoteIPAddress_s == null)
+                  remoteIPAddress_s = getLocalIPAddress();
+                // Set value in profile token
                 try {
                   profileToken.setRemoteIPAddress(remoteIPAddress_s);
                 } catch (Exception e) {
@@ -5359,48 +5363,13 @@ public class AS400ImplRemote implements AS400Impl
                   remoteIPAddress_s = "";
                 }
               }
-              if (remoteIPAddress_s != null) { 
-                authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
-              } else { 
-                authdata[2] = null; 
-              }
-              authdata[4] = remoteIPAddress_s;
-            }
-          } else {
-            authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
-            authdata[4] = remoteIPAddress_s;
+            } 
           }
-
-          // Verification ID will always be set to something. However, depending on where
-          // token was created, the client IP address
-          // may or may not be set. If creating the token and it is not set, use the IP
-          // address of the sign-on
-          // server. Thus, all tokens that signon server creates should have client IP
-          // address.
-          if (authdata[2] == null) {
-            // Note that not setting client IP address will result in sign-on host server
-            // setting the client IP
-            // address.
-            if (creatingToken ) {
-              // We are creating token, try to set client IP address .
-              remoteIPAddress_s = getLocalIPAddress();
-              // If we get back null, make sure a blank string is passed.
-              if (remoteIPAddress_s == null) {
-                remoteIPAddress_s = "";
-              }
-              // If the IP address was set to a string, even an empty string, it will be used.
-              authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
-              authdata[4] = remoteIPAddress_s;
-              try {
-                profileToken.setRemoteIPAddress(remoteIPAddress_s);
-              } catch (Exception e) {
-                Trace.log(Trace.DIAGNOSTIC, e);
-              }
-            } else if (profileToken.getTokenCreator() != ProfileTokenCredential.CREATOR_SIGNON_SERVER) {
-              authdata[2] = "*NOUSE".getBytes(StandardCharsets.UTF_8);
-              authdata[4] = "*NOUSE";
-            }
-          }
+          if (remoteIPAddress_s == null)
+            remoteIPAddress_s = "*NOUSE";
+          authdata[2] = remoteIPAddress_s.getBytes(StandardCharsets.UTF_8);
+          authdata[4] = remoteIPAddress_s;
+          
         } else {
           authdata[1] = "*NOUSE".getBytes(StandardCharsets.UTF_8);
           authdata[3] = "*NOUSE";

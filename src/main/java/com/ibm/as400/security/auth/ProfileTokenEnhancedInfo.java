@@ -141,14 +141,14 @@ public final class ProfileTokenEnhancedInfo implements Serializable
       }
     }
 
-    public void initialize(boolean enhancedTokenCreated, String verificationID, String remoteIPAddress, int remotePort,
+    public void initialize(boolean isEnhancedToken, String verificationID, String remoteIPAddress, int remotePort,
         String localIPAddress, int localPort) throws AS400AuthenticationException {
       verificationID_ = verificationID;
       remoteIPAddress_ = remoteIPAddress;
-      if (enhancedTokenCreated) {
+      if (isEnhancedToken) {
         checkEnhancedTokenForValidity(true);
       }
-        isEnhancedProfileToken_ = enhancedTokenCreated;
+        isEnhancedProfileToken_ = isEnhancedToken;
        remotePort_ = remotePort;
         localIPAddress_ = localIPAddress;
         localPort_ = localPort;
