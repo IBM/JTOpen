@@ -2977,6 +2977,9 @@ public class AS400 implements Serializable, AutoCloseable
         if (enhancedInfo == null) { 
         	enhancedInfo = new ProfileTokenEnhancedInfo(); 
         }
+        
+        enhancedInfo.ensureRequiredFieldsSet(getLocalIPAddress());
+        
         checkPasswordNullAndLength(password, "password");
       
         if (isTurkish()) {
