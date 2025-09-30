@@ -635,9 +635,6 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
                             .append(", remotePort == ").append(enhancedInfo.getRemotePort())
                             .toString());
         }
-        if (enhancedInfo_ != enhancedInfo) { 
-        	enhancedInfo_ = enhancedInfo; 
-        }
         // Validate parameters
         if (isRenewable && !isReusable)
         {
