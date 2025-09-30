@@ -5316,21 +5316,17 @@ public class AS400ImplRemote implements AS400Impl
                                           ? profileToken.getRemoteIPAddress() : "*NOUSE";
 
           // === Process verification ID
-
-          if (verificationID_s == null) 
-          {
-              if (creatingToken)
-              {
-            verificationID_s = ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
-            try {
-              profileToken.setVerificationID(verificationID_s);
-            } catch (Exception e) {
-                     Trace.log(Trace.DIAGNOSTIC, e);
-              verificationID_s = "";
-            }
-          }
-              else
-                  verificationID_s = "*NOUSE"; 
+          if (verificationID_s == null) {
+            if (creatingToken) {
+              verificationID_s = ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
+              try {
+                profileToken.setVerificationID(verificationID_s);
+              } catch (Exception e) {
+                Trace.log(Trace.DIAGNOSTIC, e);
+                verificationID_s = "";
+              }
+            } else
+              verificationID_s = "*NOUSE";
           }
 
           authdata[1] = verificationID_s.getBytes(StandardCharsets.UTF_8);
@@ -5348,8 +5344,9 @@ public class AS400ImplRemote implements AS400Impl
 
             if (localIPAddressSet_) {
               /* We can only change the address in the token if it is not connected */ 
+              /* and we are creating the Token */ 
               /* Otherwise, the setRemoteIPAddress will fail */
-              if (!profileToken.isConnected())  {
+              if (creatingToken && !profileToken.isConnected() )  {
                 remoteIPAddress_s = localIPAddress_; 
                 if (remoteIPAddress_s == null)
                   remoteIPAddress_s = getLocalIPAddress();
