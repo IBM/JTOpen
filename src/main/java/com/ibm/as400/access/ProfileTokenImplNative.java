@@ -289,34 +289,8 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
           boolean isAAFNull = (additionalAuthenticationFactor == null || additionalAuthenticationFactor.length == 0);
           if (isAAFNull) additionalAuthenticationFactor = new char[] { ' ' };
           
-          String verificationId = enhancedInfo.getVerificationID(); 
-          boolean isVfyIDNull = (verificationId == null || verificationId.length() == 0);
-          if (isVfyIDNull) { 
-              verificationId = "                              ";
-              enhancedInfo.setVerificationID(verificationId);
-          } else {
-            // VerificationId must be 30 characters 
-            if (verificationId.length() < 30) { 
-              verificationId = (verificationId + "                              ").substring(0, 30);
-              enhancedInfo.setVerificationID(verificationId);
-            }
-          }
-
+ 
           String remoteIpAddress = enhancedInfo.getRemoteIPAddress();
-          boolean isRemoteIPNull =  (remoteIpAddress == null || remoteIpAddress.length() == 0);
-          
-          if (isRemoteIPNull) {
-            if (AS400.onAS400) {
-               /* For the local case, set to the loopback address */ 
-              remoteIpAddress = AS400.DEFAULT_LOCAL_IP_ADDRESS;
-              isRemoteIPNull = false; 
-            } else { 
-              // Set the remote address if possible, as this is what will be used with the profile token
-              remoteIpAddress = sys.getLocalIPAddress(); 
-              isRemoteIPNull = false; 
-             }
-            enhancedInfo.setRemoteIPAddress(remoteIpAddress);
-          }
 
           String localIpAddress = enhancedInfo.getLocalIPAddress(); 
           boolean isLocalIPNull =  (localIpAddress == null || localIpAddress.length() == 0);
@@ -339,13 +313,13 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             parmlist[11] = new ProgramParameter(BinaryConverter.intToByteArray(0));
 
             // Input: Verification ID - must be 30 in length, blank padded
-            parmlist[12] = new ProgramParameter(CharConverter.stringToByteArray(sys, verificationId));
+            parmlist[12] = new ProgramParameter(CharConverter.stringToByteArray(sys, enhancedInfo.getVerificationID()));
 
             // Input: Remote IP address
             parmlist[13] = new ProgramParameter(CharConverter.stringToByteArray(sys, remoteIpAddress));
             
             // Input: Length of remote IP address
-            parmlist[14] = new ProgramParameter(BinaryConverter.intToByteArray((isRemoteIPNull) ? 0 : parmlist[13].getInputData().length));
+            parmlist[14] = new ProgramParameter(BinaryConverter.intToByteArray(parmlist[13].getInputData().length));
             
             // Input: Remote port
             parmlist[15] = new ProgramParameter(BinaryConverter.intToByteArray(enhancedInfo.getRemotePort()));
@@ -359,7 +333,7 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             // Input: Local port
             parmlist[18] = new ProgramParameter(BinaryConverter.intToByteArray(enhancedInfo.getRemotePort()));
             
-            Trace.log(Trace.INFORMATION, this, "generateRawTokenExtended creating EnhancedToken with verificationId='"+verificationId+"' remoteIp='"+remoteIpAddress+"'"); 
+            Trace.log(Trace.INFORMATION, this, "generateRawTokenExtended creating EnhancedToken with verificationId='"+enhancedInfo.getVerificationID()+"' remoteIp='"+remoteIpAddress+"'"); 
             
             enhancedProfileToken = true; 
            

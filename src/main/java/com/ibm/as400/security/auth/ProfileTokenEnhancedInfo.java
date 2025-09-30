@@ -175,6 +175,11 @@ public final class ProfileTokenEnhancedInfo implements Serializable
         if (verificationID_ == null || verificationID_.isEmpty())
             verificationID_ = ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
         
+          // VerificationId must be 30 characters 
+        if (verificationID_.length() < 30) { 
+          verificationID_ = (verificationID_ + "                              ").substring(0, 30);
+        }
+      
         if (remoteIPAddress_ == null || remoteIPAddress_.isEmpty())
         {
             if (remoteIPAddress == null || remoteIPAddress.isEmpty())
