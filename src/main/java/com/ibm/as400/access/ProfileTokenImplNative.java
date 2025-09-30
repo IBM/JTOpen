@@ -242,10 +242,11 @@ public class ProfileTokenImplNative implements ProfileTokenImpl
             Trace.log(Trace.ERROR, "Unexpected Exception: ", e);
             throw new RetrieveFailedException();
         }
+        // This should occur below in the userEPT path. 
         // MFA user requires enhanced information to be set
-        if (additionalAuthenticationFactor != null && additionalAuthenticationFactor.length > 0) {
-          enhancedInfo.ensureRequiredFieldsSet(AS400.DEFAULT_LOCAL_IP_ADDRESS);
-        }
+        // if (additionalAuthenticationFactor != null && additionalAuthenticationFactor.length > 0) {
+        //   enhancedInfo.ensureRequiredFieldsSet(AS400.DEFAULT_LOCAL_IP_ADDRESS);
+        // }
         // Setup parameters
         ProgramParameter[] parmlist = new ProgramParameter[useEPT ? 19 : 8];
       

@@ -24,9 +24,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -5346,7 +5344,7 @@ public class AS400ImplRemote implements AS400Impl
            * from a socket. If it was not set, then we use an empty string 
            */
 
-          if (remoteIPAddress_s == null || remoteIPAddress_s.length() == 0 || remoteIPAddress_s.equals(AS400.DEFAULT_LOCAL_IP_ADDRESS)) {
+          if (remoteIPAddress_s == null || remoteIPAddress_s.length() == 0 || (!AS400.onAS400 && remoteIPAddress_s.equals(AS400.DEFAULT_LOCAL_IP_ADDRESS))) {
 
             if (localIPAddressSet_) {
               /* We can only change the address in the token if it is not connected */ 

@@ -646,15 +646,16 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
         //
-        // Update the remoteIPAddress if needed 
+        // Update the remoteIPAddress if needed  
+        // This should not be needed. 
         // 
-        if ((system_ != null) ) {
-          String remoteIPAddress = enhancedInfo.getRemoteIPAddress();
-          if ((remoteIPAddress == null) || (remoteIPAddress.length() == 0)) {
-            remoteIPAddress = system_.getLocalIPAddress(); 
-            enhancedInfo.setRemoteIPAddress(remoteIPAddress);
-          }
-        }
+       // if ((system_ != null) ) {
+       //   String remoteIPAddress = enhancedInfo.getRemoteIPAddress();
+       //   if ((remoteIPAddress == null) || (remoteIPAddress.length() == 0)) {
+       //     remoteIPAddress = system_.getLocalIPAddress(); 
+       //     enhancedInfo.setRemoteIPAddress(remoteIPAddress);
+       //   }
+       // }
        
         // Assign to the local host system if on the system. 
         // Otherwise create a new AS400 object to handle the credential
