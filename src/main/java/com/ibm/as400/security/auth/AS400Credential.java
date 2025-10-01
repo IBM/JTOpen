@@ -703,7 +703,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     *		true if connected; false otherwise.
     *
     */
-   boolean isConnected()
+   public boolean isConnected()
    {
       return (impl_ != null);
    }

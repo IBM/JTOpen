@@ -316,10 +316,11 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *
      * @param timeoutInterval The number of seconds to expiration, used as the
      *                        default value when the token is refreshed (1-3600).
+     * @throws AS400AuthenticationException 
      *                        
      *                        
      */
-    public ProfileTokenCredential(AS400 system, byte[] token, int tokenType, int timeoutInterval) {
+    public ProfileTokenCredential(AS400 system, byte[] token, int tokenType, int timeoutInterval) throws AS400AuthenticationException {
         this(system, token, tokenType, timeoutInterval,  null, null, 0, null, 0);
     }
 
@@ -407,22 +408,25 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *                                       (Socket.getLocalPort). Otherwise, use 0
      *                                       if there is not an associated
      *                                       connection.
+     * @throws AS400AuthenticationException 
      */
     public ProfileTokenCredential(AS400 system, byte[] token, int tokenType, int timeoutInterval, 
                                   String verificationID, 
-                                 String remoteIPAddress, int remotePort, String localIPAddress, int localPort)
+                                 String remoteIPAddress, int remotePort, String localIPAddress, int localPort) throws AS400AuthenticationException
     {
         this();
         try {
             setSystem(system);
             
-            if (verificationID != null || 
-            		remoteIPAddress != null  ) {
-            	enhancedInfo_.initialize(true, verificationID, remoteIPAddress, remotePort, localIPAddress, localPort);
+            if (verificationID != null || remoteIPAddress != null  ) {
+                enhancedInfo_.initialize(true, verificationID, remoteIPAddress, remotePort, localIPAddress, localPort);
+                
             	setToken(token, enhancedInfo_);
                 
             } else {
+                // not an enhanced profile token. 
             	setToken(token); 
+                enhancedInfo_.reset();
             }
             setTokenType(tokenType);
             setTimeoutInterval(timeoutInterval);
@@ -631,9 +635,6 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
                             .append(", remotePort == ").append(enhancedInfo.getRemotePort())
                             .toString());
         }
-        if (enhancedInfo_ != enhancedInfo) { 
-        	enhancedInfo_ = enhancedInfo; 
-        }
         // Validate parameters
         if (isRenewable && !isReusable)
         {
@@ -641,7 +642,18 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
             throw new ExtendedIllegalArgumentException("isReusable",
                     ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
         }
-
+        //
+        // Update the remoteIPAddress if needed  
+        // This should not be needed. 
+        // 
+       // if ((system_ != null) ) {
+       //   String remoteIPAddress = enhancedInfo.getRemoteIPAddress();
+       //   if ((remoteIPAddress == null) || (remoteIPAddress.length() == 0)) {
+       //     remoteIPAddress = system_.getLocalIPAddress(); 
+       //     enhancedInfo.setRemoteIPAddress(remoteIPAddress);
+       //   }
+       // }
+       
         // Assign to the local host system if on the system. 
         // Otherwise create a new AS400 object to handle the credential
         AS400 sys = AuthenticationSystem.localHost();
@@ -683,6 +695,11 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     }
 
     public void setEnhancedInfo(ProfileTokenEnhancedInfo enhancedInfo) {
+        if (enhancedInfo == null) {
+            Trace.log(Trace.ERROR, "enhancedInfo is null");
+            throw new ExtendedIllegalArgumentException("enhancedInfo", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
+        }
+        
     	enhancedInfo_ = new ProfileTokenEnhancedInfo(enhancedInfo); 
 	}
 
@@ -714,12 +731,14 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * value in memory.
      *
      * @param bytes The token bytes.
+     * @throws AS400AuthenticationException 
      */
-    void primitiveSetToken(byte[] bytes, boolean enhancedProfileToken  ) {
-    	if (!enhancedProfileToken) { 
-    		/* reset the enhanced values */ 
-    		enhancedInfo_.reset(); 
-    	}
+    void primitiveSetToken(byte[] bytes, boolean enhancedProfileToken  ) throws AS400AuthenticationException {
+        if (!enhancedProfileToken)
+        		enhancedInfo_.reset(); 
+        else
+            enhancedInfo_.setEnhancedTokenCreated(true);
+        
         token_ = encode(addr_, mask_, bytes);
     }
 
@@ -807,7 +826,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         byte[] bytes = ((ProfileTokenImpl) getImpl()).refresh(type, timeoutInterval);
         // The token type is the same as before.  The refresh doesn't need
         // to know an enhanced profile token is being used. 
-        primitiveSetToken(bytes, enhancedInfo_.wasEnhancedTokenCreated());
+        primitiveSetToken(bytes, enhancedInfo_.isEnhancedProfileToken());
         type_ = type;
         timeoutInterval_ = timeoutInterval;
 
@@ -885,6 +904,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * @param bytes The token bytes.
      * 
      * @exception PropertyVetoException            If the change is vetoed.
+     * @throws AS400AuthenticationException 
      *
      * @exception ExtendedIllegalArgumentException If the provided value is not the
      *                                             correct length.
@@ -893,27 +913,8 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *                                             due to the current state.
      *
      */
-    public synchronized void setToken(byte[] bytes) throws PropertyVetoException
-    {
-    	
-        // Validate state
-        validatePropertyChange("token");
-
-        // Validate parms
-        if (bytes == null) {
-            Trace.log(Trace.ERROR, "Token byte array is null");
-            throw new ExtendedIllegalArgumentException("bytes", ExtendedIllegalArgumentException.PARAMETER_VALUE_NOT_VALID);
-        }
-
-        if (bytes.length != TOKEN_LENGTH) {
-            Trace.log(Trace.ERROR, "Token of length " + bytes.length + " not valid ");
-            throw new ExtendedIllegalArgumentException("bytes", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
-        }
-
-        byte[] old = getToken();
-        fireVetoableChange("token", old, bytes);
-        primitiveSetToken(bytes, false);
-        firePropertyChange("token", old, bytes);
+    public synchronized void setToken(byte[] bytes) throws PropertyVetoException, AS400AuthenticationException {
+        setToken(bytes, null);
     }
 
     /**
@@ -934,6 +935,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      * @param bytes The token bytes.
      * 
      * @exception PropertyVetoException            If the change is vetoed.
+     * @throws AS400AuthenticationException 
      *
      * @exception ExtendedIllegalArgumentException If the provided value is not the
      *                                             correct length.
@@ -942,7 +944,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
      *                                             due to the current state.
      *
      */
-	public synchronized void setToken(byte[] bytes, ProfileTokenEnhancedInfo enhancedInfo) throws PropertyVetoException
+	public synchronized void setToken(byte[] bytes, ProfileTokenEnhancedInfo enhancedInfo) throws PropertyVetoException, AS400AuthenticationException
     {
     	
         // Validate state
@@ -961,8 +963,11 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
 
         byte[] old = getToken();
         fireVetoableChange("token", old, bytes);
-        enhancedInfo_ = enhancedInfo; 
-        primitiveSetToken(bytes, true);
+        if (enhancedInfo != null)
+            enhancedInfo_ = enhancedInfo; 
+        else
+            enhancedInfo_.reset();   /* reset the info so that it is not enhanced */ 
+        primitiveSetToken(bytes, enhancedInfo_.isEnhancedProfileToken());
         firePropertyChange("token", old, bytes);
     }
 
@@ -1105,7 +1110,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         }
         
         newToken = impl.generateRawTokenExtended(name, passwordChars, null, getTokenType(), getTimeoutInterval(), enhancedInfo_);
-        primitiveSetToken(newToken,enhancedInfo_.wasEnhancedTokenCreated());
+        primitiveSetToken(newToken,enhancedInfo_.isEnhancedProfileToken());
         Arrays.fill(passwordChars,'\0');
 
         // If successful, all defining attributes are now set.
@@ -1732,16 +1737,12 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     /**
      * Returns the verification ID currently associated with an enhanced profile token.
      *
-     * @return The verification ID. If this is not an enhanced profile token then "*NOUSE" is returned. 
+     * @return The verification ID. If enhanced profile token is disabled, then "*NOUSE" is returned. 
      */
     public String getVerificationID()
     {
-      String verificationID;
-      if (!useEnhancedProfileTokens_) {
-        return "*NOUSE";
-      } else {
-        verificationID = enhancedInfo_.getVerificationID();
-      }
+      String verificationID =  (!useEnhancedProfileTokens_) ? "*NOUSE" : enhancedInfo_.getVerificationID();
+
       if (Trace.isTraceOn())
         Trace.log(Trace.INFORMATION, this, "verificationId="+verificationID);
      
@@ -1799,7 +1800,7 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     /**
      * Returns the remote IP address associated with the profile token.
      *
-     * @return The remote IP address. The value can be null if it has not been set.
+     * @return The remote IP address. If enhanced profile token is disabled, then "*NOUSE" is returned. 
      */
     public String getRemoteIPAddress() {
         String remoteIPAddress = useEnhancedProfileTokens_ ? enhancedInfo_.getRemoteIPAddress() : "*NOUSE";
@@ -1972,15 +1973,13 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
     /**
      * Return true if the profile token was created as an enhancedProfileToken
      * This can only be set when the profile token is set. 
-     * @return
+     * @return true if token represents a profile token; false if token has not be set or is not enhanced profile token.
      */
     public boolean isEnhancedProfileToken() {
-		return enhancedInfo_.wasEnhancedTokenCreated();
+        return enhancedInfo_.isEnhancedProfileToken();
 	}
 
 	public ProfileTokenEnhancedInfo getEnhancedInfo() {
 		return enhancedInfo_; 
 	}
-
-
 }

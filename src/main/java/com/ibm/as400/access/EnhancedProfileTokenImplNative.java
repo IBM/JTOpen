@@ -106,7 +106,7 @@ public class EnhancedProfileTokenImplNative
      * @exception RetrieveFailedException If errors occur while generating the
      *                                    token.
      */
-     static native byte[] nativeCreateToken(
+    public static native byte[] nativeCreateToken(
             String user, 
             char[] password, 
             char[] additionalAuthenticationFactor,
@@ -195,7 +195,7 @@ public class EnhancedProfileTokenImplNative
     * @exception RetrieveFailedException If errors occur while generating the
     *                                    token.
     */
-    static native byte[] nativeCreateTokenSpecialPassword(
+    public static native byte[] nativeCreateTokenSpecialPassword(
             String user, 
             char[] password, 
             char[] additionalAuthenticationFactor,

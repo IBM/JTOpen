@@ -66,6 +66,7 @@ import com.ibm.as400.security.auth.ProfileTokenProvider;
 public class AS400 implements Serializable, AutoCloseable
 {
     private static final String CLASSNAME = "com.ibm.as400.access.AS400";
+    final static String DEFAULT_LOCAL_IP_ADDRESS = "127.0.0.1";
     
     static
     {
@@ -2976,6 +2977,9 @@ public class AS400 implements Serializable, AutoCloseable
         if (enhancedInfo == null) { 
         	enhancedInfo = new ProfileTokenEnhancedInfo(); 
         }
+        
+        enhancedInfo.ensureRequiredFieldsSet(getLocalIPAddress());
+        
         checkPasswordNullAndLength(password, "password");
       
         if (isTurkish()) {
@@ -6125,13 +6129,25 @@ public class AS400 implements Serializable, AutoCloseable
         useSSLConnection_.sslSocketFactory_ = sslSocketFactory;
     }
 
-    public String getLocalIPAddress() {
-      if (impl_ instanceof AS400ImplRemote) {
-        AS400ImplRemote implRemote = (AS400ImplRemote) impl_; 
-        return implRemote.getLocalIPAddress(); 
-      } else {
-        return "127.0.0.1"; 
+    public static String getDefaultLocalIPAddress()
+    {
+        if (!AS400.onAS400)
+        {
+            try {
+                return InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException e) {
+                Trace.log(Trace.DIAGNOSTIC, "Error retrieving local host IP address:", e);
+            }
+        }
+
+        return DEFAULT_LOCAL_IP_ADDRESS; 
       }
       
+    public String getLocalIPAddress() 
+    {
+        if (impl_ instanceof AS400ImplRemote)
+            return ((AS400ImplRemote)impl_).getLocalIPAddress();
+
+        return getDefaultLocalIPAddress();
     }
 }
