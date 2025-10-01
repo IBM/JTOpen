@@ -5341,21 +5341,21 @@ public class AS400ImplRemote implements AS400Impl
            */
 
           if (remoteIPAddress_s == null || remoteIPAddress_s.length() == 0 || (!AS400.onAS400 && remoteIPAddress_s.equals(AS400.DEFAULT_LOCAL_IP_ADDRESS))) {
-
             if (localIPAddressSet_) {
-              /* We can only change the address in the token if it is not connected */ 
-              /* and we are creating the Token */ 
-              /* Otherwise, the setRemoteIPAddress will fail */
-              if (creatingToken && !profileToken.isConnected() )  {
-                remoteIPAddress_s = localIPAddress_; 
-                if (remoteIPAddress_s == null)
-                  remoteIPAddress_s = getLocalIPAddress();
+              /* We can should only change the address in the token  */ 
+              /* when we are creating the Token */ 
+              if (creatingToken  )  {
+                String newRemoteIpAddress = localIPAddress_; 
+                if (newRemoteIpAddress == null)
+                  newRemoteIpAddress = getLocalIPAddress();
                 // Set value in profile token
                 try {
-                  profileToken.setRemoteIPAddress(remoteIPAddress_s);
+                  profileToken.setRemoteIPAddress(newRemoteIpAddress);
+                  remoteIPAddress_s = newRemoteIpAddress; 
                 } catch (Exception e) {
                   Trace.log(Trace.DIAGNOSTIC, e);
-                  remoteIPAddress_s = "";
+                  if (remoteIPAddress_s == null) 
+                      remoteIPAddress_s = "";
                 }
               }
             } 
