@@ -26,6 +26,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -395,6 +396,53 @@ public class AS400 implements Serializable, AutoCloseable
     private boolean forcePrompt_ = false;
     private int validateSignonTimeOut_ = 0;
 
+    // GSS Token, for Kerberos.
+    private byte[] gssToken_;
+
+    // Prefix used to indicate that the password contains a base64-encoded Kerberos token.
+    public static final String KERBEROS_PREFIX = "_KERBEROSAUTH_";
+    public static final char[] KERBEROS_PREFIX_CHARS = KERBEROS_PREFIX.toCharArray();
+
+    private void setGSSToken(byte[] token) {
+        this.gssToken_ = token.clone();
+    }
+
+    private byte[] getGSSToken() {
+        return this.gssToken_;
+    }
+
+    public void clearGSSToken() {
+        if (this.gssToken_ != null)
+            CredentialVault.clearArray(gssToken_);
+    }
+
+    // Determines if the password contains a Kerberos token
+    private boolean isGSSToken(char[] auth){
+        char[] prefix = KERBEROS_PREFIX_CHARS;
+        if (auth == null || auth.length < prefix.length) {
+            return false;
+        }
+
+        for (int i = 0; i < prefix.length; i++) {
+            if (auth[i] != prefix[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Extracts the Kerberos token from the password
+    private static char[] extractTokenFromPassword(char[] password) {
+        int prefixLen = KERBEROS_PREFIX_CHARS.length;
+        int tokenLen = password.length - prefixLen;
+
+        char[] tokenChars = new char[tokenLen];
+        System.arraycopy(password, prefixLen, tokenChars, 0, tokenLen);
+
+        return tokenChars;
+    }
+    
+
     /**
      * Constructs an AS400 object.
      * <p>
@@ -654,7 +702,6 @@ public class AS400 implements Serializable, AutoCloseable
         if (userId.length() > 10)
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
-        checkPasswordNullAndLength(password, "password");
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
@@ -665,7 +712,17 @@ public class AS400 implements Serializable, AutoCloseable
         }
  
         userId_ = userId.toUpperCase();
-        credVault_ = new PasswordVault(password);
+        // Create  appropriate credential vault based on whether the password is a Kerberos token or a regular password.
+        boolean kerbToken = isGSSToken(password);
+        if (kerbToken){
+            password = extractTokenFromPassword(password);
+            credVault_ = new GSSTokenVault();
+            
+            this.setGSSToken(Base64.getDecoder().decode((new String(password))));
+        }else{
+            checkPasswordNullAndLength(password, "password");
+            credVault_ = new PasswordVault(password);
+        }
         proxyServer_ = resolveProxyServer(proxyServer_);
     }
     
@@ -1801,6 +1858,10 @@ public class AS400 implements Serializable, AutoCloseable
             }
         }
         
+        // If gssToken_ has been set, make sure the impl knows about it.
+        if (gssToken_ != null)
+            impl_.setGSSToken(gssToken_);
+
         if (!propertiesFrozen_)
         {
             impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, nlv_, 
@@ -4155,6 +4216,7 @@ public class AS400 implements Serializable, AutoCloseable
     public synchronized void resetAllServices()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resetting all services.");
+        clearGSSToken();
         setStayAlive(0);
 
         disconnectAllServices();
@@ -5453,9 +5515,17 @@ public class AS400 implements Serializable, AutoCloseable
                         && (credVault_.getType() == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ != AS400.GSS_OPTION_NONE))
                 {
                     // Try for Kerberos.
-                    byte[] newBytes = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) :
-                      TokenManager2.getGSSToken(systemName_, gssCredential_);
+                    byte[] newBytes = null;
 
+                    if (gssToken_ != null && gssToken_.length > 0) {
+                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using injected GSS token.");
+                        newBytes = gssToken_.clone();
+                    } else {
+                        // Fall back to generating the token normally
+                        newBytes = (gssCredential_ == null)
+                            ? TokenManager.getGSSToken(systemName_, gssName_)
+                            : TokenManager2.getGSSToken(systemName_, gssCredential_);
+                    }
                     // We do not have to empty the existing vault because the
                     // previous if-check assures us it is already empty.
                     credVault_ = new GSSTokenVault(newBytes);
