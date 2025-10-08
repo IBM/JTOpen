@@ -425,7 +425,7 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     // Extracts the Kerberos token from the password
-    private static char[] extractTokenFromPassword(char[] password) {
+    private static char[] getGSSTokenFromPassword(char[] password) {
         int prefixLen = KERBEROS_PREFIX_CHARS.length;
         int tokenLen = password.length - prefixLen;
 
@@ -708,7 +708,7 @@ public class AS400 implements Serializable, AutoCloseable
         // Create  appropriate credential vault based on whether the password is a Kerberos token or a regular password.
         boolean kerbToken = isGSSToken(password);
         if (kerbToken){
-            password = extractTokenFromPassword(password);
+            password = getGSSTokenFromPassword(password);
             credVault_ = new GSSTokenVault();
             
             this.setGSSToken(Base64.getDecoder().decode((new String(password))));
