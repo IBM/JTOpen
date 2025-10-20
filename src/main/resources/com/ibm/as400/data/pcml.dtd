@@ -17,19 +17,23 @@
 <!ELEMENT pcml (struct | program)+>
 <!ATTLIST pcml
           version  (1.0 | 2.0 | 3.0 | 4.0 | 6.0 | 7.0 | 8.0) #REQUIRED
+
+          description CDATA #IMPLIED
 >
 
 <!ELEMENT struct (data | struct)+>
 <!ATTLIST struct
           name   CDATA    #REQUIRED
 
-  usage  (inherit | input | output | inputoutput) "inherit"
-  count  CDATA #IMPLIED
-  minvrm CDATA #IMPLIED
-  maxvrm CDATA #IMPLIED
-  offset CDATA #IMPLIED
-  offsetfrom CDATA #IMPLIED
-  outputsize  CDATA #IMPLIED
+          usage  (inherit | input | output | inputoutput) "inherit"
+          count  CDATA #IMPLIED
+          minvrm CDATA #IMPLIED
+          maxvrm CDATA #IMPLIED
+          offset CDATA #IMPLIED
+          offsetfrom CDATA #IMPLIED
+          outputsize  CDATA #IMPLIED
+
+          description CDATA #IMPLIED
 >
 
 <!ELEMENT program (data | struct)*>
@@ -43,6 +47,8 @@
           threadsafe   (false | true) #IMPLIED
           
           epccsid CDATA #IMPLIED
+
+          description CDATA #IMPLIED
 >
 
 <!ELEMENT data EMPTY>
@@ -78,6 +84,8 @@
           timeseparator (ampersand | blank | colon | comma | period | none) #IMPLIED
 
           boolean (true | false) #IMPLIED
+
+          description CDATA #IMPLIED
 >
 
 <!-- Note: The required format for the 'init' attribute is: -->
