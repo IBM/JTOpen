@@ -18,7 +18,6 @@
 
 package com.ibm.as400.access;
 
-import java.beans.*;
 import java.io.*;
 import java.util.*;
 
@@ -33,7 +32,7 @@ This class internally uses the Open List APIs (e.g. QGYOLOBJ).
 
 @see com.ibm.as400.access.ObjectDescription
 **/
-public class ObjectList implements Serializable
+public class ObjectList implements Serializable, AutoCloseable
 {
   static final long serialVersionUID = 5L;
 
@@ -693,6 +692,7 @@ public class ObjectList implements Serializable
    * @exception ObjectDoesNotExistException     If the object does not exist on the system.
    * @see #load
   **/
+  @Override
   public synchronized void close() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
   {
     if (!isConnected_)
@@ -940,7 +940,7 @@ public class ObjectList implements Serializable
    * @see #close
    * @see #load
   **/
-  public synchronized Enumeration getObjects()
+  public synchronized Enumeration<ObjectDescription> getObjects()
   throws AS400Exception,
   AS400SecurityException,
   ErrorCompletingRequestException,
@@ -1194,6 +1194,50 @@ public class ObjectList implements Serializable
     return objects;
   }
 
+    /**
+     * Returns a subset of the list of objects. This method allows the user to retrieve the object list from the system in pieces. If a call to
+     * {@link #load load()} is made (either implicitly or explicitly), then the objects at a given list offset will change, so a subsequent call to getObjects()
+     * with the same <i>listOffset</i> and <i>number</i> will most likely not return the same ObjectDescriptions as the previous call.
+     *
+     * @param listOffset The offset in the list of objects (0-based). This value must be greater than or equal to 0 and less than the list length; or specify -1
+     * to retrieve all of the objects.
+     * @param number The number of objects to retrieve out of the list, starting at the specified <i>listOffset</i>. This value must be greater than or equal to
+     * 0 and less than or equal to the list length. If the <i>listOffset</i> is -1, this parameter is ignored.
+     * @return A list of retrieved {@link com.ibm.as400.access.ObjectDescription ObjectDescription} objects. The length of this list may not necessarily be
+     * equal to <i>number</i>, depending upon the size of the list on the system, and the specified <i>listOffset</i>.
+     * @exception AS400Exception If the system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException If the object does not exist on the system.
+     * @see com.ibm.as400.access.Job
+     * @see #close
+     * @see #load
+     *
+     */
+    public synchronized List<ObjectDescription> getObjectsList(int listOffset, int number) throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException {
+        return new ArrayList<>(Arrays.asList(getObjects(listOffset, number)));
+    }
+
+    /**
+     * Returns a subset of the list of objects.
+     *
+     * @return A list of retrieved {@link com.ibm.as400.access.ObjectDescription ObjectDescription} objects.
+     * @exception AS400Exception If the system returns an error message.
+     * @exception AS400SecurityException If a security or authority error occurs.
+     * @exception ErrorCompletingRequestException If an error occurs before the request is completed.
+     * @exception InterruptedException If this thread is interrupted.
+     * @exception IOException If an error occurs while communicating with the system.
+     * @exception ObjectDoesNotExistException If the object does not exist on the system.
+     * @see com.ibm.as400.access.Job
+     * @see #close
+     * @see #load
+     *
+     */
+    public synchronized List<ObjectDescription> getObjectsList() throws AS400Exception, AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException {
+        return getObjectsList(-1, 0);
+    }
 
   /**
    * Returns the system.
