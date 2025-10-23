@@ -389,28 +389,27 @@ public class AS400 implements Serializable, AutoCloseable
     private boolean forcePrompt_ = false;
     private int validateSignonTimeOut_ = 0;
 
-    // GSS Token, for Kerberos.
-    private byte[] gssToken_;
+    private byte[] kerbTicket_;
 
     // Prefix used to indicate that the password contains a base64-encoded Kerberos token.
     public static final String KERBEROS_PREFIX = "_KERBEROSAUTH_";
     public static final char[] KERBEROS_PREFIX_CHARS = KERBEROS_PREFIX.toCharArray();
 
-    private void setGSSToken(byte[] token) {
-        this.gssToken_ = token.clone();
+    private void setKerbTicket(byte[] ticket) {
+        this.kerbTicket_ = ticket.clone();
     }
 
-    private byte[] getGSSToken() {
-        return this.gssToken_;
+    private byte[] getKerbTicket() {
+        return this.kerbTicket_;
     }
 
-    public void clearGSSToken() {
-        if (this.gssToken_ != null)
-            CredentialVault.clearArray(gssToken_);
+    public void clearKerbTicket() {
+        if (this.kerbTicket_ != null)
+            CredentialVault.clearArray(kerbTicket_);
     }
 
     // Determines if the password contains a Kerberos token
-    private boolean isGSSToken(char[] auth){
+    private boolean isKerbTicket(char[] auth){
         char[] prefix = KERBEROS_PREFIX_CHARS;
         if (auth == null || auth.length < prefix.length) {
             return false;
@@ -425,7 +424,7 @@ public class AS400 implements Serializable, AutoCloseable
     }
 
     // Extracts the Kerberos token from the password
-    private static char[] getGSSTokenFromPassword(char[] password) {
+    private static char[] getKerbTicketFromPassword(char[] password) {
         int prefixLen = KERBEROS_PREFIX_CHARS.length;
         int tokenLen = password.length - prefixLen;
 
@@ -706,12 +705,12 @@ public class AS400 implements Serializable, AutoCloseable
  
         userId_ = userId.toUpperCase();
         // Create  appropriate credential vault based on whether the password is a Kerberos token or a regular password.
-        boolean kerbToken = isGSSToken(password);
-        if (kerbToken){
-            password = getGSSTokenFromPassword(password);
+        boolean isKerberosTicket = isKerbTicket(password);
+        if (isKerberosTicket){
+            password = getKerbTicketFromPassword(password);
             credVault_ = new GSSTokenVault();
             
-            this.setGSSToken(Base64.getDecoder().decode((new String(password))));
+            this.setKerbTicket(Base64.getDecoder().decode((new String(password))));
         }else{
             checkPasswordNullAndLength(password, "password");
             credVault_ = new PasswordVault(password);
@@ -1851,9 +1850,9 @@ public class AS400 implements Serializable, AutoCloseable
             }
         }
         
-        // If gssToken_ has been set, make sure the impl knows about it.
-        if (gssToken_ != null)
-            impl_.setGSSToken(gssToken_);
+        // If kerbTicket_ has been set, make sure the impl knows about it.
+        if (kerbTicket_ != null)
+            impl_.setKerbTicket(kerbTicket_);
 
         if (!propertiesFrozen_)
         {
@@ -4206,7 +4205,7 @@ public class AS400 implements Serializable, AutoCloseable
     public synchronized void resetAllServices()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resetting all services.");
-        clearGSSToken();
+        clearKerbTicket();
         setStayAlive(0);
 
         disconnectAllServices();
@@ -5507,9 +5506,9 @@ public class AS400 implements Serializable, AutoCloseable
                     // Try for Kerberos.
                     byte[] newBytes = null;
 
-                    if (gssToken_ != null && gssToken_.length > 0) {
-                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using injected GSS token.");
-                        newBytes = gssToken_.clone();
+                    if (kerbTicket_ != null && kerbTicket_.length > 0) {
+                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using injected Kerberos ticket.");
+                        newBytes = kerbTicket_.clone();
                     } else {
                         // Fall back to generating the token normally
                         newBytes = (gssCredential_ == null)

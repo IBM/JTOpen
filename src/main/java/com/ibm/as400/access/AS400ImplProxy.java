@@ -371,7 +371,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
 
 
     private int bidiStringType = BidiStringType.DEFAULT;
-    private byte[] gssToken_;
+    private byte[] kerbTicket_;
     
     /**
      * Sets bidi string type of the connection. 
@@ -407,12 +407,12 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     }
 
     @Override
-    public void setGSSToken(byte[] token) {
-        this.gssToken_ = token;
+    public void setKerbTicket(byte[] ticket) {
+        this.kerbTicket_ = ticket;
     }
 
-    private byte[] getGSSToken() {
-        return this.gssToken_;
+    private byte[] getKerbTicket() {
+        return this.kerbTicket_;
     }
   
 }

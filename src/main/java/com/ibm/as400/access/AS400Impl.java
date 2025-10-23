@@ -96,5 +96,5 @@ interface AS400Impl
     void setVRM(int v, int r, int m); 
 
 
-    void setGSSToken(byte[] token);
+    void setKerbTicket(byte[] ticket);
 }

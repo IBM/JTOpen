@@ -189,7 +189,7 @@ public class AS400ImplRemote implements AS400Impl
   private static final String CLASSNAME = "com.ibm.as400.access.AS400ImplRemote";
 
   // GSS Token, for Kerberos.
-  private byte[] gssToken_;
+  private byte[] kerbTicket_;
 
   static {
       if (Trace.traceOn_)
@@ -669,8 +669,8 @@ public class AS400ImplRemote implements AS400Impl
               try
               {
                 byte[] authenticationBytes;
-                if (this.gssToken_ != null){
-                    authenticationBytes = this.gssToken_;
+                if (this.kerbTicket_ != null){
+                    authenticationBytes = this.kerbTicket_;
                 } else {
                     authenticationBytes = (gssCredential_ == null) 
                           ? TokenManager.getGSSToken(systemName_, gssName_)
@@ -1023,8 +1023,8 @@ public class AS400ImplRemote implements AS400Impl
               case AS400.AUTHENTICATION_SCHEME_GSS_TOKEN:
                   try
                   {
-                    if (this.gssToken_ != null){
-                        authenticationBytes = this.gssToken_;
+                    if (this.kerbTicket_ != null){
+                        authenticationBytes = this.kerbTicket_;
                     } else {
                         authenticationBytes = (gssCredential_ == null) 
                             ? TokenManager.getGSSToken(systemName_, gssName) 
@@ -1849,8 +1849,8 @@ public class AS400ImplRemote implements AS400Impl
       if (credType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
       {
           try {
-            if (gssToken_ != null)
-                return gssToken_;
+            if (kerbTicket_ != null)
+                return kerbTicket_;
               return (gssCredential_ == null) 
                     ? TokenManager.getGSSToken(systemName_, gssName_)
                     : TokenManager2.getGSSToken(systemName_, gssCredential_);
@@ -2229,8 +2229,8 @@ public class AS400ImplRemote implements AS400Impl
       if (credType == AS400.AUTHENTICATION_SCHEME_GSS_TOKEN)
       {
           try {
-            if (gssToken_ != null)
-                return gssToken_;
+            if (kerbTicket_ != null)
+                return kerbTicket_;
               return (gssCredential_ == null) 
                 ? TokenManager.getGSSToken(systemName_, gssName_)
                 : TokenManager2.getGSSToken(systemName_, gssCredential_);
@@ -5419,12 +5419,12 @@ public class AS400ImplRemote implements AS400Impl
   }
 
     @Override
-    public void setGSSToken(byte[] token) {
-        this.gssToken_ = token;
+    public void setKerbTicket(byte[] ticket) {
+        this.kerbTicket_ = ticket;
     }
 
-    private byte[] getGSSToken() {
-        return this.gssToken_;
+    private byte[] getKerbTicket() {
+        return this.kerbTicket_;
     }
   
 }

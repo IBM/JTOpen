@@ -594,7 +594,7 @@ extends AS400JDBCConnection
             as400_.disconnectServer (server_);
             // Clear the sensitive auth token via the public AS400 object
             if (as400PublicClassObj_ != null) {
-                as400PublicClassObj_.clearGSSToken();
+                as400PublicClassObj_.clearKerbTicket();
             }
 
             server_ = null;
