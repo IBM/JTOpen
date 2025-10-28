@@ -228,13 +228,8 @@ class RemoteCommandImplRemote implements RemoteCommandImpl
 		// chain to the target non-proxy command and retrieve information for the target command. 		//@A1A
 		// If the command is not a proxy command, retrieve information for the specified command. 		//@A1A
 
-		int numParms;
-		if ((AS400.nativeVRM.getVersionReleaseModification()>= 0x00060100) ||
-		   (AS400.nativeVRM.getVersionReleaseModification()>= 0x00050400 && !system_.isMissingPTF())) {
-		   numParms = 6;	// @A1C - added support for proxy commands
-		}
-		else numParms = 5;
-
+		int numParms= 6;	// @A1C - added support for proxy commands
+		
 		ProgramParameter[] parameterList = new ProgramParameter[numParms];
 		parameterList[0] = new ProgramParameter(350);
 		parameterList[1] = new ProgramParameter(new byte[] { 0x00, 0x00, 0x01, 0x5e });

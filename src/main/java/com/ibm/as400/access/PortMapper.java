@@ -142,7 +142,7 @@ class PortMapper
             try
             {
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Starting a local socket to " + serviceName);
-                sc = AS400.nativeVRM.getVersionReleaseModification()< 0x00050400 ? (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix") : (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix2");
+                sc =  (SocketContainer)AS400.loadImpl("com.ibm.as400.access.SocketContainerUnix2");
                 if (sc != null)
                 {
                     sc.setProperties(null, serviceName, null, 0, null);

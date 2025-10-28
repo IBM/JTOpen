@@ -637,7 +637,9 @@ public AS400Date(int format, Character separator)
       }
       SimpleDateFormat dateFormatter = getDateFormatter(centuryDigit);
       java.util.Date dateObj = dateFormatter.parse(source);
-      return new java.sql.Date(dateObj.getTime());
+      java.sql.Date sqlDate =  new java.sql.Date(dateObj.getTime());
+      Trace.log(Trace.INFORMATION, "AS400Date.parse source="+source+" dateObj="+dateObj+" sqlDate="+sqlDate); 
+      return sqlDate;
     }
     catch (Exception e) {
       // Assume that the exception is because we got bad input.

@@ -2305,8 +2305,7 @@ implements Serializable
         !userCommittedChange_[WINS_SECONDARY_ADDRESS]) {
       needToChangeServerInfo = true;
     }
-    if (getSystemVRM() >= 0x00050400)
-    { // new fields added to API in V5R4
+     // new fields added to API in V5R4
       if (userChangedAttribute_[MESSAGE_AUTHENTICATION] &&
           !userCommittedChange_[MESSAGE_AUTHENTICATION]) {
         needToChangeServerInfo = true;
@@ -2319,7 +2318,6 @@ implements Serializable
           !userCommittedChange_[LAN_MGR_AUTHENTICATION]) {
         needToChangeServerInfo = true;
       }
-    }
     
     //@AE3A Start
     if (getSystemVRM() >= 0x00070400) {
@@ -2501,8 +2499,7 @@ implements Serializable
 
     stream.write(BinaryConverter.intToByteArray(pendingValueInt_[LOGON_SUPPORT]));
 
-    if (getSystemVRM() >= 0x00050200) { // new field added to API in V5R2
-      if (getSystemVRM() >= 0x00050400 ||
+      if (
           userChangedAttribute_[AUTHENTICATION_METHOD])
       {
         switch (pendingValueStr_[AUTHENTICATION_METHOD].charAt(0)) {
@@ -2511,10 +2508,8 @@ implements Serializable
           default:  stream.write(0xF2);
         }
       }
-    }
 
-    if (getSystemVRM() >= 0x00050400)
-    { // new fields added to API in V5R4
+     // new fields added to API in V5R4
       byte[] reserved3 = {(byte)0x00, (byte)0x00, (byte)0x00};
       stream.write(reserved3);  // reserved field - CHAR(3)
       stream.write(BinaryConverter.intToByteArray(pendingValueInt_[MESSAGE_AUTHENTICATION]));
@@ -2530,7 +2525,7 @@ implements Serializable
       	}
       }
       //@AE3A End
-    }
+    
 
     stream.flush();
     byte[] requestVariable = stream.toByteArray();
@@ -2691,7 +2686,6 @@ implements Serializable
       pendingValueInt_[LOGON_SUPPORT] = BinaryConverter.byteArrayToInt(data, 744);
     }
     if (DEBUG) System.out.println("DEBUG: data.length == " + data.length);
-    if (getSystemVRM() >= 0x00050400)
     { // new fields added to API in V5R4
       effectiveValueInt_[MESSAGE_AUTHENTICATION] = BinaryConverter.byteArrayToInt(data, 748);
       if (!userChangedAttribute_[MESSAGE_AUTHENTICATION]) {
