@@ -1540,6 +1540,9 @@ public class AS400JDBCPreparedStatementImpl extends AS400JDBCPreparedStatement  
    * event that an error occurs and some of the SQL statements in a batch fail
    * to run.
    * 
+   *  <p>If an error occurs while processing a statement in the batch, 
+   *  then processing of the statements in the batch immediately ends. 
+   *
    * @return An array of row counts for the SQL statements that are run. The
    *         array contains one element for each statement in the batch of SQL
    *         statements. The array is ordered according to the order in which

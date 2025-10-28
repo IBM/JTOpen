@@ -2465,7 +2465,11 @@ implements Statement
     This allows the caller to decide whether or not to commit the
     transaction in the event that an error occurs and some of the
     SQL statements in a batch fail to run.
-
+    
+    <p>If an error occurs while processing a statement in the batch, 
+    then processing of the statements in the batch immediately ends. 
+    
+    
     @return An array of row counts for the SQL statements that are run.
             The array contains one element for each statement in the
             batch of SQL statements.  The array is ordered according to
@@ -4744,19 +4748,9 @@ implements Statement
    *   successfully but that the number of rows affected is unknown.
    *   
    *   <p>If one of the commands in a batch update fails to execute properly,
-   *   this method throws a BatchUpdateException, and a JDBC driver may or may 
-   * not continue to process the remaining commands in the batch. However, 
-   * the driver's behavior must be consistent with a particular DBMS, 
-   * either always continuing to process commands or never continuing to 
-   * process commands. If the driver continues processing after a failure, 
-   * the array returned by the method BatchUpdateException.getLargeUpdateCounts
-   *  will contain as many elements as there are commands in the batch, and 
-   *  at least one of the elements will be the following:
-   *
-   * <p>A value of EXECUTE_FAILED -- indicates that the command failed to execute 
-   * successfully and occurs only if a driver continues to process commands 
-   * after a command fails
-   *
+   *   this method throws a BatchUpdateException, and the JDBC driver does 
+   *   not continue to process the remaining commands in the batch. 
+   * 
    * <p>This method should be used when the returned row count may exceed 
    * Integer.MAX_VALUE.
    * @return an array of update counts containing one element for each command in the 
@@ -4764,7 +4758,7 @@ implements Statement
    * commands were added to the batch.
    * @throws SQLException - if a database access error occurs, this method is called 
    * on a closed Statement or the driver does not support batch statements. 
-   * Throws BatchUpdateException (a subclass of SQLException) if one of the commands 
+   * @throws BatchUpdateException (a subclass of SQLException) if one of the commands 
    * sent to the database fails to execute properly or attempts to return a result set.
    * @throws SQLException - when the driver has determined that the timeout value
    *  that was specified by the setQueryTimeout method has been exceeded and has at least
