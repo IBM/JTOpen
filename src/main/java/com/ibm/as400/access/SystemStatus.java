@@ -423,10 +423,6 @@ public class SystemStatus implements Serializable
     public long getMainStorageSize() throws AS400SecurityException, ErrorCompletingRequestException, InterruptedException, IOException, ObjectDoesNotExistException
     {
         loadInformation(2);
-        if (system_.getVRM() < 0x00050400)
-        {
-            return BinaryConverter.byteArrayToInt(receiverVariables_[2], 72);
-        }
         return BinaryConverter.byteArrayToLong(receiverVariables_[2], 140);
     }
 

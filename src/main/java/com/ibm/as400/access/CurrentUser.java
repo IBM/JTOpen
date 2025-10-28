@@ -23,18 +23,7 @@ class CurrentUser
         byte[] currentUser = null;
         try
         {
-            if (vrm >= 0x00050400)
                 currentUser = NativeMethods.getUserId();
-            else if (vrm >= 0x00050200)
-            {
-                if (NativeMethods.loadSCK())
-                    currentUser = getUserIdNative();
-            }
-            else
-            {
-                UnixSocketUser user = new UnixSocketUser();
-                currentUser = user.getUserId();
-            }
         }
         catch (NativeException e) {
             Trace.log(Trace.ERROR, "Error retrieving current userID:", e);
@@ -67,13 +56,7 @@ class CurrentUser
     {
         try
         {
-            if (vrm >= 0x00050400)
                 return NativeMethods.getUserInfo(clientSeed, serverSeed);
-            else if (vrm >= 0x00050200)
-                return getUserInfoNative(clientSeed, serverSeed);
-
-            UnixSocketUser user = new UnixSocketUser();
-            return user.getSubstitutePassword(clientSeed, serverSeed);
         }
         catch (NativeException e) {
             throw AS400ImplRemote.returnSecurityException(BinaryConverter.byteArrayToInt(e.data, 0),null,info);

@@ -1344,11 +1344,6 @@ public class ObjectReferences
             jobNumber_ = conv.byteArrayToString(receiverVariable, offset + 40, 6).trim();
             jobSimple_ = new SimpleObjectReferenceTypesStructure(receiverVariable, offset + displacementToSimpleReferenceTypes, conv);
             jobExtended_ = new ExtendedObjectReferenceTypesStructure(receiverVariable, offset + displacementToExtendedReferenceTypes, conv);
-            if (vrm < 0x00050400)
-            {
-                sessions_ = new SessionUsingObjectStructure[0];
-            }
-            else
             {
                 int displacementToSessionList = BinaryConverter.byteArrayToInt(receiverVariable, offset + 48);
                 int sessionsReturned = BinaryConverter.byteArrayToInt(receiverVariable, offset + 52);

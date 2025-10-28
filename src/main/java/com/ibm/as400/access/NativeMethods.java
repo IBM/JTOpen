@@ -50,7 +50,7 @@ public class NativeMethods
             }                                                                   //@pase1
 
         }
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native non-PASE methods ");  //@pase1
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loading Native  methods ");  //@pase1
         try{
             String alternateLibrary = System.getProperty("com.ibm.as400.access.native.library"); 
             if (alternateLibrary != null) { 
@@ -61,26 +61,31 @@ public class NativeMethods
         {
             Trace.log(Trace.DIAGNOSTIC, "Error checking property for custom native library:", e);
         }
-        try{
-            System.load(nativeLibraryQyjspart );  //if j9, then socket functions in this lib are overridden
-        } catch(Throwable e)
-        {
-            Trace.log(Trace.ERROR, "Error loading QYJSPART service program:", e); //may be that it is already loaded in multiple .war classloader
-        }
+        loadNativeLibraryQyjspart();
     }
 
     // Assure that the native library is loaded. 
     static void loadNativeLibraryQyjspart() {
         try{
-            System.load(nativeLibraryQyjspart );  //if j9, then socket functions in this lib are overridden
+            loadNativeLibraryQyjspartThrowsException();
         } catch(Throwable e)
         {
-                Trace.log(Trace.ERROR, "Error loading QYJSPART service program from "+nativeLibraryQyjspart+":", e); //may be that it is already loaded in multiple .war classloader
+            Trace.log(Trace.ERROR, "Error loading QYJSPART service program from "+nativeLibraryQyjspart+":", e);  /* may be that it is already loaded in multiple .war classloader */ 
         }
     }
     // Assure that the native library is loaded. 
     static void loadNativeLibraryQyjspartThrowsException() throws SecurityException, UnsatisfiedLinkError {
-        System.load(nativeLibraryQyjspart );  
+        String osName = System.getProperty("os.name"); 
+        if (osName.equals("OS/400")) { 
+          System.load(nativeLibraryQyjspart ); 
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded "+nativeLibraryQyjspart); 
+        } else if (osName.equals("OS400")) { 
+          nativeLibraryQyjspart = "/QIBM/ProdData/OS400/jt400/lib/qyjspart64.so";
+          System.load(nativeLibraryQyjspart); 
+          if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Loaded "+nativeLibraryQyjspart); 
+        } else {
+          throw new UnsatisfiedLinkError("No native library exists for os.name="+osName); 
+        }
     }
     
     static void load()

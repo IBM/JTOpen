@@ -1447,12 +1447,7 @@ public class Command implements Serializable
 
     // Call the QCDRCMDI API to get all of the information.
     int vrm = system_.getVRM();		// @A1A
-    int numParms;
-    if ((vrm >= 0x00060100) ||
-        (vrm >= 0x00050400 && !detectedMissingPTF_)) {
-      numParms = 6;	// @A1C - added support for proxy commands
-    }
-    else numParms = 5;
+    int numParms = 6;
 
     ProgramParameter[] parms = new ProgramParameter[numParms];
     parms[0] = new ProgramParameter(335); // receiver variable
