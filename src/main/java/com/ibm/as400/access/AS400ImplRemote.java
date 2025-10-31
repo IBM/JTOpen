@@ -178,9 +178,15 @@ public class AS400ImplRemote implements AS400Impl
   private byte[] additionalAuthFactor_;
   
   // Profile handles used by swapTo / swapBack. The swapToPH should always match userID to be authenticated
-  private byte[] swapToPH_ = null;
-  private byte[] swapFromPH_ = null;
-  private String swapToPHUserID_ = null;
+  // In 7.6 a single handle is used and not released
+  private byte[] swapToPH76_ =  null;  
+  private String swapToPHUserID76_ = null;
+  // In 7.5 and earlier, each thread gets a new handle to swap to and the handle is released
+  private ThreadLocal<byte[]> threadLocalSwapToPH_ =  new ThreadLocal<byte[]>();  
+  private ThreadLocal<String> threadLocalSwapToPHUserID_ = new ThreadLocal<String>();
+  // The swapFromPH_ allows a thread to return to the original profile after a swap is completed.
+  // This is stored using ThreadLocal storage
+  private ThreadLocal<byte[]> threadLocalSwapFromPH_ = new ThreadLocal<byte[]>();
   private AtomicInteger swapToPHRefCount_ = null;
   
   private String localIPAddress_ = null;   /* The IP address from the last opened socket */ 
@@ -2017,7 +2023,7 @@ public class AS400ImplRemote implements AS400Impl
             + System.getProperty("java.vm.info") + ") AT "
             + System.getProperty("java.home") + " WITH JCE";
         throw new AS400SecurityException(AS400SecurityException.UNKNOWN,
-            new Exception(message));
+           message);
     }
 
 
@@ -3103,6 +3109,7 @@ public class AS400ImplRemote implements AS400Impl
       break;
     default:
       // Internal errors or unexpected return codes.
+      info = "Unexpected rc=0x"+Integer.toHexString(rc);
       exceptionCode = AS400SecurityException.UNKNOWN;
     }
     
@@ -3330,12 +3337,12 @@ public class AS400ImplRemote implements AS400Impl
       bidiStringType_ = parentImpl.bidiStringType_;
       socketProperties_ = parentImpl.socketProperties_;
       
-      if (swapToPH_ != null)
+      if (swapToPH76_ != null)
       {
-          swapToPH_ = parentImpl.swapToPH_;
-          swapFromPH_ = null;
-          swapToPHUserID_ = parentImpl.swapToPHUserID_;
-      
+          swapToPH76_ = parentImpl.swapToPH76_;
+          swapToPHUserID76_ = parentImpl.swapToPHUserID76_;
+          threadLocalSwapToPH_.set(swapToPH76_);
+          threadLocalSwapToPHUserID_.set(swapToPHUserID76_);
           parentImpl.swapToPHRefCount_.incrementAndGet();
           swapToPHRefCount_ = parentImpl.swapToPHRefCount_;
       }
@@ -4047,7 +4054,7 @@ public class AS400ImplRemote implements AS400Impl
       fireConnectEvent(false, AS400.SIGNON);
   }
   
-  private synchronized void createSwapUserProfileHandle() throws AS400SecurityException, IOException
+  private synchronized void createSwapUserProfileHandle76() throws AS400SecurityException, IOException
   {
       if (!AS400.onAS400 || (AS400.nativeVRM.getVersionReleaseModification() <= 0x00070500))
           return;
@@ -4060,9 +4067,9 @@ public class AS400ImplRemote implements AS400Impl
       }
       
       // If we have a handle, see if we can use; otherwise, release it. 
-      if (swapToPH_ != null)
+      if (swapToPH76_ != null)
       {
-          if (swapToPHUserID_.equals(userId_))
+          if (swapToPHUserID76_.equals(userId_))
           {
               if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Existing swap profile handle matched userID:" + userId_);
               return;
@@ -4094,8 +4101,10 @@ public class AS400ImplRemote implements AS400Impl
           
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Created swap profile handle for userID:" + userId_);
 
-          swapToPH_ = swapToPH_temp;
-          swapToPHUserID_ = userId_;
+          
+          swapToPH76_ = swapToPH_temp;
+          swapToPHUserID76_ = userId_;
+
           swapToPHRefCount_ = new AtomicInteger(1);
       }
       catch (NativeException e) {
@@ -4108,7 +4117,7 @@ public class AS400ImplRemote implements AS400Impl
   private synchronized void releaseSwapUserProfileHandle() throws AS400SecurityException, IOException
   {
       // If we have a handle, see if we can use; otherwise, release it. 
-      if (swapToPH_ == null)
+      if (swapToPH76_ == null) 
           return;
 
       try 
@@ -4116,17 +4125,17 @@ public class AS400ImplRemote implements AS400Impl
           int count = swapToPHRefCount_.decrementAndGet();
           if (count == 0)
           {
-              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "releasing swap profile handle for userID:" + swapToPHUserID_);
+              if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "releasing swap profile handle for userID:" + swapToPHUserID76_);
 
-              AS400ImplNative.releaseProfileHandleNative(swapToPH_);
+              AS400ImplNative.releaseProfileHandleNative(swapToPH76_);
           }
       }
       catch (NativeException e) {
           throw mapNativeSecurityException(e);
       }
       finally {
-          swapToPH_ = null;
-          swapToPHUserID_ = null;
+          swapToPH76_ = null;
+          swapToPHUserID76_ = null;
           swapToPHRefCount_ = null;
       }
   }
@@ -4143,7 +4152,7 @@ public class AS400ImplRemote implements AS400Impl
       if (!AS400.onAS400)
       {
           Trace.log(Trace.ERROR, "swapTo called when not running natively");
-          throw new AS400SecurityException(AS400SecurityException.UNKNOWN);
+          throw new AS400SecurityException(AS400SecurityException.UNKNOWN,"swapTo called when not running natively");
       }
       
       // If thread userID matches AS400 userID, no swapping necessary. 
@@ -4159,10 +4168,11 @@ public class AS400ImplRemote implements AS400Impl
       }
       
       // If already swapped, do not allow another swap
-      if (swapFromPH_ != null) 
+       byte[] priorHandle = threadLocalSwapFromPH_.get(); 
+      if (priorHandle !=  null) 
       {
-          Trace.log(Trace.ERROR, "Nested swapTo / swapBack calls.");
-          throw new AS400SecurityException(AS400SecurityException.UNKNOWN);
+          Trace.log(Trace.ERROR, "Nested swapTo / swapBack calls threadLocalHandle=",priorHandle);
+          throw new AS400SecurityException(AS400SecurityException.UNKNOWN, "Nested swapTo / swapBack calls.");
       }
     
       // For 7.5 and older releases, we create and delete profile handles as needed. 
@@ -4188,8 +4198,9 @@ public class AS400ImplRemote implements AS400Impl
               if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Swap old way to userID:" + userId_);
 
               AS400ImplNative.swapToNative(SignonConverter.stringToByteArray(userId_), temp, swapToPH_temp, swapFromPH_temp);
-              swapToPH_   = swapToPH_temp;
-              swapFromPH_ = swapFromPH_temp;
+              threadLocalSwapToPH_.set(swapToPH_temp);
+              // if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Swapped from Handle: ", swapFromPH_temp);
+              threadLocalSwapFromPH_.set(swapFromPH_temp);
           }
           catch (NativeException e) {
               throw mapNativeSecurityException(e);
@@ -4200,7 +4211,7 @@ public class AS400ImplRemote implements AS400Impl
       }
       else
       {
-          createSwapUserProfileHandle(); 
+          createSwapUserProfileHandle76(); 
           
           try
           {
@@ -4209,8 +4220,9 @@ public class AS400ImplRemote implements AS400Impl
     
               if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Swap new way to profile handle for userID:" + userId_);
 
-              AS400ImplNative.swapToProfileHandleNative(swapToPH_, swapFromPH_temp);
-              swapFromPH_ = swapFromPH_temp;
+              AS400ImplNative.swapToProfileHandleNative(swapToPH76_, swapFromPH_temp);
+              // if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Swapped from Handle: ", swapFromPH_temp);
+              threadLocalSwapFromPH_.set( swapFromPH_temp);
           }
           catch (NativeException e) {
               throw mapNativeSecurityException(e);
@@ -4222,33 +4234,42 @@ public class AS400ImplRemote implements AS400Impl
 
   void swapBack() throws AS400SecurityException, IOException
   {
+    byte[] oldPH = threadLocalSwapFromPH_.get();
+    if (oldPH == null) {
+      throw new AS400SecurityException(AS400SecurityException.UNKNOWN, "No profile handle for swapping back");
+    }
+    // if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "swapBack ProfileHandle ", oldPH);
+    
       if (AS400.nativeVRM.getVersionReleaseModification() <= 0x00070500)
       {
+          byte[] swapToPH = threadLocalSwapToPH_.get(); 
+          if (swapToPH == null) { 
+            throw new AS400SecurityException(AS400SecurityException.UNKNOWN, "swapBack() No current profile handle to release");
+          }
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Swapping back - old way");
-
           try {
-              AS400ImplNative.swapBackNative(swapToPH_, swapFromPH_);
+              AS400ImplNative.swapBackNative(swapToPH, oldPH);
           }
           catch (NativeException e) {
               throw mapNativeSecurityException(e);
           }
           finally {
-              swapToPH_ = null;
-              swapFromPH_ = null;
+              /* swapBackNative releases both profile handles, so remove the references to them */ 
+              threadLocalSwapToPH_.remove();
+              threadLocalSwapFromPH_.remove();
           }
       }
       else
       {
           if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Swapping back - new way");
-
           try {
-              AS400ImplNative.swapBackAndReleaseNative(swapFromPH_);
+              AS400ImplNative.swapBackAndReleaseNative(oldPH);
           }
           catch (NativeException e) {
               throw mapNativeSecurityException(e);
           }
           finally {
-              swapFromPH_ = null;
+              threadLocalSwapFromPH_.remove();
           }
       }
   }
@@ -4260,18 +4281,18 @@ public class AS400ImplRemote implements AS400Impl
       String id = ConverterImplRemote.getConverter(37, this).byteArrayToString(e.data, 12, 7);
 
       if (id.equals("CPF2203") || id.equals("CPF2204"))
-          return new AS400SecurityException(AS400SecurityException.USERID_UNKNOWN, userId_);
+          return new AS400SecurityException(AS400SecurityException.USERID_UNKNOWN, "USER:"+userId_+" "+id);
 
       if (id.equals("CPF22E3"))
-          return new AS400SecurityException(AS400SecurityException.USERID_DISABLE, userId_);
+          return new AS400SecurityException(AS400SecurityException.USERID_DISABLE, "USER:"+userId_+" "+id);
 
       if (id.equals("CPF22E2") || id.equals("CPF22E5"))
-          return new AS400SecurityException(AS400SecurityException.PASSWORD_INCORRECT, userId_);
+          return new AS400SecurityException(AS400SecurityException.PASSWORD_INCORRECT, "USER:"+userId_+" "+id);
 
       if (id.equals("CPF22E4"))
-          return new AS400SecurityException(AS400SecurityException.PASSWORD_EXPIRED, userId_);
+          return new AS400SecurityException(AS400SecurityException.PASSWORD_EXPIRED, "USER:"+userId_+" "+id);
 
-      return new AS400SecurityException(AS400SecurityException.SECURITY_GENERAL, userId_);
+      return new AS400SecurityException(AS400SecurityException.SECURITY_GENERAL, "USER:"+userId_+" "+id);
   }
 
   // This method is to generate the password, the protected old password and the
