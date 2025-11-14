@@ -38,32 +38,25 @@ public abstract class ConversionMaps
         return (String)ccsidEncoding_.get(String.valueOf(ccsid));
     }
 
-    // This is a table that maps all Java encodings to IBM i CCSIDs.  Some encodings could map to more than one CCSID, so they are not included in the table.  When a lookup is performed, it will then return null.  Some encodings are supported by the IBM i but not by the Toolbox.  The ConvTable code handles this.
+    // This is a table that maps all Java encodings to IBM i CCSIDs.  Some encodings could map to more than one CCSID, so they are not included in the table.  
+    // When a lookup is performed, it will then return null.  Some encodings are supported by the IBM i but not by the Toolbox.  The ConvTable code handles this.
     // Based on http://java.sun.com/products/jdk/1.2/docs/guide/internat/encoding.doc.html
     // V5R1 JVM encodings: http://publib.boulder.ibm.com/pubs/html/as400/v5r1/ic2924/info/rzaha/fileenc.htm
     // V5R1 JVM locales: http://publib.boulder.ibm.com/pubs/html/as400/v5r1/ic2924/info/rzaha/locales.htm
 
     //See also http://java.sun.com/j2se/1.4/docs/guide/intl/encoding.doc.html and http://java.sun.com/j2se/1.4/docs/guide/intl/locale.doc.html
 
+    // Updated for Java 8 -- see  https://docs.oracle.com/javase/8/docs/technotes/guides/intl/encoding.doc.html
+    // The program test.Conv.GenEncodingCcsidConversionMap was used to generate the following list. 
+    
     static
     {
+        // Organize by CCSID in preparation for comparision with generated tables. 
         // 137+ possible Java encodings. 13 have unknown CCSIDs.
         // We have 128 known in this table.
-        encodingCcsid_.put("ASCII",         "367");  // ANSI X.34 ASCI.
-        encodingCcsid_.put("Cp1252",        "1252");
-        encodingCcsid_.put("ISO8859_1",     "819");
-        encodingCcsid_.put("Unicode",       "13488");
-        encodingCcsid_.put("UnicodeBig",    "13488");  // BOM is 0xFEFF.
+      
         // encodingCcsid_.put("UnicodeBigUnmarked", 13488);
-        encodingCcsid_.put("UnicodeLittle", "1202"); // BOM is 0xFFFE.
-        // encodingCcsid_.put("UnicodeLittleUnmarked", 13488);
-        encodingCcsid_.put("UTF8",          "1208");
-        encodingCcsid_.put("UTF-8",         "1208");
-        encodingCcsid_.put("UTF-16BE",      "1200");
 
-        encodingCcsid_.put("Big5",      "950");
-        // encodingCcsid_.put("Big5 HKSCS", ???); // Big5 with Hong Kong extensions.
-        encodingCcsid_.put("CNS11643",  "964");
         encodingCcsid_.put("Cp037",     "37");
         encodingCcsid_.put("Cp273",     "273");
         encodingCcsid_.put("Cp277",     "277");
@@ -72,12 +65,16 @@ public abstract class ConversionMaps
         encodingCcsid_.put("Cp284",     "284");
         encodingCcsid_.put("Cp285",     "285");
         encodingCcsid_.put("Cp297",     "297");
+        encodingCcsid_.put("ASCII",     "367");  // ANSI X.34 ASCI.
         encodingCcsid_.put("Cp420",     "420");
         encodingCcsid_.put("Cp424",     "424");
         encodingCcsid_.put("Cp437",     "437");
         encodingCcsid_.put("Cp500",     "500");
         encodingCcsid_.put("Cp737",     "737");
         encodingCcsid_.put("Cp775",     "775");
+        encodingCcsid_.put("ISO8859_7", "813");
+
+        encodingCcsid_.put("ISO8859_1",     "819");
         encodingCcsid_.put("Cp838",     "838");
         encodingCcsid_.put("Cp850",     "850");
         encodingCcsid_.put("Cp852",     "852");
@@ -97,30 +94,50 @@ public abstract class ConversionMaps
         encodingCcsid_.put("Cp870",     "870");
         encodingCcsid_.put("Cp871",     "871");
         encodingCcsid_.put("Cp874",     "874");
+        encodingCcsid_.put("TIS620", "874"); // IBM i JVM uses 874.
+        encodingCcsid_.put("MS874", "874");
         encodingCcsid_.put("Cp875",     "875");
+        encodingCcsid_.put("KOI8_R", "878");
+        encodingCcsid_.put("JIS0201",       "897"); // Could be 895, but the IBM i JVM uses 897.
+        encodingCcsid_.put("ISO8859_8", "916");
+        encodingCcsid_.put("ISO8859_2", "912");
+        encodingCcsid_.put("ISO8859_3", "913");
+        encodingCcsid_.put("ISO8859_4", "914");
+        encodingCcsid_.put("ISO8859_5", "915");
         encodingCcsid_.put("Cp918",     "918");
+        encodingCcsid_.put("ISO8859_9", "920");
         encodingCcsid_.put("Cp921",     "921");
         encodingCcsid_.put("Cp922",     "922");
         encodingCcsid_.put("Cp923",     "923");  // IBM Latin-9.
         encodingCcsid_.put("Cp930",     "930");
+        encodingCcsid_.put("SJIS", "932"); // Could be 943, but the IBM i JVM uses 932.
         encodingCcsid_.put("Cp933",     "933");
         encodingCcsid_.put("Cp935",     "935");
         encodingCcsid_.put("Cp937",     "937");
         encodingCcsid_.put("Cp939",     "939");
         encodingCcsid_.put("Cp942",     "942");
-        // encodingCcsid_.put("Cp942C",    ???);  // Don't know the CCSID - unclear what the 'C' means.
+        encodingCcsid_.put("MS932", "943");
         encodingCcsid_.put("Cp943",     "943");
-        // encodingCcsid_.put("Cp943C",    ???); // Don't know the CCSID - unclear what the 'C' means.
         encodingCcsid_.put("Cp948",     "948");
+        encodingCcsid_.put("KSC5601", "949");
+        encodingCcsid_.put("MS949", "949");
         encodingCcsid_.put("Cp949",     "949");
-        // encodingCcsid_.put("Cp949C",    ???); // Don't know the CCSID - unclear what the 'C' means.
+        encodingCcsid_.put("MS950", "950");
+        encodingCcsid_.put("Big5",      "950");
         encodingCcsid_.put("Cp950",     "950");
+        encodingCcsid_.put("JIS0208",       "952");
+        encodingCcsid_.put("JIS0212",       "953");
+        encodingCcsid_.put("CNS11643",  "964");
+
         encodingCcsid_.put("Cp964",     "964");
+        encodingCcsid_.put("EUC_TW", "964");  // Superset of 5060.
         encodingCcsid_.put("Cp970",     "970");
+        encodingCcsid_.put("EUC_KR", "970");  // Superset of 5066.
         encodingCcsid_.put("Cp1006",   "1006");
         encodingCcsid_.put("Cp1025",   "1025");
         encodingCcsid_.put("Cp1026",   "1026");
         encodingCcsid_.put("Cp1046",   "1046");
+        encodingCcsid_.put("ISO8859_6", "1089");
         encodingCcsid_.put("Cp1097",   "1097");
         encodingCcsid_.put("Cp1098",   "1098");
         encodingCcsid_.put("Cp1112",   "1112");
@@ -137,6 +154,12 @@ public abstract class ConversionMaps
         encodingCcsid_.put("Cp1147",   "1147");
         encodingCcsid_.put("Cp1148",   "1148");
         encodingCcsid_.put("Cp1149",   "1149");
+        encodingCcsid_.put("UTF-16BE",      "1200");
+        encodingCcsid_.put("UnicodeLittle", "1202"); // BOM is 0xFFFE.
+        encodingCcsid_.put("UTF8",          "1208");
+        encodingCcsid_.put("UTF-8",         "1208");
+        encodingCcsid_.put("Cp1252",        "1252");
+
         encodingCcsid_.put("Cp1250",   "1250");
         encodingCcsid_.put("Cp1251",   "1251");
         encodingCcsid_.put("Cp1253",   "1253");
@@ -145,75 +168,47 @@ public abstract class ConversionMaps
         encodingCcsid_.put("Cp1256",   "1256");
         encodingCcsid_.put("Cp1257",   "1257");
         encodingCcsid_.put("Cp1258",   "1258");
+        encodingCcsid_.put("MacRoman", "1275");
+        encodingCcsid_.put("MacGreek", "1280");
+        encodingCcsid_.put("MacTurkish", "1281");
+        encodingCcsid_.put("MacCentralEurope", "1282");
+        encodingCcsid_.put("MacCyrillic", "1283");
+        encodingCcsid_.put("MacCroatian", "1284");
+        encodingCcsid_.put("MacRomania", "1285");
+        encodingCcsid_.put("MacIceland", "1286");
+        encodingCcsid_.put("Johab",  "1363");
+
         encodingCcsid_.put("Cp1377",   "1377"); 
+
         encodingCcsid_.put("Cp1381",   "1381");
+        encodingCcsid_.put("GB2312", "1381");
         encodingCcsid_.put("Cp1383",   "1383");
+        encodingCcsid_.put("EUC_CN", "1383");  // Superset of 5479.
+        encodingCcsid_.put("GBK",    "1386");
+        encodingCcsid_.put("MS936", "1386");
+        encodingCcsid_.put("GB18030", "1392"); //1392 is mixed 4-byte; the individual component CCSIDs are not supported.
+        encodingCcsid_.put("ISO2022JP", "5054"); // Could be 956 also, but the IBM i JVM uses 5054.
+
+        encodingCcsid_.put("Unicode",       "13488");
+        encodingCcsid_.put("UnicodeBig",    "13488");  // BOM is 0xFEFF.
+
         encodingCcsid_.put("Cp33722", "33722");
 
-        // The Toolbox does not directly support EUC at this time, Java will do the conversion.
-        encodingCcsid_.put("EUC_CN", "1383");  // Superset of 5479.
-        encodingCcsid_.put("EUC_JP", "33722");
-        encodingCcsid_.put("EUC_KR", "970");  // Superset of 5066.
-        encodingCcsid_.put("EUC_TW", "964");  // Superset of 5060.
-
-        encodingCcsid_.put("GB2312", "1381");
-        encodingCcsid_.put("GB18030", "1392"); //1392 is mixed 4-byte; the individual component CCSIDs are not supported.
-        encodingCcsid_.put("GBK",    "1386");
-
-        // encodingCcsid_.put("ISCII91", ???); // Indic scripts.
-
-        // The Toolbox does not directly support ISO2022.
-        // encodingCcsid_.put("ISO2022CN",     ???);  // Not sure of the CCSID, possibly 9575?
-        // encodingCcsid_.put("ISO2022CN_CNS", "965");  // Java doesn't support this one?
-        // encodingCcsid_.put("ISO2022CN_GB",  "9575");  // Java doesn't support this one?
-
-        encodingCcsid_.put("ISO2022JP", "5054"); // Could be 956 also, but the IBM i JVM uses 5054.
         encodingCcsid_.put("ISO2022KR", "25546"); // Could be 17354 also, but the IBM i JVM uses 25546.
 
-        encodingCcsid_.put("ISO8859_2", "912");
-        encodingCcsid_.put("ISO8859_3", "913");
-        encodingCcsid_.put("ISO8859_4", "914");
-        encodingCcsid_.put("ISO8859_5", "915");
-        encodingCcsid_.put("ISO8859_6", "1089");
-        encodingCcsid_.put("ISO8859_7", "813");
-        encodingCcsid_.put("ISO8859_8", "916");
-        encodingCcsid_.put("ISO8859_9", "920");
-        // encodingCcsid_.put("ISO8859_13", ???);  // Latin alphabet No. 7.
-        // encodingCcsid_.put("ISO8859_15_FDIS", ???); // Don't know the CCSID; FYI, this codepage is ISO 28605.
+        // The Toolbox does not directly support EUC at this time, Java will do the conversion.
+        encodingCcsid_.put("EUC_JP", "33722");
 
-        // The Toolbox does not directly support JIS.
-        encodingCcsid_.put("JIS0201",       "897"); // Could be 895, but the IBM i JVM uses 897.
-        encodingCcsid_.put("JIS0208",       "952");
-        encodingCcsid_.put("JIS0212",       "953");
-        // encodingCcsid_.put("JISAutoDetect", ???); // Can't do this one. Would need to look at the bytes to determine the CCSID.
 
-        encodingCcsid_.put("Johab",  "1363");
-        encodingCcsid_.put("KOI8_R", "878");
-        encodingCcsid_.put("KSC5601", "949");
 
-        encodingCcsid_.put("MS874", "874");
-        encodingCcsid_.put("MS932", "943");
-        encodingCcsid_.put("MS936", "1386");
-        encodingCcsid_.put("MS949", "949");
-        encodingCcsid_.put("MS950", "950");
 
-        // encodingCcsid_.put("MacArabic", ???); // Don't know.
-        encodingCcsid_.put("MacCentralEurope", "1282");
-        encodingCcsid_.put("MacCroatian", "1284");
-        encodingCcsid_.put("MacCyrillic", "1283");
-        // encodingCcsid_.put("MacDingbat", ???); // Don't know.
-        encodingCcsid_.put("MacGreek", "1280");
-        // encodingCcsid_.put("MacHebrew", ???); // Don't know.
-        encodingCcsid_.put("MacIceland", "1286");
-        encodingCcsid_.put("MacRoman", "1275");
-        encodingCcsid_.put("MacRomania", "1285");
-        // encodingCcsid_.put("MacSymbol", ???); // Don't know.
-        // encodingCcsid_.put("MacThai", ???); // Don't know.
-        encodingCcsid_.put("MacTurkish", "1281");
-        // encodingCcsid_.put("MacUkraine", ???); // Don't know.
 
-        encodingCcsid_.put("SJIS", "932"); // Could be 943, but the IBM i JVM uses 932.
-        encodingCcsid_.put("TIS620", "874"); // IBM i JVM uses 874.
+
+
+
+
+
+
     }
 
     // With the encodingCcsid map, we try to assign a CCSID to every Java encoding. With the ccsidEncoding map, the reverse happens...
