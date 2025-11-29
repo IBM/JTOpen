@@ -389,23 +389,19 @@ public class AS400 implements Serializable, AutoCloseable
     private boolean forcePrompt_ = false;
     private int validateSignonTimeOut_ = 0;
 
-    private byte[] kerbTicket_;
+    private transient CredentialVault kerbTicket_;
 
     // Prefix used to indicate that the password contains a base64-encoded Kerberos token.
     public static final String KERBEROS_PREFIX = "_KERBEROSAUTH_";
     public static final char[] KERBEROS_PREFIX_CHARS = KERBEROS_PREFIX.toCharArray();
 
     private void setKerbTicket(byte[] ticket) {
-        this.kerbTicket_ = ticket.clone();
-    }
-
-    private byte[] getKerbTicket() {
-        return this.kerbTicket_;
+        this.kerbTicket_ = new PasswordVault(ticket);
     }
 
     public void clearKerbTicket() {
-        if (this.kerbTicket_ != null)
-            CredentialVault.clearArray(kerbTicket_);
+        if (!this.kerbTicket_.isEmpty())
+            this.kerbTicket_.empty();
     }
 
     // Determines if the password contains a Kerberos token
@@ -1851,8 +1847,8 @@ public class AS400 implements Serializable, AutoCloseable
         }
         
         // If kerbTicket_ has been set, make sure the impl knows about it.
-        if (kerbTicket_ != null)
-            impl_.setKerbTicket(kerbTicket_);
+        if (!kerbTicket_.isEmpty())
+            impl_.setKerbTicket(kerbTicket_.getClearCredential());
 
         if (!propertiesFrozen_)
         {
@@ -5506,9 +5502,9 @@ public class AS400 implements Serializable, AutoCloseable
                     // Try for Kerberos.
                     byte[] newBytes = null;
 
-                    if (kerbTicket_ != null && kerbTicket_.length > 0) {
+                    if (!kerbTicket_.isEmpty() && kerbTicket_.getClearCredential().length > 0) {
                         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using injected Kerberos ticket.");
-                        newBytes = kerbTicket_.clone();
+                        newBytes = kerbTicket_.getClearCredential();
                     } else {
                         // Fall back to generating the token normally
                         newBytes = (gssCredential_ == null)
