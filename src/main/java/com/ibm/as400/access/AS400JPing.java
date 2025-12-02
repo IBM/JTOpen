@@ -549,4 +549,9 @@ public class AS400JPing
             }
         }
     }
+
+	public SocketProperties getSocketProperties() {
+		return socketProperties_;
+	}
+    
 }

@@ -253,7 +253,8 @@ class PortMapper
          solution to finding the jvm version that does not degrade performance. */
         Class.forName("java.net.InetSocketAddress"); //throws ClassNotFoundException (common to all jvm implementations)
 
-        pmSocket = new Socket();
+		// greenscreens
+		pmSocket = createUnixSocket(systemName, port, socketProperties);
 
         int loginTimeout = 0;
         if(socketProperties.isLoginTimeoutSet())
@@ -409,4 +410,14 @@ class PortMapper
         }
       }
 
+    // greenscreens
+   	static Socket createUnixSocket(final String systemName, final int port, final SocketProperties socketProperties) throws IOException {
+  		return com.ibm.as400.socket.SocketFactory.createUnixSocket(systemName, port, socketProperties.getProxySock(), socketProperties.getProxyPort());
+  	}
+  	
+   	// greenscreens
+  	static Socket createSocket(final String systemName, final int port, final SocketProperties socketProperties) throws IOException {
+  		return com.ibm.as400.socket.SocketFactory.createSocket(systemName, port, socketProperties.getProxySock(), socketProperties.getProxyPort());		
+  	}
+      
     }
