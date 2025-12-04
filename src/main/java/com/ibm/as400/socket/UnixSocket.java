@@ -11,11 +11,12 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.Channels;
 import java.nio.channels.SocketChannel;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class UnixSocket extends java.net.Socket {
 
-    private SocketChannel chan;
+    private SocketChannel channel;
 
     private AtomicBoolean closed = new AtomicBoolean(false);
     private AtomicBoolean indown = new AtomicBoolean(false);
@@ -25,15 +26,16 @@ public class UnixSocket extends java.net.Socket {
     private OutputStream out;
     private boolean bound = false;
 
-    public UnixSocket(final SocketChannel chan) {
-        this.chan = chan;
-        in = Channels.newInputStream(new UnselectableByteChannel(chan));
-        out = Channels.newOutputStream(new UnselectableByteChannel(chan));
+    public UnixSocket(final SocketChannel channel) {
+    	if (Objects.isNull(channel)) throw new NullPointerException("Channel not defined");
+        this.channel = channel;
+        in = Channels.newInputStream(new UnselectableByteChannel(channel));
+        out = Channels.newOutputStream(new UnselectableByteChannel(channel));
     }
 
     @Override
     public void bind(final SocketAddress local) throws IOException {
-        if (null != chan) {
+        if (Objects.nonNull(channel)) {
             if (isClosed()) {
                 throw new SocketException("Socket is closed");
             }
@@ -41,7 +43,7 @@ public class UnixSocket extends java.net.Socket {
                 throw new SocketException("already bound");
             }
             try {
-                chan.bind(local);
+            	channel.bind(local);
                 bound = true;
             } catch (IOException e) {
                 throw (SocketException)new SocketException().initCause(e);
@@ -51,10 +53,10 @@ public class UnixSocket extends java.net.Socket {
 
     @Override
     public void close() throws IOException {
-        if (null != chan && closed.compareAndSet(false, true)) {
+        if (Objects.nonNull(channel) && closed.compareAndSet(false, true)) {
             try {
             	bound = false;
-                chan.close();
+            	channel.close();
             } catch (IOException e) {
                 ignore();
             }
@@ -68,12 +70,12 @@ public class UnixSocket extends java.net.Socket {
 
     @Override
     public void connect(final SocketAddress addr, final int timeout) throws IOException {
-    	chan.connect(addr);
+    	channel.connect(addr);
     }
 
     @Override
     public SocketChannel getChannel() {
-        return chan;
+        return channel;
     }
 
     @Override
@@ -83,7 +85,7 @@ public class UnixSocket extends java.net.Socket {
 
     @Override
     public InputStream getInputStream() throws IOException {
-        if (chan.isConnected()) {
+        if (channel.isConnected()) {
             return in;
         } else {
             throw new IOException("not connected");
@@ -93,7 +95,7 @@ public class UnixSocket extends java.net.Socket {
     @Override
     public SocketAddress getLocalSocketAddress() {
         try {
-			return chan.getLocalAddress();
+			return channel.getLocalAddress();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -102,7 +104,7 @@ public class UnixSocket extends java.net.Socket {
 
     @Override
     public OutputStream getOutputStream() throws IOException {
-        if (chan.isConnected()) {
+        if (channel.isConnected()) {
             return out;
         } else {
             throw new IOException("not connected");
@@ -113,12 +115,12 @@ public class UnixSocket extends java.net.Socket {
     public SocketAddress getRemoteSocketAddress() {
         SocketAddress address = null;
 		try {
-			address = chan.getRemoteAddress();
+			address = channel.getRemoteAddress();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-        if (address != null) {
+        if (Objects.nonNull(address)) {
             return address;
         } else {
             return null;
@@ -127,10 +129,10 @@ public class UnixSocket extends java.net.Socket {
 
     @Override
     public boolean isBound() {
-        if (null == chan) {
+        if (Objects.isNull(channel)) {
             return false;
         }
-        return bound && chan.isOpen();
+        return bound && channel.isOpen();
     }
 
     @Override
@@ -140,7 +142,7 @@ public class UnixSocket extends java.net.Socket {
 
     @Override
     public boolean isConnected() {
-        return chan.isConnected();
+        return channel.isConnected();
     }
 
     @Override
@@ -156,14 +158,14 @@ public class UnixSocket extends java.net.Socket {
     @Override
     public void shutdownInput() throws IOException {
         if (indown.compareAndSet(false, true)) {
-            chan.shutdownInput();
+        	channel.shutdownInput();
         }
     }
 
     @Override
     public void shutdownOutput() throws IOException {
         if (outdown.compareAndSet(false, true)) {
-            chan.shutdownOutput();
+        	channel.shutdownOutput();
         }
     }
 
@@ -176,7 +178,7 @@ public class UnixSocket extends java.net.Socket {
     @Override
     public int getReceiveBufferSize() throws SocketException {
         try {
-            return chan.getOption(UnixSocketOptions.SO_RCVBUF).intValue();
+            return channel.getOption(UnixSocketOptions.SO_RCVBUF).intValue();
         } catch (IOException e) {
             throw (SocketException)new SocketException().initCause(e);
         }
@@ -185,7 +187,7 @@ public class UnixSocket extends java.net.Socket {
     @Override
     public int getSendBufferSize() throws SocketException {
         try {
-            return chan.getOption(UnixSocketOptions.SO_SNDBUF).intValue();
+            return channel.getOption(UnixSocketOptions.SO_SNDBUF).intValue();
         } catch (IOException e) {
             throw (SocketException)new SocketException().initCause(e);
         }
@@ -205,7 +207,7 @@ public class UnixSocket extends java.net.Socket {
     @Override
     public void setReceiveBufferSize(final int size) throws SocketException {
         try {
-            chan.setOption(UnixSocketOptions.SO_RCVBUF, Integer.valueOf(size));
+        	channel.setOption(UnixSocketOptions.SO_RCVBUF, Integer.valueOf(size));
         } catch (IOException e) {
             throw (SocketException)new SocketException().initCause(e);
         }
@@ -214,7 +216,7 @@ public class UnixSocket extends java.net.Socket {
     @Override
     public void setSendBufferSize(final int size) throws SocketException {
         try {
-            chan.setOption(UnixSocketOptions.SO_SNDBUF, Integer.valueOf(size));
+        	channel.setOption(UnixSocketOptions.SO_SNDBUF, Integer.valueOf(size));
         } catch (IOException e) {
             throw (SocketException)new SocketException().initCause(e);
         }

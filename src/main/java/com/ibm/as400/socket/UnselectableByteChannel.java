@@ -9,6 +9,7 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SelectableChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.WritableByteChannel;
+import java.util.Objects;
 
 /**
  * A byte channel that doesn't implement {@link SelectableChannel}. Though
@@ -22,17 +23,18 @@ final class UnselectableByteChannel implements ReadableByteChannel, WritableByte
 	
     private final SocketChannel channel;
 
-    UnselectableByteChannel(SocketChannel channel) {
+    UnselectableByteChannel(final SocketChannel channel) {
+    	if (Objects.isNull(channel)) throw new NullPointerException("Channel not defined");
         this.channel = channel;
     }
 
     @Override
-    public int write(ByteBuffer src) throws IOException {
+    public int write(final ByteBuffer src) throws IOException {
         return channel.write(src);
     }
 
     @Override
-    public int read(ByteBuffer dst) throws IOException {
+    public int read(final ByteBuffer dst) throws IOException {
         return channel.read(dst);
     }
 

@@ -9,7 +9,6 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 
 /**
  * SOCK5 proxy wrapper
@@ -78,8 +77,8 @@ class Socks5Negotiator {
 	}
 
 
-	private boolean hasAuth() {
-		return !(user == null || passwd == null);
+	private boolean hasAuth() {		
+		return UnixSocketUtil.nonEmpty(user) && UnixSocketUtil.nonEmpty(passwd);
 	}
 	
 	/*
@@ -177,8 +176,8 @@ class Socks5Negotiator {
 		
 		state = STATE.STATE;
 
-		final byte[] userBytes = normalize(user).getBytes(StandardCharsets.UTF_8);
-		final byte[] passwordBytes = normalize(passwd).getBytes(StandardCharsets.UTF_8);
+		final byte[] userBytes = UnixSocketUtil.normalize(user).getBytes(StandardCharsets.UTF_8);
+		final byte[] passwordBytes = UnixSocketUtil.normalize(passwd).getBytes(StandardCharsets.UTF_8);
 		final int size = 3 + userBytes.length + passwordBytes.length;
 		
 		final ByteBuffer buffer = ByteBuffer.allocate(size);
@@ -442,28 +441,12 @@ class Socks5Negotiator {
 		}
 	}
 
-	static String normalize(final String data) {
-		return normalize(data, "");
-	}
-	
-	static String normalize(final String data, final String def) {
 
-		if (data == null || data.length() == 0) {
-			return def;
-		}
-
-		return data.trim();
-
-	}
 
 	public static boolean negotiate(final SocketChannel channel, final String host, final int port, final String user, final String pasword) throws IOException {
 		final Socks5Negotiator nego = new Socks5Negotiator(channel, host, port);
 		nego.setAuth(user, pasword);
 		return nego.connect();
 	} 
-	
-	static final void pro() { 
-		Collections.emptyList().stream().filter(s -> s.equals("")).findFirst();		
-	}
 
 }

@@ -11,6 +11,7 @@ import java.net.ProtocolFamily;
 import java.net.SocketAddress;
 import java.net.StandardProtocolFamily;
 import java.nio.channels.SocketChannel;
+import java.util.Objects;
 
 /**
  * Helper class to support Java16+ AF_UNIX and to allow compile for older Java
@@ -19,8 +20,16 @@ import java.nio.channels.SocketChannel;
 enum UnixSocketUtil {
 	;
 
+	static String normalize(final String data) {
+		return normalize(data, "");
+	}
+	
+	static String normalize(final String data, final String def) {
+		return isEmpty(data) ? def : data.trim();
+	}
+	
 	static boolean isEmpty(final String val) {
-		return val == null || val.length() == 0;	
+		return Objects.isNull(val) || val.length() == 0;	
 	}
 	
 	static boolean nonEmpty(final String val) {
