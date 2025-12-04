@@ -29,7 +29,7 @@ import java.util.Enumeration;
 The PSTunnelController class represents a connection
 to a client of the proxy server.
 **/
-class PSTunnelController
+public class PSTunnelController
 {
   private static final String copyright = "Copyright (C) 1997-2000 International Business Machines Corporation and others.";
 
