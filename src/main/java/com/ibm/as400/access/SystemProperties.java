@@ -66,7 +66,7 @@ public class SystemProperties
     <li>Property name: com.ibm.as400.access.AS400.sock5Server
     <li>Values/syntax: <i>hostName:portNumber</i>
     <li>Default: (no default)
-    <li>Overridden by: {@link AS400#setSock5ProxyServer AS400.setSock5ProxyServer()}
+    <li>Overridden by: {@link AS400#setSock5ProxyServer AS400.setSock5Server()}
     </ul>
     **/
    public static final String AS400_SOCK5_SERVER = ACCESS_PREFIX + "AS400.sock5Server";
