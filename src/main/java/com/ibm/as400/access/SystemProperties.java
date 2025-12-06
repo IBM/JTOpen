@@ -60,6 +60,18 @@ public class SystemProperties
     public static final String AS400_PROXY_SERVER = ACCESS_PREFIX + "AS400.proxyServer";
 
     /**
+    Specifies the sock5 proxy server host name and port number.
+    The port number is optional.
+    <ul>
+    <li>Property name: com.ibm.as400.access.AS400.sock5Server
+    <li>Values/syntax: <i>hostName:portNumber</i>
+    <li>Default: (no default)
+    <li>Overridden by: {@link AS400#setSock5ProxyServer AS400.setSock5ProxyServer()}
+    </ul>
+    **/
+   public static final String AS400_SOCK5_SERVER = ACCESS_PREFIX + "AS400.sock5Server";
+   
+    /**
      Specifies the name of the default signon handler class used by the {@link AS400 AS400} class.
      <ul>
      <li>Property name: com.ibm.as400.access.AS400.signonHandler

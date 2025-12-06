@@ -1,6 +1,15 @@
-/*
- * Copyright (C) 2015, 2026 Green Screens Ltd.
- */
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: UnixSocket.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.socket;
 
 import java.io.IOException;
@@ -14,6 +23,13 @@ import java.nio.channels.SocketChannel;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * A UNIX socket (Unix Domain Socket), is an inter-process communication mechanism 
+ * that allows bidirectional data exchange between processes running on the same machine.
+ * 
+ * UnixSocket class is a wrapper around AF_UNIX based SocketChannel, which later binds
+ * to the UNIX "file" address (~/example.sock). 
+ */
 public class UnixSocket extends java.net.Socket {
 
     private SocketChannel channel;
@@ -33,6 +49,14 @@ public class UnixSocket extends java.net.Socket {
         out = Channels.newOutputStream(new UnselectableByteChannel(channel));
     }
 
+    /**
+     * Bind channel to AF_UNIX address (unix file socket).
+     * <p>
+     * This method is used when creating a service listener (local server)
+     * attached to the unix file socket.
+     * </p>
+     * @param local - AF_UNIX address pointing to the local file system socket file   
+     */
     @Override
     public void bind(final SocketAddress local) throws IOException {
         if (Objects.nonNull(channel)) {
@@ -51,6 +75,9 @@ public class UnixSocket extends java.net.Socket {
         }
     }
 
+    /**
+     * Close socket and underlying channel
+     */
     @Override
     public void close() throws IOException {
         if (Objects.nonNull(channel) && closed.compareAndSet(false, true)) {
@@ -63,11 +90,21 @@ public class UnixSocket extends java.net.Socket {
         }
     }
 
+    /**
+     * Connect to the AF_UNIX address (unix file socket).
+     * <p>
+     * This method is used when creating a client connection to AF_UNIX service. 
+     * </p>
+     * @param local - AF_UNIX address pointing to the local file system socket file   
+     */
     @Override
     public void connect(final SocketAddress addr) throws IOException {
         connect(addr, 0);
     }
 
+    /**
+     * The same as connect(SocketAddress addr), timeout not implemented   
+     */    
     @Override
     public void connect(final SocketAddress addr, final int timeout) throws IOException {
     	channel.connect(addr);
@@ -93,16 +130,6 @@ public class UnixSocket extends java.net.Socket {
     }
 
     @Override
-    public SocketAddress getLocalSocketAddress() {
-        try {
-			return channel.getLocalAddress();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-        return null;
-    }
-
-    @Override
     public OutputStream getOutputStream() throws IOException {
         if (channel.isConnected()) {
             return out;
@@ -111,6 +138,16 @@ public class UnixSocket extends java.net.Socket {
         }
     }
 
+    @Override
+    public SocketAddress getLocalSocketAddress() {
+        try {
+			return channel.getLocalAddress();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        return null;
+    }
+    
     @Override
     public SocketAddress getRemoteSocketAddress() {
         SocketAddress address = null;

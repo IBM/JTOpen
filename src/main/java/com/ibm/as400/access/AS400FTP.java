@@ -322,6 +322,7 @@ public class AS400FTP
           PrintWriter  writer = new PrintWriter(socket.getOutputStream(), true);                         // @D2a
                                                                                                          // @D2a
           super.externallyConnected(system_.getSystemName(),                                             // @D2a
+                                    system_.getSocketProperties().getSock5Server(),                      // @greenscreens
                                     socket,                                                              // @D2a
                                     reader,                                                              // @D2a
                                     writer);                                                             // @D2a
@@ -1117,8 +1118,24 @@ public class AS400FTP
     }
 
 
+ // ---------------------------------------------------------------------------
+    /**
+     * Calling setSock5Server() is valid only for FTP objects.  An
+     * IllegalStateException is thrown if setSock5Server() is called
+     * on an AS400FTP object.  setSock5Server() is not needed
+     * because AS400FTP gets the
+     * system name from the AS400 object.
+     *   @exception PropertyVetoException If the change is vetoed.
+    **/
 
-
+     public void setSock5Server(String server)
+                           throws PropertyVetoException
+     {
+        if (inConnect_)
+           super.setSock5Server(server);
+        else
+           throw new IllegalStateException("sock5server");
+     }
 
 
 

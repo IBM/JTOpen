@@ -23,6 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.net.URL;
 import java.util.Arrays;
@@ -4164,6 +4165,17 @@ public class AS400 implements Serializable, AutoCloseable
         ccsid_ = 0;
     }
 
+    // Resolves the sock5 server name.  If it is not specified, then look it up in the system properties.  Returns empty string if not set.
+    private static String resolveSock5Server(String sock5Server)
+    {
+        if (sock5Server.length() == 0)
+        {
+        	sock5Server = SystemProperties.getProperty(SystemProperties.AS400_SOCK5_SERVER);
+            if (sock5Server == null) return "";
+        }
+        return sock5Server;
+    }
+    
     // Resolves the proxy server name.  If it is not specified, then look it up in the system properties.  Returns empty string if not set.
     private static String resolveProxyServer(String proxyServer)
     {
@@ -4916,6 +4928,37 @@ public class AS400 implements Serializable, AutoCloseable
             credVault_ = new ProfileTokenVault(profileToken);
             signonInfo_ = null;
         }
+    }
+    
+
+    public void setSock5Server(String sock5Server, int sock5port) throws PropertyVetoException {
+    	setSock5Server(String.format("%s:%s", sock5Server, sock5port));
+    }
+    
+    public void setSock5Server(String sock5Server) throws PropertyVetoException {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting sock5 server:", sock5Server);
+
+        if (impl_ != null)
+        {
+            Trace.log(Trace.ERROR, "Cannot set sock5 server after connection has been made.");
+            throw new ExtendedIllegalStateException("sock5Server", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
+
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null) {
+            String sockServer = resolveSock5Server(sock5Server);
+            socketProperties_.setSock5Server(sockServer);
+        } else
+        {
+        	String newValue = resolveSock5Server(sock5Server);
+            String oldValue = socketProperties_.getSock5Server();
+            
+            if (vetoableChangeListeners_ != null)
+                vetoableChangeListeners_.fireVetoableChange("sock5ProxyServer", oldValue, newValue);
+
+            proxyServer_ = newValue;
+            if (propertyChangeListeners_ != null)
+                propertyChangeListeners_.firePropertyChange("sock5ProxyServer", oldValue, newValue);
+        }    	
     }
 
     /**

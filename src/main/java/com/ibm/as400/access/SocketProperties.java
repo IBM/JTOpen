@@ -35,9 +35,8 @@ public class SocketProperties implements Serializable
     static final String SOCKET_TCP_NO_DELAY = "soTCPNoDelay"; // @F1A
     static final String SOCKET_LOGIN_TIMEOUT = "loginTimeout"; // @st3
     
-    // greenscreens
-    static final String PROXY_SOCK = "proxySock";
-    static final String PROXY_PORT = "proxyPort";
+    // @greenscreens
+    static final String SOCK5_SERVER = "sock5server";
 
     static final boolean isSocketProperty(String property) {
         return property.equals(SOCKET_KEEP_ALIVE)
@@ -47,9 +46,8 @@ public class SocketProperties implements Serializable
                 || property.equals(SOCKET_TIMEOUT)
                 || property.equals(SOCKET_TCP_NO_DELAY)
                 || property.equals(SOCKET_LOGIN_TIMEOUT)
-                // greenscreens
-                || property.equals(PROXY_SOCK)
-                || property.equals(PROXY_PORT)
+                // @greenscreens
+                || property.equals(SOCK5_SERVER)
                 ;
     }
 
@@ -68,12 +66,9 @@ public class SocketProperties implements Serializable
     boolean loginTimeoutSet_ = false; //@STIMEOUT
     int loginTimeout_ = 0; //@STIMEOUT this is an option in java.net.Socket.connect(SocketAddress endpoint, int timeout) (java 1.4)
 
-    // greenscreens properties
-    boolean proxySockSet_ = false;
-  	String proxySock = null;
-  	
-  	boolean proxyPortSet_ = false;
-  	int proxyPort = 1080;
+    // @greenscreens properties
+    boolean sock5ServerSet_ = false;
+  	String sock5Server = null;
   	    
     // Internal method to copy all the options from one object to another.
     void copyValues(SocketProperties properties)
@@ -93,11 +88,9 @@ public class SocketProperties implements Serializable
         tcpNoDelaySet_ = properties.tcpNoDelaySet_;
         tcpNoDelay_ = properties.tcpNoDelay_;
         
-        // greenscreens
-        proxyPortSet_ = properties.proxyPortSet_;
-        proxyPort = properties.proxyPort;
-        proxySockSet_ = properties.proxySockSet_;
-        proxySock = properties.proxySock;
+        // @greenscreens
+        sock5ServerSet_ = properties.sock5ServerSet_;
+        sock5Server = properties.sock5Server;
         
     }
 
@@ -127,11 +120,9 @@ public class SocketProperties implements Serializable
              tcpNoDelaySet_        == props.tcpNoDelaySet_ &&
              tcpNoDelay_           == props.tcpNoDelay_ &&
              
-             // greenscreens
-             proxyPortSet_ == props.proxyPortSet_ &&
-             proxyPort == props.proxyPort &&
-             proxySockSet_ == props.proxySockSet_ &&
-             proxySock == props.proxySock 
+             // @greenscreens
+             sock5ServerSet_ == props.sock5ServerSet_ &&
+             sock5Server == props.sock5Server 
              )
            return true;
          else return false;
@@ -174,11 +165,8 @@ public class SocketProperties implements Serializable
             ref.add(new StringRefAddr(SOCKET_TCP_NO_DELAY, Boolean.toString(tcpNoDelay_)));
         }
         
-        if (proxySockSet_) {
-            ref.add(new StringRefAddr(PROXY_SOCK, proxySock));
-        }
-        if (proxyPortSet_) {
-            ref.add(new StringRefAddr(PROXY_PORT, Integer.toString(proxyPort)));
+        if (sock5ServerSet_) {
+            ref.add(new StringRefAddr(SOCK5_SERVER, sock5Server));
         }
     }
 
@@ -205,12 +193,9 @@ public class SocketProperties implements Serializable
             case SOCKET_TCP_NO_DELAY:
                 setTcpNoDelay(Boolean.parseBoolean(value));
                 break;
-            case PROXY_SOCK:
-                setProxySock(value);
+            case SOCK5_SERVER:
+                setSock5Server(value);
                 break;
-            case PROXY_PORT:
-                setProxyPort(Integer.parseInt(value));
-                break;              
             default:
                 break;
         }
@@ -507,52 +492,27 @@ public class SocketProperties implements Serializable
     
 
     /// *******************************************
-    // BELOW - greenscreens support for SOCK5
+    // BELOW - support for SOCK5  // @greenscreens 
     /// ******************************************
     
-	public boolean isProxySock() {
-		return this.proxySock != null;
+	public String getSock5Server() {
+		return sock5Server;
 	}
 
-	public String getProxySock() {
-		return proxySock;
-	}
-
-	public void setProxySock(String proxySock) {
-		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting proxy sock:", proxySock);
-		this.proxySock = proxySock;
-		this.proxySockSet_ = true;
+	public void setSock5Server(final String sock5Server) {
+		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting sock5 server:", sock5Server);
+		this.sock5Server = sock5Server;
+		this.sock5ServerSet_ = true;
 	}
 	
-	public void unsetProxySock() {
-		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Unsetting proxy sock.");
-		this.proxySockSet_ = false;
+	public void unsetSock5Server() {
+		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Unsetting sock5 server.");
+		this.sock5ServerSet_ = false;
 	}
 	
-    public boolean isProxySockSet() {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if Proxy Sock is set:", proxySockSet_);
-        return proxySockSet_;
-    }	
-
-	public int getProxyPort() {
-		return proxyPort;
-	}
-
-	public void setProxyPort(int proxyPort) {
-		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting proxy port:", proxyPort);
-		this.proxyPort = proxyPort;
-		this.proxyPortSet_ = true; 
-		
-	}
-
-	public void unsetProxyPort() {
-		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Unsetting proxy port.");
-		this.proxyPortSet_ = false;
-	}
-	
-    public boolean isProxyPortSet() {
-        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if Proxy port is set:", proxyPortSet_);
-        return proxyPortSet_;
+    public boolean isSock5ProxyHostSet() {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if sock5 server is set:", sock5ServerSet_);
+        return sock5ServerSet_;
     }	
 			
 }

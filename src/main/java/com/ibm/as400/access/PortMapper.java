@@ -24,6 +24,9 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.SocketException;
 import java.util.Hashtable;
+
+import com.ibm.as400.socket.Sock5Socket;
+
 import java.net.InetSocketAddress;
 
 class PortMapper
@@ -253,8 +256,8 @@ class PortMapper
          solution to finding the jvm version that does not degrade performance. */
         Class.forName("java.net.InetSocketAddress"); //throws ClassNotFoundException (common to all jvm implementations)
 
-		// greenscreens
-		pmSocket = createUnixSocket(systemName, port, socketProperties);
+		// @greenscreens
+		pmSocket = createSocket(null, port, socketProperties);
 
         int loginTimeout = 0;
         if(socketProperties.isLoginTimeoutSet())
@@ -410,14 +413,29 @@ class PortMapper
         }
       }
 
-    // greenscreens
-   	static Socket createUnixSocket(final String systemName, final int port, final SocketProperties socketProperties) throws IOException {
-  		return com.ibm.as400.socket.SocketFactory.createUnixSocket(systemName, port, socketProperties.getProxySock(), socketProperties.getProxyPort());
+    // @greenscreens
+   	static Socket createSocket(final String systemName, final int port, final SocketProperties socketProperties) throws IOException {
+  		return com.ibm.as400.socket.SocketFactory.createSocket(systemName, port, socketProperties.getSock5Server());
   	}
-  	
-   	// greenscreens
-  	static Socket createSocket(final String systemName, final int port, final SocketProperties socketProperties) throws IOException {
-  		return com.ibm.as400.socket.SocketFactory.createSocket(systemName, port, socketProperties.getProxySock(), socketProperties.getProxyPort());		
+
+   	// @greenscreens
+   	static Socket createSocket(final String systemName, final int port, final String sockServer) throws IOException {
+   		return com.ibm.as400.socket.SocketFactory.createSocket(systemName, port, sockServer);
+   	}
+   	
+    // @greenscreens
+   	static Socket createSocket(final String systemName, final int port, final String sockServer, final int sockPort) throws IOException {
+  		return com.ibm.as400.socket.SocketFactory.createSocket(systemName, port, sockServer, sockPort);
   	}
-      
+   	
+   	// @greenscreens
+   	static Socket createSocket(final String systemName, final int port, final Socket socket) throws IOException {
+   		if (socket instanceof Sock5Socket ) {
+        	final Sock5Socket sock = ((Sock5Socket)socket);
+        	return PortMapper.createSocket(systemName, port, sock.sock5Address(), sock.sock5Port());
+        } else {
+        	return new Socket(systemName, port);
+        }
+   	}
+   	
     }

@@ -1,6 +1,15 @@
-/*
- * Copyright (C) 2015, 2026 Green Screens Ltd.
- */
+///////////////////////////////////////////////////////////////////////////////
+//                                                                             
+// JTOpen (AS/400 Toolbox for Java - OSS version)                              
+//                                                                             
+// Filename: Socks5Negotiator.java
+//                                                                             
+// The source code contained herein is licensed under the IBM Public License   
+// Version 1.0, which has been approved by the Open Source Initiative.         
+// Copyright (C) 1997-2000 International Business Machines Corporation and     
+// others. All rights reserved.                                                
+//                                                                             
+///////////////////////////////////////////////////////////////////////////////
 package com.ibm.as400.socket;
 
 import java.io.IOException;
@@ -11,7 +20,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 
 /**
- * SOCK5 proxy wrapper
+ * SOCK5 protocol negotiator
  */
 class Socks5Negotiator {
 
@@ -24,9 +33,18 @@ class Socks5Negotiator {
 	private STATE state = STATE.VERSION;
 
 	// not used
-	private String user = null; 
+	private String user = null;
+	
+	// not used
 	private String passwd = null;
 			
+	/**
+	 * Constructor for SOCK5 negotiation protocol
+	 * @param channel - SOCK5 channel connected to
+	 * @param host - remote host to connect
+	 * @param port - remote port to connect
+	 * @throws UnknownHostException
+	 */
 	public Socks5Negotiator(final SocketChannel channel, final String host, final int port) throws UnknownHostException {
 		super();
 		this.channel = channel;
@@ -34,6 +52,14 @@ class Socks5Negotiator {
 		this.port = port;
 	}
 	
+	/**
+	 * Set authentication to the SOCK5 server.
+	 * <p>
+	 * NOTE: Implemented but not used by AS400 object
+	 * </p>
+	 * @param user
+	 * @param pasword
+	 */
 	public void setAuth(final String user, final String pasword) {
 		this.user = user;
 		this.passwd = pasword;
@@ -441,8 +467,16 @@ class Socks5Negotiator {
 		}
 	}
 
-
-
+	/**
+	 * Instruct SOCK5 server to establish connection to the remote host:port. 
+	 * @param channel - SOCK5 channel connected to
+	 * @param host - remote host to connect
+	 * @param port - remote port to connect
+	 * @param user
+	 * @param pasword
+	 * @return Return TRUE if negotiation is successful and connection to remote system is active   
+	 * @throws IOException
+	 */
 	public static boolean negotiate(final SocketChannel channel, final String host, final int port, final String user, final String pasword) throws IOException {
 		final Socks5Negotiator nego = new Socks5Negotiator(channel, host, port);
 		nego.setAuth(user, pasword);
