@@ -2,7 +2,7 @@
 //                                                                             
 // JTOpen (AS/400 Toolbox for Java - OSS version)                              
 //                                                                             
-// Filename: SocketFactory.java
+// Filename: Sock5Socket.java
 //                                                                             
 // The source code contained herein is licensed under the IBM Public License   
 // Version 1.0, which has been approved by the Open Source Initiative.         
@@ -22,19 +22,23 @@ import java.net.SocketAddress;
 
 /**
  * Wrapper around Socket for easier detection of socket type
- * and address/ port extraction for underlying proxy
+ * and address/ port extraction for underlying proxy.
+ * 
+ * if (socket instance of Sock5Socket) {
+ *  ((Sock5Socket)socket).type() == Proxy.Type.PROXY
+ * }
  */
 public class Sock5Socket extends Socket {
 
 	Proxy proxy = null; 
 	
-	public Sock5Socket(Proxy proxy) {
+	public Sock5Socket(final Proxy proxy) {
 		super(proxy);
 		this.proxy = proxy;
 	}
 
 	@Override
-	public void connect(SocketAddress endpoint) throws IOException {
+	public void connect(final SocketAddress endpoint) throws IOException {
 		super.connect(endpoint);
 	}
 	

@@ -118,6 +118,14 @@ enum UnixSocketUtil {
 	/**
 	 * Create an AF_UNIX socket channel.
 	 * 
+	 * <p>
+	 * NOTE: Reflection used to allow compilation for older Java versions.
+	 * Original code should be: ServerSocketChannel.open(StandardProtocolFamily.UNIX);
+	 * </p>
+	 * <p>
+	 * NOTE: In Java versions older than 16, exception will be thrown for unknown
+	 * class.
+	 * </p>
 	 * @return
 	 * @throws IOException
 	 */
@@ -138,6 +146,7 @@ enum UnixSocketUtil {
 	 * 
 	 * <p>
 	 * NOTE: Reflection is used to allow compilation for pre-Java 16.
+	 * Original code shouldbe: UnixDomainSocketAddress.of(socketPath);
 	 * </p>
 	 * <p>
 	 * NOTE: In Java versions older than 16, exception will be thrown for unknown
