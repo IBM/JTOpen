@@ -160,11 +160,7 @@ public class UnixSocket extends java.net.Socket {
 			e.printStackTrace();
 		}
 
-        if (Objects.nonNull(address)) {
-            return address;
-        } else {
-            return null;
-        }
+		return address;
     }
 
     @Override
