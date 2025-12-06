@@ -58,10 +58,10 @@ public class UnixSocket extends java.net.Socket {
      * This method is used when creating a service listener (local server)
      * attached to the unix file socket.
      * </p>
-     * @param local - AF_UNIX address pointing to the local file system socket file   
+     * @param address - AF_UNIX address pointing to the local file system socket file   
      */
     @Override
-    public void bind(final SocketAddress local) throws IOException {
+    public void bind(final SocketAddress address) throws IOException {
         if (Objects.nonNull(channel)) {
             if (isClosed()) {
                 throw new SocketException("Socket is closed");
@@ -70,7 +70,7 @@ public class UnixSocket extends java.net.Socket {
                 throw new SocketException("already bound");
             }
             try {
-            	channel.bind(local);
+            	channel.bind(address);
                 bound = true;
             } catch (IOException e) {
                 throw (SocketException)new SocketException().initCause(e);
@@ -98,19 +98,19 @@ public class UnixSocket extends java.net.Socket {
      * <p>
      * This method is used when creating a client connection to AF_UNIX service. 
      * </p>
-     * @param local - AF_UNIX address pointing to the local file system socket file   
+     * @param address - AF_UNIX address pointing to the local file system socket file   
      */
     @Override
-    public void connect(final SocketAddress addr) throws IOException {
-        connect(addr, 0);
+    public void connect(final SocketAddress address) throws IOException {
+        connect(address, 0);
     }
 
     /**
      * The same as connect(SocketAddress addr), timeout not implemented   
      */    
     @Override
-    public void connect(final SocketAddress addr, final int timeout) throws IOException {
-    	channel.connect(addr);
+    public void connect(final SocketAddress address, final int timeout) throws IOException {
+    	channel.connect(address);
     }
 
     @Override

@@ -37,7 +37,6 @@ public enum SocketFactory {
 	 * @param systemName
 	 * @param port
 	 * @param proxyAddress
-	 * @param proxyPort
 	 * @return
 	 * @throws IOException
 	 */	
@@ -59,10 +58,10 @@ public enum SocketFactory {
 	 * 2. if proxyAddress is file based socket format, UNIX socket is created
 	 * 3. if proxyAddress is a hostname or IP address, SOCK5 socket is created
 	 *  
-	 * @param systemName
-	 * @param port
-	 * @param proxyAddress
-	 * @param proxyPort
+	 * @param remoteSystem
+	 * @param remotePort
+	 * @param socketAddress
+	 * @param socketPort
 	 * @return
 	 * @throws IOException
 	 */
