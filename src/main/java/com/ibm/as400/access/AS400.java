@@ -411,7 +411,8 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object.");
         construct();
         systemNameLocal_ = resolveSystemNameLocal("");
-        proxyServer_ = resolveProxyServer(proxyServer_);
+        proxyServer_ = resolveProxyServer(proxyServer_);        
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
 
         // Default to password authentication
         credVault_ = new PasswordVault();
@@ -438,6 +439,7 @@ public class AS400 implements Serializable, AutoCloseable
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
         proxyServer_ = resolveProxyServer(proxyServer_);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
 
         // Default to password authentication
         credVault_ = new PasswordVault();
@@ -476,7 +478,8 @@ public class AS400 implements Serializable, AutoCloseable
 
         userId_ = userId.toUpperCase();
         proxyServer_ = resolveProxyServer(proxyServer_);
-
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
+        
         // Default to password authentication
         credVault_ = new PasswordVault();
     }
@@ -556,6 +559,7 @@ public class AS400 implements Serializable, AutoCloseable
         // vault has been created and initialized correctly.
         credVault_ = credVault;
         proxyServer_ = resolveProxyServer(proxyServer_);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
     }
 
     /**
@@ -608,6 +612,7 @@ public class AS400 implements Serializable, AutoCloseable
         }
         
         proxyServer_ = resolveProxyServer(proxyServer_);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens        
     }
 
     /**
@@ -668,6 +673,7 @@ public class AS400 implements Serializable, AutoCloseable
         userId_ = userId.toUpperCase();
         credVault_ = new PasswordVault(password);
         proxyServer_ = resolveProxyServer(proxyServer_);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
     }
     
     private static final String[] USRLIBL_SINGLE_VALUE = new String[]
@@ -905,6 +911,7 @@ public class AS400 implements Serializable, AutoCloseable
         // because each AS400 object must always have its very own credential vault.
         credVault_ = pwVault.clone();
         proxyServer_ = resolveProxyServer(proxyServer_);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
     }
 
     /**
@@ -962,6 +969,7 @@ public class AS400 implements Serializable, AutoCloseable
         }
         
         proxyServer_ = resolveProxyServer(proxyServer);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
     }
 
     /**
@@ -1007,6 +1015,7 @@ public class AS400 implements Serializable, AutoCloseable
         userId_ = userId.toUpperCase();
         credVault_ = new PasswordVault(password);
         proxyServer_ = resolveProxyServer(proxyServer);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
     }
 
 
@@ -3990,6 +3999,8 @@ public class AS400 implements Serializable, AutoCloseable
         systemNameLocal_ = resolveSystemNameLocal(systemName_);
 
         proxyServer_ = resolveProxyServer("");
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
+
         // proxyClientConnection_ can stay null.
         ccsid_ = 0;
         // connectionListeners_ can stay null.
