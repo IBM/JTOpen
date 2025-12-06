@@ -16,6 +16,9 @@ import java.net.SocketOption;
 
 /**
  * Defines common socket options for AF_UNIX sockets.
+ * 
+ * Based on original source
+ * https://github.com/jnr/jnr-unixsocket/blob/master/src/main/java/jnr/unixsocket/UnixSocketOptions.java
  */
 final class UnixSocketOptions {
 

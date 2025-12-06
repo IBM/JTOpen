@@ -29,6 +29,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * 
  * UnixSocket class is a wrapper around AF_UNIX based SocketChannel, which later binds
  * to the UNIX "file" address (~/example.sock). 
+ * 
+ * Based on original
+ * https://github.com/jnr/jnr-unixsocket/blob/master/src/main/java/jnr/unixsocket/UnixSocket.java
  */
 public class UnixSocket extends java.net.Socket {
 

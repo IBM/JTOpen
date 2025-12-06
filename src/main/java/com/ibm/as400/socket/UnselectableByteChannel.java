@@ -27,6 +27,9 @@ import java.util.Objects;
  * concurrency and can cause deadlocks.
  *
  * https://bugs.openjdk.java.net/browse/JDK-4774871
+ * 
+ * Based on original source
+ * https://github.com/jnr/jnr-unixsocket/blob/master/src/main/java/jnr/unixsocket/UnixSocket.java
  */
 final class UnselectableByteChannel implements ReadableByteChannel, WritableByteChannel {
 	
