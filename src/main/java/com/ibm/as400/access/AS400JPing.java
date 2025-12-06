@@ -16,6 +16,7 @@ package com.ibm.as400.access;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -124,6 +125,32 @@ public class AS400JPing
         useSSL_ = useSSL ? new SSLOptions() : null;
     }
 
+    /**
+     * Sets the name and port of the middle-tier machine where the sock5 server is running. If this is not set, then the
+     * name is retrieved from the <em>com.ibm.as400.access.AS400.sock5Server</em>
+     * <a href="doc-files/SystemProperties.html">system property</a>. 
+     * 
+     * @param sock5Server
+     * @param sock5port
+     * @throws PropertyVetoException
+     */
+    public void setSock5Server(String sock5Server, int sock5port) throws PropertyVetoException {
+    	setSock5Server(String.format("%s:%s", sock5Server, sock5port));
+    }
+
+    /**
+     * Sets the name and port of the middle-tier machine where the sock5 server is running. If this is not set, then the
+     * name is retrieved from the <em>com.ibm.as400.access.AS400.sock5Server</em>
+     * <a href="doc-files/SystemProperties.html">system property</a>. 
+     * 
+     * @param sock5Server
+     * @throws PropertyVetoException
+     */
+    public void setSock5Server(String sock5Server) throws PropertyVetoException {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting sock5 server:", sock5Server);
+        socketProperties_.setSock5Server(sock5Server);
+    }    
+    
     /**
      Ping the system.
      @return  true if all of the services (or, if a service was specified on the constructor, the specified service) can be pinged successfully; false otherwise.
