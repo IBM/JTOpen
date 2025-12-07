@@ -17,7 +17,6 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
 import java.net.URI;
-import java.util.Objects;
 
 /**
  * Factory for SOCK5, AF_UNIX socket or standard TCP socket.
@@ -68,26 +67,26 @@ public enum SocketFactory {
 	public static Socket createSocket(final String remoteSystem, final int remotePort, final String socketAddress, final int socketPort) throws IOException {
 
 		Socket pmSocket = null;
-		
-		if (isProxySock(socketAddress, socketPort)) {
-			
-			final boolean isUnix = UnixSocketUtil.isUNIXAddress(socketAddress);
-			
-			if (isUnix) {
-				pmSocket = UnixSocketUtil.create(remoteSystem, remotePort, socketAddress, null, null);
-			} else {
-				pmSocket = createSock5(socketAddress, socketPort);
-			}
 
-			if (Objects.nonNull(remoteSystem) && !pmSocket.isConnected()) {
+		final boolean isUnix = UnixSocketUtil.isUNIXAddress(socketAddress);
+		final boolean isSock = isProxySock(socketAddress, socketPort);
+		final boolean isSystem = UnixSocketUtil.nonEmpty(remoteSystem); 
+
+		if (isUnix) {
+			pmSocket = UnixSocketUtil.create(remoteSystem, remotePort, socketAddress, null, null);
+		} else if (isSock) { 
+			pmSocket = createSock5(socketAddress, socketPort);
+		} else if (isSystem) { 
+			pmSocket = new Socket(remoteSystem, remotePort);
+		} else {
+			pmSocket = new Socket();
+		}
+		
+		if (isSystem && (isSock || isUnix)) {
+			if (!pmSocket.isConnected()) {
     			final InetSocketAddress endpoint = new InetSocketAddress(remoteSystem, remotePort);
     			pmSocket.connect(endpoint);
-    		}
-    		
-		} else if (Objects.isNull(remoteSystem)) {
-			pmSocket = new Socket();
-		} else {
-			pmSocket = new Socket(remoteSystem, remotePort); 
+    		}			
 		}
 		
 		return pmSocket;

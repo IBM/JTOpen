@@ -26,11 +26,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * A UNIX socket (Unix Domain Socket), is an inter-process communication mechanism 
  * that allows bidirectional data exchange between processes running on the same machine.
+ * UnixSocket(and UNIX SocketChannle) binds or connects  to the UNIX "file" address (~/example.sock). 
  * 
- * UnixSocket class is a wrapper around AF_UNIX based SocketChannel, which later binds
- * to the UNIX "file" address (~/example.sock). 
+ * Additionally, various custom tunnels such are shadowsock and others support binding 
+ * to AF_UNIX for direct in-memory communication without TCP. 
+ *  
+ * For JT400 to support direct connection to AF_UNIX, we need to wrap NIO API (SocketChannel)
+ * into traditional blocking Socket.
  * 
- * Based on original
+ * Based on original wrapper
  * https://github.com/jnr/jnr-unixsocket/blob/master/src/main/java/jnr/unixsocket/UnixSocket.java
  */
 public class UnixSocket extends java.net.Socket {
