@@ -21,17 +21,26 @@ import java.net.Socket;
 import java.net.SocketAddress;
 
 /**
- * Wrapper around Socket for easier detection of socket type
- * and address/ port extraction for underlying proxy.
+ * Wrapper around proxied Socket for easier detection from code.
+ * <p>
+ * Original Java socket instance does not provide any means of detecting socket
+ * type. When SocketFactory creates a socket, one of the types will be returned:
+ * Socket, UinxSocket or SockSocket.
+ * </p>
+ * <p>
+ * Code example to determine SOCK5 and type (PROXY, DIRECT, HTTP).
+ * </p>
  * 
+ * <pre>
  * if (socket instance of Sock5Socket) {
  *  ((Sock5Socket)socket).type() == Proxy.Type.PROXY
  * }
+ * </pre>
  */
 public class Sock5Socket extends Socket {
 
-	Proxy proxy = null; 
-	
+	Proxy proxy = null;
+
 	public Sock5Socket(final Proxy proxy) {
 		super(proxy);
 		this.proxy = proxy;
@@ -41,19 +50,34 @@ public class Sock5Socket extends Socket {
 	public void connect(final SocketAddress endpoint) throws IOException {
 		super.connect(endpoint);
 	}
-	
+
+	/**
+	 * Return type of proxy. (SOCK5, DIRECT, HTTP)
+	 * 
+	 * @return Proxy.Type
+	 */
 	public Type type() {
 		return proxy.type();
 	}
-	
+
+	/**
+	 * SOCK5 daemon address for clients to connect.
+	 * 
+	 * @return
+	 */
 	public String sock5Address() {
 		return proxyAddress().getHostString();
 	}
-	
+
+	/**
+	 * SOCK5 daemon port for clients to connect.
+	 * 
+	 * @return
+	 */
 	public int sock5Port() {
 		return proxyAddress().getPort();
 	}
-	
+
 	InetSocketAddress proxyAddress() {
 		return ((InetSocketAddress) proxy.address());
 	}

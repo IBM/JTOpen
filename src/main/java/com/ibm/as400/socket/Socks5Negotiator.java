@@ -68,7 +68,12 @@ class Socks5Negotiator {
 	private static String resolve(final String host) throws UnknownHostException {
 		return InetAddress.getByName(host).getHostAddress();
 	}
-	
+
+	/**
+	 * Start SOCK5 handshake
+	 * @return
+	 * @throws IOException
+	 */
 	public boolean connect() throws IOException {
 
 		boolean sts = false;

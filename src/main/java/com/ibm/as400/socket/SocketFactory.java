@@ -25,17 +25,19 @@ public enum SocketFactory {
 ;
 
 	/**
-	 * Main method to instantiate proper socket type.
-	 * 
+	 * Factory to instantiate proper socket type.
+	 * <p> 
 	 * Type of socket returned is based on proxyAddress format:
-	 * 
+	 * </p>
+	 * <pre>
 	 * 1. If proxyAddress is not provided, standard socket is created
 	 * 2. if proxyAddress is file based socket format, UNIX socket is created
 	 * 3. if proxyAddress is a hostname or IP address, SOCK5 socket is created
+	 * </pre>
 	 *  
-	 * @param systemName
-	 * @param port
-	 * @param proxyAddress
+	 * @param systemName - Remote system to connect to
+	 * @param port - Remote port to connect to
+	 * @param proxyAddress - Address in format host:port or host or /unix/path
 	 * @return
 	 * @throws IOException
 	 */	
@@ -49,18 +51,20 @@ public enum SocketFactory {
 	}
 		
 	/**
-	 * Main method to instantiate proper socket type.
-	 * 
+	 * Factory to instantiate proper socket type.
+	 * <p>
 	 * Type of socket returned is based on proxyAddress format:
-	 * 
+	 * </p>
+	 * <pre>
 	 * 1. If proxyAddress is not provided, standard socket is created
 	 * 2. if proxyAddress is file based socket format, UNIX socket is created
 	 * 3. if proxyAddress is a hostname or IP address, SOCK5 socket is created
-	 *  
-	 * @param remoteSystem
-	 * @param remotePort
-	 * @param socketAddress
-	 * @param socketPort
+	 * </pre>
+	 * 
+	 * @param remoteSystem - Remote system to connect to
+	 * @param remotePort - Remote port to connect to
+	 * @param socketAddress - Local sock5 daemon to connect to
+	 * @param socketPort - Local daemon port to connect to
 	 * @return
 	 * @throws IOException
 	 */
@@ -106,7 +110,7 @@ public enum SocketFactory {
 	}
 	
 	/**
-	 * Check if 
+	 * Check if sock5 target is defined.
 	 * @param proxyAddress
 	 * @param proxyPort
 	 * @return
