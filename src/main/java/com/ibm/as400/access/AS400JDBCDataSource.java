@@ -743,6 +743,8 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
                 JDTrace.logInformation(this, "proxyProps_:  null");    		
     	}
         
+    	// @greenscreens - old code is problematic with proxied connections
+    	/*
         AS400JDBCConnection connection = null;
         
         if (properties_.getInt(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST) == 1) {
@@ -753,7 +755,42 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         
         connection.setSystem(as400);
         connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400); //@C1C
-
+		*/
+    	
+    	// @greenscreens - clone from AS400JDBCDriver.prepareConnection
+        String defaultImpl = "com.ibm.as400.access.AS400JDBCConnectionImpl"; 
+        if (properties_.getInt(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST) == 1) {
+          defaultImpl = "com.ibm.as400.access.AS400JDBCConnectionRedirect"; 
+        }
+        // Create the appropriate kind of Connection object.
+		Connection connection = (Connection) as400.loadImpl2 (
+														 defaultImpl,                 
+	    												 "com.ibm.as400.access.JDConnectionProxy");
+		// Set the properties on the Connection object.
+		if (connection != null)
+		{
+		    // If we get an exception, make sure the connection is closed.
+		    // The common case is when an exit program prevents access to the system.
+			// @AB1A
+		    try { 
+		    JDDataSourceURL dataSourceUrl = new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName());
+		      if (connection instanceof JDConnectionProxy) { 
+            ((JDConnectionProxy)connection).setSystem(as400);
+            ((JDConnectionProxy)connection).setProperties(dataSourceUrl, properties_, as400);
+		      } else { 
+		        ((AS400JDBCConnection)connection).setSystem(as400);
+		        ((AS400JDBCConnection)connection).setProperties(dataSourceUrl, properties_, as400);
+		      }
+		    } catch (SQLException sqlex) {
+		      try { 
+		      connection.close();
+		      } catch (Exception e) { 
+		        // Just ignore 
+		      }
+		      throw sqlex; 
+		    }
+		}
+        
         log(ResourceBundleLoader.getText("AS400_JDBC_DS_CONN_CREATED"));     //@A9C
         return connection;
     }
