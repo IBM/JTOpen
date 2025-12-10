@@ -725,6 +725,24 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
                 JDTrace.logInformation(this, "sockProps_:  null");
         }
 
+    	// @greenscreens  
+    	boolean useSock5 = properties_.getBoolean(JDProperties.USE_SOCK5);
+    	String proxyServer = properties_.getString(JDProperties.PROXY_SERVER);
+    	if (proxyServer!=null && proxyServer.length()>0) {    		
+    		try {
+    			if (useSock5) {
+    				as400.setSock5Server(proxyServer);
+    			} else {
+    				as400.setProxyServer(proxyServer);
+    			}
+    		} catch (PropertyVetoException e) {			
+    			throw new SQLException(e);
+    		}        
+    	} else {
+            if(JDTrace.isTraceOn())
+                JDTrace.logInformation(this, "proxyProps_:  null");    		
+    	}
+        
         AS400JDBCConnection connection = null;
         
         if (properties_.getInt(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST) == 1) {
