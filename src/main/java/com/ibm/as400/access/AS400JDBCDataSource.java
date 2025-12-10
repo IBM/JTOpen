@@ -1144,6 +1144,18 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getString(JDProperties.PROXY_SERVER);
     }
 
+    // @greenscreens
+    /**
+    *  If proxy server is set, this flag determine is it standard
+    *  proxy or sock5. As both can't be used in the same time, 
+    *  we use PROXY_SERVER value.  
+    *  @return The sock5 server.
+    **/
+    public boolean isUseSock5()
+    {
+        return properties_.getBoolean(JDProperties.USE_SOCK5);
+    }
+    
     /**
     *  Returns the Reference object for the data source object.
     *  This is used by JNDI when bound in a JNDI naming service.
@@ -3811,7 +3823,30 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, property + ": " + proxyServer);  //@A8C
     }
+    
+    // @greenscreens
+    /**
+    *  Sets the flag to use Proxy value as sock5 isnted of default type
+    *  @param value Flag how proxy property is used.
+    **/
+    public void setUseSock5(boolean value)
+    {
+        String property = JDProperties.USE_SOCK5_  ;
+        Boolean oldValue = Boolean.valueOf(isUseBlockUpdate());
+        Boolean newValue = Boolean.valueOf(value);
 
+        if (value)
+            properties_.setString(JDProperties.USE_SOCK5, TRUE_);
+        else
+            properties_.setString(JDProperties.USE_SOCK5, FALSE_);
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + value);      
+    }
+
+    
     /**
     *  Sets the source of the text for REMARKS columns in ResultSets returned
     *  by DatabaseMetaData methods.
