@@ -19,10 +19,6 @@ import java.util.Base64.Encoder;
 
 /**
  * Replacement for sun.misc.BASE64Encoder
- * 
- * When sun.misc.BAS64Encoder is available via reflection use that. 
- * 
- * @author jeber
  *
  */
 public class BASE64Encoder {

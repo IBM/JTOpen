@@ -407,6 +407,10 @@ public class SystemProperties
                 if (Trace.isTraceOn()) Trace.log(Trace.DIAGNOSTIC, "Value found in jt400.properties file: '" + propertyValue + "'");
             }
         }
+        // Is still not found, get from the environment */ 
+        if (propertyValue == null) { 
+          propertyValue = System.getenv(propertyName); 
+        }
 
         if (Trace.isTraceOn()) if (propertyValue == null) Trace.log(Trace.DIAGNOSTIC, "Value not found.");
 

@@ -207,15 +207,9 @@
   <property name="cvsUserid" value="anonymous"/>
   <property name="cvsPassword" value=""/>
 
-  <property name="userid" value="eberhard"/>
+  <property name="userid" value="JDPWRSYS"/>
   <property name="password" value="XXXXX"/>
-  <property name="v7r2server"  value="eut72p1.rchland.ibm.com"/>
-  <property name="v7r1server"  value="lp01ut18.rchland.ibm.com"/>
-  <property name="v6r1server1" value="fowgai2.rchland.ibm.com"/>
-  <property name="v6r1server2" value="rchaptf2.rchland.ibm.com"/>
-  <property name="v5r4server"  value="lp03ut5.rchland.ibm.com"/>
-  <property name="linuxserver" value="lena6.rchland.ibm.com"/>
-  <property name="linuxuserid"   value="jeber"/>
+  <property name="linuxuserid"   value="linuxur"/>
   <property name="linuxpassword" value="XXXXXX"/>
 
 
