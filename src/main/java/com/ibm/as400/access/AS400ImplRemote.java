@@ -1339,7 +1339,9 @@ public class AS400ImplRemote implements AS400Impl
   // Get connection for FTP.
   synchronized Socket getConnection(int port) throws IOException
   {
-      Socket socket = new Socket((systemNameLocal_) ? "localhost" : systemName_, port);
+      // @greenscreens
+	  String host = (systemNameLocal_) ? "localhost" : systemName_;
+	  Socket socket = PortMapper.createSocket(host, port, socketProperties_);
 
       try
       {

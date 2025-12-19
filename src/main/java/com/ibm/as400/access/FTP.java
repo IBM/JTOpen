@@ -16,6 +16,9 @@ package com.ibm.as400.access;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
+import com.ibm.as400.socket.Sock5Socket;
+
 import java.beans.*;
 
 
@@ -92,8 +95,9 @@ public class FTP implements java.io.Serializable
 
                // connect to this system, with the specified user and password
                // Do not just grab "clearPassword"!!!!  Always use getPassword()
+    private String sock5server_;
     private String server_;
-    private String user_;
+    private String user_;    
     transient private String  clearPassword_ = null;
     transient private byte[]  encryptedPassword_ = null;
     transient private byte[]  mask_  = null;
@@ -568,8 +572,9 @@ public class FTP implements java.io.Serializable
            throw new IllegalStateException("password");
         }
 
-
-        controlSocket_ = new Socket(server_, port_);
+        // @greenscreens sock5 support
+        //controlSocket_ = new Socket(server_, port_);
+        controlSocket_ = PortMapper.createSocket(server_, port_, sock5server_);
 
         reader_ = new BufferedReader(new InputStreamReader(controlSocket_.getInputStream()));
         ps_ = new PrintWriter(controlSocket_.getOutputStream(), true);
@@ -829,6 +834,7 @@ public class FTP implements java.io.Serializable
 // @D2 new method
 
      void externallyConnected(String system,
+    		 				  String sock5server,  // @greenscreens	
                               Socket socket,
                               BufferedReader reader,
                               PrintWriter writer)
@@ -836,6 +842,7 @@ public class FTP implements java.io.Serializable
         connectionState_     = ACTIVE;
         externallyConnected_ = true;
         server_              = system;
+        sock5server_		 = sock5server;
         controlSocket_       = socket;
         reader_              = reader;
         ps_                  = writer;
@@ -2198,6 +2205,45 @@ public class FTP implements java.io.Serializable
     }
 
 
+ // ---------------------------------------------------------------------------
+    /**
+     * Sets the name of the sock5 server.  The server name cannot be changed once
+     * a connection is made to the system.
+     *   @param server The name of the system to which this object connects.
+     *   @exception PropertyVetoException If the change is vetoed.
+    **/
+     // @greenscreens
+     public synchronized void setSock5Server(String server)
+                              throws PropertyVetoException
+     {
+        if (Trace.isTraceOn())
+            Trace.log(Trace.DIAGNOSTIC,"entering setSock5Server(), (no leaving entry)");
+
+        if (server == null)
+           throw new NullPointerException("sock5server");
+
+        if (server.length() == 0)
+           throw new IllegalArgumentException("sock5server");
+
+        if (connectionState_ != PARKED)
+           throw new IllegalStateException("connected");
+
+        // Remember the old system.
+        String oldServer = sock5server_;
+
+        // Fire a vetoable change event for system.
+        if (vetos_ != null) {
+          vetos_.fireVetoableChange("sock5server", oldServer, server);
+        }
+
+        sock5server_ = server;
+
+        // Fire the property change event.
+        if (changes_ != null) {
+          changes_.firePropertyChange("sock5server", oldServer, server);
+        }
+     }
+
 
 
 
@@ -2492,7 +2538,11 @@ public class FTP implements java.io.Serializable
 
             // Extract the port number from the response.
             int port = Integer.parseInt(response.substring(begin, end));
-            sc = new Socket(server_, port);
+
+            // @greenscreens - sock5 support
+            //sc =  new Socket(server_, port);
+            sc = PortMapper.createSocket(server_, port, sock5server_);
+            
             if (socketTimeOut_ > 0) //@AH8A
             	sc.setSoTimeout(socketTimeOut_);
             return sc; //new Socket(server_, port);
@@ -2500,12 +2550,15 @@ public class FTP implements java.io.Serializable
         // System may not support EPSV, fallback to the passive command.
         response = issueCommand("PASV");
         int p = extractPortAddress(response);
-        sc = new Socket(server_, p);
+        
+        // @greenscreens - sock5 support
+        //sc = new Socket(server_, p);
+        sc = PortMapper.createSocket(server_, p, sock5server_);
         if (socketTimeOut_ > 0) //@AH8A
         	sc.setSoTimeout(socketTimeOut_);
         return sc;//new Socket(server_, p);
     }
-
+ 
 
     // Checks the "FTP.reuseSocket" system property.  If it's set, initializes reuseSocket_ accordingly.
     private void checkSocketProperty()

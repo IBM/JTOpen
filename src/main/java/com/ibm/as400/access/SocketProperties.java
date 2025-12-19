@@ -34,6 +34,9 @@ public class SocketProperties implements Serializable
     static final String SOCKET_TIMEOUT = "soTimeout"; // @F1A
     static final String SOCKET_TCP_NO_DELAY = "soTCPNoDelay"; // @F1A
     static final String SOCKET_LOGIN_TIMEOUT = "loginTimeout"; // @st3
+    
+    // @greenscreens
+    static final String SOCK5_SERVER = "sock5server";
 
     static final boolean isSocketProperty(String property) {
         return property.equals(SOCKET_KEEP_ALIVE)
@@ -42,7 +45,10 @@ public class SocketProperties implements Serializable
                 || property.equals(SOCKET_LINGER)
                 || property.equals(SOCKET_TIMEOUT)
                 || property.equals(SOCKET_TCP_NO_DELAY)
-                || property.equals(SOCKET_LOGIN_TIMEOUT);
+                || property.equals(SOCKET_LOGIN_TIMEOUT)
+                // @greenscreens
+                || property.equals(SOCK5_SERVER)
+                ;
     }
 
     boolean keepAliveSet_ = false;
@@ -60,6 +66,10 @@ public class SocketProperties implements Serializable
     boolean loginTimeoutSet_ = false; //@STIMEOUT
     int loginTimeout_ = 0; //@STIMEOUT this is an option in java.net.Socket.connect(SocketAddress endpoint, int timeout) (java 1.4)
 
+    // @greenscreens properties
+    boolean sock5ServerSet_ = false;
+  	String sock5Server = null;
+  	    
     // Internal method to copy all the options from one object to another.
     void copyValues(SocketProperties properties)
     {
@@ -77,6 +87,11 @@ public class SocketProperties implements Serializable
         loginTimeout_ = properties.loginTimeout_;        //@st3
         tcpNoDelaySet_ = properties.tcpNoDelaySet_;
         tcpNoDelay_ = properties.tcpNoDelay_;
+        
+        // @greenscreens
+        sock5ServerSet_ = properties.sock5ServerSet_;
+        sock5Server = properties.sock5Server;
+        
     }
 
     /**
@@ -103,7 +118,12 @@ public class SocketProperties implements Serializable
              loginTimeoutSet_      == props.loginTimeoutSet_ &&
              loginTimeout_         == props.loginTimeout_ &&
              tcpNoDelaySet_        == props.tcpNoDelaySet_ &&
-             tcpNoDelay_           == props.tcpNoDelay_)
+             tcpNoDelay_           == props.tcpNoDelay_ &&
+             
+             // @greenscreens
+             sock5ServerSet_ == props.sock5ServerSet_ &&
+             sock5Server == props.sock5Server 
+             )
            return true;
          else return false;
       }
@@ -144,6 +164,10 @@ public class SocketProperties implements Serializable
         if (tcpNoDelaySet_) {
             ref.add(new StringRefAddr(SOCKET_TCP_NO_DELAY, Boolean.toString(tcpNoDelay_)));
         }
+        
+        if (sock5ServerSet_) {
+            ref.add(new StringRefAddr(SOCK5_SERVER, sock5Server));
+        }
     }
 
     void restore(String property, String value) {
@@ -168,6 +192,9 @@ public class SocketProperties implements Serializable
                 break;
             case SOCKET_TCP_NO_DELAY:
                 setTcpNoDelay(Boolean.parseBoolean(value));
+                break;
+            case SOCK5_SERVER:
+                setSock5Server(value);
                 break;
             default:
                 break;
@@ -462,4 +489,30 @@ public class SocketProperties implements Serializable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Unsetting TCP no delay.");
         tcpNoDelaySet_ = false;
     }
+    
+
+    /// *******************************************
+    // BELOW - support for SOCK5  // @greenscreens 
+    /// ******************************************
+    
+	public String getSock5Server() {
+		return sock5Server;
+	}
+
+	public void setSock5Server(final String sock5Server) {
+		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting sock5 server:", sock5Server);
+		this.sock5Server = sock5Server;
+		this.sock5ServerSet_ = true;
+	}
+	
+	public void unsetSock5Server() {
+		if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Unsetting sock5 server.");
+		this.sock5ServerSet_ = false;
+	}
+	
+    public boolean isSock5ProxyHostSet() {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if sock5 server is set:", sock5ServerSet_);
+        return sock5ServerSet_;
+    }	
+			
 }

@@ -198,10 +198,11 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
 
     static final int              TLS_TRUSTSTORE = 103;
     static final int              TLS_TRUSTSTORE_PASSWORD = 104;
+    static final int              USE_SOCK5				  = 105;   // @greenscreens
 
     // @W2 always add to the end of the array!
 
-    private static final int    NUMBER_OF_ATTRIBUTES_ = 105;   
+    private static final int    NUMBER_OF_ATTRIBUTES_ = 106;   
 
 
     // Property names.
@@ -310,7 +311,8 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
     static final String MAXIMUM_BLOCKED_INPUT_ROWS_ = "maximum blocked input rows";  // @A6A
     static final String DESCRIBE_OPTION_ = "describe option";   //@F6A
     static final String DECIMAL_DATA_ERRORS_ = "decimal data errors";
-
+    static final String USE_SOCK5_           = "use sock5";           // @greenscreens
+    
     // Common String objects.  Using these will theoretically
     // cut down on the number of String allocations.
     //
@@ -1689,6 +1691,16 @@ public class JDProperties implements Serializable, Cloneable //@PDC 550
        dpi_[i].choices     = new String[0];
        defaults_[i]  = EMPTY_; 
 
+       // Sock5 server.    //@greenscreens
+       i = USE_SOCK5;
+       dpi_[i] = new DriverPropertyInfo (USE_SOCK5_, "");
+       dpi_[i].description = "SOCK5_SERVER_DESC";
+       dpi_[i].required    = false;
+       dpi_[i].choices     = new String[2];
+       dpi_[i].choices[0]  = FALSE_;
+       dpi_[i].choices[1]  = TRUE_;
+       defaults_[i]        = EMPTY_;
+       
     }
 
 

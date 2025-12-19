@@ -725,6 +725,26 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
                 JDTrace.logInformation(this, "sockProps_:  null");
         }
 
+    	// @greenscreens  
+    	boolean useSock5 = properties_.getBoolean(JDProperties.USE_SOCK5);
+    	String proxyServer = properties_.getString(JDProperties.PROXY_SERVER);
+    	if (proxyServer!=null && proxyServer.length()>0) {    		
+    		try {
+    			if (useSock5) {
+    				as400.setSock5Server(proxyServer);
+    			} else {
+    				as400.setProxyServer(proxyServer);
+    			}
+    		} catch (PropertyVetoException e) {			
+    			throw new SQLException(e);
+    		}        
+    	} else {
+            if(JDTrace.isTraceOn())
+                JDTrace.logInformation(this, "proxyProps_:  null");    		
+    	}
+        
+    	// @greenscreens - old code is problematic with proxied connections
+    	/*
         AS400JDBCConnection connection = null;
         
         if (properties_.getInt(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST) == 1) {
@@ -735,7 +755,42 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         
         connection.setSystem(as400);
         connection.setProperties(new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName()), properties_, as400); //@C1C
-
+		*/
+    	
+    	// @greenscreens - clone from AS400JDBCDriver.prepareConnection
+        String defaultImpl = "com.ibm.as400.access.AS400JDBCConnectionImpl"; 
+        if (properties_.getInt(JDProperties.ENABLE_CLIENT_AFFINITIES_LIST) == 1) {
+          defaultImpl = "com.ibm.as400.access.AS400JDBCConnectionRedirect"; 
+        }
+        // Create the appropriate kind of Connection object.
+		Connection connection = (Connection) as400.loadImpl2 (
+														 defaultImpl,                 
+	    												 "com.ibm.as400.access.JDConnectionProxy");
+		// Set the properties on the Connection object.
+		if (connection != null)
+		{
+		    // If we get an exception, make sure the connection is closed.
+		    // The common case is when an exit program prevents access to the system.
+			// @AB1A
+		    try { 
+		    JDDataSourceURL dataSourceUrl = new JDDataSourceURL(TOOLBOX_DRIVER + "//" + as400.getSystemName());
+		      if (connection instanceof JDConnectionProxy) { 
+            ((JDConnectionProxy)connection).setSystem(as400);
+            ((JDConnectionProxy)connection).setProperties(dataSourceUrl, properties_, as400);
+		      } else { 
+		        ((AS400JDBCConnection)connection).setSystem(as400);
+		        ((AS400JDBCConnection)connection).setProperties(dataSourceUrl, properties_, as400);
+		      }
+		    } catch (SQLException sqlex) {
+		      try { 
+		      connection.close();
+		      } catch (Exception e) { 
+		        // Just ignore 
+		      }
+		      throw sqlex; 
+		    }
+		}
+        
         log(ResourceBundleLoader.getText("AS400_JDBC_DS_CONN_CREATED"));     //@A9C
         return connection;
     }
@@ -1144,6 +1199,18 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getString(JDProperties.PROXY_SERVER);
     }
 
+    // @greenscreens
+    /**
+    *  If proxy server is set, this flag determine is it standard
+    *  proxy or sock5. As both can't be used in the same time, 
+    *  we use PROXY_SERVER value.  
+    *  @return The sock5 server.
+    **/
+    public boolean isUseSock5()
+    {
+        return properties_.getBoolean(JDProperties.USE_SOCK5);
+    }
+    
     /**
     *  Returns the Reference object for the data source object.
     *  This is used by JNDI when bound in a JNDI naming service.
@@ -3811,7 +3878,30 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, property + ": " + proxyServer);  //@A8C
     }
+    
+    // @greenscreens
+    /**
+    *  Sets the flag to use Proxy value as sock5 isnted of default type
+    *  @param value Flag how proxy property is used.
+    **/
+    public void setUseSock5(boolean value)
+    {
+        String property = JDProperties.USE_SOCK5_  ;
+        Boolean oldValue = Boolean.valueOf(isUseBlockUpdate());
+        Boolean newValue = Boolean.valueOf(value);
 
+        if (value)
+            properties_.setString(JDProperties.USE_SOCK5, TRUE_);
+        else
+            properties_.setString(JDProperties.USE_SOCK5, FALSE_);
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + value);      
+    }
+
+    
     /**
     *  Sets the source of the text for REMARKS columns in ResultSets returned
     *  by DatabaseMetaData methods.

@@ -1358,7 +1358,13 @@ endif JAVA9 */
 			//       where portNumber is optional.
 			try
 			{
-				as400.setProxyServer (proxyServerNameAndPort);
+				// @greenscreens
+				boolean isSock5 = jdProperties.getBoolean(JDProperties.USE_SOCK5);
+				if (isSock5) {
+					as400.setSock5Server (proxyServerNameAndPort);
+				} else {
+					as400.setProxyServer (proxyServerNameAndPort);
+				}
 				//as400.setProxyServerSecure (proxyServerSecure);  // TBD
 			}
 			catch (java.beans.PropertyVetoException e)

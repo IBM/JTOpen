@@ -23,6 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
+import java.net.URI;
 import java.net.UnknownHostException;
 import java.net.URL;
 import java.util.Arrays;
@@ -410,7 +411,8 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object.");
         construct();
         systemNameLocal_ = resolveSystemNameLocal("");
-        proxyServer_ = resolveProxyServer(proxyServer_);
+        proxyServer_ = resolveProxyServer(proxyServer_);        
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
 
         // Default to password authentication
         credVault_ = new PasswordVault();
@@ -437,6 +439,7 @@ public class AS400 implements Serializable, AutoCloseable
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
         proxyServer_ = resolveProxyServer(proxyServer_);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
 
         // Default to password authentication
         credVault_ = new PasswordVault();
@@ -475,7 +478,8 @@ public class AS400 implements Serializable, AutoCloseable
 
         userId_ = userId.toUpperCase();
         proxyServer_ = resolveProxyServer(proxyServer_);
-
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
+        
         // Default to password authentication
         credVault_ = new PasswordVault();
     }
@@ -555,6 +559,7 @@ public class AS400 implements Serializable, AutoCloseable
         // vault has been created and initialized correctly.
         credVault_ = credVault;
         proxyServer_ = resolveProxyServer(proxyServer_);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
     }
 
     /**
@@ -607,6 +612,7 @@ public class AS400 implements Serializable, AutoCloseable
         }
         
         proxyServer_ = resolveProxyServer(proxyServer_);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens        
     }
 
     /**
@@ -667,6 +673,7 @@ public class AS400 implements Serializable, AutoCloseable
         userId_ = userId.toUpperCase();
         credVault_ = new PasswordVault(password);
         proxyServer_ = resolveProxyServer(proxyServer_);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
     }
     
     private static final String[] USRLIBL_SINGLE_VALUE = new String[]
@@ -904,6 +911,7 @@ public class AS400 implements Serializable, AutoCloseable
         // because each AS400 object must always have its very own credential vault.
         credVault_ = pwVault.clone();
         proxyServer_ = resolveProxyServer(proxyServer_);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
     }
 
     /**
@@ -961,6 +969,7 @@ public class AS400 implements Serializable, AutoCloseable
         }
         
         proxyServer_ = resolveProxyServer(proxyServer);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
     }
 
     /**
@@ -1006,6 +1015,7 @@ public class AS400 implements Serializable, AutoCloseable
         userId_ = userId.toUpperCase();
         credVault_ = new PasswordVault(password);
         proxyServer_ = resolveProxyServer(proxyServer);
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
     }
 
 
@@ -3989,6 +3999,8 @@ public class AS400 implements Serializable, AutoCloseable
         systemNameLocal_ = resolveSystemNameLocal(systemName_);
 
         proxyServer_ = resolveProxyServer("");
+        socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
+
         // proxyClientConnection_ can stay null.
         ccsid_ = 0;
         // connectionListeners_ can stay null.
@@ -4164,6 +4176,17 @@ public class AS400 implements Serializable, AutoCloseable
         ccsid_ = 0;
     }
 
+    // Resolves the sock5 server name.  If it is not specified, then look it up in the system properties.  Returns empty string if not set.
+    private static String resolveSock5Server(String sock5Server)
+    {
+        if (sock5Server.length() == 0)
+        {
+        	sock5Server = SystemProperties.getProperty(SystemProperties.AS400_SOCK5_SERVER);
+            if (sock5Server == null) return "";
+        }
+        return sock5Server;
+    }
+    
     // Resolves the proxy server name.  If it is not specified, then look it up in the system properties.  Returns empty string if not set.
     private static String resolveProxyServer(String proxyServer)
     {
@@ -4916,6 +4939,53 @@ public class AS400 implements Serializable, AutoCloseable
             credVault_ = new ProfileTokenVault(profileToken);
             signonInfo_ = null;
         }
+    }
+    
+    /**
+     * Sets the name and port of the middle-tier machine where the sock5 server is running. If this is not set, then the
+     * name is retrieved from the <em>com.ibm.as400.access.AS400.sock5Server</em>
+     * <a href="doc-files/SystemProperties.html">system property</a>. 
+     * 
+     * @param sock5Server
+     * @param sock5port
+     * @throws PropertyVetoException
+     */
+    public void setSock5Server(String sock5Server, int sock5port) throws PropertyVetoException {
+    	setSock5Server(String.format("%s:%s", sock5Server, sock5port));
+    }
+
+    /**
+     * Sets the name and port of the middle-tier machine where the sock5 server is running. If this is not set, then the
+     * name is retrieved from the <em>com.ibm.as400.access.AS400.sock5Server</em>
+     * <a href="doc-files/SystemProperties.html">system property</a>. 
+     * 
+     * @param sock5Server
+     * @throws PropertyVetoException
+     */
+    public void setSock5Server(String sock5Server) throws PropertyVetoException {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting sock5 server:", sock5Server);
+
+        if (impl_ != null)
+        {
+            Trace.log(Trace.ERROR, "Cannot set sock5 server after connection has been made.");
+            throw new ExtendedIllegalStateException("sock5Server", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
+
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null) {
+            String sockServer = resolveSock5Server(sock5Server);
+            socketProperties_.setSock5Server(sockServer);
+        } else
+        {
+        	String newValue = resolveSock5Server(sock5Server);
+            String oldValue = socketProperties_.getSock5Server();
+            
+            if (vetoableChangeListeners_ != null)
+                vetoableChangeListeners_.fireVetoableChange("sock5ProxyServer", oldValue, newValue);
+
+            proxyServer_ = newValue;
+            if (propertyChangeListeners_ != null)
+                propertyChangeListeners_.firePropertyChange("sock5ProxyServer", oldValue, newValue);
+        }    	
     }
 
     /**
