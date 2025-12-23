@@ -2152,6 +2152,17 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
           return properties_.getBoolean(JDProperties.USE_DRDA_METADATA_VERSION);
       }
 
+      /**
+       *  Indicates whether SOCKS5 is used as the proxy protocol. 
+       *  @return true if SOCKS5 is used as the proxy protocol;  false otherwise.
+       *  The default value is false.
+       **/
+       public boolean isSock5()
+       {
+           return properties_.getBoolean(JDProperties.USE_SOCK5);
+       }
+
+
 
     /**
     *  Logs a message to the event log.
@@ -4642,6 +4653,9 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         logProperty ("user", as400_.getUserId());
     }
 
+
+    
+    
     //@K54
     /**
     *  Specifies whether variable-length fields should be compressed. 

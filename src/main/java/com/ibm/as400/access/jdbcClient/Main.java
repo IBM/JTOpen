@@ -23,6 +23,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
@@ -3423,7 +3424,8 @@ private String getXACodeInfo(XAException e) {
     if (callObject == null) {
       try {
         callClass = Class.forName(callVariable);
-      } catch (Exception e) {
+      } catch (Throwable t) {
+        out1.println("Class "+callVariable+" not found"); 
       }
     }
     if (callObject != null || callClass != null) {
@@ -3442,8 +3444,16 @@ private String getXACodeInfo(XAException e) {
       for (int m = 0; (m < methods.length); m++) {
         String methodInfo;
         String returnClause;
+        int modifiers = methods[m].getModifiers();
+        if (Modifier.isStatic(modifiers)) {
+          methodInfo="static ";
+        } else {
+          methodInfo=""; 
+        }
+        
         Class<?> returnType = methods[m].getReturnType();
-        methodInfo = methods[m].getName();
+        methodInfo += methods[m].getName();
+        /* The returns clause is used so that the methods can be sorted by name */ 
         if (returnType != null) {
            returnClause =  " @RETURNS "+returnType.getName() ;
         } else {
@@ -3463,15 +3473,27 @@ private String getXACodeInfo(XAException e) {
       Vector<String> methodVector = new Vector<String>(hashSet); 
       Collections.sort(methodVector); 
       Enumeration<String> vectorEnum = methodVector.elements(); 
+      StringBuffer sb; 
+      StringBuffer sbNormal = new StringBuffer(); 
+      StringBuffer sbStatic = new StringBuffer(); 
       while (vectorEnum.hasMoreElements()) {
         String methodInfo = (String) vectorEnum.nextElement();
+        String staticIndicator = ""; 
+        if (methodInfo.indexOf("static ") == 0) {
+          staticIndicator= "static "; 
+          sb = sbStatic;
+        } else {
+          sb = sbNormal; 
+        }
         int returnsIndex = methodInfo.indexOf(" @RETURNS ");
         if (returnsIndex > 0) {
-           out1.println(methodInfo.substring(returnsIndex+10)+" "+methodInfo.substring(0,returnsIndex)); 
+           sb.append(staticIndicator+methodInfo.substring(returnsIndex+10)+" "+methodInfo.substring(0,returnsIndex)+"\n"); 
         } else {
-           out1.println(methodInfo); 
+           sb.append(staticIndicator+methodInfo+"\n"); 
         }
       }
+      out1.print(sbStatic);
+      out1.println(sbNormal); 
     } else {
       out1.println("Could not find variable " + callVariable);
       showValidVariables(out1);
