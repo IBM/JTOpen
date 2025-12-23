@@ -4536,7 +4536,7 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
   /**
    * Sets whether SOCKS5 is used as the proxy protocol.
    * 
-   * @param translate true if binary data is translated; false otherwise. The
+   * @param useSock5 true if SOCKS5 is used as the proxy protocol; false otherwise. The
    *                  default value is false.
    **/
   public void setUseSock5(boolean useSock5) {
