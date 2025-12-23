@@ -153,6 +153,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_TLS_TRUSTSTORE", "tlsTruststore"},
       { "PROP_NAME_TLS_TRUSTSTORE_PASSWORD", "tlsTruststorePassword"},
       { "PROP_NAME_STAY_ALIVE", "stayAlive"}, 
+      { "PROP_NAME_USE_SOCK5", "useSock5"},
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
       { "BEHAVIOR_OVERRIDE_DESC", "Specifies the Toolbox JDBC driver behavior to override." },     //@J5A
@@ -270,6 +271,7 @@ public class JDMRI extends ListResourceBundle
       		+ "This is used to prevent a connection from being viewed as inactive.  A value of 0 means to not send pings to keep the connection alive."},
       {"TLS_TRUSTSTORE_DESC","Specifies a file to be used as the truststore for TLS connections."},
       {"TLS_TRUSTSTORE_PASSWORD_DESC","Specifies the password associated with the configured TLS truststore."},
+      {"USE_SOCK5_DESC","Specifies that Socks5 should be used for the proxy support."},
       // JDBC 2 - Optional Package support - RowSet    @E5
       { "PROP_NAME_RS_COMMAND", "command" },
       { "PROP_NAME_RS_CONCURRENCY", "concurrency" },

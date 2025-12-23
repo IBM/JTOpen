@@ -445,9 +445,6 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo {
 			tlsTruststorePassword.setConstrained(false);
 			tlsTruststorePassword.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TLS_TRUSTSTORE_PASSWORD", null));
 			tlsTruststorePassword.setShortDescription(AS400JDBCDriver.getResource("TLS_TRUSTSTORE_PASSWORD_DESC", null));
-
-			
-			
 			
 			PropertyDescriptor trace = new PropertyDescriptor("trace", beanClass, "isTrace", "setTrace"); // @w2c
 			trace.setBound(true);
@@ -495,6 +492,14 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo {
 			user.setConstrained(false);
 			user.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_USER", null));
 			user.setShortDescription(AS400JDBCDriver.getResource("USER_DESC", null));
+
+	     PropertyDescriptor useSock5 = new PropertyDescriptor("useSock5", beanClass, "isUseSock5",
+           "setUseSock5");
+     useSock5.setBound(true);
+     useSock5.setConstrained(false);
+     useSock5.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_USE_SOCK5", null));
+     useSock5.setShortDescription(AS400JDBCDriver.getResource("USE_SOCK5_DESC", null));
+
 
 			PropertyDescriptor keepAlive = new PropertyDescriptor("keepAlive", beanClass, "isKeepAlive",
 					"setKeepAlive");
@@ -946,7 +951,8 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo {
 					useBlockUpdate, describeOption, decimalDataErrors, timestampFormat, useDrdaMetadataVersion,
 					portNumber, enableClientAffinitiesList, clientRerouteAlternateServerName,
 					clientRerouteAlternatePortNumber, affinityFailbackInterval, maxRetriesForClientReroute,
-					retryIntervalForClientReroute, enableSeamlessFailover, additionalAuthenticationFactor, stayAlive,tlsTruststore,tlsTruststorePassword };
+					retryIntervalForClientReroute, enableSeamlessFailover, additionalAuthenticationFactor, stayAlive,tlsTruststore,tlsTruststorePassword,
+					useSock5 };
 
 		} catch (Exception e) {
 			throw new Error(e);

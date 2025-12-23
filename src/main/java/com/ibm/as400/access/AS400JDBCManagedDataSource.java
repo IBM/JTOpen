@@ -2441,6 +2441,15 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
   public boolean isSecureCurrentUser() {
     return properties_.getBoolean(JDProperties.SECURE_CURRENT_USER);
   }
+  /**
+   * Indicates whether SOCKS5 is used as the proxy protocol.
+   * 
+   * @return true if SOCKS5 is used as the proxy protocol; false otherwise. The default value
+   *         is false.
+   **/
+  public boolean isUseSock5() {
+    return properties_.getBoolean(JDProperties.USE_SOCK5);
+  }
 
   /**
    * Indicates whether a thread is used.
@@ -4523,6 +4532,20 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
 
     connectionKeyNeedsUpdate_ = true;
   }
+
+  /**
+   * Sets whether SOCKS5 is used as the proxy protocol.
+   * 
+   * @param useSock5 true if SOCKS5 is used as the proxy protocol; false otherwise. The
+   *                  default value is false.
+   **/
+  public void setUseSock5(boolean useSock5) {
+    if (useSock5)
+      properties_.setString(JDProperties.USE_SOCK5, TRUE_);
+    else
+      properties_.setString(JDProperties.USE_SOCK5, FALSE_);
+  }
+
 
   /**
    * Sets whether lock sharing is allowed for loosely coupled transaction
