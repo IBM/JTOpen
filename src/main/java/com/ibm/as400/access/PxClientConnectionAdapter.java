@@ -147,8 +147,8 @@ Closes the connection to the proxy server.
 
         // Parse the proxy server name, port number (and protocol if tunneling)
         localName    = proxyServer;
-        String protocolName = null;
-
+        URI uri = null;
+        
         int port = -1;
 
         // determine if we are going with traditional or tunnel proxy.
@@ -157,9 +157,10 @@ Closes the connection to the proxy server.
         if (proxyServer.indexOf("://") > 0)                                    // @D1a
         {
            tunnel_ = true;
-           // the name of the server is everything beyond the ://
-           localName    = proxyServer.substring(proxyServer.indexOf(":") + 3);
-           protocolName = proxyServer.substring(0, proxyServer.indexOf(":"));
+           // greenscreens
+           uri = URI.create(proxyServer);
+           localName = uri.getHost();
+           port = uri.getPort();
         }
 
         // now strip the port of the end of the server name (if one exists)
@@ -181,7 +182,7 @@ Closes the connection to the proxy server.
         else
         {
            // when openTunnel comes back move creating tunnelURL_ to the try/catch.
-           openTunnel(protocolName, localName, port);                                                         // @D1a
+        	openTunnel(uri);                                                        // @D1a
         }
     }
 
@@ -251,17 +252,19 @@ Closes the connection to the proxy server.
 
 
     // @D1a New method
-    void openTunnel(String protocol, String name, int port)
+    void openTunnel(URI uri)
     {
        try
        {
           readDaemon_ = new PxClientReadDaemon();
           readDaemon_.register(new PxAcceptRepCV());
 
-          if (port < 0)
-             tunnelURL_ = new URL(protocol, name, "/servlet/com.ibm.as400.access.TunnelProxyServer");
-          else
-             tunnelURL_ = new URL(protocol, name, port, "/servlet/com.ibm.as400.access.TunnelProxyServer");
+          // greenscreens
+			if (uri.getPath() == null) {
+				tunnelURL_ = uri.resolve("/servlet/com.ibm.as400.access.TunnelProxyServer").toURL();
+			} else {
+				tunnelURL_ = uri.toURL();
+			}
        }
        catch (IOException e)
        {
