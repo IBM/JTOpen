@@ -747,18 +747,16 @@ public abstract class ConversionMaps
 
       ccsidEncoding_.put("924", "IBM00924");
 
-      encodingCcsid_.put("ibm5026", "930");
+      
       encodingCcsid_.put("ibm-930", "930");
       encodingCcsid_.put("ibm930", "930");
       encodingCcsid_.put("930", "930");
-      encodingCcsid_.put("5026", "930");
-      encodingCcsid_.put("ibm-5026", "930");
-      encodingCcsid_.put("Cp5026", "930");
       encodingCcsid_.put("cp930", "930");
       encodingCcsid_.put("Cp930", "930");
       encodingCcsid_.put("x-IBM930", "930");
-
+      
       ccsidEncoding_.put("930", "x-IBM930");
+      
 
       encodingCcsid_.put("ibm933", "933");
       encodingCcsid_.put("933", "933");
@@ -787,13 +785,10 @@ public abstract class ConversionMaps
 
       ccsidEncoding_.put("937", "x-IBM937");
 
-      encodingCcsid_.put("ibm5035", "939");
+      
       encodingCcsid_.put("cp939", "939");
       encodingCcsid_.put("Cp939", "939");
-      encodingCcsid_.put("5035", "939");
-      encodingCcsid_.put("ibm-5035", "939");
       encodingCcsid_.put("ibm-939", "939");
-      encodingCcsid_.put("cp5035", "939");
       encodingCcsid_.put("ibm939", "939");
       encodingCcsid_.put("939", "939");
       encodingCcsid_.put("x-IBM939", "939");
@@ -809,18 +804,18 @@ public abstract class ConversionMaps
 
       ccsidEncoding_.put("942", "x-IBM942");
 
-      encodingCcsid_.put("MS932", "943");
-      encodingCcsid_.put("windows-932", "943");
-      encodingCcsid_.put("csWindows31J", "943");
-      encodingCcsid_.put("x-IBM943", "943");
       encodingCcsid_.put("ibm943", "943");
       encodingCcsid_.put("943", "943");
       encodingCcsid_.put("ibm-943", "943");
       encodingCcsid_.put("cp943", "943");
       encodingCcsid_.put("Cp943", "943");
       encodingCcsid_.put("windows-31j", "943");
+      encodingCcsid_.put("MS932", "943");
+      encodingCcsid_.put("windows-932", "943");
+      encodingCcsid_.put("csWindows31J", "943");
+      encodingCcsid_.put("x-IBM943", "943");
 
-      ccsidEncoding_.put("943", "windows-31j");
+      ccsidEncoding_.put("943", "x-IBM943");
 
       encodingCcsid_.put("ibm-948", "948");
       encodingCcsid_.put("ibm948", "948");
@@ -840,17 +835,17 @@ public abstract class ConversionMaps
 
       ccsidEncoding_.put("949", "x-IBM949");
 
-      encodingCcsid_.put("csBig5", "950");
-      encodingCcsid_.put("big5-0", "950");
-      encodingCcsid_.put("x-IBM950", "950");
       encodingCcsid_.put("cp950", "950");
       encodingCcsid_.put("Cp950", "950");
       encodingCcsid_.put("ibm950", "950");
       encodingCcsid_.put("950", "950");
       encodingCcsid_.put("ibm-950", "950");
       encodingCcsid_.put("Big5", "950");
+      encodingCcsid_.put("csBig5", "950");
+      encodingCcsid_.put("big5-0", "950");
+      encodingCcsid_.put("x-IBM950", "950");
 
-      ccsidEncoding_.put("950", "Big5");
+      ccsidEncoding_.put("950", "x-IBM950");
 
       encodingCcsid_.put("JIS0208", "952");
       encodingCcsid_.put("JIS_C6226-1983", "952");
@@ -1317,6 +1312,12 @@ public abstract class ConversionMaps
 
       ccsidEncoding_.put("1379", "x-IBM1379");
 
+      encodingCcsid_.put("cp1381", "1381");
+      encodingCcsid_.put("Cp1381", "1381");
+      encodingCcsid_.put("ibm-1381", "1381");
+      encodingCcsid_.put("1381", "1381");
+      encodingCcsid_.put("ibm1381", "1381");
+      encodingCcsid_.put("GB2312", "1381");
       encodingCcsid_.put("euc-cn", "1381");
       encodingCcsid_.put("x-euc_cn", "1381");
       encodingCcsid_.put("gb2312", "1381");
@@ -1326,14 +1327,8 @@ public abstract class ConversionMaps
       encodingCcsid_.put("euc_cn", "1381");
       encodingCcsid_.put("gb2312-1980", "1381");
       encodingCcsid_.put("x-IBM1381", "1381");
-      encodingCcsid_.put("cp1381", "1381");
-      encodingCcsid_.put("Cp1381", "1381");
-      encodingCcsid_.put("ibm-1381", "1381");
-      encodingCcsid_.put("1381", "1381");
-      encodingCcsid_.put("ibm1381", "1381");
-      encodingCcsid_.put("GB2312", "1381");
 
-      ccsidEncoding_.put("1381", "GB2312");
+      ccsidEncoding_.put("1381", "x-IBM1381");
 
       encodingCcsid_.put("ibm1383", "1383");
       encodingCcsid_.put("ibm-1383", "1383");
@@ -1389,6 +1384,22 @@ public abstract class ConversionMaps
 
       ccsidEncoding_.put("4933", "x-IBM4933");
 
+      encodingCcsid_.put("ibm5026", "5026");
+      encodingCcsid_.put("5026", "5026");
+      encodingCcsid_.put("ibm-5026", "5026");
+      encodingCcsid_.put("Cp5026", "5026");
+      encodingCcsid_.put("x-IBM5026", "5026");
+      
+      ccsidEncoding_.put("5026", "x-IBM5026");
+
+      encodingCcsid_.put("ibm5035", "5035");
+      encodingCcsid_.put("ibm-5035", "5035");
+      encodingCcsid_.put("5035", "5035");
+      encodingCcsid_.put("cp5035", "5035");
+      encodingCcsid_.put("x-IBM5035", "5035");
+
+      ccsidEncoding_.put("5035", "x-IBM5035");
+
       encodingCcsid_.put("csjisencoding", "5054");
       encodingCcsid_.put("iso2022jp", "5054");
       encodingCcsid_.put("ISO2022JP", "5054");
@@ -1439,7 +1450,6 @@ public abstract class ConversionMaps
       encodingCcsid_.put("x-IBM33722", "33722");
 
       ccsidEncoding_.put("33722", "x-IBM33722");
-
 
         ccsidEncoding_.put("17584", "UTF-16BE"); // IBM i doesn't support this, but other people use it.
 
