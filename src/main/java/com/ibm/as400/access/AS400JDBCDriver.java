@@ -1329,6 +1329,7 @@ endif JAVA9 */
 		if (proxyServerWasSpecifiedInUrl || proxyServerWasSpecifiedInProperties)
 			proxyServerWasSpecified = true;
 
+		
 		// If no proxy server was specified, and there is a secondary URL,
 		// simply pass the secondary URL to the DriverManager and ask it for
 		// an appropriate Connection object.
@@ -1346,7 +1347,7 @@ endif JAVA9 */
 
 		as400 = initializeAS400(dataSourceUrl, jdProperties);				   // @B3C
 
-		if (proxyServerWasSpecifiedInUrl)
+		if (proxyServerWasSpecifiedInUrl )
 		{
 			// A proxy server was specified in URL,
 			// so we need to inform the AS400 object.
@@ -1423,7 +1424,13 @@ endif JAVA9 */
 			//       where portNumber is optional.
 			try
 			{
-				as400.setProxyServer (proxyServerNameAndPort);
+			    // Also check for sock5 on this path
+	       boolean isSock5 = jdProperties.getBoolean(JDProperties.USE_SOCK5);
+	        if (isSock5) {
+	          as400.setSock5Server (proxyServerNameAndPort);
+	        } else {
+	          as400.setProxyServer (proxyServerNameAndPort);
+	        }
 				//as400.setProxyServerSecure (proxyServerSecure);  // TBD
 			}
 			catch (java.beans.PropertyVetoException e)
