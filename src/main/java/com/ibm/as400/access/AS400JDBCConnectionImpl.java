@@ -592,6 +592,7 @@ extends AS400JDBCConnection
 
 
             as400_.disconnectServer (server_);
+
             server_ = null;
         }
 
