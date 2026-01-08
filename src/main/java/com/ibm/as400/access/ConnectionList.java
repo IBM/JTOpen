@@ -152,8 +152,9 @@ final class ConnectionList
         }
 
         boolean threadUse = properties_.isThreadUsed();
+        boolean virtualThreads = properties_.isVirtualThreads();
         // create a new connection
-        PoolItem sys = new PoolItem (systemName_, userID_, poolAuth, secure, locale, service, connect, threadUse, socketProperties, ccsid, rootSystem);
+        PoolItem sys = new PoolItem (systemName_, userID_, poolAuth, secure, locale, service, connect, threadUse, virtualThreads, socketProperties, ccsid, rootSystem);
 
         // set the item is in use since we are going to return it to caller
         sys.setInUse(true);

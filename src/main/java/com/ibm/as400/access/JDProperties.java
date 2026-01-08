@@ -191,10 +191,11 @@ public class JDProperties implements Serializable, Cloneable {
   static final int TLS_TRUSTSTORE = 103;
   static final int TLS_TRUSTSTORE_PASSWORD = 104;
   static final int USE_SOCK5 = 105; // @greenscreens
+  static final int VIRTUAL_THREADS = 106; // @greenscreens
 
   // always add to the end of the array!
 
-  private static final int NUMBER_OF_ATTRIBUTES_ = 106;
+  private static final int NUMBER_OF_ATTRIBUTES_ = 107;
 
   // Property names.
   static final String ACCESS_ = "access";
@@ -303,6 +304,7 @@ public class JDProperties implements Serializable, Cloneable {
   static final String DESCRIBE_OPTION_ = "describe option"; // @F6A
   static final String DECIMAL_DATA_ERRORS_ = "decimal data errors";
   static final String USE_SOCK5_ = "use sock5"; // @greenscreens
+  static final String VIRTUAL_THREADS_ = "use virtual threads"; 
 
   // Common String objects. Using these will theoretically
   // cut down on the number of String allocations.
@@ -1646,6 +1648,14 @@ public class JDProperties implements Serializable, Cloneable {
     dpi_[i].choices[1] = TRUE_;
     defaults_[i] = EMPTY_;
 
+    i = VIRTUAL_THREADS;
+    dpi_[i] = new DriverPropertyInfo(VIRTUAL_THREADS_, "");
+    dpi_[i].description = "VIRTUAL_THREADS_DESC";
+    dpi_[i].required = false;
+    dpi_[i].choices = new String[2];
+    dpi_[i].choices[0] = FALSE_;
+    dpi_[i].choices[1] = TRUE_;
+    defaults_[i] = EMPTY_;
   }
 
   /**

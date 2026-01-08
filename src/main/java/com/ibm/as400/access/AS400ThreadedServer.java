@@ -14,12 +14,18 @@
 package com.ibm.as400.access;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.SocketException;
 import java.util.Hashtable;
 
 final class AS400ThreadedServer extends AS400Server implements Runnable
 {
-    private static int threadCount_ = 0;
+	private static final boolean VIRTUAL_THREADS_AVAILABLE;
+	private static final Method OF_VIRTUAL_METHOD;
+	private static final Method UNSTARTED_METHOD;
+	private static final Method NAME_METHOD;
+	
+	private static int threadCount_ = 0;
 
     private AS400ImplRemote system_;
     private boolean disconnecting_ = false;
@@ -184,7 +190,51 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
     private final CorrelationIdLock correlationIdLock_ = new CorrelationIdLock();
     private final ReceiveLock receiveLock_ = new ReceiveLock();
 
-    AS400ThreadedServer(AS400ImplRemote system, int service, SocketContainer socket, String jobString) throws IOException
+	static {
+		boolean available = false;
+		Method ofVirtual = null;
+		Method unstarted = null;
+		Method name = null;
+
+		try {
+			Class<?> threadClass = Thread.class;
+
+			// Check if Thread.ofVirtual() exists
+			ofVirtual = threadClass.getMethod("ofVirtual");
+			// Check if unstarted(Runnable) exists on the returned object
+			Class<?> ofVirtualClass = ofVirtual.getReturnType();
+			name = ofVirtualClass.getMethod("name", String.class);
+			unstarted = ofVirtualClass.getMethod("unstarted", Runnable.class);
+
+			available = true;
+		} catch (NoSuchMethodException e) {
+			available = false;
+		}
+
+		VIRTUAL_THREADS_AVAILABLE = available;
+		OF_VIRTUAL_METHOD = ofVirtual;
+		NAME_METHOD = name;
+		UNSTARTED_METHOD = unstarted;
+	}
+
+	public static Thread newThread(Runnable r, String name, boolean virtual) {
+		if (virtual && VIRTUAL_THREADS_AVAILABLE) {
+			try {
+				Object ofVirtual = OF_VIRTUAL_METHOD.invoke(null); // Thread.ofVirtual()
+				ofVirtual = NAME_METHOD.invoke(ofVirtual, name);
+				return (Thread) UNSTARTED_METHOD.invoke(ofVirtual, r); // unstarted(r)
+			} catch (Exception e) {
+				// silently fall back to normal daemon threads
+			}
+		}
+		// Fallback to normal thread if reflection fails
+		Thread t = new Thread(r, name);
+		t.setDaemon(true);
+
+		return t;
+	}
+
+    AS400ThreadedServer(AS400ImplRemote system, int service, SocketContainer socket, String jobString, boolean virtual) throws IOException
     {
         system_ = system;
         service_ = service;
@@ -204,8 +254,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         if (jobString != null && jobString.length() != 0) jobID = jobString;
         else jobID = AS400.getServerName(service) + "/" + (++threadCount_);
 
-        readDaemon_ = new Thread(this, "AS400 Read Daemon [system:"+system.getSystemName() + ";job:" + jobID + "]");
-        readDaemon_.setDaemon(true);
+        readDaemon_ = newThread(this, "AS400 Read Daemon [system:"+system.getSystemName() + ";job:" + jobID + "]", virtual);
         readDaemon_.start();
     }
 

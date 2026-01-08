@@ -104,6 +104,7 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable,
     private static final String PRETEST_CONNECTIONS_PROPERTY = "pretestConnections";
     private static final String RUN_MAINTENANCE_PROPERTY = "runMaintenance";
     private static final String THREAD_USED_PROPERTY = "threadUsed";
+    private static final String VIRTUAL_THREADS_PROPERTY = "virtualThreads";
 
     /**
        Indicates that the CCSID used for new connections is the same as the system default CCSID.
@@ -171,6 +172,9 @@ public class AS400ConnectionPool extends ConnectionPool implements Serializable,
                     break;
                 case THREAD_USED_PROPERTY:
                     setThreadUsed(Boolean.parseBoolean(value));
+                    break;
+                case VIRTUAL_THREADS_PROPERTY:
+                	setVirtualThreads(Boolean.parseBoolean(value));
                     break;
                 default:
                     if (SocketProperties.isSocketProperty(property)) {

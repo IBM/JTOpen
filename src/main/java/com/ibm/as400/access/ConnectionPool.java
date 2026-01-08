@@ -451,4 +451,13 @@ public abstract class ConnectionPool implements Serializable
     public void setThreadUsed(boolean useThreads) {
         properties_.setThreadUsed(useThreads, isInUse());
     }
+    
+    /**
+     *  Sets whether the IBM Toolbox for Java uses virtual threads.
+     *  The default value is false.
+     *  @param virtualThreads true to use virtual threads; false otherwise.
+     **/
+    public void setVirtualThreads(boolean virtualThreads) {
+        properties_.setVirtualThreads(virtualThreads, isInUse());
+    }
 }
