@@ -173,6 +173,8 @@ public class AS400 implements Serializable, AutoCloseable
     private static boolean defaultMustUseSuppliedProfile_ = false;
     // Default setting for threadUsed property.
     private static boolean defaultThreadUsed_ = true;
+    // Default setting for virtualThreads property.
+    private static boolean defaultVirtualThreads_ = false;
     
     boolean skipSignonServer_ = false;
     public String currentLib_ = "*CURUSR";
@@ -351,6 +353,8 @@ public class AS400 implements Serializable, AutoCloseable
     private boolean mustUseSuppliedProfile_ = defaultMustUseSuppliedProfile_;
     // Flag that indicates if we use threads in communication with the host servers.
     private boolean threadUsed_ = defaultThreadUsed_;
+    // Flag that indicates if we use virtual threads
+    private boolean virtualThreads_ = defaultVirtualThreads_;
     // Locale object to use for determining NLV.
     private Locale locale_ = Locale.getDefault();
     // The NLV set or determined from the locale.
@@ -1082,6 +1086,7 @@ public class AS400 implements Serializable, AutoCloseable
         mustUseNetSockets_ = system.mustUseNetSockets_;
         mustUseSuppliedProfile_ = system.mustUseSuppliedProfile_;
         threadUsed_ = system.threadUsed_;
+        virtualThreads_ = system.virtualThreads_;
         locale_ = system.locale_;
         nlv_ = system.nlv_;
         socketProperties_.copyValues(system.socketProperties_);
@@ -1813,7 +1818,7 @@ public class AS400 implements Serializable, AutoCloseable
         
         if (!propertiesFrozen_)
         {
-            impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, ccsid_, nlv_, 
+            impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, virtualThreads_, ccsid_, nlv_, 
                            socketProperties_, ddmRDB_, mustUseNetSockets_, mustUseSuppliedProfile_, mustAddLanguageLibrary_);
             propertiesFrozen_ = true;
         }
@@ -3645,6 +3650,18 @@ public class AS400 implements Serializable, AutoCloseable
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if thread is used:", threadUsed_);
         return threadUsed_;
     }
+    
+    /**
+     * Indicates whether threads are used in communication with the host servers.
+     * 
+     * @return true if threads are used; false otherwise.
+     **/
+    public boolean isVirtualThreads()
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Checking if virtual threads are used:", virtualThreads_);
+        return virtualThreads_;
+    }
+
 
     /**
      * Indicates if the default user should be used by this object. If the default user is not used and a user ID was
@@ -5360,6 +5377,44 @@ public class AS400 implements Serializable, AutoCloseable
             threadUsed_ = useThreads;
             if (propertyChangeListeners_ != null)
                 propertyChangeListeners_.firePropertyChange("threadUsed", oldValue, newValue);
+        }
+    }
+    
+    /**
+     * Sets whether the IBM Toolbox for Java uses virtual threads in communication with the host servers. The default is false.
+     * The virtual thread used property cannot be changed once a connection to the system has been established.
+     * 
+     * <p>
+     * Note: This property may also be set by specifying 'true' or 'false' in Java system property
+     * <tt>com.ibm.as400.access.AS400.virtualThreads</tt>
+     * 
+     * @param virtualThreads true to use virtual threads; false otherwise.
+     * @exception ExtendedIllegalStateException  If a connection has already been made.
+     * @exception PropertyVetoException If any of the registered listeners vetos the property change.
+     **/ 
+    public void setVirtualThreads(boolean virtualThreads) throws PropertyVetoException
+    {
+        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Setting thread used:", virtualThreads);
+
+        if (propertiesFrozen_)
+        {
+            Trace.log(Trace.ERROR, "Cannot set thread used after connection has been made.");
+            throw new ExtendedIllegalStateException("threadUsed", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+        }
+
+        if (propertyChangeListeners_ == null && vetoableChangeListeners_ == null)
+            virtualThreads_ = virtualThreads;
+        else
+        {
+            Boolean oldValue = Boolean.valueOf(virtualThreads_);
+            Boolean newValue = Boolean.valueOf(virtualThreads);
+
+            if (vetoableChangeListeners_ != null)
+                vetoableChangeListeners_.fireVetoableChange("virtualThreads", oldValue, newValue);
+
+            virtualThreads_ = virtualThreads;
+            if (propertyChangeListeners_ != null)
+                propertyChangeListeners_.firePropertyChange("virtualThreads", oldValue, newValue);
         }
     }
 

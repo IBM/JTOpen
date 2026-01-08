@@ -60,6 +60,7 @@ class ConnectionPoolProperties implements Serializable
   private long maxUseTime_ = -1;                  // maximum usage time, release after this period, -1 for never
   private boolean pretestConnections_ = defaultPretestConnections_;
   private boolean useThreads_ = true;
+  private boolean virtualThreads_ = false;
   private int ccsid_ = -1;                        // CCSID to use when creating connections
 
   transient private PropertyChangeSupport changes_;
@@ -109,7 +110,16 @@ class ConnectionPoolProperties implements Serializable
    	return useThreads_;
   }
 
-
+  /**
+  *  Indicates whether threads are used in communication with the host servers.
+  *  The default value is true.
+  *  @return true if threads are used; false otherwise.
+  **/
+  public boolean isVirtualThreads()
+  {
+   	return virtualThreads_;
+  }
+  
 	/**
 	*  Returns the CCSID used for connections in the pool.
 	*  Special value {@link #CCSID_DEFAULT CCSID_DEFAULT} is the default.

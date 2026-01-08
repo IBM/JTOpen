@@ -234,7 +234,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
 		return t;
 	}
 
-    AS400ThreadedServer(AS400ImplRemote system, int service, SocketContainer socket, String jobString) throws IOException
+    AS400ThreadedServer(AS400ImplRemote system, int service, SocketContainer socket, String jobString, boolean virtual) throws IOException
     {
         system_ = system;
         service_ = service;
@@ -254,7 +254,7 @@ final class AS400ThreadedServer extends AS400Server implements Runnable
         if (jobString != null && jobString.length() != 0) jobID = jobString;
         else jobID = AS400.getServerName(service) + "/" + (++threadCount_);
 
-        readDaemon_ = newThread(this, "AS400 Read Daemon [system:"+system.getSystemName() + ";job:" + jobID + "]", true);
+        readDaemon_ = newThread(this, "AS400 Read Daemon [system:"+system.getSystemName() + ";job:" + jobID + "]", virtual);
         readDaemon_.start();
     }
 

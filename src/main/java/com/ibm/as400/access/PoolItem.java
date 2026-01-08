@@ -50,7 +50,7 @@ class PoolItem
      *
      **/
     PoolItem(String systemName, String userID, AS400ConnectionPoolAuthentication poolAuth, boolean secure, Locale locale,
-           int service, boolean connect, boolean threadUse, SocketProperties socketProperties, int ccsid, AS400 rootSystem) throws AS400SecurityException, IOException
+           int service, boolean connect, boolean threadUse, boolean virtualThreads, SocketProperties socketProperties, int ccsid, AS400 rootSystem) throws AS400SecurityException, IOException
     {
         char[] password = null;
         
@@ -93,7 +93,10 @@ class PoolItem
                 AS400object_.setGuiAvailable(false);
 
             if (!threadUse)                  
-                AS400object_.setThreadUsed(false);    
+                AS400object_.setThreadUsed(false);
+            
+            if (virtualThreads)                  
+                AS400object_.setVirtualThreads(true);    
                                           
             if (socketProperties != null)
                 AS400object_.setSocketProperties(socketProperties);
