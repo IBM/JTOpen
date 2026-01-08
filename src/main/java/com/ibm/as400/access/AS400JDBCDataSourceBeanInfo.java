@@ -500,7 +500,13 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo {
      useSock5.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_USE_SOCK5", null));
      useSock5.setShortDescription(AS400JDBCDriver.getResource("USE_SOCK5_DESC", null));
 
-
+			PropertyDescriptor virtualThreads = new PropertyDescriptor("virtualThreads", beanClass, "isVirtualThreads",
+					"setVirtualThreads");
+			virtualThreads.setBound(true);
+			virtualThreads.setConstrained(false);
+			virtualThreads.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_VIRTUAL_THREADS", null));
+			virtualThreads.setShortDescription(AS400JDBCDriver.getResource("VIRTUAL_THREADS_DESC", null));
+		
 			PropertyDescriptor keepAlive = new PropertyDescriptor("keepAlive", beanClass, "isKeepAlive",
 					"setKeepAlive");
 			keepAlive.setBound(true);
