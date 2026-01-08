@@ -4392,7 +4392,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
     /**
     *  Sets the flag to use virtual threads
-    *  @param threadUsed true if a virtual thread is used; false otherwise.
+    *  @param virtualThreads true if a virtual thread is used; false otherwise.
     *  The default value is false.
     **/
     public void setVirtualThreads(boolean virtualThreads)
