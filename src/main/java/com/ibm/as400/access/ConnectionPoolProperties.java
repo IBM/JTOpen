@@ -111,9 +111,9 @@ class ConnectionPoolProperties implements Serializable
   }
 
   /**
-  *  Indicates whether threads are used in communication with the host servers.
+  *  Indicates whether virtual threads are used in communication with the host servers.
   *  The default value is true.
-  *  @return true if threads are used; false otherwise.
+  *  @return true if virtual threads are used; false otherwise.
   **/
   public boolean isVirtualThreads()
   {
@@ -381,6 +381,37 @@ class ConnectionPoolProperties implements Serializable
 
     useThreads_ = useThreads;
     if (changes_ != null) changes_.firePropertyChange(property, Boolean.valueOf(oldValue), Boolean.valueOf(useThreads));
+
+  }
+  
+  /**
+   *  Sets whether the IBM Toolbox for Java uses virtual threads in communication with the host servers
+   *  and whether the pool uses threads for running maintenance.   
+   *  The default value is false.   
+   *  @param useThreads true to use threads; false otherwise.
+   * @param isInUse 
+   **/
+  public void setVirtualThreads(boolean virtualThreads, boolean isInUse)
+  {
+    if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "ConnectionPoolProperties.setThreadUsed("+virtualThreads+","+isInUse+")");
+
+    String property = "threadUsed";
+    //
+    // If the value does not change, just return
+    // 
+    if (virtualThreads_ == virtualThreads) { 
+      return; 
+    }
+    
+    if (isInUse)
+      throw new ExtendedIllegalStateException(property, ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+
+//    Boolean oldValue = Boolean.valueOf(isThreadUsed());
+//    Boolean newValue = Boolean.valueOf(useThreads);
+    boolean oldValue = virtualThreads_;
+
+    virtualThreads_ = virtualThreads;
+    if (changes_ != null) changes_.firePropertyChange(property, Boolean.valueOf(oldValue), Boolean.valueOf(virtualThreads));
 
   }
 
