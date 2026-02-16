@@ -3624,7 +3624,11 @@ void postWarningSQLState(String sqlState)  {
               value = null;
             } else {
               value = data.getString();
-              if (trimCharFields_) {
+              int sqlType = 0; 
+              if (data != null) {
+                sqlType = data.getSQLType(); 
+              }
+              if (trimCharFields_ && (sqlType == SQLData.CHAR)) {
                 if (value == null) return null;
                 int end = value.length();
                 while (end > 0 && value.charAt(end - 1) == ' ') {
