@@ -487,6 +487,13 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo {
 			translateBinary.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRANSLATE_BINARY", null));
 			translateBinary.setShortDescription(AS400JDBCDriver.getResource("TRANSLATE_BINARY_DESC", null));
 
+			PropertyDescriptor trimCharFields = new PropertyDescriptor("trimCharFields", beanClass,
+					"isTrinCharFields", "setTrinCharFields");
+			trimCharFields.setBound(true);
+			trimCharFields.setConstrained(false);
+			trimCharFields.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_TRIM_CHAR_FIELDS", null));
+			trimCharFields.setShortDescription(AS400JDBCDriver.getResource("TRIM_CHAR_FIELDS_DESC", null));
+
 			PropertyDescriptor user = new PropertyDescriptor("user", beanClass, "getUser", "setUser");
 			user.setBound(true);
 			user.setConstrained(false);

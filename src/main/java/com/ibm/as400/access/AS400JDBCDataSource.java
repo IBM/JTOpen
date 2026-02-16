@@ -2132,6 +2132,17 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         return properties_.getBoolean(JDProperties.TRANSLATE_BINARY);
     }
 
+    /**
+    *  Indicates whether char fields are trimmed.  If this property is set
+    *  to true, then trailing Blanks in CHAR fields are removed.
+    *  @return true if char fields are trimmed; false otherwise.
+    *  The default value is false.
+    **/
+    public boolean isTrimCharFields()
+    {
+        return properties_.getBoolean(JDProperties.TRIM_CHAR_FIELDS);
+    }
+
     //@PDA
     /**
     *  Indicates how Boolean objects are interpreted when setting the value 
@@ -4592,6 +4603,29 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
 
         if (JDTrace.isTraceOn()) //@A8C
             JDTrace.logInformation (this, property + ": " + translate);  //@A8C
+    }
+
+    /**
+    *  Sets whether trailing blanks in CHAR fields should be removed.
+    *  @param trim_char_fields true if char Fields should be trimmed; false otherwise
+    *  The default value is false.
+    **/
+    public void setTrimCharFields(boolean trim_char_fields)
+    {
+        String property = "trimCharFields";
+
+        Boolean oldValue = Boolean.valueOf(isTrimCharFields());
+        Boolean newValue = Boolean.valueOf(trim_char_fields);
+
+        if (trim_char_fields)
+            properties_.setString(JDProperties.TRIM_CHAR_FIELDS, TRUE_);
+        else
+            properties_.setString(JDProperties.TRIM_CHAR_FIELDS, FALSE_);
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) //@A8C
+            JDTrace.logInformation (this, property + ": " + trim_char_fields);  //@A8C
     }
     
     //@PDA

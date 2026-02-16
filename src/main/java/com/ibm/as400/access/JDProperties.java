@@ -192,10 +192,11 @@ public class JDProperties implements Serializable, Cloneable {
   static final int TLS_TRUSTSTORE_PASSWORD = 104;
   static final int USE_SOCK5 = 105; // @greenscreens
   static final int VIRTUAL_THREADS = 106; // @greenscreens
+  static final int TRIM_CHAR_FIELDS = 107;
 
   // always add to the end of the array!
 
-  private static final int NUMBER_OF_ATTRIBUTES_ = 107;
+  private static final int NUMBER_OF_ATTRIBUTES_ = 108;
 
   // Property names.
   static final String ACCESS_ = "access";
@@ -273,6 +274,7 @@ public class JDProperties implements Serializable, Cloneable {
   static final String TRANSACTION_ISOLATION_ = "transaction isolation";
   static final String TRANSLATE_BINARY_ = "translate binary";
   static final String TRANSLATE_HEX_ = "translate hex";
+  static final String TRIM_CHAR_FIELDS_ = "trim char fields";
   static final String USER_ = "user"; // @native
   static final String USE_DRDA_METADATA_VERSION_ = "use drda metadata version";
   static final String QAQQINILIB_ = "qaqqinilib";
@@ -1236,6 +1238,16 @@ public class JDProperties implements Serializable, Cloneable {
     i = TRANSLATE_BINARY;
     dpi_[i] = new DriverPropertyInfo(TRANSLATE_BINARY_, "");
     dpi_[i].description = "TRANSLATE_BINARY_DESC";
+    dpi_[i].required = false;
+    dpi_[i].choices = new String[2];
+    dpi_[i].choices[0] = TRUE_;
+    dpi_[i].choices[1] = FALSE_;
+    defaults_[i] = FALSE_;
+
+    // Trim Char Fields
+    i = TRIM_CHAR_FIELDS;
+    dpi_[i] = new DriverPropertyInfo(TRIM_CHAR_FIELDS_, "");
+    dpi_[i].description = "TRIM_CHAR_FIELDS_DESC";
     dpi_[i].required = false;
     dpi_[i].choices = new String[2];
     dpi_[i].choices[0] = TRUE_;
