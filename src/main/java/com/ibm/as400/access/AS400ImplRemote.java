@@ -109,6 +109,8 @@ public class AS400ImplRemote implements AS400Impl
   private boolean canUseNativeOptimization_ = true;
   // Flag that indicates if we use threads in communication with the host servers.
   private boolean threadUsed_ = true;
+  // Flag that indicates if we use virtual threads in communication with the host servers.
+  private boolean virtualThreads_ = true;
 
   // CCSID to use in conversations with the system.
   private int ccsid_ = 0;
@@ -1684,7 +1686,7 @@ public class AS400ImplRemote implements AS400Impl
           // the AS400Server object before passing it back to the caller.
 
           // Construct a new server...
-          server = (threadUsed_) ? new AS400ThreadedServer(this, service, socketContainer, jobString)
+          server = (threadUsed_) ? new AS400ThreadedServer(this, service, socketContainer, jobString, virtualThreads_)
                                  : new AS400NoThreadServer(this, service, socketContainer, jobString);
       }
       else 
@@ -1795,7 +1797,7 @@ public class AS400ImplRemote implements AS400Impl
           jobString = obtainJobIdForConnection(HCSRouteReply.getJobNameBytes());
 
           // Construct a new server...
-          return (threadUsed_) ? new AS400ThreadedServer(this, service, socketContainer, jobString)
+          return (threadUsed_) ? new AS400ThreadedServer(this, service, socketContainer, jobString, virtualThreads_)
                                : new AS400NoThreadServer(this, service, socketContainer, jobString);
       }
       catch (IOException | AS400SecurityException | RuntimeException e)
@@ -3251,7 +3253,7 @@ public class AS400ImplRemote implements AS400Impl
   // Set the state variables for this implementation object.
   @Override
   public void setState(SSLOptions useSSLConnection,
-      boolean canUseNativeOptimization, boolean threadUsed, int ccsid,
+      boolean canUseNativeOptimization, boolean threadUsed, boolean virtualThreads, int ccsid,
       String nlv, SocketProperties socketProperties, String ddmRDB,
       boolean mustUseNetSockets, boolean mustUseSuppliedProfile,
       boolean mustAddLanguageLibrary)
@@ -3274,6 +3276,7 @@ public class AS400ImplRemote implements AS400Impl
       useSSLConnection_ = useSSLConnection;
       canUseNativeOptimization_ = canUseNativeOptimization;
       threadUsed_ = threadUsed;
+      virtualThreads_ = virtualThreads; 
       if (ccsid != 0)
       {
           userOverrideCcsid_ = true;

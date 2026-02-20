@@ -316,11 +316,11 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
 
     // Set the significant instance variables for the AS400ImplRemote object.
     @Override
-    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB, boolean mustUseNetSockets, boolean mustUseSuppliedProfile, boolean mustAddLanguageLibrary)
+    public void setState(SSLOptions useSSLConnection, boolean canUseNativeOptimization, boolean threadUsed, boolean virtualThreads, int ccsid, String nlv, SocketProperties socketProperties, String ddmRDB, boolean mustUseNetSockets, boolean mustUseSuppliedProfile, boolean mustAddLanguageLibrary)
     {
         try
         {
-            connection_.callMethod(pxId_, "setState", new Class[] { SSLOptions.class, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, String.class, SocketProperties.class, String.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE }, new Object[] { useSSLConnection, Boolean.valueOf(canUseNativeOptimization), Boolean.valueOf(threadUsed), Integer.valueOf(ccsid), nlv, socketProperties, ddmRDB, Boolean.valueOf(mustUseNetSockets), Boolean.valueOf(mustUseSuppliedProfile), Boolean.valueOf(mustAddLanguageLibrary) } );
+            connection_.callMethod(pxId_, "setState", new Class[] { SSLOptions.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE, Integer.TYPE, String.class, SocketProperties.class, String.class, Boolean.TYPE, Boolean.TYPE, Boolean.TYPE }, new Object[] { useSSLConnection, Boolean.valueOf(canUseNativeOptimization), Boolean.valueOf(threadUsed), Boolean.valueOf(virtualThreads), Integer.valueOf(ccsid), nlv, socketProperties, ddmRDB, Boolean.valueOf(mustUseNetSockets), Boolean.valueOf(mustUseSuppliedProfile), Boolean.valueOf(mustAddLanguageLibrary) } );
         }
         catch (InvocationTargetException e)
         {

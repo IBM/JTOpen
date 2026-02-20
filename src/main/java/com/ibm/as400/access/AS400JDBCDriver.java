@@ -1106,6 +1106,7 @@ endif JAVA9 */
 		String prompt     = jdProperties.getString (JDProperties.PROMPT);	// @B8C
 		boolean secure    = jdProperties.getBoolean (JDProperties.SECURE);
 		boolean useThreads = jdProperties.getBoolean(JDProperties.THREAD_USED);
+		boolean virtualThreads = jdProperties.getBoolean(JDProperties.VIRTUAL_THREADS);
 
 		// Updated 2023 to not pass old Properties information.
 		// Everything should be in the JDProperties object
@@ -1233,6 +1234,13 @@ endif JAVA9 */
                 try{
                     if(!useThreads)
                         as400.setThreadUsed(useThreads);
+                }
+                catch(java.beans.PropertyVetoException e){
+                }
+                //Determine if virtual threads should be used in communication with the host servers
+                try{
+                    if(virtualThreads)
+                        as400.setVirtualThreads(virtualThreads);
                 }
                 catch(java.beans.PropertyVetoException e){
                 }

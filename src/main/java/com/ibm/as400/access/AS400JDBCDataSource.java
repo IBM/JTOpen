@@ -691,6 +691,14 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         { /*ignore*/                                                        //@PDA
         }                                                                   //@PDA
         
+        try
+        {
+            if(as400_.isVirtualThreads())
+                as400Object.setVirtualThreads(true);
+        } catch (PropertyVetoException pve)
+        { /*ignore*/
+        }
+
         //set gui available on the new object to false if user turned prompting off
         try
         {                                                                   //@C2A                                
@@ -1209,6 +1217,15 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     public boolean isUseSock5()
     {
         return properties_.getBoolean(JDProperties.USE_SOCK5);
+    }
+    
+    /**
+    * Indicates whether virtual threads are used.
+    *  @return Returns true if the driver will try to use virtual threads 
+    **/
+    public boolean isVirtualThreads()
+    {
+        return properties_.getBoolean(JDProperties.VIRTUAL_THREADS);
     }
     
     /**
@@ -3911,7 +3928,6 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         if (JDTrace.isTraceOn()) 
             JDTrace.logInformation (this, property + ": " + value);      
     }
-
     
     /**
     *  Sets the source of the text for REMARKS columns in ResultSets returned
@@ -4374,6 +4390,33 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
             JDTrace.logInformation (this, "threadUsed: " + threadUsed);  //@A8C
     }
 
+    /**
+    *  Sets the flag to use virtual threads
+    *  @param virtualThreads true if a virtual thread is used; false otherwise.
+    *  The default value is false.
+    **/
+    public void setVirtualThreads(boolean virtualThreads)
+    {
+        String property = JDProperties.VIRTUAL_THREADS_  ;
+        Boolean oldValue = Boolean.valueOf(isVirtualThreads());
+        Boolean newValue = Boolean.valueOf(virtualThreads);
+
+        properties_.setString(JDProperties.VIRTUAL_THREADS, virtualThreads ? TRUE_ : FALSE_);
+        
+        try
+        {                                     
+            as400_.setVirtualThreads(virtualThreads);                       
+        }                                                            
+        catch (PropertyVetoException pve)                            
+        { /* Will never happen */                                    
+        }
+
+        changes_.firePropertyChange(property, oldValue, newValue);
+
+        if (JDTrace.isTraceOn()) 
+            JDTrace.logInformation (this, property + ": " + virtualThreads);      
+    }
+    
     /**
     *  Sets the time format used in time literals with SQL statements.
     *  @param timeFormat The time format.

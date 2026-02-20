@@ -2450,6 +2450,15 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
   public boolean isUseSock5() {
     return properties_.getBoolean(JDProperties.USE_SOCK5);
   }
+  /**
+   * Indicates whether virtual threads are used
+   * 
+   * @return true if virtual threads are used; false otherwise. The default value
+   *         is false.
+   **/
+  public boolean isVirtualThreads() {
+    return properties_.getBoolean(JDProperties.VIRTUAL_THREADS);
+  }
 
   /**
    * Indicates whether a thread is used.
@@ -4546,6 +4555,15 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
       properties_.setString(JDProperties.USE_SOCK5, FALSE_);
   }
 
+  /**
+   * Sets whether virtual threads should be used
+   * 
+   * @param virtualThreads true if virtual threads should be used. The
+   *                  default value is false.
+   **/
+  public void setVirtualThreads(boolean virtualThreads) {
+    properties_.setString(JDProperties.VIRTUAL_THREADS, virtualThreads ? TRUE_ : FALSE_);
+  }
 
   /**
    * Sets whether lock sharing is allowed for loosely coupled transaction
