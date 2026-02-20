@@ -5751,14 +5751,8 @@ throws SQLException
      * 	When the abort method returns, the connection will have been marked as closed
      * 	and the Executor that was passed as a parameter to abort may still be executing
      * 	tasks to release resources.
-     * <p>
-     * This method checks to see that there is an SQLPermission object before
-     * 	allowing the method to proceed. If a SecurityManager exists and its
-     * 	checkPermission method denies calling abort, this method throws a
-     * 	java.lang.SecurityException.
     	* @param executor The Executor implementation which will be used by abort.
       * @throws  SQLException - if a database access error occurs or the executor is null
-      * @throws  SecurityException - if a security manager exists and its checkPermission
       *	method denies calling abort
      */
 /* ifdef JDBC40 */
@@ -5772,12 +5766,6 @@ throws SQLException
          JDError.throwSQLException(JDError.EXC_PARAMETER_TYPE_INVALID);
     }
 
-    // Check for authority
-    SecurityManager security = System.getSecurityManager();
-    if (security != null) {
-         SQLPermission sqlPermission = new SQLPermission("callAbort");
-         security.checkPermission(sqlPermission);
-    }
 
     // Calling on a close connection is a no-op
       if (aborted_ || (server_ == null))  {
@@ -5841,10 +5829,6 @@ throws SQLException
     *<p>When the driver determines that the setNetworkTimeout timeout value 
     *   has expired, the JDBC driver marks the connection closed and releases 
     *   any resources held by the connection.
-    *<p>This method checks to see that there is an SQLPermission object before 
-    * allowing the method to proceed.
-    * If a SecurityManager exists and its checkPermission method denies calling 
-    * setNetworkTimeout, this method throws a java.lang.SecurityException.
     *@param timeout - The time in milliseconds to wait for the database 
     * operation to complete. If the JDBC driver does not support milliseconds, 
     * the JDBC driver will round the value up to the nearest second.
@@ -5854,9 +5838,6 @@ throws SQLException
     * @throws  SQLException - if a database access error occurs, this method is
     *  called on a closed connection,or the value specified for seconds is less 
     *  than 0.
-    * @throws  SecurityException - if a security manager exists and its 
-    *  checkPermission method denies calling setNetworkTimeout.
-    * @see SecurityManager#checkPermission(java.security.Permission)
     * @see Statement#setQueryTimeout(int)
     * @see #getNetworkTimeout()
      * @see #abort(java.util.concurrent.Executor)
@@ -5865,14 +5846,6 @@ throws SQLException
 
    public void setNetworkTimeout(int timeout) throws SQLException {
 
-/* ifdef JDBC40 */
-
-     SecurityManager security = System.getSecurityManager();
-     if (security != null) {
-          SQLPermission sqlPermission = new SQLPermission("setNetworkTimeout");
-          security.checkPermission(sqlPermission);
-     }
-/* endif */ 
 
 
      // Make sure that the THREAD_USED property is false. The default is true
@@ -5954,9 +5927,6 @@ throws SQLException
      * will be released and both the connection and statement will be unusable.
      *<p>When the driver determines that the setNetworkTimeout timeout value has expired, the JDBC driver marks
      * the connection closed and releases any resources held by the connection.
-     *<p>This method checks to see that there is an SQLPermission object before allowing the method to proceed.
-     * If a SecurityManager exists and its checkPermission method denies calling setNetworkTimeout, this method
-     * throws a java.lang.SecurityException.
      *@param executor - The Executor implementation which will be used by setNetworkTimeout.
      *@param milliseconds - The time in milliseconds to wait for the database operation to complete. If the
      * JDBC driver does not support milliseconds, the JDBC driver will round the value up to the nearest second.
@@ -5964,9 +5934,6 @@ throws SQLException
      * 0 indicates that there is not timeout for database operations.
      * @throws  SQLException - if a database access error occurs, this method is called on a closed connection,
      *  the executor is null, or the value specified for seconds is less than 0.
-     * @throws  SecurityException - if a security manager exists and its checkPermission method denies calling
-     *  setNetworkTimeout.
-     * @see  SecurityManager#checkPermission(java.security.Permission)
      * @see  Statement#setQueryTimeout(int)
      * @see  #getNetworkTimeout()
      * @see  #abort(java.util.concurrent.Executor)
@@ -5987,11 +5954,6 @@ throws SQLException
     }
 
     // Check for authority
-    SecurityManager security = System.getSecurityManager();
-    if (security != null) {
-         SQLPermission sqlPermission = new SQLPermission("setNetworkTimeout");
-         security.checkPermission(sqlPermission);
-    }
 
      // Make sure that the THREAD_USED property is false. The default is true
      String threadUsedProperty = properties_.getString(JDProperties.THREAD_USED);

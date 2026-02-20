@@ -108,40 +108,7 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
    static private Constructor permissionClassConstructor_ = null;
    static private String permissionCheckMethodName_ = "checkPermission";
    static private Method permissionCheckMethod_ = null;
-   static 
-   {
-      java.lang.SecurityManager sm = System.getSecurityManager();
-      if ( sm != null ) 
-         try
-         {
-            Class permissionClass_ = Class.forName(permissionClassName_);
-            permissionClassConstructor_ = permissionClass_.getConstructor(new Class[] {String.class});
-            permissionCheckMethod_ =
-            sm.getClass().getMethod(
-                                   permissionCheckMethodName_, new Class[] {Class.forName("java.security.Permission")});
-         }
-         catch ( java.security.AccessControlException acf )
-         {
-            Trace.log(Trace.WARNING,
-                      "Access to permission class is denied by SecurityManager, JAAS permissions will not be checked.", acf);
-         }
-         catch ( ClassNotFoundException cnf )
-         {
-            Trace.log(Trace.WARNING,
-                      "Unable to resolve permission class, JAAS permissions will not be checked.", cnf);
-         }
-         catch ( NoClassDefFoundError ncd )
-         {
-            Trace.log(Trace.WARNING,
-                      "Unable to resolve permission class, JAAS permissions will not be checked.", ncd);
-         }
-         catch ( NoSuchMethodException nsm )
-         {
-            Trace.log(Trace.WARNING,
-                      "Security manager does not implement method '" + permissionCheckMethodName_
-                      + "'. JAAS permissions will not be checked.", nsm);
-         }
-   }
+   
    /**
     * Constructs an AS400Credential object.
     *
@@ -230,9 +197,8 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
    /**
     * Checks the given permission for the caller.
     *
-    * <p> Does nothing if a security manager is not assigned
-    * or does not check permissions, or if the permission
-    * class is not present.
+    * <p> Does nothing since the use of a security manager 
+    * has been deprecated. 
     *
     * @exception SecurityException
     *		If the caller does not have the permission.
@@ -240,29 +206,6 @@ public abstract class AS400Credential implements java.io.Serializable, AS400Swap
     */
    void checkAuthenticationPermission(String p)
    {
-      java.lang.SecurityManager sm = System.getSecurityManager();
-      if ( sm != null
-           && permissionCheckMethod_ != null
-           && permissionClassConstructor_ != null )
-      {
-         try
-         {
-            permissionCheckMethod_.invoke(sm,
-                                          new Object[] {permissionClassConstructor_.newInstance(
-                                                                                               new Object[] {p})});
-         }
-         catch ( InvocationTargetException ite )
-         {
-            Trace.log(Trace.DIAGNOSTIC, "Authentication permission check failed: " + p);
-            Throwable t = ite.getTargetException();
-            if ( t instanceof SecurityException ) throw (SecurityException)t;
-            AuthenticationSystem.handleUnexpectedException(t);
-         }
-         catch ( Exception e )
-         {
-            AuthenticationSystem.handleUnexpectedException(e);
-         }
-      }
    }
    /**
     * Destroys the credential by destroying or clearing
