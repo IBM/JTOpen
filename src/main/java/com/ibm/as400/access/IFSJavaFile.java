@@ -46,8 +46,6 @@ import java.net.MalformedURLException;
  * you need to move the code to the IBM i integrated file system.
  * When a program is being ported and needs to use the IBM i
  * integrated file system, IFSJavaFile is a good choice.
- * IFSJavaFile also provides SecurityManager features defined in
- * java.io.File.
  * <li>
  * If you need to take full advantage of the IBM i integrated file
  * system, {@link IFSFile IFSFile} is more useful.  IFSFile is written to
@@ -74,10 +72,6 @@ import java.net.MalformedURLException;
  * <li>IFSJavaFile is designed to look more like
  *     java.io.File than IFSFile.  It is designed to enable
  *     a plug-in fit for previously written java.io.File code.
- * <li>IFSJavaFile always implements a SecurityManager using
- *     IBM i security.  The SecurityManager provides authority
- *     checks.  It throws security exceptions when illegal access
- *     attempts are made.
  * </ol>
  *
  * <p>
