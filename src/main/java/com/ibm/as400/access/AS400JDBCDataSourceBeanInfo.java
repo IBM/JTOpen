@@ -958,7 +958,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo {
 					portNumber, enableClientAffinitiesList, clientRerouteAlternateServerName,
 					clientRerouteAlternatePortNumber, affinityFailbackInterval, maxRetriesForClientReroute,
 					retryIntervalForClientReroute, enableSeamlessFailover, additionalAuthenticationFactor, stayAlive,tlsTruststore,tlsTruststorePassword,
-					useSock5 };
+					useSock5, virtualThreads };
 
 		} catch (Exception e) {
 			throw new Error(e);
