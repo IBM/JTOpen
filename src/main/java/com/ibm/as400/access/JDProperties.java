@@ -304,7 +304,7 @@ public class JDProperties implements Serializable, Cloneable {
   static final String DESCRIBE_OPTION_ = "describe option"; // @F6A
   static final String DECIMAL_DATA_ERRORS_ = "decimal data errors";
   static final String USE_SOCK5_ = "use sock5"; // @greenscreens
-  static final String VIRTUAL_THREADS_ = "use virtual threads"; 
+  static final String VIRTUAL_THREADS_ = "virtual threads"; 
 
   // Common String objects. Using these will theoretically
   // cut down on the number of String allocations.

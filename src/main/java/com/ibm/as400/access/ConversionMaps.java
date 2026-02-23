@@ -1274,6 +1274,27 @@ public abstract class ConversionMaps
 
       ccsidEncoding_.put("1258", "windows-1258");
 
+      encodingCcsid_.put("MacRoman",         "1275");
+      ccsidEncoding_.put("1275","MacRoman");
+      encodingCcsid_.put("MacGreek",         "1280");
+      ccsidEncoding_.put("1280", "MacGreek");
+      encodingCcsid_.put("MacTurkish",       "1281");
+      ccsidEncoding_.put("1281","MacTurkish");
+      encodingCcsid_.put("MacCentralEurope", "1282");
+      ccsidEncoding_.put("1282","MacCentralEurope");
+      encodingCcsid_.put("MacCyrillic",      "1283");
+      ccsidEncoding_.put("1283","MacCyrillic");
+      encodingCcsid_.put("MacCroatian",      "1284");
+      ccsidEncoding_.put("1284","MacCroatian");
+      encodingCcsid_.put("MacRomania",       "1285");
+      ccsidEncoding_.put("1285","MacRomania");
+      encodingCcsid_.put("MacIceland",       "1286");
+      ccsidEncoding_.put("1286","MacIceland");
+
+      
+      
+      
+      
       encodingCcsid_.put("cp1364", "1364");
       encodingCcsid_.put("ibm1364", "1364");
       encodingCcsid_.put("ibm-1364", "1364");
