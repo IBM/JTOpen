@@ -218,9 +218,9 @@ public class AS400Boolean implements AS400DataType
   public Object toObject(byte[] as400Value, int offset)
   {
     if (as400Value[offset] == SYSTEM_TRUE) 
-      return new Boolean(true) ;
+      return Boolean.TRUE;
       else if (as400Value[offset] == SYSTEM_FALSE)
-        return new Boolean(false); 
+        return Boolean.FALSE; 
       else
         throw new ArithmeticException("Unable to create boolean from 0x"+Integer.toHexString(0xff & as400Value[offset]));
 
