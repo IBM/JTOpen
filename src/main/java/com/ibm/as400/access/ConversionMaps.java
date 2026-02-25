@@ -1275,21 +1275,29 @@ public abstract class ConversionMaps
       ccsidEncoding_.put("1258", "windows-1258");
 
       encodingCcsid_.put("MacRoman",         "1275");
-      ccsidEncoding_.put("1275","MacRoman");
+      encodingCcsid_.put("x-MacRoman",         "1275");
+      ccsidEncoding_.put("1275","x-MacRoman");
       encodingCcsid_.put("MacGreek",         "1280");
-      ccsidEncoding_.put("1280", "MacGreek");
+      encodingCcsid_.put("x-MacGreek",         "1280");
+      ccsidEncoding_.put("1280", "x-MacGreek");
       encodingCcsid_.put("MacTurkish",       "1281");
-      ccsidEncoding_.put("1281","MacTurkish");
+      encodingCcsid_.put("x-MacTurkish",       "1281");
+      ccsidEncoding_.put("1281","x-MacTurkish");
       encodingCcsid_.put("MacCentralEurope", "1282");
-      ccsidEncoding_.put("1282","MacCentralEurope");
+      encodingCcsid_.put("x-MacCentralEurope", "1282");
+      ccsidEncoding_.put("1282","x-MacCentralEurope");
       encodingCcsid_.put("MacCyrillic",      "1283");
-      ccsidEncoding_.put("1283","MacCyrillic");
+      encodingCcsid_.put("x-MacCyrillic",      "1283");
+      ccsidEncoding_.put("1283","x-MacCyrillic");
       encodingCcsid_.put("MacCroatian",      "1284");
-      ccsidEncoding_.put("1284","MacCroatian");
+      encodingCcsid_.put("x-MacCroatian",      "1284");
+      ccsidEncoding_.put("1284","x-MacCroatian");
       encodingCcsid_.put("MacRomania",       "1285");
-      ccsidEncoding_.put("1285","MacRomania");
+      encodingCcsid_.put("x-MacRomania",       "1285");
+      ccsidEncoding_.put("1285","x-MacRomania");
       encodingCcsid_.put("MacIceland",       "1286");
-      ccsidEncoding_.put("1286","MacIceland");
+      encodingCcsid_.put("x-MacIceland",       "1286");
+      ccsidEncoding_.put("1286","x-MacIceland");
 
       
       
