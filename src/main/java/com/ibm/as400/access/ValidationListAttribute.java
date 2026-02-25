@@ -298,11 +298,11 @@ public int toBytes(byte[] buffer, int offset) {
 	
 	// declare objects for common fixed position fields
 	Integer[] fixedData = {
-		new Integer(struct_total_len), 	// total length
-		new Integer(getLocation()),		// attribute location
-		new Integer(getType()),			// attribute type
-		new Integer(struct_offset_id), 	// displacement to identifier
-		new Integer(struct_length_id) 	// length of identifier
+		Integer.valueOf(struct_total_len), 	// total length
+		Integer.valueOf(getLocation()),		// attribute location
+		Integer.valueOf(getType()),			// attribute type
+		Integer.valueOf(struct_offset_id), 	// displacement to identifier
+		Integer.valueOf(struct_length_id) 	// length of identifier
 	};
 
 	int position = offset;
@@ -346,12 +346,12 @@ private int toBytesNoData(byte[] buffer, int offset) {
 	
 	// declare objects for common fixed position fields
 	Integer[] fixedData = {
-		new Integer(struct_total_len), 	// total length
-		new Integer(getLocation()),		// attribute location
-		new Integer(getType()),			// attribute type
-		new Integer(struct_offset_id), 	// displacement to identifier
-		new Integer(struct_length_id) 	// length of identifier
-	};
+		Integer.valueOf(struct_total_len), // total length
+		Integer.valueOf(getLocation()), // attribute location
+		Integer.valueOf(getType()), // attribute type
+		Integer.valueOf(struct_offset_id), // displacement to identifier
+		Integer.valueOf(struct_length_id) // length of identifier
+    };
 
 	int position = offset;
 	
