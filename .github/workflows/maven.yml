@@ -55,7 +55,7 @@ jobs:
     - name: Build with Maven (Java 21)
       run: mvn -B package --file pom.xml
     - name: Upload dist artifacts
-      uses: actions/upload-artifact@v6
+      uses: actions/upload-artifact@v7
       with:
         name: Package
         path: staging
