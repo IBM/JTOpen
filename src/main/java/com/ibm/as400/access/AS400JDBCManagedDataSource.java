@@ -2490,6 +2490,17 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
     return properties_.getBoolean(JDProperties.TRANSLATE_BINARY);
   }
 
+    /**
+    *  Indicates whether char fields are trimmed.  If this property is set
+    *  to true, then trailing Blanks in CHAR fields are removed.
+    *  @return true if char fields are trimmed; false otherwise.
+    *  The default value is false.
+    **/
+    public boolean isTrimCharFields()
+    {
+        return properties_.getBoolean(JDProperties.TRIM_CHAR_FIELDS);
+    }
+
   // @PDA
   /**
    * Indicates how Boolean objects are interpreted when setting the value for a
@@ -4490,6 +4501,19 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
       properties_.setString(JDProperties.TRANSLATE_BINARY, TRUE_);
     else
       properties_.setString(JDProperties.TRANSLATE_BINARY, FALSE_);
+  }
+
+  /**
+  *  Sets whether trailing blanks in CHAR fields should be removed.
+  *  @param trim_char_fields true if char Fields should be trimmed; false otherwise
+  *  The default value is false.
+  **/
+  public void setTrimCharFields(boolean trim_char_fields)
+  {
+      if (trim_char_fields)
+          properties_.setString(JDProperties.TRIM_CHAR_FIELDS, TRUE_);
+      else
+          properties_.setString(JDProperties.TRIM_CHAR_FIELDS, FALSE_);
   }
 
   // @PDA

@@ -210,6 +210,7 @@ implements ResultSet
     private String                      correlationName_;
     private String                      cursorName_;
     private boolean                     dataTruncation_;    // @B2A
+    private boolean                     trimCharFields_;
     private PreparedStatement           deleteStatement_;
     private int                         fetchDirection_;
     private int                         fetchSize_;
@@ -358,6 +359,12 @@ implements ResultSet
             dataTruncation_ = ((AS400JDBCConnection) connection_).getProperties ().getBoolean (JDProperties.DATA_TRUNCATION); // @B2A
         else                                                                        // @B2A
             dataTruncation_ = false;
+
+        // Initialize Trimming of CHAR Fields
+        if(connection_ != null)
+            trimCharFields_ = ((AS400JDBCConnection) connection_).getProperties ().getBoolean (JDProperties.TRIM_CHAR_FIELDS);
+        else
+            trimCharFields_ = false;
 
         // Trace messages.
         if(JDTrace.isTraceOn())
@@ -3612,7 +3619,24 @@ void postWarningSQLState(String sqlState)  {
             internalLock.lock();
             // Get the data and check for SQL NULL.
             SQLData data = getValue (columnIndex);
-            String value = (data == null) ? null : data.getString ();
+            String value;
+            if  (data == null) {
+              value = null;
+            } else {
+              value = data.getString();
+              int sqlType = 0; 
+              if (data != null) {
+                sqlType = data.getSQLType(); 
+              }
+              if (trimCharFields_ && (sqlType == SQLData.CHAR)) {
+                if (value == null) return null;
+                int end = value.length();
+                while (end > 0 && value.charAt(end - 1) == ' ') {
+                  end--;
+                }
+                value = value.substring(0, end);
+              }
+            }
             testDataTruncation (columnIndex, data, false); //@trunc //@trunc2
             return value;
         } finally {
