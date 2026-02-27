@@ -956,11 +956,21 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
     AS400JDBCConnectionHandle connection = null;
 
     if ((serialUserName_ == null) || (pwHashcode_ == 0)) {
-      if (key != null)
+      if (key != null) {
         serialUserName_ = key.getUser();
-      if (password != null)
+        if (as400_ != null) {
+          try {
+            as400_.setUserId(serialUserName_);
+          } catch (PropertyVetoException e) {
+          }
+        }
+      }
+      if (password != null) {
         pwHashcode_ = CredentialVault.getHashCode(password);
-
+        if (as400_ != null) {
+          as400_.setPassword(password); 
+        }
+      }
     }
 
     if (!poolManagerInitialized_) {
