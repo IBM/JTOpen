@@ -258,7 +258,10 @@ public abstract class ConvTable
                 return newTable;
             }
             // It's not cached, so we can try to instantiate one.
-            newTable = new ConvTableJavaMap(encoding);
+            // Use the canonical name to create the table. 
+            String ccsidString = ConversionMaps.encodingToCcsidString(encoding);
+            String canonicalEncoding=ConversionMaps.ccsidToEncoding(Integer.parseInt(ccsidString));
+            newTable = new ConvTableJavaMap(canonicalEncoding);
         }
 
         if (Trace.traceOn_) Trace.log(Trace.CONVERSION, "Successfully loaded conversion table for encoding: " + encoding);
