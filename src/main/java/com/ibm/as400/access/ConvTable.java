@@ -260,7 +260,12 @@ public abstract class ConvTable
             // It's not cached, so we can try to instantiate one.
             // Use the canonical name to create the table. 
             String ccsidString = ConversionMaps.encodingToCcsidString(encoding);
-            String canonicalEncoding=ConversionMaps.ccsidToEncoding(Integer.parseInt(ccsidString));
+            String canonicalEncoding = null; 
+            if (ccsidString != null) { 
+              canonicalEncoding=ConversionMaps.ccsidToEncoding(Integer.parseInt(ccsidString));
+            } else {
+              canonicalEncoding = encoding; 
+            }
             newTable = new ConvTableJavaMap(canonicalEncoding);
         }
 
