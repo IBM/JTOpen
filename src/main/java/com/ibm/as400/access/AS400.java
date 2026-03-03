@@ -5291,10 +5291,12 @@ public class AS400 implements Serializable, AutoCloseable
         if (socketProperties == null)
             throw new NullPointerException("socketProperties");
 
-        if (propertiesFrozen_)
-        {
+        if (propertiesFrozen_) {
+          // If no change is being made, don't throw exception 
+          if (! socketProperties_.equals(socketProperties)) {
             Trace.log(Trace.ERROR, "Cannot set socket properties after connection has been made.");
             throw new ExtendedIllegalStateException("socketProperties", ExtendedIllegalStateException.PROPERTY_NOT_CHANGED);
+          }
         }
         socketProperties_.copyValues(socketProperties);
     }
