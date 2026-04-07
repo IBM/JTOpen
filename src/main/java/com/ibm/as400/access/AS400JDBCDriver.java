@@ -1101,6 +1101,7 @@ endif JAVA9 */
 		// user names and passwords.
 		String serverName = dataSourceUrl.getServerName();
 		String userName   = jdProperties.getString (JDProperties.USER);
+		String verificationId = jdProperties.getString (JDProperties.AUTHENTICATION_VERIFICATION_ID);
 		char[] clearPassword   = jdProperties.getClearPassword(); 
 		char[] additionalAuthenticationFactor = jdProperties.getAdditionalAuthenticationFactor(); 
 		String prompt     = jdProperties.getString (JDProperties.PROMPT);	// @B8C
@@ -1201,6 +1202,9 @@ endif JAVA9 */
                 as400 = AS400.newInstance(secure, serverName, userName);
             else
                 as400 = AS400.newInstance(secure, serverName, userName, clearPassword, additionalAuthenticationFactor);
+            if (verificationId != null) { 
+              as400.setVerificationId(verificationId);
+            }
 			SSLSocketFactory sslSocketFactoryObject = jdProperties.getCustomSSLSocketFactory();
 		    if (null != sslSocketFactoryObject) {
 		        as400.setSSLSocketFactory(sslSocketFactoryObject);

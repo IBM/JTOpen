@@ -1107,6 +1107,7 @@ public class AS400 implements Serializable, AutoCloseable
         {
             impl_ = (AS400Impl)loadImpl2("com.ibm.as400.access.AS400ImplRemote", "com.ibm.as400.access.AS400ImplProxy");
             signonInfo_ = impl_.setState(system.impl_, credVault_);
+            impl_.setVerificationId(verificationId_); 
             
             // Do not freeze properties as these need to be changed for new JDBC connections.
         }
@@ -1814,6 +1815,7 @@ public class AS400 implements Serializable, AutoCloseable
                 if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Enabling connection listener dispatcher.");
                 impl_.addConnectionListener(dispatcher_);
             }
+            impl_.setVerificationId(verificationId_); 
         }
         
         if (!propertiesFrozen_)
@@ -5965,6 +5967,10 @@ public class AS400 implements Serializable, AutoCloseable
      * Determines whether Bidi processing should occur in AS400Varchar.toBytes() method
      */
     public boolean bidiAS400Varchar = false;
+    /** 
+     * Verification ID to use for connections
+     */
+    private String verificationId_ = ProfileTokenCredential.DEFAULT_VERIFICATION_ID;
 
     // Set the signon information for the connection
     // Typicially used when the signon server has been skipped and the information
@@ -6278,5 +6284,11 @@ public class AS400 implements Serializable, AutoCloseable
             return ((AS400ImplRemote)impl_).getLocalIPAddress();
 
         return getDefaultLocalIPAddress();
+    }
+
+    public void setVerificationId(String verificationId) {
+      verificationId_ = verificationId;
+      if (impl_ != null) impl_.setVerificationId(verificationId); 
+      
     }
 }

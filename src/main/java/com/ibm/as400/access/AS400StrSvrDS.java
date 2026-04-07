@@ -87,7 +87,7 @@ class AS400StrSvrDS extends ClientAccessDataStream
               ? 28 + authenticationBytes.length 
               : 44 + authenticationBytes.length) +
                      ((authScheme == AS400.AUTHENTICATION_SCHEME_PASSWORD && addAuthFactor != null && addAuthFactor.length > 0) ? (addAuthFactor.length + 10) : 0) + 
-                     ((authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN && verificationID != null) ? (verificationID.length + 10) : 0) +
+                     (( verificationID != null) ? (verificationID.length + 10) : 0) +
                      ((authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN && (clientIPAddr != null && clientIPAddr.length > 0)) ? (clientIPAddr.length + 10) : 0)
               ]);
 
@@ -166,23 +166,25 @@ class AS400StrSvrDS extends ClientAccessDataStream
                 offset += 10 + addAuthFactor.length;
             }
         }
-        
+
+        // Always send verification ID
+        if (verificationID != null)
+        {
+            // Set verification ID
+            //   LL
+            set32bit(4 + 2 + 4 + verificationID.length, offset);
+            //   CP
+            set16bit(0x1130, offset + 4);
+            //   CCSID
+            set32bit(1208, offset + 6);
+            //   Data (verification ID in UTF-8)
+            System.arraycopy(verificationID, 0, data_, offset + 10, verificationID.length);
+            
+            offset += 10 + verificationID.length;
+        }
+
         if (authScheme == AS400.AUTHENTICATION_SCHEME_PROFILE_TOKEN)
         {
-            if (verificationID != null)
-            {
-                // Set verification ID
-                //   LL
-                set32bit(4 + 2 + 4 + verificationID.length, offset);
-                //   CP
-                set16bit(0x1130, offset + 4);
-                //   CCSID
-                set32bit(1208, offset + 6);
-                //   Data (verification ID in UTF-8)
-                System.arraycopy(verificationID, 0, data_, offset + 10, verificationID.length);
-                
-                offset += 10 + verificationID.length;
-            }
             
             if (clientIPAddr != null && clientIPAddr.length > 0)
             {

@@ -25,7 +25,7 @@ class ConvTable1132 extends ConvTableSingleMap
       "\u0020\u00A0\u0E81\u0E82\u0E84\u0E87\u0E88\u0EAA\u0E8A\u005B\u00A2\u002E\u003C\u0028\u002B\u007C" +
       "\u0026\u001A\u0E8D\u0E94\u0E95\u0E96\u0E97\u0E99\u0E9A\u005D\u0021\u0024\u002A\u0029\u003B\u00AC" +
       "\u002D\u002F\u0E9B\u0E9C\u0E9D\u0E9E\u0E9F\u0EA1\u0EA2\u005E\u00A6\u002C\u0025\u005F\u003E\u003F" +
-      "\u006B\u001A\u0EA3\u0EA5\u0EA7\u0EAB\u0EAD\u0EAE\u001A\u0060\u003A\u0023\u0040\'\u003D\"" +
+      "\u20ad\u001A\u0EA3\u0EA5\u0EA7\u0EAB\u0EAD\u0EAE\u001A\u0060\u003A\u0023\u0040\'\u003D\"" +
       "\u001A\u0061\u0062\u0063\u0064\u0065\u0066\u0067\u0068\u0069\u001A\u001A\u0EAF\u0EB0\u0EB2\u0EB3" +
       "\u001A\u006A\u006B\u006C\u006D\u006E\u006F\u0070\u0071\u0072\u0EB4\u0EB5\u0EB6\u0EB7\u0EB8\u0EB9" +
       "\u001A\u007E\u0073\u0074\u0075\u0076\u0077\u0078\u0079\u007A\u0EBC\u0EB1\u0EBB\u0EBD\u001A\u001A" +
@@ -54,8 +54,10 @@ class ConvTable1132 extends ConvTableSingleMap
     ConvTable1132()
     {
         super(1132, toUnicode_.toCharArray(), fromUnicode_.toCharArray());
-        
-        super.fromUnicode_[0x20ad] = super.fromUnicode_[0x006b];  /* Kip Sign to k */ 
+         // Fix Kip symbol in fromUnicode_ table
+         // Manually fixed at 0x70 in toUnicode_ table. 
+         // https://www.ibm.com/docs/en/personal-communications/14.0.0?topic=pages-1132-laos
+        super.fromUnicode_[0x20ad] = 0x70;
 
     }
 }

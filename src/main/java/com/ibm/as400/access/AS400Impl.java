@@ -93,5 +93,7 @@ interface AS400Impl
     
     String getSystemName();
     /* Set the VRM for the object.  Only set for the remote Impl */ 
-    void setVRM(int v, int r, int m); 
+    void setVRM(int v, int r, int m);
+    /* Set the verificationId for using the connection */ 
+    void setVerificationId(String verificationId_); 
 }

@@ -371,6 +371,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
 
 
     private int bidiStringType = BidiStringType.DEFAULT;
+    private String verificationId_;
     
     /**
      * Sets bidi string type of the connection. 
@@ -403,5 +404,11 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
     @Override
     public void setAdditionalAuthenticationFactor(char[] additionalAuthFactor) {
 		// Does nothing for the proxy class
+    }
+
+    @Override
+    public void setVerificationId(String verificationId) {
+      verificationId_ = verificationId; 
+      
     }
 }
