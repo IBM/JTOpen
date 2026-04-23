@@ -27,7 +27,6 @@ import java.net.URI;
 import java.net.UnknownHostException;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.Locale;
@@ -403,45 +402,15 @@ public class AS400 implements Serializable, AutoCloseable
 
     private transient CredentialVault kerbTicket_;
 
-    // Prefix used to indicate that the password contains a base64-encoded Kerberos token.
-    public static final String KERBEROS_PREFIX = "_KERBEROSAUTH_";
-    public static final char[] KERBEROS_PREFIX_CHARS = KERBEROS_PREFIX.toCharArray();
 
     private void setKerbTicket(byte[] ticket) {
         this.kerbTicket_ = new PasswordVault(ticket);
     }
 
     public void clearKerbTicket() {
-        if (!this.kerbTicket_.isEmpty())
+        if (kerbTicket_ != null && !this.kerbTicket_.isEmpty())
             this.kerbTicket_.empty();
     }
-
-    // Determines if the password contains a Kerberos token
-    private boolean isKerbTicket(char[] auth){
-        char[] prefix = KERBEROS_PREFIX_CHARS;
-        if (auth == null || auth.length < prefix.length) {
-            return false;
-        }
-
-        for (int i = 0; i < prefix.length; i++) {
-            if (auth[i] != prefix[i]) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    // Extracts the Kerberos token from the password
-    private static char[] getKerbTicketFromPassword(char[] password) {
-        int prefixLen = KERBEROS_PREFIX_CHARS.length;
-        int tokenLen = password.length - prefixLen;
-
-        char[] tokenChars = new char[tokenLen];
-        System.arraycopy(password, prefixLen, tokenChars, 0, tokenLen);
-
-        return tokenChars;
-    }
-    
 
     /**
      * Constructs an AS400 object.
@@ -707,6 +676,7 @@ public class AS400 implements Serializable, AutoCloseable
         if (userId.length() > 10)
             throw new ExtendedIllegalArgumentException("userId (" + userId + ")", ExtendedIllegalArgumentException.LENGTH_NOT_VALID);
 
+        checkPasswordNullAndLength(password, "password");
         construct();
         systemName_ = systemName;
         systemNameLocal_ = resolveSystemNameLocal(systemName);
@@ -717,17 +687,7 @@ public class AS400 implements Serializable, AutoCloseable
         }
  
         userId_ = userId.toUpperCase();
-        // Create  appropriate credential vault based on whether the password is a Kerberos token or a regular password.
-        boolean isKerberosTicket = isKerbTicket(password);
-        if (isKerberosTicket){
-            password = getKerbTicketFromPassword(password);
-            credVault_ = new GSSTokenVault();
-            
-            this.setKerbTicket(Base64.getDecoder().decode((new String(password))));
-        }else{
-            checkPasswordNullAndLength(password, "password");
-            credVault_ = new PasswordVault(password);
-        }
+        credVault_ = new PasswordVault(password);
         proxyServer_ = resolveProxyServer(proxyServer_);
         socketProperties_.setSock5Server(resolveSock5Server(""));	// @greenscreens
     }
@@ -1871,7 +1831,7 @@ public class AS400 implements Serializable, AutoCloseable
         }
         
         // If kerbTicket_ has been set, make sure the impl knows about it.
-        if (!kerbTicket_.isEmpty())
+        if (kerbTicket_ != null && !kerbTicket_.isEmpty())
             impl_.setKerbTicket(kerbTicket_.getClearCredential());
 
         if (!propertiesFrozen_)
@@ -5645,7 +5605,7 @@ public class AS400 implements Serializable, AutoCloseable
                     // Try for Kerberos.
                     byte[] newBytes = null;
 
-                    if (!kerbTicket_.isEmpty() && kerbTicket_.getClearCredential().length > 0) {
+                    if (kerbTicket_ != null && !kerbTicket_.isEmpty() && kerbTicket_.getClearCredential().length > 0) {
                         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using injected Kerberos ticket.");
                         newBytes = kerbTicket_.getClearCredential();
                     } else {
