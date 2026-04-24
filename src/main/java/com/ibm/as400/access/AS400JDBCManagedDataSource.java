@@ -2679,8 +2679,8 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
    * @param authenticationVerificationId The authentication verification id,
    *                                       or null if not providing one
    */
-  public void setAuthenticationVerificationId(String authenticationValidationId) {
-    properties_.setString(JDProperties.AUTHENTICATION_VERIFICATION_ID, authenticationValidationId); 
+  public void setAuthenticationVerificationId(String authenticationVerificationId) {
+    properties_.setString(JDProperties.AUTHENTICATION_VERIFICATION_ID, authenticationVerificationId); 
   }
 
 
