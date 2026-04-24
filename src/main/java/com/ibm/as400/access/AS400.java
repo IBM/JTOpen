@@ -1040,7 +1040,7 @@ public class AS400 implements Serializable, AutoCloseable
      * 
      * @param system A previously instantiated AS400 object.
      **/
-    public AS400(AS400 system)
+    public AS400(AS400 system) 
     {
         super();
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Constructing AS400 object, system: " + system);
@@ -4337,6 +4337,8 @@ public class AS400 implements Serializable, AutoCloseable
             byte[] proxySeed = new byte[9];
             CredentialVault.rng.nextBytes(proxySeed);
             CredentialVault tempVault = (CredentialVault)credVault_.clone();
+            // if (tempVault.savedException_ != null) throw tempVault.savedException_; 
+            
             tempVault.storeEncodedUsingExternalSeeds(proxySeed, impl_.exchangeSeed(proxySeed));
 
             if (PASSWORD_TRACE)  Trace.log(Trace.DIAGNOSTIC, "AS400 object proxySeed:", proxySeed);

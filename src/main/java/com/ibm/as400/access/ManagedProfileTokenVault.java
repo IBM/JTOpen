@@ -150,6 +150,7 @@ class ManagedProfileTokenVault extends ProfileTokenVault implements Cloneable, S
      */
     private int refreshThreshold_;
 
+
     /**
      * Constructs a ManagedProfileTokenVault object. A new profile token is generated during the construction of the
      * vault using the specified token provider. If a new profile token is needed in the future, the same token provider
@@ -215,7 +216,7 @@ class ManagedProfileTokenVault extends ProfileTokenVault implements Cloneable, S
      *         uniquely generated profile token.
      */
     @Override
-    public ManagedProfileTokenVault clone()
+    public ManagedProfileTokenVault clone() 
     {
         ManagedProfileTokenVault vaultClone = (ManagedProfileTokenVault) super.clone();
 
@@ -244,11 +245,13 @@ class ManagedProfileTokenVault extends ProfileTokenVault implements Cloneable, S
             }
             catch (AS400SecurityException e) {
                 Trace.log(Trace.ERROR, "Error while cloning ManagedProfileTokenVault.", e);
+                vaultClone.savedException_ = e;  
             }
             
             return vaultClone;
         }
     }
+
 
     /**
      * Purges the contents of the vault. All resources consumed by the credential vault are freed, which means the

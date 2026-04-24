@@ -1022,21 +1022,20 @@ implements Statement
 
                     //
                     // Check for the case where the errorClass is zero, but there
-                    // is truncation.  If so, set the errorClass to 2 so the  
-                    // warning is processed. 
+                    // is truncation. If so, set the errorClass to 2 so the
+                    // warning is processed.
                     // @S2A
-                      
-            if (errorClass == 0) {
-              Enumeration enumeration = SQLCAs.elements();
-              while (enumeration.hasMoreElements()) {
-                DBReplySQLCA thisSqlca = (DBReplySQLCA) enumeration
-                    .nextElement();
-                String sqlState = thisSqlca.getSQLState(converter);
-                if ("01004".equals(sqlState)) {
-                  errorClass = 2;
-                }
-              }
-            }
+
+                    if (errorClass == 0) {
+                      Enumeration enumeration = SQLCAs.elements();
+                      while (enumeration.hasMoreElements()) {
+                        DBReplySQLCA thisSqlca = (DBReplySQLCA) enumeration.nextElement();
+                        String sqlState = thisSqlca.getSQLState(converter);
+                        if ("01004".equals(sqlState)) {
+                          errorClass = 2;
+                        }
+                      }
+                    }
 
                     // NOTE:  We currently do not have a good way to handle the case
                     //        when the exit program rejects the request.  
@@ -1625,20 +1624,29 @@ implements Statement
                     Vector sqlcas = execImmediateReply.getSQLCAs (); 
                     DBReplySQLCA firstSqlca = (DBReplySQLCA) sqlcas.firstElement(); 
                     Enumeration elements = sqlcas.elements();
-            while (elements.hasMoreElements()) {
-              DBReplySQLCA sqlca = (DBReplySQLCA) elements.nextElement(); // @F10M
+                    while (elements.hasMoreElements()) {
+                      DBReplySQLCA sqlca = (DBReplySQLCA) elements.nextElement(); // @F10M
 
-              if (errorClass != 0) {
-                positionOfSyntaxError_ = sqlca.getErrd(5); // @F10A
-                if (returnCode < 0)
-                  JDError.throwSQLException(this, connection_, id_, errorClass,
-                      returnCode);
-                else
-                  postWarning(connection_, id_,
-                      errorClass, returnCode);
-              }
-            }
-                    transactionManager_.processCommitOnReturn(execImmediateReply);    // @E2A
+                      if (errorClass != 0) {
+                        positionOfSyntaxError_ = sqlca.getErrd(5); // @F10A
+                        if (returnCode < 0)
+                          JDError.throwSQLException(this, connection_, id_, errorClass, returnCode);
+                        else
+                          postWarning(connection_, id_, errorClass, returnCode);
+                      } else {
+                        //
+                        // Check for the case where the errorClass is zero, but there
+                        // is truncation. If so, set the errorClass to 2 so the
+                        // warning is processed.
+                        //
+                        String sqlState = sqlca.getSQLState(converter);
+                        if ("01004".equals(sqlState)) {
+                          errorClass = 2;
+                          postWarning(connection_, id_, errorClass, returnCode);
+                        }
+                      }
+                    }
+                    transactionManager_.processCommitOnReturn(execImmediateReply); // @E2A
 
                     cursor_.processCursorAttributes(execImmediateReply);                   //@cur
 

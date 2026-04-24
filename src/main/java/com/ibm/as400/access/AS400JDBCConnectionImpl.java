@@ -3530,6 +3530,11 @@ throws SQLException
         {
           try
           {
+            // Check if verification id is set. If so, it must be set before creating the connection
+            String verificationId = properties.getString(JDProperties.AUTHENTICATION_VERIFICATION_ID);
+            if (verificationId != null) { 
+              as400.setVerificationId(verificationId);
+            }
             portNumber = 0; 
             // Check to see if the port property is set.  If so, 
             // Then we must set the port in the PortMapper and 

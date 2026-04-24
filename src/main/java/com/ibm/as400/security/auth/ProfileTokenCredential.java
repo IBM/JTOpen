@@ -965,8 +965,10 @@ public final class ProfileTokenCredential extends AS400Credential implements AS4
         fireVetoableChange("token", old, bytes);
         if (enhancedInfo != null)
             enhancedInfo_ = enhancedInfo; 
-        else
+        else {
             enhancedInfo_.reset();   /* reset the info so that it is not enhanced */ 
+            enhancedInfo_.setVerificationID("*NOUSE"); 
+        }
         primitiveSetToken(bytes, enhancedInfo_.isEnhancedProfileToken());
         firePropertyChange("token", old, bytes);
     }

@@ -586,6 +586,18 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
     return properties_.getAdditionalAuthenticationFactor();
   }
 
+  
+  /**
+   * returns the authentication verification id.
+   * 
+   * @return the authentication verification id
+   */
+  public String getAuthenticationVerificationId() {
+    return properties_.getString(JDProperties.AUTHENTICATION_VERIFICATION_ID);
+  }
+
+  
+  
   /**
    * Returns what behaviors of the Toolbox JDBC driver have been overridden.
    * Multiple behaviors can be overridden in combination by adding the constants
@@ -2658,6 +2670,19 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
   public void setAdditionalAuthenticationFactor(char[] additionalAuthenticationFactor) {
     properties_.setAdditionalAuthenticationFactor(additionalAuthenticationFactor);
   }
+
+  /**
+   * Sets the authentication verification id used to connect to the system. The
+   * {@link #getConnection()} method must be called as soon as possible, since the
+   * additional authentication factor may soon expire.
+   * 
+   * @param authenticationVerificationId The authentication verification id,
+   *                                       or null if not providing one
+   */
+  public void setAuthenticationVerificationId(String authenticationValidationId) {
+    properties_.setString(JDProperties.AUTHENTICATION_VERIFICATION_ID, authenticationValidationId); 
+  }
+
 
   // @AC1
   /**

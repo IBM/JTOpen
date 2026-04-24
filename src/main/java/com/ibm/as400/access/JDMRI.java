@@ -156,6 +156,7 @@ public class JDMRI extends ListResourceBundle
       { "PROP_NAME_USE_SOCK5", "useSock5"},
       { "PROP_NAME_VIRTUAL_THREADS", "virtualThreads"},
       { "PROP_NAME_TRIM_CHAR_FIELDS", "trimCharFields"},
+      { "PROP_NAME_AUTHENTICATION_VERIFICATION_ID","authenticationVerificationId"},
            // #TRANNOTE JDBC property descriptions.
       { "ACCESS_DESC", "Specifies the level of database access for the connection." },
       { "BEHAVIOR_OVERRIDE_DESC", "Specifies the Toolbox JDBC driver behavior to override." },     //@J5A
@@ -215,6 +216,7 @@ public class JDMRI extends ListResourceBundle
       { "TRANSACTION_ISOLATION_DESC", "Specifies the default transaction isolation." },
       { "TRANSLATE_BINARY_DESC", "Specifies whether binary data is translated." },
       { "TRIM_CHAR_FIELDS_DESC", "Specifies whether to remove trailing spaces from char fields." },
+      { "AUTHENTICATION_VERIFICATION_ID_DESC", "Specified the verification id to be passed when authenticating to the system."},
       { "USER_DESC", "Specifies the user name for connecting to the system." }, //@550
       { "KEEP_ALIVE_DESC", "Specifies the socket keep alive value to use when connecting to the system." }, //@550
       { "RECEIVE_BUFFER_SIZE_DESC", "Specifies the socket receive buffer size to use when connecting to the system." }, //@550
