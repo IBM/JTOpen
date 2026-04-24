@@ -5340,6 +5340,10 @@ public class AS400ImplRemote implements AS400Impl
 
         String verificationID_s = (creatingToken || ei.isEnhancedProfileToken()) ? profileToken.getVerificationID()
             : verificationId;
+        // Still set to *NOUSE if using a token and not enhanced, and token is defined. 
+        if (profileToken.getToken() != null && !ei.isEnhancedProfileToken()) {
+          verificationID_s = "*NOUSE"; 
+        }
         String remoteIPAddress_s = (creatingToken || ei.isEnhancedProfileToken()) ? profileToken.getRemoteIPAddress()
             : "*NOUSE";
 
@@ -5403,10 +5407,16 @@ public class AS400ImplRemote implements AS400Impl
       }
     }    
 
-    /* Make sure verificationId is set */
+    /* Make sure verificationId is set .. When not enhanced profile token use *NOUSE */
     if (verificationId != null && vrm > 0x00070500 && (authdata[1] == null)) {
+      if (profileToken != null && ! profileToken.isEnhancedProfileToken()) {
+        authdata[1] = "*NOUSE".getBytes(StandardCharsets.UTF_8);
+        authdata[3] = "*NOUSE"; 
+        
+      } else { 
         authdata[1] = verificationId.getBytes(StandardCharsets.UTF_8);
         authdata[3] = verificationId; 
+      }
       
     }
         

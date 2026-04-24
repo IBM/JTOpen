@@ -59,6 +59,15 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo {
 			additionalAuthenticationFactor.setConstrained(false);
 			additionalAuthenticationFactor.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_ADDITIONAL_AUTHENTICATION_FACTOR", null));
 			additionalAuthenticationFactor.setShortDescription(AS400JDBCDriver.getResource("ADDITIONAL_AUTHENTICATION_FACTOR_DESC", null));
+			
+      PropertyDescriptor authenticationVerificationId = new PropertyDescriptor("authenticationVerificationId",
+          beanClass, "getAuthenticationVerificationId", "setAuthenticationVerificationId");
+      authenticationVerificationId.setBound(true);
+      authenticationVerificationId.setConstrained(false);
+      authenticationVerificationId.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_AUTHENTICATION_VERIFICATION_ID", null));
+      authenticationVerificationId.setShortDescription(AS400JDBCDriver.getResource("AUTHENTICATION_VERIFICATION_ID", null));
+			
+			
 
 			PropertyDescriptor behaviorOverride = new PropertyDescriptor("behaviorOverride", beanClass,
 					"getBehaviorOverride", "setBehaviorOverride"); // @J7A
@@ -965,7 +974,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo {
 					portNumber, enableClientAffinitiesList, clientRerouteAlternateServerName,
 					clientRerouteAlternatePortNumber, affinityFailbackInterval, maxRetriesForClientReroute,
 					retryIntervalForClientReroute, enableSeamlessFailover, additionalAuthenticationFactor, stayAlive,tlsTruststore,tlsTruststorePassword,
-					useSock5, virtualThreads, trimCharFields };
+					useSock5, virtualThreads, trimCharFields, authenticationVerificationId };
 
 		} catch (Exception e) {
 			throw new Error(e);
