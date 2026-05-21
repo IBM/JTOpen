@@ -76,7 +76,7 @@ jobs:
       run: cd staging && zip JTOpen-$project_version.zip *.jar && cd ..
 
     - name: Create the tag and release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         tag_name: v${{ env.project_version }}
         name: v${{ env.project_version }}
