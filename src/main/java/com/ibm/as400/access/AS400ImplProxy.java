@@ -372,6 +372,7 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
 
     private int bidiStringType = BidiStringType.DEFAULT;
     private String verificationId_;
+    private CredentialVault kerbTicket_;
     
     /**
      * Sets bidi string type of the connection. 
@@ -411,4 +412,8 @@ class AS400ImplProxy extends AbstractProxyImpl implements AS400Impl
       verificationId_ = verificationId; 
       
     }
+    public void setKerbTicket(byte[] ticket) {
+        this.kerbTicket_ = new PasswordVault(ticket);
+    }
+  
 }

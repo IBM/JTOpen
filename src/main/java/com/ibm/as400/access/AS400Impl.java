@@ -95,5 +95,6 @@ interface AS400Impl
     /* Set the VRM for the object.  Only set for the remote Impl */ 
     void setVRM(int v, int r, int m);
     /* Set the verificationId for using the connection */ 
-    void setVerificationId(String verificationId_); 
+    void setVerificationId(String verificationId_);
+    void setKerbTicket(byte[] ticket);
 }

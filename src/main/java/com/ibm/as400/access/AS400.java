@@ -400,6 +400,18 @@ public class AS400 implements Serializable, AutoCloseable
     private boolean forcePrompt_ = false;
     private int validateSignonTimeOut_ = 0;
 
+    private transient CredentialVault kerbTicket_;
+
+
+    private void setKerbTicket(byte[] ticket) {
+        this.kerbTicket_ = new PasswordVault(ticket);
+    }
+
+    public void clearKerbTicket() {
+        if (kerbTicket_ != null && !this.kerbTicket_.isEmpty())
+            this.kerbTicket_.empty();
+    }
+
     /**
      * Constructs an AS400 object.
      * <p>
@@ -1818,6 +1830,10 @@ public class AS400 implements Serializable, AutoCloseable
             impl_.setVerificationId(verificationId_); 
         }
         
+        // If kerbTicket_ has been set, make sure the impl knows about it.
+        if (kerbTicket_ != null && !kerbTicket_.isEmpty())
+            impl_.setKerbTicket(kerbTicket_.getClearCredential());
+
         if (!propertiesFrozen_)
         {
             impl_.setState(useSSLConnection_, canUseNativeOptimizations(), threadUsed_, virtualThreads_, ccsid_, nlv_, 
@@ -4186,6 +4202,7 @@ public class AS400 implements Serializable, AutoCloseable
     public synchronized void resetAllServices()
     {
         if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Resetting all services.");
+        clearKerbTicket();
         setStayAlive(0);
 
         disconnectAllServices();
@@ -5586,9 +5603,17 @@ public class AS400 implements Serializable, AutoCloseable
                         && (credVault_.getType() == AUTHENTICATION_SCHEME_GSS_TOKEN || gssOption_ != AS400.GSS_OPTION_NONE))
                 {
                     // Try for Kerberos.
-                    byte[] newBytes = (gssCredential_ == null) ? TokenManager.getGSSToken(systemName_, gssName_) :
-                      TokenManager2.getGSSToken(systemName_, gssCredential_);
+                    byte[] newBytes = null;
 
+                    if (kerbTicket_ != null && !kerbTicket_.isEmpty() && kerbTicket_.getClearCredential().length > 0) {
+                        if (Trace.traceOn_) Trace.log(Trace.DIAGNOSTIC, "Using injected Kerberos ticket.");
+                        newBytes = kerbTicket_.getClearCredential();
+                    } else {
+                        // Fall back to generating the token normally
+                        newBytes = (gssCredential_ == null)
+                            ? TokenManager.getGSSToken(systemName_, gssName_)
+                            : TokenManager2.getGSSToken(systemName_, gssCredential_);
+                    }
                     // We do not have to empty the existing vault because the
                     // previous if-check assures us it is already empty.
                     credVault_ = new GSSTokenVault(newBytes);
