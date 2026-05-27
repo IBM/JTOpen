@@ -403,7 +403,7 @@ public class AS400 implements Serializable, AutoCloseable
     private transient CredentialVault kerbTicket_;
 
 
-    private void setKerbTicket(byte[] ticket) {
+    public void setKerbTicket(byte[] ticket) {
         this.kerbTicket_ = new PasswordVault(ticket);
     }
 

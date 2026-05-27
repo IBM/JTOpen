@@ -558,6 +558,59 @@ endif JAVA9 */
 	}
 
         //@KKB
+
+    /**
+     * Connects to the database using a Kerberos service ticket (GSS token).
+     *
+     * @param system The IBM i system to connect.
+     * @param kerberosTicket The Kerberos service ticket.
+     * @return The connection to the database.
+     * @throws SQLException If the driver is unable to make the connection.
+     */
+    public Connection connect(AS400 system, byte[] kerberosTicket) 
+    throws SQLException
+    {
+        return connect(system, kerberosTicket, false);
+    }
+
+    /**
+     * Connects to the database using a Kerberos service ticket (GSS token).
+     *
+     * @param system The IBM i system to connect.
+     * @param kerberosTicket The Kerberos service ticket.
+     * @param clone True if the AS400 object should be cloned, false otherwise.
+     * @return The connection to the database.
+     * @throws SQLException If the driver is unable to make the connection.
+     */
+    public Connection connect(AS400 system, byte[] kerberosTicket, boolean clone) 
+    throws SQLException
+    {
+        if (system == null)
+            throw new NullPointerException("system");
+
+        if (kerberosTicket == null || kerberosTicket.length == 0)
+            throw new SQLException("Kerberos ticket cannot be null or empty");
+
+        // Clone logic (match existing pattern in file)
+        AS400 targetSystem;
+
+        if (!clone)
+        {
+            targetSystem = system;
+        }
+        else
+        {
+            targetSystem = AS400.newInstance(system.isSecure(), system);
+            targetSystem.setStayAlive(system.getStayAlive());
+        }
+
+        //Inject Kerberos token
+        targetSystem.setKerbTicket(kerberosTicket);
+
+        //Delegate to existing logic
+        return initializeConnection(targetSystem);
+    }
+
 	/**
 	Connects to the database on the specified system.
 	<p>Note: Since this method is not defined in the JDBC Driver interface,
@@ -604,7 +657,6 @@ endif JAVA9 */
         Properties prop = new Properties();
 	Connection c = d.connect (o, prop, mySchema, false);
 	</pre></blockquote>
-	
 	
 	@param  system   The IBM i system to connect.
         @param  info     The connection properties.
