@@ -518,6 +518,10 @@ class PcmlDocument extends PcmlDocRoot
         {
             return ((Number) value).intValue();
         }
+        else if (value == null)
+        {
+            throw new PcmlException(DAMRI.INPUT_VALUE_NOT_SET, new Object[] {name});
+        }
         else
         {
             throw new PcmlException(DAMRI.STRING_OR_NUMBER, new Object[] {value.getClass().getName(), name} );
