@@ -3653,6 +3653,12 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         serialPWBytes_ = xpwConfuse(password);                  //@J3a
         log(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));     //@A9C
     }
+    
+    public void setKerbTicket(byte[] ticket)
+    {
+        as400_.setKerbTicket(ticket);
+    }
+
 
 /**
     *  Sets whether to prefetch data upon executing a SELECT statement.

@@ -3733,6 +3733,19 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
     logInformation(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));
     logProperty(property, "***");
   }
+    public void setKerbTicket(byte[] ticket) 
+  {
+      if (ticket == null)
+          throw new NullPointerException("kerberosTicket");
+
+      as400_.setKerbTicket(ticket);
+
+      // Invalidate pooled connections
+      invalidate(getUser(), serialPWBytes_);
+
+      connectionKeyNeedsUpdate_ = true;
+
+  }
 
   /**
    * Sets whether to prefetch data upon executing a SELECT statement. This will

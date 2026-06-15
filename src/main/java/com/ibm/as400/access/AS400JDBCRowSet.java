@@ -139,6 +139,8 @@ implements RowSet, Serializable             // @A3C
     private String url_;                            // The user defined URL used to make the connection.
     private String username_;                           // The user name used to make the connection.
     private char[] confusedPasswordChars_;                       // The confused password used to make the connection.
+    private byte[] kerberosTicket_;                 //The Kerberos ticket used to make the connection.
+
 
     // Toolbox classes.
     private Connection connection_;             // The JDBC connection.
@@ -3002,6 +3004,23 @@ implements RowSet, Serializable             // @A3C
         confusedPasswordChars_ = AS400JDBCDataSource.xpwConfuse(password);
         changes_.firePropertyChange(property, "", password);
     }
+
+    public void setKerbTicket(byte[] ticket)
+    {
+        String property = "kerberosTicket";
+
+        if (ticket == null)
+            throw new NullPointerException(property);
+
+        validateConnection();
+
+        kerberosTicket_ = ticket;
+
+        changes_.firePropertyChange(property, null, ticket);
+    }
+
+
+
 
 
     /**
