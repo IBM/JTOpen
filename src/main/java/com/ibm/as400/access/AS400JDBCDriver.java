@@ -611,6 +611,49 @@ endif JAVA9 */
         return initializeConnection(targetSystem);
     }
 
+    /**
+    * Connects to the database using a Kerberos service ticket.
+    *
+    * @param url The JDBC URL.
+    * @param kerberosTicket The Kerberos service ticket.
+    * @return The connection to the database.
+    * @throws SQLException If the driver is unable to make the connection.
+    */
+    public Connection connect(String url, byte[] kerberosTicket)
+    throws SQLException
+    {
+        return connect(url, new Properties(), kerberosTicket);
+    }
+
+    /**
+    * Connects to the database using a Kerberos service ticket.
+    *
+    * @param url The JDBC URL.
+    * @param info The connection properties.
+    * @param kerberosTicket The Kerberos service ticket.
+    * @return The connection to the database.
+    * @throws SQLException If the driver is unable to make the connection.
+    */
+    public Connection connect(String url, Properties info, byte[] kerberosTicket)
+    throws SQLException
+    {
+        if (url == null)
+            throw new NullPointerException("url");
+
+        if (kerberosTicket == null || kerberosTicket.length == 0)
+            throw new SQLException("Kerberos ticket cannot be null or empty");
+
+        if (info == null)
+            info = new Properties();
+
+        // Create AS400 object and inject Kerberos ticket
+        AS400 system = new AS400();
+        system.setKerbTicket(kerberosTicket);
+
+        // Reuse existing Kerberos-based connect logic
+        return connect(system, kerberosTicket, false);
+    }
+
 	/**
 	Connects to the database on the specified system.
 	<p>Note: Since this method is not defined in the JDBC Driver interface,
