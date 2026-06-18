@@ -292,7 +292,7 @@ endif JAVA9 */
   throws SQLException
   {
     
-    return connect(url, info, null); 
+    return connect(url, info, (char[]) null); 
   }
 
 	/**
