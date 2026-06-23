@@ -418,10 +418,26 @@ implements RowSet, Serializable             // @A3C
                 eise.initCause(ne); 
                 throw  eise; 
             }
-            if (dataSource_ instanceof AS400JDBCDataSource) { 
-              connection_ = ((AS400JDBCDataSource)dataSource_).getConnection(username_, AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_));
-            } else {
-              connection_ = dataSource_.getConnection(username_, new String(AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_)));
+            if (kerberosTicket_ != null) {
+                if (dataSource_ instanceof AS400JDBCDataSource) {
+                    // Inject Kerberos ticket
+                    ((AS400JDBCDataSource)dataSource_).setKerbTicket(kerberosTicket_);
+                    connection_ = ((AS400JDBCDataSource)dataSource_).getConnection(username_, AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_));
+                }
+                else
+                {
+                    connection_ = dataSource_.getConnection(username_,new String(AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_)));
+                }
+            }
+            else
+            {
+                if (dataSource_ instanceof AS400JDBCDataSource) {
+                    connection_ = ((AS400JDBCDataSource)dataSource_).getConnection(username_, AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_));
+                }
+            else
+            {
+                connection_ = dataSource_.getConnection(username_, new String(AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_)));
+            }
             }
         }
         else
@@ -3014,14 +3030,10 @@ implements RowSet, Serializable             // @A3C
 
         validateConnection();
 
-        kerberosTicket_ = ticket;
-
+        kerberosTicket_ = new byte[ticket.length];
+        System.arraycopy(ticket, 0, kerberosTicket_, 0, ticket.length);
         changes_.firePropertyChange(property, null, ticket);
     }
-
-
-
-
 
     /**
     *  Sets the maximum wait time in seconds for a statement to execute.
