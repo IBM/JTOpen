@@ -402,11 +402,19 @@ public class AS400 implements Serializable, AutoCloseable
 
     private transient CredentialVault kerbTicket_;
 
+    /**
+     * Sets the Kerberos service ticket used for authentication.
+     *
+     * @param ticket The Kerberos service ticket.
+     */
 
     public void setKerbTicket(byte[] ticket) {
         this.kerbTicket_ = new PasswordVault(ticket);
     }
 
+    /**
+     * Clears the Kerberos service ticket associated with this object.
+     */
     public void clearKerbTicket() {
         if (kerbTicket_ != null && !this.kerbTicket_.isEmpty())
             this.kerbTicket_.empty();

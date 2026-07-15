@@ -139,7 +139,7 @@ implements RowSet, Serializable             // @A3C
     private String url_;                            // The user defined URL used to make the connection.
     private String username_;                           // The user name used to make the connection.
     private char[] confusedPasswordChars_;                       // The confused password used to make the connection.
-    private byte[] kerberosTicket_;                 //The Kerberos ticket used to make the connection.
+    private transient CredentialVault kerberosTicket_;                //The Kerberos ticket used to make the connection.
 
 
     // Toolbox classes.
@@ -421,7 +421,7 @@ implements RowSet, Serializable             // @A3C
             if (kerberosTicket_ != null) {
                 if (dataSource_ instanceof AS400JDBCDataSource) {
                     // Inject Kerberos ticket
-                    ((AS400JDBCDataSource)dataSource_).setKerbTicket(kerberosTicket_);
+                    ((AS400JDBCDataSource)dataSource_).setKerbTicket(kerberosTicket_.getClearCredential());
                     connection_ = ((AS400JDBCDataSource)dataSource_).getConnection(username_, AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_));
                 }
                 else
@@ -3030,8 +3030,7 @@ implements RowSet, Serializable             // @A3C
 
         validateConnection();
 
-        kerberosTicket_ = new byte[ticket.length];
-        System.arraycopy(ticket, 0, kerberosTicket_, 0, ticket.length);
+        kerberosTicket_ = new GSSTokenVault(ticket);
         changes_.firePropertyChange(property, null, ticket);
     }
 

@@ -3733,7 +3733,12 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
     logInformation(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));
     logProperty(property, "***");
   }
-    public void setKerbTicket(byte[] ticket) 
+
+  /**
+   * Sets the Kerberos service ticket used to make the connection.
+   * @param ticket The Kerberos service ticket.
+   */
+  public void setKerbTicket(byte[] ticket) 
   {
       if (ticket == null)
           throw new NullPointerException("kerberosTicket");

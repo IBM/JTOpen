@@ -3643,7 +3643,7 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
     }
 
 
-        /**
+    /**
     *  Sets the database password using a char array
     *  @param password The password.
     **/
@@ -3654,6 +3654,10 @@ implements DataSource, Referenceable, Serializable, Cloneable //@PDC 550
         log(ResourceBundleLoader.getText("AS400_JDBC_DS_PASSWORD_SET"));     //@A9C
     }
     
+    /**
+     * Sets the Kerberos service ticket used to make the connection.
+     * @param ticket The Kerberos service ticket.
+     */
     public void setKerbTicket(byte[] ticket)
     {
         as400_.setKerbTicket(ticket);
