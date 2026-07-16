@@ -139,6 +139,8 @@ implements RowSet, Serializable             // @A3C
     private String url_;                            // The user defined URL used to make the connection.
     private String username_;                           // The user name used to make the connection.
     private char[] confusedPasswordChars_;                       // The confused password used to make the connection.
+    private transient CredentialVault kerberosTicket_;                //The Kerberos ticket used to make the connection.
+
 
     // Toolbox classes.
     private Connection connection_;             // The JDBC connection.
@@ -416,10 +418,26 @@ implements RowSet, Serializable             // @A3C
                 eise.initCause(ne); 
                 throw  eise; 
             }
-            if (dataSource_ instanceof AS400JDBCDataSource) { 
-              connection_ = ((AS400JDBCDataSource)dataSource_).getConnection(username_, AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_));
-            } else {
-              connection_ = dataSource_.getConnection(username_, new String(AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_)));
+            if (kerberosTicket_ != null) {
+                if (dataSource_ instanceof AS400JDBCDataSource) {
+                    // Inject Kerberos ticket
+                    ((AS400JDBCDataSource)dataSource_).setKerbTicket(kerberosTicket_.getClearCredential());
+                    connection_ = ((AS400JDBCDataSource)dataSource_).getConnection(username_, AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_));
+                }
+                else
+                {
+                    connection_ = dataSource_.getConnection(username_,new String(AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_)));
+                }
+            }
+            else
+            {
+                if (dataSource_ instanceof AS400JDBCDataSource) {
+                    connection_ = ((AS400JDBCDataSource)dataSource_).getConnection(username_, AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_));
+                }
+            else
+            {
+                connection_ = dataSource_.getConnection(username_, new String(AS400JDBCDataSource.xpwDeconfuseToChar(confusedPasswordChars_)));
+            }
             }
         }
         else
@@ -3003,6 +3021,18 @@ implements RowSet, Serializable             // @A3C
         changes_.firePropertyChange(property, "", password);
     }
 
+    public void setKerbTicket(byte[] ticket)
+    {
+        String property = "kerberosTicket";
+
+        if (ticket == null)
+            throw new NullPointerException(property);
+
+        validateConnection();
+
+        kerberosTicket_ = new GSSTokenVault(ticket);
+        changes_.firePropertyChange(property, null, ticket);
+    }
 
     /**
     *  Sets the maximum wait time in seconds for a statement to execute.

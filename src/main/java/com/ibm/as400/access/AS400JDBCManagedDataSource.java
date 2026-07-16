@@ -3735,6 +3735,24 @@ public class AS400JDBCManagedDataSource extends ToolboxWrapper
   }
 
   /**
+   * Sets the Kerberos service ticket used to make the connection.
+   * @param ticket The Kerberos service ticket.
+   */
+  public void setKerbTicket(byte[] ticket) 
+  {
+      if (ticket == null)
+          throw new NullPointerException("kerberosTicket");
+
+      as400_.setKerbTicket(ticket);
+
+      // Invalidate pooled connections
+      invalidate(getUser(), serialPWBytes_);
+
+      connectionKeyNeedsUpdate_ = true;
+
+  }
+
+  /**
    * Sets whether to prefetch data upon executing a SELECT statement. This will
    * increase performance when accessing the initial rows in the result set.
    * 
