@@ -65,7 +65,7 @@ public class AS400JDBCDataSourceBeanInfo extends SimpleBeanInfo {
       authenticationVerificationId.setBound(true);
       authenticationVerificationId.setConstrained(false);
       authenticationVerificationId.setDisplayName(AS400JDBCDriver.getResource("PROP_NAME_AUTHENTICATION_VERIFICATION_ID", null));
-      authenticationVerificationId.setShortDescription(AS400JDBCDriver.getResource("AUTHENTICATION_VERIFICATION_ID", null));
+      authenticationVerificationId.setShortDescription(AS400JDBCDriver.getResource("AUTHENTICATION_VERIFICATION_ID_DESC", null));
 			
 			
 
