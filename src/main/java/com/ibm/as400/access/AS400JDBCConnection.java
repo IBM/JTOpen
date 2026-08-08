@@ -57,7 +57,7 @@ abstract class  AS400JDBCConnection
 extends ToolboxWrapper
 /* endif */ 
 
-implements Connection
+implements Connection, AutoCloseable
 {
 
   static final int            DATA_COMPRESSION_NONE_  = 0;            // @ECA
