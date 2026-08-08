@@ -66,7 +66,7 @@ import java.lang.ref.SoftReference;
 *  </li>  
 *  </ul>
 **/
-public class AS400JDBCPooledConnection implements PooledConnection
+public class AS400JDBCPooledConnection implements PooledConnection, AutoCloseable
 {
   static final String copyright = "Copyright (C) 1997-2010 International Business Machines Corporation and others.";
 

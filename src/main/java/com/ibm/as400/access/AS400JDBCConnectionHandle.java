@@ -73,7 +73,7 @@ public class AS400JDBCConnectionHandle
 /* ifdef JDBC40 */
 extends ToolboxWrapper
 /* endif */ 
-implements Connection //@A5A
+implements Connection, AutoCloseable //@A5A
 //@A5D extends AS400JDBCConnection
 {
   
