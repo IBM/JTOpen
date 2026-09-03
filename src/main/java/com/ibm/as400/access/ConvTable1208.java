@@ -14,6 +14,7 @@
 package com.ibm.as400.access;
 
 import java.io.CharConversionException;
+import java.nio.charset.StandardCharsets;
 
 class ConvTable1208 extends ConvTable
 {
@@ -25,8 +26,28 @@ class ConvTable1208 extends ConvTable
     }
 
     // Perform an OS/400 CCSID to Unicode conversion.
-    final String byteArrayToString(byte[] buf, int offset, int length, BidiConversionProperties properties)
-    {
+    @Override
+	final String byteArrayToString(byte[] buf, int offset, int length, BidiConversionProperties properties) {
+		// Fast path: Use standard UTF-8 when fault tolerance is OFF (default case)
+		if (!CharConverter.isFaultTolerantConversion()) {
+			if (Trace.traceConversion_)
+				Trace.log(Trace.CONVERSION,
+						"Converting byte array to string using StandardCharsets.UTF_8 for ccsid: " + ccsid_, buf,
+						offset, length);
+
+			String result = new String(buf, offset, length, StandardCharsets.UTF_8);
+
+			if (Trace.traceConversion_)
+				Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_,
+						ConvTable.dumpCharArray(result.toCharArray()));
+			return result;
+		} else {
+			return faultTolerantByteArrayToString(buf, offset, length);
+		}
+	}
+
+	private String faultTolerantByteArrayToString(byte[] buf, int offset, int length) {
+		// Slow path: Use custom implementation for fault tolerance and custom error handling
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
         char[] out = new char[length];
         int outCount = 0;
@@ -41,30 +62,30 @@ class ConvTable1208 extends ConvTable
             else if ((b & 0xE0) == 0xC0)
             {
                 c = (b & 0x1F) << 6;
-                i++; 
+                i++;
                 // @J5A check i before using it
                 if (i < buf.length) {
                   c |= buf[i] & 0x3F;
                 } else {
-                  c = dbSubUnic_; 
+                  c = dbSubUnic_;
                 }
             }
             else if ((b & 0xF0) == 0xE0)
             {
                 c = (b & 0x0F) << 12;
-                i++; 
+                i++;
                 // @J5A check i before using it
-                if (i < buf.length){  
+                if (i < buf.length){
                     c |= (buf[i] & 0x3F) << 6;
-                    i++; 
+                    i++;
                     // @J5A check i before using it
-                    if (i < buf.length){  
+                    if (i < buf.length){
                       c |= buf[i] & 0x3F;
                     } else {
-                      c = dbSubUnic_; 
+                      c = dbSubUnic_;
                     }
                 } else {
-                  c = dbSubUnic_; 
+                  c = dbSubUnic_;
                 }
             }
             else
@@ -105,71 +126,49 @@ class ConvTable1208 extends ConvTable
         }
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(out));
         return String.copyValueOf(out, 0, outCount);
-    }
+	}
 
     // Perform a Unicode to OS/400 CCSID conversion.
-    final byte[] stringToByteArray(String source, BidiConversionProperties properties)
-    {
-    	return charArrayToByteArray(source.toCharArray(),properties); //@AI5C
-        /*if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray(), 0, source.length()));
-        int len = source.length();
-        byte[] buf = new byte[len * 4];
-        int bufCount = 0;
-        for (int i = 0; i < len; ++i)
-        {
-            int c = source.charAt(i) & 0x00FFFF;
-            if (c > 0xD7FF && c < 0xDC00)
-            {
-                if (++i < len)
-                {
-                    c = (c - 0xD800) * 0x400 + ((source.charAt(i) & 0x00FFFF) - 0xDC00) + 0x10000;
-                }
-                
-                else if (!CharConverter.isFaultTolerantConversion())
-                {
-                    throw new ArrayIndexOutOfBoundsException();
-                }
-                else
-                {
-                    // We're fault tolerant, ignore the high surrogate and just return.
-                    byte[] ret = new byte[bufCount];
-                    System.arraycopy(buf, 0, ret, 0, bufCount);
-                    if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Fault-tolerant in mid-surrogate. Destination byte array for ccsid: " + ccsid_, ret);
-                    return ret;
-                }
-            }
-            if (c < 0x80)
-            {
-                buf[bufCount++] = (byte)c;
-            }
-            else if (c < 0x800)
-            {
-                buf[bufCount++] = (byte)(0xC0 | (c >> 6));
-                buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
-            }
-            else if (c < 0x10000)
-            {
-                buf[bufCount++] = (byte)(0xE0 | (c >> 12));
-                buf[bufCount++] = (byte)(0x80 | ((c >> 6) & 0x3F));
-                buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
-            }
-            else
-            {
-                buf[bufCount++] = (byte)(0xF0 | (c >> 18));
-                buf[bufCount++] = (byte)(0x80 | ((c >> 12) & 0x3F));
-                buf[bufCount++] = (byte)(0x80 | ((c >> 6) & 0x3F));
-                buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
-            }
-        }
-        byte[] ret = new byte[bufCount];
-        System.arraycopy(buf, 0, ret, 0, bufCount);
+    @Override
+	final byte[] stringToByteArray(String source, BidiConversionProperties properties) {
+		// Fast path: Use standard UTF-8 when fault tolerance is OFF (default case)
+		if (!CharConverter.isFaultTolerantConversion()) {
+			if (Trace.traceConversion_)
+				Trace.log(Trace.CONVERSION,
+						"Converting string to byte array using StandardCharsets.UTF_8 for ccsid: " + ccsid_);
 
-        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
-        return ret;*/
-    }
+			byte[] result = source.getBytes(StandardCharsets.UTF_8);
 
-    public final byte[] stringToByteArray(char[] src, int offset, int length)
-    {
+			if (Trace.traceConversion_)
+				Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, result);
+			return result;
+		} else {
+			// Slow path: Use custom implementation for fault tolerance
+			return faultTolerantCharArrayToByteArray(source.toCharArray());
+		}
+	}
+
+    @Override
+	public final byte[] stringToByteArray(char[] src, int offset, int length) {
+		// Fast path: Use standard UTF-8 when fault tolerance is OFF (default case)
+		if (!CharConverter.isFaultTolerantConversion()) {
+			if (Trace.traceConversion_)
+				Trace.log(Trace.CONVERSION,
+						"Converting char array to byte array using StandardCharsets.UTF_8 for ccsid: " + ccsid_,
+						ConvTable.dumpCharArray(src, offset, length));
+
+			byte[] result = new String(src, offset, length).getBytes(StandardCharsets.UTF_8);
+
+			if (Trace.traceConversion_)
+				Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, result);
+			return result;
+		} else {
+			return faultTolerantStringToByteArray(src, offset, length);
+		}
+	}
+
+	private byte[] faultTolerantStringToByteArray(char[] src, int offset, int length) {
+		// Slow path: Use custom implementation for fault tolerance
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(src, offset, length));
         byte[] buf = new byte[src.length * 4];
         int bufCount = 0;
@@ -182,10 +181,6 @@ class ConvTable1208 extends ConvTable
                 if (++i < len)
                 {
                     c = (c - 0xD800) * 0x400 + ((src[i] & 0x00FFFF) - 0xDC00) + 0x10000;
-                }
-                else if (!CharConverter.isFaultTolerantConversion())
-                {
-                    throw new ArrayIndexOutOfBoundsException();
                 }
                 else
                 {
@@ -224,75 +219,68 @@ class ConvTable1208 extends ConvTable
 
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
         return ret;
-    }
+	}
 
-    public final void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException
-    {
-    	charArrayToByteArray(source.toCharArray(), buf, offset); //@AI5C
-        /*int bufCount = offset;
-        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray()));
-        try
-        {
-            int len = source.length();
-            for (int i = 0; i < len; ++i)
-            {
-                int c = source.charAt(i) & 0x00FFFF;
-                if (c > 0xD7FF && c < 0xDC00)
-                {
-                    if (++i < len)
-                    {
-                        c = (c - 0xD800) * 0x400 + ((source.charAt(i) & 0x00FFFF) - 0xDC00) + 0x10000;
-                    }
-                    else if (!CharConverter.isFaultTolerantConversion())
-                    {
-                        throw new CharConversionException();
-                    }
-                    else
-                    {
-                        // We're fault tolerant, ignore the high surrogate and just return.
-                        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Fault-tolerant in mid-surrogate. Destination byte array for ccsid: " + ccsid_, buf, offset, bufCount - offset);
-                        return;
-                    }
-                }
-                if (c < 0x80)
-                {
-                    buf[bufCount++] = (byte)c;
-                }
-                else if (c < 0x800)
-                {
-                    buf[bufCount++] = (byte)(0xC0 | (c >> 6));
-                    buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
-                }
-                else if (c < 0x10000)
-                {
-                    buf[bufCount++] = (byte)(0xE0 | (c >> 12));
-                    buf[bufCount++] = (byte)(0x80 | ((c >> 6) & 0x3F));
-                    buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
-                }
-                else
-                {
-                    buf[bufCount++] = (byte)(0xF0 | (c >> 18));
-                    buf[bufCount++] = (byte)(0x80 | ((c >> 12) & 0x3F));
-                    buf[bufCount++] = (byte)(0x80 | ((c >> 6) & 0x3F));
-                    buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
-                }
-            }
-        }
-        catch (ArrayIndexOutOfBoundsException aioobe)
-        {
-            throw new CharConversionException();
-        }
-        if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, bufCount - offset);
-        */
-    }
+    @Override
+	public final void stringToByteArray(String source, byte[] buf, int offset) throws CharConversionException {
+		if (!CharConverter.isFaultTolerantConversion()) {
+			// Fast path: Use standard UTF-8 when fault tolerance is OFF (default case)
+			if (Trace.traceConversion_)
+				Trace.log(Trace.CONVERSION,
+						"Converting string to byte array using StandardCharsets.UTF_8 for ccsid: " + ccsid_);
+			try {
+				byte[] encoded = source.getBytes(StandardCharsets.UTF_8);
+				System.arraycopy(encoded, 0, buf, offset, encoded.length);
+				
+				if (Trace.traceConversion_)
+					Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset,
+							encoded.length);
+			} catch (ArrayIndexOutOfBoundsException e) {
+				throw new CharConversionException();
+			}
+		} else {
+			// Slow path: Use custom implementation for fault tolerance
+			charArrayToByteArray(source.toCharArray(), buf, offset); // @AI5C
+		}
+	}
 
+    @Override
     public final void stringToByteArray(String source, byte[] buf, int offset, int length) throws CharConversionException {
-      stringToByteArrayTruncation(source, buf, offset, length); 
+      stringToByteArrayTruncation(source, buf, offset, length);
     }
-    /* detected truncation  @H2C*/ 
-    final int stringToByteArrayTruncation(String source, byte[] buf, int offset, int length) throws CharConversionException
-    {
-        int truncated = 0;                      /*@H2A*/ 
+
+    /* detected truncation  @H2C*/
+	final int stringToByteArrayTruncation(String source, byte[] buf, int offset, int length)
+			throws CharConversionException {
+		// Fast path: Use standard UTF-8 when fault tolerance is OFF (default case)
+		if (!CharConverter.isFaultTolerantConversion()) {
+			if (Trace.traceConversion_)
+				Trace.log(Trace.CONVERSION,
+						"Converting string to byte array with truncation using StandardCharsets.UTF_8 for ccsid: "
+								+ ccsid_);
+			try {
+				byte[] encoded = source.getBytes(StandardCharsets.UTF_8);
+				int copyLen = Math.min(encoded.length, length);
+				System.arraycopy(encoded, 0, buf, offset, copyLen);
+				int truncated = Math.max(0, encoded.length - length);
+				
+				if (Trace.traceConversion_)
+					Trace.log(Trace.CONVERSION,
+							"Destination byte array for ccsid: " + ccsid_ + ", truncated: " + truncated, buf, offset,
+							copyLen);
+				
+				return truncated;
+			} catch (ArrayIndexOutOfBoundsException e) {
+				throw new CharConversionException();
+			}
+		} else {
+			return faultTolerantStringToByteArrayTruncation(source, buf, offset, length);
+		}
+	}
+
+	private int faultTolerantStringToByteArrayTruncation(String source, byte[] buf, int offset, int length) throws CharConversionException {
+		// Slow path: Use custom implementation for fault tolerance
+        int truncated = 0;                      /*@H2A*/
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source.toCharArray()));
         try
         {
@@ -308,10 +296,6 @@ class ConvTable1208 extends ConvTable
                     {
                         c = (c - 0xD800) * 0x400 + ((source.charAt(i) & 0x00FFFF) - 0xDC00) + 0x10000;
                     }
-                    else if (!CharConverter.isFaultTolerantConversion())
-                    {
-                        throw new CharConversionException();
-                    }
                     else
                     {
                         // We're fault tolerant, ignore the high surrogate and just return.
@@ -326,7 +310,7 @@ class ConvTable1208 extends ConvTable
                     } else {
                       // Don't report the truncation of spaces @H7A
                       if (c == ' ') {
-                         // No need to count truncation 
+                         // No need to count truncation
                       } else {
                          truncated ++;
                       }
@@ -334,12 +318,12 @@ class ConvTable1208 extends ConvTable
                 }
                 else if (c < 0x800)
                 {
-                  if (bufCount < max) {                /*@H2A*/ 
+                  if (bufCount < max) {                /*@H2A*/
                     buf[bufCount++] = (byte)(0xC0 | (c >> 6));
                   } else {
-                    truncated ++; 
+                    truncated ++;
                   }
-                    
+
                     if (bufCount < max) {
                       buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
                     } else {
@@ -391,31 +375,49 @@ class ConvTable1208 extends ConvTable
             throw new CharConversionException();
         }
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, length);
-        return truncated;             /*@H2A*/ 
-    }
+        return truncated;             /*@H2A*/
+	}
 
     /**
-     * Place the string into the specified buffer, beginning at offset for length. 
-     * This returns the number of bytes that did not fit (i.e. number of bytes truncated). 
+     * Place the string into the specified buffer, beginning at offset for length.
+     * This returns the number of bytes that did not fit (i.e. number of bytes truncated).
      * @param source  String to convert
      * @param buf     output buffer
      * @param offset  offset in buffer to put information
      * @param length  maximum number of bytes to add to the buffer
      * @param properties  BidiConversionProperties
-     * @return  number of bytes that were truncated 
+     * @return  number of bytes that were truncated
      * @throws CharConversionException  If a character conversion error occurs.
      */
-
+    @Override
     public final int stringToByteArray(String source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
     {
         // Don't have a Bidi string type for UTF-8.
         return stringToByteArrayTruncation(source, buf, offset, length); /*@H2C*/
     }
-    
+
     //@AI5A
  // Perform an OS/400 CCSID to Unicode conversion.
-    final char[] byteArrayToCharArray(byte[] buf, int offset, int length, BidiConversionProperties properties)
-    {
+	@Override
+	final char[] byteArrayToCharArray(byte[] buf, int offset, int length, BidiConversionProperties properties) {
+		if (!CharConverter.isFaultTolerantConversion()) {
+			if (Trace.traceConversion_)
+				Trace.log(Trace.CONVERSION,
+						"Converting byte array to char array using StandardCharsets.UTF_8 for ccsid: " + ccsid_, buf,
+						offset, length);
+			
+			char[] result = new String(buf, offset, length, StandardCharsets.UTF_8).toCharArray();
+			
+			if (Trace.traceConversion_)
+				Trace.log(Trace.CONVERSION, "Destination string for ccsid: " + ccsid_, ConvTable.dumpCharArray(result));
+			return result;
+		} else {
+			return faultTolerantByteArrayToCharArray(buf, offset, length);
+		}
+	}
+
+	private char[] faultTolerantByteArrayToCharArray(byte[] buf, int offset, int length) {
+		// Slow path: Use custom implementation for fault tolerance and custom error handling
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting byte array to string for ccsid: " + ccsid_, buf, offset, length);
         char[] out = new char[length];
         int outCount = 0;
@@ -430,30 +432,30 @@ class ConvTable1208 extends ConvTable
             else if ((b & 0xE0) == 0xC0)
             {
                 c = (b & 0x1F) << 6;
-                i++; 
+                i++;
                 // @J5A check i before using it
                 if (i < buf.length) {
                   c |= buf[i] & 0x3F;
                 } else {
-                  c = dbSubUnic_; 
+                  c = dbSubUnic_;
                 }
             }
             else if ((b & 0xF0) == 0xE0)
             {
                 c = (b & 0x0F) << 12;
-                i++; 
+                i++;
                 // @J5A check i before using it
-                if (i < buf.length){  
+                if (i < buf.length){
                     c |= (buf[i] & 0x3F) << 6;
-                    i++; 
+                    i++;
                     // @J5A check i before using it
-                    if (i < buf.length){  
+                    if (i < buf.length){
                       c |= buf[i] & 0x3F;
                     } else {
-                      c = dbSubUnic_; 
+                      c = dbSubUnic_;
                     }
                 } else {
-                  c = dbSubUnic_; 
+                  c = dbSubUnic_;
                 }
             }
             else
@@ -497,11 +499,31 @@ class ConvTable1208 extends ConvTable
         char[] outChars = new char[outCount];
         System.arraycopy(out, 0, outChars, 0, outCount);
         return outChars;
-    }
+	}
 
     // Perform a Unicode to OS/400 CCSID conversion.
-    final byte[] charArrayToByteArray(char[] source, BidiConversionProperties properties)
-    {
+	@Override
+	final byte[] charArrayToByteArray(char[] source, BidiConversionProperties properties) {
+		// Fast path: Use standard UTF-8 when fault tolerance is OFF (default case)
+		if (!CharConverter.isFaultTolerantConversion()) {
+			if (Trace.traceConversion_)
+				Trace.log(Trace.CONVERSION,
+						"Converting char array to byte array using StandardCharsets.UTF_8 for ccsid: " + ccsid_,
+						ConvTable.dumpCharArray(source, 0, source.length));
+
+			byte[] result = new String(source).getBytes(StandardCharsets.UTF_8);
+
+			if (Trace.traceConversion_)
+				Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, result);
+
+			return result;
+		} else {
+			return faultTolerantCharArrayToByteArray(source);
+		}
+	}
+
+	private byte[] faultTolerantCharArrayToByteArray(char[] source) {
+		// Slow path: Use custom implementation for fault tolerance
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source, 0, source.length));
         int len = source.length;
         byte[] buf = new byte[len * 4];
@@ -514,11 +536,6 @@ class ConvTable1208 extends ConvTable
                 if (++i < len)
                 {
                     c = (c - 0xD800) * 0x400 + ((source[i] & 0x00FFFF) - 0xDC00) + 0x10000;
-                }
-                
-                else if (!CharConverter.isFaultTolerantConversion())
-                {
-                    throw new ArrayIndexOutOfBoundsException();
                 }
                 else
                 {
@@ -557,19 +574,21 @@ class ConvTable1208 extends ConvTable
 
         if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, ret);
         return ret;
-    }
-    
+	}
+
     public final byte[] charArrayToByteArray(char[] src, int offset, int length) {
     	return stringToByteArray(src, offset, length);
     }
-    
-    public final void charArrayToByteArray(char[] source, byte[] buf, int offset, int length) throws CharConversionException {
-    	charArrayToByteArray(source, buf, offset, length); 
-      }
-      /* detected truncation  @H2C*/ 
-      final int charArrayToByteArrayTruncation(char[] source, byte[] buf, int offset, int length) throws CharConversionException
-      {
-          int truncated = 0;                      /*@H2A*/ 
+
+    @Override
+	public final void charArrayToByteArray(char[] source, byte[] buf, int offset, int length)
+			throws CharConversionException {
+		charArrayToByteArray(source, buf, offset, length);
+	}
+      /* detected truncation  @H2C*/
+    final int charArrayToByteArrayTruncation(char[] source, byte[] buf, int offset, int length) throws CharConversionException
+    {
+          int truncated = 0;                      /*@H2A*/
           if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Converting string to byte array for ccsid: " + ccsid_, ConvTable.dumpCharArray(source));
           try
           {
@@ -603,7 +622,7 @@ class ConvTable1208 extends ConvTable
                       } else {
                         // Don't report the truncation of spaces @H7A
                         if (c == ' ') {
-                           // No need to count truncation 
+                           // No need to count truncation
                         } else {
                            truncated ++;
                         }
@@ -611,12 +630,12 @@ class ConvTable1208 extends ConvTable
                   }
                   else if (c < 0x800)
                   {
-                    if (bufCount < max) {                /*@H2A*/ 
+                    if (bufCount < max) {                /*@H2A*/
                       buf[bufCount++] = (byte)(0xC0 | (c >> 6));
                     } else {
-                      truncated ++; 
+                      truncated ++;
                     }
-                      
+
                       if (bufCount < max) {
                         buf[bufCount++] = (byte)(0x80 | (c & 0x3F));
                       } else {
@@ -668,57 +687,58 @@ class ConvTable1208 extends ConvTable
               throw new CharConversionException();
           }
           if (Trace.traceConversion_) Trace.log(Trace.CONVERSION, "Destination byte array for ccsid: " + ccsid_, buf, offset, length);
-          return truncated;             /*@H2A*/ 
+          return truncated;             /*@H2A*/
       }
 
       /**
-       * Place the string into the specified buffer, beginning at offset for length. 
-       * This returns the number of bytes that did not fit (i.e. number of bytes truncated). 
+       * Place the string into the specified buffer, beginning at offset for length.
+       * This returns the number of bytes that did not fit (i.e. number of bytes truncated).
        * @param source  String to convert
        * @param buf     output buffer
        * @param offset  offset in buffer to put information
        * @param length  maximum number of bytes to add to the buffer
        * @param properties  BidiConversionProperties
-       * @return  number of bytes that were truncated 
+       * @return  number of bytes that were truncated
        * @throws CharConversionException  If a character conversion error occurs.
        */
-
+      @Override
       public final int charArrayToByteArray(char[] source, byte[] buf, int offset, int length, BidiConversionProperties properties) throws CharConversionException
       {
           // Don't have a Bidi string type for UTF-8.
           return charArrayToByteArrayTruncation(source, buf, offset, length); /*@H2C*/
       }
-    
-    // Scan the data.  If valid return length, otherwise fixup and return the changed length, 
-    // padding with spaces as needed. 
+
+    // Scan the data.  If valid return length, otherwise fixup and return the changed length,
+    // padding with spaces as needed.
     // @X4A
+      @Override
     public int validateData( byte[] buf, int offset, int length) {
       int endOffset = offset+length;
-      int previousCharOffset = offset; 
-      int nextCharOffset = offset; 
-      while (nextCharOffset < endOffset) { 
-          previousCharOffset = nextCharOffset; 
-          int b = 0xFF & buf[nextCharOffset]; 
-          if (b < 0x80) { 
+      int previousCharOffset = offset;
+      int nextCharOffset = offset;
+      while (nextCharOffset < endOffset) {
+          previousCharOffset = nextCharOffset;
+          int b = 0xFF & buf[nextCharOffset];
+          if (b < 0x80) {
             nextCharOffset++;
-            
-          } else if( b >= 0xC0 && b < 0xE0) {  // For two bytes, the first byte is 110xxxxx 
-            nextCharOffset += 2; 
+
+          } else if( b >= 0xC0 && b < 0xE0) {  // For two bytes, the first byte is 110xxxxx
+            nextCharOffset += 2;
           } else if (b >= 0xE0  && b < 0xF0 ) { // For three bytes, the first byte is1110xxxx
-            nextCharOffset += 3; 
+            nextCharOffset += 3;
           } else {
-            nextCharOffset += 4; 
+            nextCharOffset += 4;
           }
-      } 
+      }
       if (nextCharOffset > endOffset) {
-        // The previous character is incomplete 
-        length = previousCharOffset - offset; 
+        // The previous character is incomplete
+        length = previousCharOffset - offset;
         for (int i = previousCharOffset; i < endOffset; i++) {
-          buf[i] = ' '; 
+          buf[i] = ' ';
         }
       }
-        
-      return length; 
+
+      return length;
     }
 
 }
